@@ -27,7 +27,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "clean": "rm -rf node_modules",
         "reset": "npm run clean && npm install",
-        "install": "npm install && bower install",
+        "install": "bower install",
         "build": "grunt build"
     },
     "repository": {
