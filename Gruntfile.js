@@ -81,7 +81,7 @@ module.exports = function(grunt) {
             }
         },
         mochaTest: { //test for nodejs app with mocha
-            nodeapp: {
+            tap: {
                 options: {
                     reporter: 'tap',
                     captureFile: 'target/nodeapp/test_results.dirty.tap', // Optionally capture the reporter output to a file
@@ -89,7 +89,10 @@ module.exports = function(grunt) {
                     clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
                 },
                 src: ['test/nodeapp/**/*.js']
-            }
+            },
+            noreporter: {
+                src: ['test/nodeapp/**/*.js']
+            },
         }, //test for browser app with mocha and phanthom
         'mocha_phantomjs': {
             options: {
@@ -102,6 +105,9 @@ module.exports = function(grunt) {
                     'remote-debugger-port=9002',
                     'ignore-ssl-errors=true'
                 ]
+            },
+            noreporter: {
+
             },
             tap: {
                 options: {
@@ -161,16 +167,24 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test:nodeapp', [
         'express:load',
-        'mochaTest:nodeapp',
+        'mochaTest:tap',
+        'lineremover:tap'
+    ]);
+
+
+    grunt.registerTask('test:tap', [
+        'express:load',
+        'connect:test_webserver',
+        'mocha_phantomjs:noreporter',
+        'mochaTest:noreporter',
         'lineremover:tap'
     ]);
 
     grunt.registerTask('test', [
         'express:load',
         'connect:test_webserver',
-        'mocha_phantomjs:tap',
-        'mochaTest:nodeapp',
-        'lineremover:tap'
+        'mocha_phantomjs:noreporter',
+        'mochaTest:noreporter'
     ]);
 
     grunt.registerTask('build', [
