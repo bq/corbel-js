@@ -1,3 +1,4 @@
+'use strict';
 (function() {
     var request = {};
 
@@ -66,19 +67,19 @@
         sender = function(options, callback) {
             options = options || {};
             var xhr = new XMLHttpRequest();
+            var url;
             try {
-                var url = options.hostname + ':' + options.port + options.path;
+                url = options.hostname + ':' + options.port + options.path;
             } catch (Ex) {
                 url = undefined;
             }
             var method = options.method;
 
             if (!method || !url) {
-                throw new Error("You must define an url and http method");
+                throw new Error('You must define an url and http method');
             }
 
-            console.info('url: ', url);
-            xhr.open('GET', options.url, true);
+            xhr.open('GET', url, true);
 
             var that = this;
 
@@ -86,7 +87,7 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     callback.call(that, xhr.responseText);
                 }
-            }
+            };
 
             if (options.data && (options.method === 'POST' || options.method === 'PUT')) {
                 xhr.send(options.data);
@@ -97,7 +98,7 @@
             return xhr;
 
 
-        }
+        };
 
         if (window.silkroad) {
             window.silkroad.request = request;

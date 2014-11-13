@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Silkroad-js testing</title>
+    <meta name="description" content="Tewsting web app for silkroad-sdk">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="img/common/favicon.ico">
+    <link rel="apple-touch-icon" href="img/common/touch-icon.png">
+
+</head>
+
+<body>
+
+    <!--[if lt IE 9]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+
+    <h1> SILKROADJS </h1>
+
+    <div id="mocha"></div>
+
+
+
+    <script src="./mocha/mocha.js"></script>
+    <script src="./chai/chai.js"></script>
+    <script src="./sinon/lib/sinon.js"></script>
+    <script src="./main.js"></script>
+    <script src="./modules/modules.js"></script>
+    <script src="./modules/request/request.js"></script>
+
+    <script>
+        window.mocha.ui('bdd');
+        window.mocha.reporter('html');
+
+        // https://github.com/chaijs/chai/issues/107
+        //window.should = window.chai.should();
+        window.expect = window.chai.expect;
+    </script>
+
+    <script src="./TestSuite.js"></script>
+
+    <script>
+        (function() {
+            if (window.mochaPhantomJS) {
+               window.mochaPhantomJS.run();
+            } else {
+               window.mocha.run();
+            }
+
+            //window.testSuite();
+        })();
+
+    </script>
+<!--    <script src="//localhost:35729/livereload.js"></script>-->
+
+
+</body>
+
+</html>

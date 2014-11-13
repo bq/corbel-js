@@ -1,3 +1,4 @@
+'use strict';
 (function() {
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {

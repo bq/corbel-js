@@ -8,7 +8,7 @@
         path: '/',
         port: 3000
     }, function(res) {
-        console.log("recieved: ", res);
+        //console.log("recieved: ", res);
         process.exit();
     });
 

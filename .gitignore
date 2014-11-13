@@ -1,2 +1,3 @@
-./node_modules
-./examples/webserver/node_modules
+node_modules
+examples/webserver/node_modules
+bower_components
