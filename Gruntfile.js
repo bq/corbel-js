@@ -20,6 +20,10 @@ module.exports = function(grunt) {
             webapp: {
                 path: 'http://localhost:9000',
                 app: 'google-chrome'
+            },
+            test: {
+                path: 'http://localhost:8000',
+                app: 'google-chrome'
             }
         },
         connect: {
@@ -43,7 +47,7 @@ module.exports = function(grunt) {
                     hostname: '0.0.0.0',
                     middleware: function(connect) {
                         return [
-                            mountFolder(connect, 'test/webapp/'),
+                            mountFolder(connect, 'test/browser/'),
                             mountFolder(connect, 'src/'),
                             mountFolder(connect, 'bower_components/')
                         ];
@@ -70,6 +74,11 @@ module.exports = function(grunt) {
                 files: [
                     'examples/nodeapp/**'
                 ]
+            },
+            test: {
+                files: [
+                    'test/browser/**'
+                ]
             }
         },
         express: {
@@ -84,14 +93,14 @@ module.exports = function(grunt) {
             tap: {
                 options: {
                     reporter: 'tap',
-                    captureFile: 'target/nodeapp/test_results.dirty.tap', // Optionally capture the reporter output to a file
+                    captureFile: 'target/node/test_results.dirty.tap', // Optionally capture the reporter output to a file
                     quiet: false, // Optionally suppress output to standard out (defaults to false)
                     clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
                 },
-                src: ['test/nodeapp/**/*.js']
+                src: ['test/node/**/*.js']
             },
             noreporter: {
-                src: ['test/nodeapp/**/*.js']
+                src: ['test/node/**/*.js']
             },
         }, //test for browser app with mocha and phanthom
         'mocha_phantomjs': {
@@ -112,7 +121,7 @@ module.exports = function(grunt) {
             tap: {
                 options: {
                     reporter: 'tap',
-                    output: 'target/**/test_results.dirty.tap'
+                    output: 'target/browser/test_results.dirty.tap'
                 }
             }
         },
@@ -158,14 +167,14 @@ module.exports = function(grunt) {
         'watch:nodeapp'
     ]);
 
-    grunt.registerTask('test:webapp', [
+    grunt.registerTask('test:browser', [
         'express:load',
         'connect:test_webserver',
         'mocha_phantomjs:tap',
         'lineremover:tap'
     ]);
 
-    grunt.registerTask('test:nodeapp', [
+    grunt.registerTask('test:node', [
         'express:load',
         'mochaTest:tap',
         'lineremover:tap'
@@ -181,10 +190,14 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('test', [
-        'express:load',
-        'connect:test_webserver',
-        'mocha_phantomjs:noreporter',
-        'mochaTest:noreporter'
+        'test:browser',
+        'test:node'
+    ]);
+
+    grunt.registerTask('server:test', [
+        'test:browser',
+        'open:test',
+        'watch:test'
     ]);
 
     grunt.registerTask('build', [

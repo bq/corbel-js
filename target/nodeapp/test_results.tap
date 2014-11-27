@@ -1,6 +1,0 @@
-1..2
-ok 1 Array indexOf() should return -1 when the value is not present
-ok 2 Array pepe should return -1 when the value is not present
-# tests 2
-# pass 2
-# fail 0
