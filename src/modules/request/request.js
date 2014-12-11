@@ -1,4 +1,5 @@
-'use strict';
+/* jshint node: true, strict: false */
+
 (function() {
     var request = {};
 
@@ -10,23 +11,16 @@
         return opts;
     };
 
+    var httpVerbs = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 
-    request.get = function(opts, callback) {
-        var options = buildOptions(opts, 'GET');
-        return sender(options, callback);
-    };
-    request.put = function(opts, callback) {
-        var options = buildOptions(opts, 'PUT');
-        return sender(options, callback);
-    };
-    request.post = function(opts, callback) {
-        var options = buildOptions(opts, 'POST');
-        return sender(options, callback);
-    };
-    request.delete = function(opts, callback) {
-        var options = buildOptions(opts, 'DELETE');
-        return sender(options, callback);
-    };
+
+    httpVerbs.forEach(function(verb) {
+        request[verb] = function(opts, callback) {
+            var method = String(verb).toUpperCase();
+            var options = buildOptions(opts, method);
+            return sender(options, callback);
+        };
+    });
 
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {
@@ -66,10 +60,15 @@
     if (typeof window !== 'undefined') {
         sender = function(options, callback) {
             options = options || {};
+
             var xhr = new XMLHttpRequest();
-            var url;
+
+            var url,
+                headers = typeof options.headers === 'object' ? options.headers : {};
+
             try {
-                url = options.hostname + ':' + options.port + options.path;
+                //url = options.hostname + ':' + options.port + options.path;
+                url = options.url;
             } catch (Ex) {
                 url = undefined;
             }
@@ -79,7 +78,14 @@
                 throw new Error('You must define an url and http method');
             }
 
-            xhr.open('GET', url, true);
+            xhr.open(method, url, true);
+
+            /* add request headers */
+            for (var header in headers) {
+                if (headers.hasOwnProperty(header)) {
+                    xhr.setRequestHeader(header, headers[header]);
+                }
+            }
 
             var that = this;
 
@@ -89,7 +95,7 @@
                 }
             };
 
-            if (options.data && (options.method === 'POST' || options.method === 'PUT')) {
+            if (options.data) {
                 xhr.send(options.data);
             } else {
                 xhr.send();
