@@ -35,7 +35,8 @@ module.exports = function(grunt) {
                         return [
                             mountFolder(connect, 'examples/webapp/'),
                             mountFolder(connect, 'src/'),
-                            mountFolder(connect, 'bower_components/')
+                            mountFolder(connect, 'bower_components/'),
+                            mountFolder(connect, 'vendor/')
                         ];
                     },
                     livereload: 35729
@@ -49,7 +50,8 @@ module.exports = function(grunt) {
                         return [
                             mountFolder(connect, 'test/browser/'),
                             mountFolder(connect, 'src/'),
-                            mountFolder(connect, 'bower_components/')
+                            mountFolder(connect, 'bower_components/'),
+                            mountFolder(connect, 'vendor/')
                         ];
                     }
                 }

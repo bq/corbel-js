@@ -1,34 +1,33 @@
 /* jshint node: true, strict: false */
 
 (function() {
+
     var request = {};
+    // var buildOptions = function(opts, method) {
+    //     opts = opts || {};
+    //     opts.method = method;
+    //     return opts;
+    // };
 
-    var sender = function() {};
-
-    var buildOptions = function(opts, method) {
-        opts = opts || {};
-        opts.method = method;
-        return opts;
-    };
-
-    var httpVerbs = ['get', 'put', 'post', 'delete', 'head', 'patch'];
+    //var httpVerbs = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 
 
-    httpVerbs.forEach(function(verb) {
-        request[verb] = function(opts, callback) {
-            var method = String(verb).toUpperCase();
-            var options = buildOptions(opts, method);
-            return sender(options, callback);
-        };
-    });
+    // httpVerbs.forEach(function(verb) {
+    //     request[verb] = function(opts, callback) {
+    //         var method = String(verb).toUpperCase();
+    //         var options = buildOptions(opts, method);
+    //         return sender(options, callback);
+    //     };
+    // });
 
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {
         var http = require('http');
 
-        sender = function(options, callback) {
+        request.send = function(options) {
             options = options || {};
-            var that = this;
+            var that = this,
+                callback = options.succes;
 
             var req = http.request(options, function(res) {
                 var str = '';
@@ -58,13 +57,15 @@
 
     //browser
     if (typeof window !== 'undefined') {
-        sender = function(options, callback) {
+        request.send = function(options) {
             options = options || {};
 
-            var xhr = new XMLHttpRequest();
+            var xhr = new XMLHttpRequest(),
+                url,
+                headers = typeof options.headers === 'object' ? options.headers : {},
+                callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined;
+            //callbackError = options.error && typeof options.error === 'function' ? options.error : undefined;
 
-            var url,
-                headers = typeof options.headers === 'object' ? options.headers : {};
 
             try {
                 //url = options.hostname + ':' + options.port + options.path;
@@ -72,10 +73,11 @@
             } catch (Ex) {
                 url = undefined;
             }
-            var method = options.method;
 
-            if (!method || !url) {
-                throw new Error('You must define an url and http method');
+            var method = String((options.type || 'GET')).toUpperCase();
+
+            if (!url) {
+                throw new Error('You must define an url');
             }
 
             xhr.open(method, url, true);
@@ -91,7 +93,9 @@
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    callback.call(that, xhr.responseText);
+                    if (callbackSuccess) {
+                        callbackSuccess.call(that, xhr.responseText);
+                    }
                 }
             };
 

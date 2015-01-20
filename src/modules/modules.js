@@ -15,9 +15,6 @@
 
     //web browser
     if (typeof window !== 'undefined') {
-        var modules = {
-            request: request
-        };
-        return modules;
+        //TODO
     }
 })();

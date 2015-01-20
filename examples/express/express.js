@@ -13,7 +13,7 @@ app.options('*', cors());
 
 var HTTP_VERBS = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 
-var CUSTOM_HEADERS = ['pepe', 'jose'];
+// var CUSTOM_HEADERS = ['X-Custom1', 'X-Custom2'];
 
 var buildResponse = function(headers, body) {
     var RESPONSE = '' +
@@ -27,32 +27,31 @@ var buildResponse = function(headers, body) {
     return RESPONSE;
 };
 
-var getCustomHeaders = function(headers) {
-    var result = [];
+// var getCustomHeaders = function(headers) {
+//     var result = [];
 
-    CUSTOM_HEADERS.forEach(function(header) {
-        if (headers.header) {
-            result.push(header);
-        }
-    });
-    return result;
-};
+//     CUSTOM_HEADERS.forEach(function(header) {
+//         if (headers.header) {
+//             result.push(header);
+//         }
+//     });
+//     return result;
+// };
 
-var addResponseCustomsHeaders = function(customHeaders) {
-    var string = '';
-    customHeaders.forEach(function(header, index) {
-        header = String(header);
-        index > 0 ? string += ',' + header : string += header;
-    });
-    return string;
-};
+// var addResponseCustomsHeaders = function(customHeaders) {
+//     var string = '';
+//     customHeaders.forEach(function(header, index) {
+//         header = String(header);
+//         index > 0 ? string += ',' + header : string += header;
+//     });
+//     return string;
+// };
 
 HTTP_VERBS.forEach(function(verb) {
     app[verb]('/', cors(), function(req, res) {
         var headers = req.headers;
         var body = req.body;
-        var customHeaders = getCustomHeaders(headers);
-
+        // var customHeaders = getCustomHeaders(headers);
 
 
         var resp = buildResponse(headers, body);
