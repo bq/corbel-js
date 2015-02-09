@@ -1,34 +1,34 @@
 {
-  "name": "silkroad-js",
-  "version": "0.0.1",
-  "homepage": "https://github.com/bq-devtools/silkroad-js",
-  "authors": [
-    "Daniel García González"
-  ],
-  "description": "Silkroad SDK compatiblecon browser y nodejs",
-  "main": "src/main.js",
-  "keywords": [
-    "request",
-    "http",
-    "ajax",
-    "cors",
-    "silkroad",
-    "nodejs"
-  ],
-  "license": "LGPL",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "mocha": "2.0.1",
-    "chai": "1.9.2",
-    "sinon": "1.11.1"
-  },
-  "devDependencies": {
-    "sinon": "~1.12.2"
-  }
+    "name": "silkroad-js",
+    "version": "0.0.1",
+    "homepage": "https://github.com/bq-devtools/silkroad-js",
+    "authors": [
+        "Daniel García González"
+    ],
+    "description": "Silkroad SDK compatiblecon browser y nodejs",
+    "main": "src/main.js",
+    "keywords": [
+        "request",
+        "http",
+        "ajax",
+        "cors",
+        "silkroad",
+        "nodejs"
+    ],
+    "license": "LGPL",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "mocha": "2.0.1",
+        "chai": "1.9.2",
+        "sinon": "1.11.1"
+    },
+    "devDependencies": {
+        "sinon": "~1.12.2"
+    }
 }

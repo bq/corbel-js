@@ -1,6 +1,6 @@
 (function() {
 
-    var silkroad = require('../../src/main.js');
+    var silkroad = require('../../dist/silkroad.js');
     var http = require('http');
 
     silkroad.request.get({

@@ -17,12 +17,12 @@
         });
 
 
-        it('silkroad-js namespace exists and exports as global', function() {
-            expect(window).to.contain('silkroad');
+        it('Silkroad-js namespace exists and exports as global', function() {
+            expect(window).to.contain('Silkroad');
         });
 
-        it('silkroad-js contains all modules', function() {
-            expect(window.silkroad).to.include.keys('request');
+        it('Silkroad-js contains all modules', function() {
+            expect(window.Silkroad).to.include.keys('request');
         });
 
 
@@ -32,10 +32,14 @@
                 url = 'http://localhost:3000/',
                 request,
                 errorResponse = [400, {
-                    'Content-Type': 'application/json',
-                    'Access-Controll-Allow-origin': '*',
-                    'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
-                }],
+                        'Content-Type': 'application/json',
+                        'Access-Controll-Allow-origin': '*',
+                        'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
+                    },
+                    JSON.stringify({
+                        error: 'error'
+                    })
+                ],
                 successResponse = [200, {
                         'Content-Type': 'application/json',
                         'Access-Controll-Allow-origin': '*',
@@ -48,7 +52,7 @@
 
             before(function() {
                 server = sinon.fakeServer.create();
-                request = window.silkroad.request;
+                request = window.Silkroad.request;
             });
 
             after(function() {
@@ -122,7 +126,7 @@
                     url: url
                 });
 
-                server.response(successResponse);
+                server.respond(successResponse);
 
                 promise.then(function() {
                     resolveCallback();
@@ -142,7 +146,7 @@
                     url: url
                 });
 
-                server.responseWith(errorResponse);
+                server.respond(errorResponse);
 
                 promise.then(function() {
                     errorCallback();
@@ -162,13 +166,33 @@
                     type: 'GET',
                     url: url,
                     success: function() {
-                        successCallback();
+                        spySuccessCallback();
                     }
                 });
 
-                server.response(successResponse);
+                server.respond(successResponse);
 
-                expect(spySuccessCallback.calledOnce).to.be.equal(true);
+                expect(spySuccessCallback.called).to.be.equal(true);
+
+            });
+
+            it('success callback expect responseText, xhr.status , xhr object', function() {
+                var successCallback = function() {},
+                    spySuccessCallback = sandbox.spy(successCallback);
+
+                request.send({
+                    type: 'GET',
+                    url: url,
+                    success: function() {
+                        spySuccessCallback.apply(this, arguments);
+                    }
+                });
+
+                server.respond(successResponse);
+
+                expect(spySuccessCallback.args[0][0]).to.be.a('string');
+                expect(spySuccessCallback.args[0][1]).to.be.a('number');
+                expect(spySuccessCallback.args[0][2]).to.be.an('object');
 
             });
 
@@ -182,11 +206,14 @@
                     type: 'GET',
                     url: url,
                     error: function() {
-                        errorCallback();
+                        spyErrorCallback();
+                    },
+                    success: function() {
+                        window.console.log('a');
                     }
                 });
 
-                server.responseWith(errorResponse);
+                server.respond(errorResponse);
 
                 expect(spyErrorCallback.calledOnce).to.be.equal(true);
 

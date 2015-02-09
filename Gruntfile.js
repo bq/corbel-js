@@ -6,7 +6,20 @@ module.exports = function(grunt) {
         return connect.static(require('path').resolve(dir));
     };
 
+    var getConcatBanner = function() {
+        return '/* global module, require */ \n' +
+            '/* jshint node: true */\n' +
+            '\'use strict\'; \n \n' +
+            '(function(root,factory){ \n \n';
+    };
+
+    var getConcatFooter = function() {
+        return '\n \n })();';
+    };
+
     var path = require('path');
+
+    require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
         execute: {
@@ -34,7 +47,7 @@ module.exports = function(grunt) {
                     middleware: function(connect) {
                         return [
                             mountFolder(connect, 'examples/webapp/'),
-                            mountFolder(connect, 'src/'),
+                            mountFolder(connect, 'dist/'),
                             mountFolder(connect, 'bower_components/'),
                             mountFolder(connect, 'vendor/')
                         ];
@@ -49,7 +62,7 @@ module.exports = function(grunt) {
                     middleware: function(connect) {
                         return [
                             mountFolder(connect, 'test/browser/'),
-                            mountFolder(connect, 'src/'),
+                            mountFolder(connect, 'dist/'),
                             mountFolder(connect, 'bower_components/'),
                             mountFolder(connect, 'vendor/')
                         ];
@@ -142,68 +155,47 @@ module.exports = function(grunt) {
                     ext: '.tap'
                 }]
             }
+        },
+        useminPrepare: {
+            html: 'src/index.html',
+            options: {
+                flow: {
+                    html: {
+                        steps: {
+                            js: ['concat']
+                        },
+                        post: {},
+                        dest: 'dist/'
+                    }
+                }
+            }
+        },
+        preprocess: {
+            main: {
+                src: 'src/build/main.js',
+                dest: 'dist/silkroad.js'
+            }
         }
     });
 
-    grunt.loadNpmTasks('grunt-open');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-execute');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-express');
-    grunt.loadNpmTasks('grunt-mocha-phantomjs');
-    grunt.loadNpmTasks('grunt-mocha-test');
-    grunt.loadNpmTasks('grunt-line-remover');
+    grunt.loadTasks('tasks');
 
 
-    grunt.registerTask('server:webapp', [
-        'express:load',
-        'execute:nodeapp',
-        'connect:webserver',
-        'open:webapp',
-        'watch:webapp'
-    ]);
+    grunt.registerTask('server:webapp', ['express:load', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
 
-    grunt.registerTask('server:nodeapp', [
-        'express:load',
-        'execute:nodeapp',
-        'watch:nodeapp'
-    ]);
+    grunt.registerTask('server:nodeapp', ['express:load', 'execute:nodeapp', 'watch:nodeapp']);
 
-    grunt.registerTask('test:browser', [
-        'express:load',
-        'connect:test_webserver',
-        'mocha_phantomjs:tap',
-        'lineremover:tap'
-    ]);
+    grunt.registerTask('test:browser', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
 
-    grunt.registerTask('test:node', [
-        'express:load',
-        'mochaTest:tap',
-        'lineremover:tap'
-    ]);
+    grunt.registerTask('test:node', ['express:load', 'mochaTest:tap', 'lineremover:tap']);
 
 
-    grunt.registerTask('test:tap', [
-        'express:load',
-        'connect:test_webserver',
-        'mocha_phantomjs:noreporter',
-        'mochaTest:noreporter',
-        'lineremover:tap'
-    ]);
+    grunt.registerTask('test:tap', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter', 'mochaTest:noreporter', 'lineremover:tap']);
 
-    grunt.registerTask('test', [
-        'test:browser',
-        'test:node'
-    ]);
+    grunt.registerTask('test', ['test:browser', 'test:node']);
 
-    grunt.registerTask('server:test', [
-        'test:browser',
-        'open:test',
-        'watch:test'
-    ]);
+    grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
 
-    grunt.registerTask('build', [
-        'test'
-    ]);
+    grunt.registerTask('build', ['preprocess:main']);
 
 };
