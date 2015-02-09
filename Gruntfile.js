@@ -66,7 +66,8 @@ module.exports = function(grunt) {
                             mountFolder(connect, 'bower_components/'),
                             mountFolder(connect, 'vendor/')
                         ];
-                    }
+                    },
+                    livereload: 35729
                 }
 
             }
@@ -94,7 +95,10 @@ module.exports = function(grunt) {
                     'test/browser/**',
                     'src/**/*'
                 ],
-                tasks: ['build']
+                tasks: ['build'],
+                options: {
+                    livereload: 35729
+                }
             }
         },
         express: {
