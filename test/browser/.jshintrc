@@ -1,0 +1,31 @@
+{
+  "globals": {
+    "define"             : true,
+    "before"             : true,
+    "after"             : true,
+    "require"            : true,
+    "module"             : true,
+    "exports"            : true,
+    "$"                  : true,
+    "jQuery"             : true,
+    "_"                  : true,
+    "Backbone"           : true,
+    "Marionette"         : true,
+    "slice"              : true,
+
+    "jasmine"            : true,
+    "describe"           : true,
+    "xdescribe"          : true,
+    "it"                 : true,
+    "xit"                : true,
+    "expect"             : true,
+    "beforeEach"         : true,
+    "afterEach"          : true,
+    "spyOn"              : true,
+    "sinon"              : true,
+    "setFixtures"        : true,
+    "appendLoadFixtures" : true,
+    "waits"              : true,
+    "runs"               : true
+  }
+}

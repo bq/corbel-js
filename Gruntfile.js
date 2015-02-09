@@ -183,6 +183,10 @@ module.exports = function(grunt) {
             bundle: {
                 src: 'src/build/bundle.js',
                 dest: 'dist/silkroad-bundle.js'
+            },
+            test: {
+                src: 'test/browser/test-suite-pre.js',
+                dest: 'test/browser/test-suite.js'
             }
         }
     });
@@ -196,7 +200,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['test:browser', 'test:node']);
 
-    grunt.registerTask('test:browser', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
+    grunt.registerTask('test:browser', ['preprocess:test', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
 
     grunt.registerTask('test:node', ['express:load', 'mochaTest:tap', 'lineremover:tap']);
 
