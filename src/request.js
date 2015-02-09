@@ -81,23 +81,29 @@ if (typeof window !== 'undefined') {
             }
         }
 
-        //response recieved
-        xhr.onload = function(xhr) {
+        var promise = new Promise(function(resolve, reject) {
+            //response recieved
+            xhr.onload = function(xhr) {
 
-            xhr = xhr.target || xhr || {};
+                xhr = xhr.target || xhr || {};
 
-            if (callbackSuccess) {
-                callbackSuccess.call(this, xhr.responseText, xhr.status, xhr);
-            }
-            //delete callbacks
-        }.bind(this);
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, xhr.responseText, xhr.status, xhr);
+                }
 
-        xhr.onerror = function(xhr) {
-            if (callbackError) {
-                callbackError.call(this, xhr, xhr.status, xhr.error);
-            }
-            //delete callbacks
-        }.bind(this);
+                resolve(xhr.responseText);
+                //delete callbacks
+            }.bind(this);
+
+            xhr.onerror = function(xhr) {
+                if (callbackError) {
+                    callbackError.call(this, xhr, xhr.status, xhr.error);
+                }
+                reject(xhr.responseText);
+                //delete callbacks
+            }.bind(this);
+
+        });
 
         if (options.data) {
             xhr.send(options.data);
@@ -105,7 +111,8 @@ if (typeof window !== 'undefined') {
             xhr.send();
         }
 
-        return xhr;
+
+        return promise;
 
 
     };
