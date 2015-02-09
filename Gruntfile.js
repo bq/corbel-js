@@ -175,6 +175,10 @@ module.exports = function(grunt) {
             main: {
                 src: 'src/build/main.js',
                 dest: 'dist/silkroad.js'
+            },
+            bundle: {
+                src: 'src/build/bundle.js',
+                dest: 'dist/silkroad-bundle.js'
             }
         }
     });
@@ -199,5 +203,6 @@ module.exports = function(grunt) {
 
 
     grunt.registerTask('build', ['preprocess:main']);
+    grunt.registerTask('build:bundle', ['preprocess:bundle']);
 
 };
