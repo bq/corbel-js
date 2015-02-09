@@ -1,6 +1,20 @@
-(function() {
+(function(root, factory) {
     'use strict';
-    /* globals module, require */
+    /* globals module, define */
+    /* jshint unused: false */
+
+    if (typeof define === 'function' && define.amd) {
+        define([], function() {
+            return factory(root);
+        });
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(root);
+    } else if (window !== undefined) {
+        root.Silkroad = factory(root);
+    }
+
+})(this, function(root) {
+    'use strict';
     /* jshint unused: false */
 
     var Silkroad = {};
@@ -114,9 +128,6 @@
     
     } //end--browser--
 
-    if (typeof window !== 'undefined') {
-        window.Silkroad = Silkroad;
-    }
 
     return Silkroad;
-})();
+});
