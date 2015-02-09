@@ -72,15 +72,14 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            options: {
-                task: ['']
+            silkroad: {
+                files: ['src/**/*']
             },
             webapp: {
                 files: [
                     'examples/webapp/**/*',
                     'src/**/*'
                 ],
-                // tasks: ['jshint'],
                 options: {
                     livereload: 35729
                 }
@@ -92,8 +91,10 @@ module.exports = function(grunt) {
             },
             test: {
                 files: [
-                    'test/browser/**'
-                ]
+                    'test/browser/**',
+                    'src/**/*'
+                ],
+                tasks: ['build']
             }
         },
         express: {
@@ -185,16 +186,17 @@ module.exports = function(grunt) {
 
     grunt.registerTask('server:nodeapp', ['express:load', 'execute:nodeapp', 'watch:nodeapp']);
 
+    grunt.registerTask('test', ['test:browser', 'test:node']);
+
     grunt.registerTask('test:browser', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
 
     grunt.registerTask('test:node', ['express:load', 'mochaTest:tap', 'lineremover:tap']);
 
+    grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
 
     grunt.registerTask('test:tap', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter', 'mochaTest:noreporter', 'lineremover:tap']);
 
-    grunt.registerTask('test', ['test:browser', 'test:node']);
 
-    grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
 
     grunt.registerTask('build', ['preprocess:main']);
 

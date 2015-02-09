@@ -6,7 +6,7 @@
     var Silkroad = {};
 
 
-    //  @include ../modules/request.js
+    //  @include ../request.js
 
     if (typeof window !== 'undefined') {
         window.Silkroad = Silkroad;
