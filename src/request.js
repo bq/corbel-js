@@ -44,7 +44,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
     module.exports = Silkroad.request;
 }
-//end--nodejs--
 
 //browser
 if (typeof window !== 'undefined') {
@@ -112,4 +111,4 @@ if (typeof window !== 'undefined') {
     };
 
 
-} //end--browser--
+}

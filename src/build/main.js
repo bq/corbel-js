@@ -4,12 +4,16 @@
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
-        define([], function() {
+        define(['es6-pomise'], function(promise) {
+            promise.polyfill();
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         module.exports = factory(root);
-    } else if (window !== undefined) {
+    } else if (root !== undefined) {
+        if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
+            root.ES6Promise.polyfill();
+        }
         root.Silkroad = factory(root);
     }
 
