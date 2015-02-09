@@ -95,7 +95,7 @@ module.exports = function(grunt) {
                     'test/browser/**',
                     'src/**/*'
                 ],
-                tasks: ['build'],
+                tasks: ['dist'],
                 options: {
                     livereload: 35729
                 }
@@ -210,7 +210,10 @@ module.exports = function(grunt) {
 
 
 
-    grunt.registerTask('build', ['preprocess:main']);
+    grunt.registerTask('build', ['test', 'preprocess:main']);
+
+    grunt.registerTask('dist', ['preprocess:main']);
+
     grunt.registerTask('build:bundle', ['preprocess:bundle']);
 
 };

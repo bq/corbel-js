@@ -11,6 +11,14 @@
 //
 Silkroad.request = {};
 
+var xhrSuccessStatus = {
+    // file protocol always yields status code 0, assume 200
+    0: 200,
+    // Support: IE9
+    // #1450: sometimes IE returns 1223 when it should be 204
+    1223: 204
+};
+
 //nodejs
 if (typeof module !== 'undefined' && module.exports) {
     var http = require('http');
@@ -55,7 +63,8 @@ if (typeof window !== 'undefined') {
             url,
             headers = typeof options.headers === 'object' ? options.headers : {},
             callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
-            callbackError = options.error && typeof options.error === 'function' ? options.error : undefined;
+            callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
+            self = this;
         //callbackError = options.error && typeof options.error === 'function' ? options.error : undefined;
 
 
@@ -86,22 +95,34 @@ if (typeof window !== 'undefined') {
             xhr.onload = function(xhr) {
 
                 xhr = xhr.target || xhr || {};
+                var statusCode = xhrSuccessStatus[xhr.status] || xhr.status,
+                    statusType = Number(statusCode.toString()[0]);
 
-                if (callbackSuccess) {
-                    callbackSuccess.call(this, xhr.responseText, xhr.status, xhr);
+
+                if (statusType < 3) {
+
+                    if (callbackSuccess) {
+                        callbackSuccess.call(self, xhr.responseText, xhr.status, xhr);
+                    }
+                    resolve(xhr.responseText);
+                } else if (statusType === 4) {
+
+                    if (callbackError) {
+                        callbackError.call(self, xhr, xhr.status, xhr.error);
+                    }
+                    reject(xhr.responseText);
                 }
 
-                resolve(xhr.responseText);
                 //delete callbacks
-            }.bind(this);
+            };
 
             xhr.onerror = function(xhr) {
                 if (callbackError) {
-                    callbackError.call(this, xhr, xhr.status, xhr.error);
+                    callbackError.call(self, xhr, xhr.status, xhr.error);
                 }
                 reject(xhr.responseText);
                 //delete callbacks
-            }.bind(this);
+            };
 
         });
 
