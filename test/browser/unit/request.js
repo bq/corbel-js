@@ -168,7 +168,7 @@
 
              server.respond(successResponse);
 
-             expect(spySuccessCallback.called).to.be.equal(true);
+             expect(spySuccessCallback.called).to.be.equal(false); //provocar fallo
 
          });
 

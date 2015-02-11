@@ -95,7 +95,7 @@ module.exports = function(grunt) {
                     'test/browser/**',
                     'src/**/*'
                 ],
-                tasks: ['dist'],
+                tasks: ['dist', 'test:browser:reload'],
                 options: {
                     livereload: 35729
                 }
@@ -201,6 +201,8 @@ module.exports = function(grunt) {
     grunt.registerTask('test', ['test:browser', 'test:node']);
 
     grunt.registerTask('test:browser', ['preprocess:test', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
+
+    grunt.registerTask('test:browser:reload', ['preprocess:test', 'express:load', 'mocha_phantomjs:tap', 'lineremover:tap']);
 
     grunt.registerTask('test:node', ['express:load', 'mochaTest:tap', 'lineremover:tap']);
 
