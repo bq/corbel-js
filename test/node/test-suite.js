@@ -2,8 +2,6 @@
  var sinon = require("sinon");
  var chai = require("chai");
 
- console.log('pepe');
- console.log('pepe');
  describe('Array', function() {
      describe('#indexOf()', function() {
          it('should return -1 when the value is not present', function() {

@@ -200,11 +200,11 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['test:browser', 'test:node']);
 
-    grunt.registerTask('test:browser', ['preprocess:test', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:tap', 'lineremover:tap']);
+    grunt.registerTask('test:browser', ['preprocess:test', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter']);
 
-    grunt.registerTask('test:browser:reload', ['preprocess:test', 'express:load', 'mocha_phantomjs:tap', 'lineremover:tap']);
+    grunt.registerTask('test:browser:reload', ['preprocess:test', 'express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
 
-    grunt.registerTask('test:node', ['express:load', 'mochaTest:tap', 'lineremover:tap']);
+    grunt.registerTask('test:node', ['express:load', 'mochaTest:noreporter']); //'mochaTest:tap', 'lineremover:tap'
 
     grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
 
