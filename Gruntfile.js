@@ -39,6 +39,17 @@ module.exports = function(grunt) {
                 app: 'google-chrome'
             }
         },
+        'node-inspector': {
+            options: {
+                'web-port': 3000,
+                'web-host': 'localhost',
+                'debug-port': 5857,
+                'save-live-edit': true,
+                'no-preload': true,
+                'stack-trace-limit': 4,
+                'hidden': ['node_modules']
+            }
+        },
         connect: {
             webserver: {
                 options: {
@@ -81,6 +92,7 @@ module.exports = function(grunt) {
                     'examples/webapp/**/*',
                     'src/**/*'
                 ],
+                tasks: ['dist'],
                 options: {
                     livereload: 35729
                 }
@@ -193,8 +205,9 @@ module.exports = function(grunt) {
 
     grunt.loadTasks('tasks');
 
+    grunt.registerTask('server:webapp', ['dist', 'express:load', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
 
-    grunt.registerTask('server:webapp', ['express:load', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
+    grunt.registerTask('server:webapp:debug', ['dist', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
 
     grunt.registerTask('server:nodeapp', ['express:load', 'execute:nodeapp', 'watch:nodeapp']);
 

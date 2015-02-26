@@ -37,6 +37,37 @@
         1223: 204
     };
     
+    //  Process the server response to the specified object/array/blob/byteArray/text
+    //  args: data: the server response,
+    //  type: the class of the server response (array, blob, json),
+    //  dataType: is an extra param to form the blob object (if the type is blob)
+    var processResponseData = function(data, type, dataType) {
+            var parsedData = data;
+    
+            if (type === 'arraybuffer') {
+                parsedData = new Uint8Array(data);
+            } else if (type === 'blob') {
+                parsedData = new Blob([data], {
+                    type: dataType
+                });
+            }
+    
+            return parsedData;
+    
+        },
+        //  Serialize the data to be sended to the server
+        //  args: the data that would be sended to the server,
+        //   type: the class of the data (array, blob, json)
+        serializeData = function(data, type) {
+            var serializedData = data;
+    
+            if (type === 'json' && typeof data === 'object') {
+                serializedData = JSON.stringify(data);
+            }
+            return serializedData;
+    
+        };
+    
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {
         var http = require('http');
@@ -59,14 +90,12 @@
                         callback.call(that, str);
                     }
                 });
-    
             });
     
             req.end();
     
             return req;
         };
-    
     
         module.exports = Silkroad.request;
     }
@@ -77,40 +106,42 @@
         Silkroad.request.send = function(options) {
             options = options || {};
     
-            var xhr = new XMLHttpRequest(),
-                url,
+            var httpReq = new XMLHttpRequest(),
+                url = options.url,
                 headers = typeof options.headers === 'object' ? options.headers : {},
+                contentType = options.contentType || 'application/json',
                 callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
-                self = this;
-            //callbackError = options.error && typeof options.error === 'function' ? options.error : undefined;
+                self = this,
+                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+                dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined;
     
-    
-            try {
-                //url = options.hostname + ':' + options.port + options.path;
-                url = options.url;
-            } catch (Ex) {
-                url = undefined;
-            }
-    
-            var method = String((options.type || 'GET')).toUpperCase();
     
             if (!url) {
                 throw new Error('You must define an url');
             }
     
-            xhr.open(method, url, true);
+            var method = String((options.type || 'GET')).toUpperCase();
+    
+            // add responseType to the request (blob || arraybuffer || text)
+            httpReq.responseType = responseType;
+    
+            //add content-type header
+            headers['Content-type'] = contentType;
+    
+            httpReq.open(method, url, true);
     
             /* add request headers */
             for (var header in headers) {
                 if (headers.hasOwnProperty(header)) {
-                    xhr.setRequestHeader(header, headers[header]);
+                    httpReq.setRequestHeader(header, headers[header]);
                 }
             }
     
+            //  Process the server response to the specified object type
             var promise = new Promise(function(resolve, reject) {
                 //response recieved
-                xhr.onload = function(xhr) {
+                httpReq.onload = function(xhr) {
     
                     xhr = xhr.target || xhr || {};
                     var statusCode = xhrSuccessStatus[xhr.status] || xhr.status,
@@ -118,23 +149,27 @@
     
     
                     if (statusType < 3) {
+                        var data = processResponseData(httpReq.response, httpReq.responseType, dataType);
     
                         if (callbackSuccess) {
-                            callbackSuccess.call(self, xhr.responseText, xhr.status, xhr);
+                            callbackSuccess.call(self, data, xhr.status, xhr);
                         }
-                        resolve(xhr.responseText);
+    
+                        resolve(data);
                     } else if (statusType === 4) {
     
                         if (callbackError) {
                             callbackError.call(self, xhr, xhr.status, xhr.error);
                         }
+    
                         reject(xhr.responseText);
                     }
     
                     //delete callbacks
                 };
     
-                xhr.onerror = function(xhr) {
+                //response fail ()
+                httpReq.onerror = function(xhr) {
                     if (callbackError) {
                         callbackError.call(self, xhr, xhr.status, xhr.error);
                     }
@@ -145,9 +180,9 @@
             });
     
             if (options.data) {
-                xhr.send(options.data);
+                httpReq.send(serializeData(options.data, responseType));
             } else {
-                xhr.send();
+                httpReq.send();
             }
     
     
