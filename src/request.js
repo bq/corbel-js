@@ -127,24 +127,37 @@ if (typeof window !== 'undefined') {
 
                 xhr = xhr.target || xhr || {};
                 var statusCode = xhrSuccessStatus[xhr.status] || xhr.status,
-                    statusType = Number(statusCode.toString()[0]);
+                    statusType = Number(statusCode.toString()[0]),
+                    response;
 
 
                 if (statusType < 3) {
-                    var data = processResponseData(httpReq.response, httpReq.responseType, dataType);
+                    var data = processResponseData(httpReq.response || httpReq.responseText, httpReq.responseType, dataType);
+
+                    response = {
+                        data: data,
+                        status: xhr.status,
+                        xhr: xhr
+                    };
 
                     if (callbackSuccess) {
                         callbackSuccess.call(self, data, xhr.status, xhr);
                     }
 
-                    resolve(data);
+                    resolve(response);
+
                 } else if (statusType === 4) {
+                    response = {
+                        error: xhr.error,
+                        status: xhr.status,
+                        xhr: xhr
+                    };
 
                     if (callbackError) {
-                        callbackError.call(self, xhr, xhr.status, xhr.error);
+                        callbackError.call(self, xhr.status, xhr, xhr.error);
                     }
 
-                    reject(xhr.responseText);
+                    reject(response);
                 }
 
                 //delete callbacks
@@ -152,10 +165,17 @@ if (typeof window !== 'undefined') {
 
             //response fail ()
             httpReq.onerror = function(xhr) {
+                var response = {
+                    error: xhr.error,
+                    status: xhr.status,
+                    xhr: xhr
+                };
+
                 if (callbackError) {
-                    callbackError.call(self, xhr, xhr.status, xhr.error);
+                    callbackError.call(self, xhr.status, xhr, xhr.error);
                 }
-                reject(xhr.responseText);
+
+                reject(response);
                 //delete callbacks
             };
 

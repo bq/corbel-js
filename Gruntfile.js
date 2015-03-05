@@ -147,9 +147,7 @@ module.exports = function(grunt) {
                     'ignore-ssl-errors=true'
                 ]
             },
-            noreporter: {
-
-            },
+            noreporter: {},
             tap: {
                 options: {
                     reporter: 'tap',
