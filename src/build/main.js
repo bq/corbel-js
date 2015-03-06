@@ -24,8 +24,32 @@
 
     var Silkroad = {};
 
+    //-----------Utils and libraries (exports into Silkroad namespace)---------------------------
+
+    //  @include ../utils.js
+
+
+    //  @include ../validate.js
+
+
+    //  @include ../cryptography.js
+
+
+    //----------Silkroad modules----------------
+
+    //  @include ../common.js
+
 
     //  @include ../request.js
+
+
+    //  @include ../jwt.js
+
+
+    //  @include ../services.js
+
+
+    //  @include ../iam.js
 
 
     return Silkroad;
