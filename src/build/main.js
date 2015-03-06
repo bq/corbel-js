@@ -1,6 +1,6 @@
 (function(root, factory) {
     'use strict';
-    /* globals module, define */
+    /* globals module, define, require */
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
@@ -9,6 +9,7 @@
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
+        var Promise = require('es6-promise').polyfill();
         module.exports = factory(root);
     } else if (root !== undefined) {
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {

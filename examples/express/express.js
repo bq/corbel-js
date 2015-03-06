@@ -34,9 +34,6 @@ HTTP_VERBS.forEach(function(verb) {
             body: body
         };
 
-        console.log('response: ', response);
-        console.log('instanceof blob: ', response.body instanceof Blob);
-
         res.send(JSON.stringify(response, null, 3));
     });
 });

@@ -1,6 +1,6 @@
 (function(root, factory) {
     'use strict';
-    /* globals module, define */
+    /* globals module, define, require */
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
@@ -9,6 +9,7 @@
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
+        var Promise = require('es6-promise').polyfill();
         module.exports = factory(root);
     } else if (root !== undefined) {
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
@@ -55,46 +56,114 @@
             return parsedData;
     
         },
-        //  Serialize the data to be sended to the server
-        //  args: the data that would be sended to the server,
-        //   type: the class of the data (array, blob, json)
+        //  Serialize the data to be sent to the server
+        //  args: the data that would be sent to the server,
+        //  type: the class of the data (array, blob, json)
         serializeData = function(data, type) {
             var serializedData = data;
     
             if (type === 'json' && typeof data === 'object') {
                 serializedData = JSON.stringify(data);
             }
+    
             return serializedData;
+    
+        },
+        processResponse = function(response, resolver, callbackSuccess, callbackError) {
+    
+            //xhr = xhr.target || xhr || {};
+            var statusCode = xhrSuccessStatus[response.status] || response.status,
+                statusType = Number(response.status.toString()[0]),
+                promiseResponse;
+    
+            if (statusType < 3) {
+                var data = processResponseData(response.responseType, response.dataType);
+    
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, response.status, response.responseObject);
+                }
+    
+                promiseResponse = {
+                    data: data,
+                    status: response.status,
+                };
+    
+                promiseResponse[response.responseObjectType] = response.responseObject;
+    
+                resolver.resolve(promiseResponse);
+    
+            } else if (statusType === 4) {
+    
+                if (callbackError) {
+                    callbackError.call(this, response.status, response.responseObject, response.error);
+                }
+    
+                promiseResponse = {
+                    error: response.error,
+                    status: response.status,
+                };
+    
+                promiseResponse[response.responseObjectType] = response.responseObject;
+    
+                resolver.reject(promiseResponse);
+            }
     
         };
     
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {
-        var http = require('http');
+        var request = require('request');
     
         Silkroad.request.send = function(options) {
             options = options || {};
-            var that = this,
-                callback = options.succes;
     
-            var req = http.request(options, function(res) {
-                var str = '';
+            var method = String((options.type || 'GET')).toUpperCase(),
+                url = options.url,
+                headers = typeof options.headers === 'object' ? options.headers : {},
+                contentType = options.contentType || 'application/json',
+                isJSON = contentType === 'application/json' ? true : false,
+                callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
+                callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
+                self = this,
+                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+                dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
+                data = options.data || {};
     
-                res.on('data', function(chunk) {
-                    str += chunk;
+    
+            if (!url) {
+                throw new Error('You must define an url');
+            }
+    
+            headers['content-type'] = contentType;
+    
+            var promise = new Promise(function(resolve, reject) {
+    
+                request({
+                    method: method,
+                    url: url,
+                    headers: headers,
+                    json: isJSON,
+                    body: data
+                }, function(error, response, body) { //callback
+    
+                    processResponse.call(self, {
+                        responseObject: response,
+                        dataType: dataType,
+                        responseType: response.headers['content-type'],
+                        response: body,
+                        status: response.statusCode,
+                        responseObjectType: 'response',
+                        error: error
+                    }, {
+                        resolve: resolve,
+                        reject: reject
+                    }, callbackSuccess, callbackError);
+    
                 });
     
-                res.on('end', function() {
-                    if (typeof callback === 'function') {
-                        //add notification to event response
-                        callback.call(that, str);
-                    }
-                });
             });
     
-            req.end();
-    
-            return req;
+            return promise;
         };
     
         module.exports = Silkroad.request;
@@ -127,7 +196,7 @@
             httpReq.responseType = responseType;
     
             //add content-type header
-            headers['Content-type'] = contentType;
+            headers['content-type'] = contentType;
     
             httpReq.open(method, url, true);
     
@@ -142,59 +211,41 @@
             var promise = new Promise(function(resolve, reject) {
                 //response recieved
                 httpReq.onload = function(xhr) {
+                    xhr = xhr.target || xhr; // only for fake sinon response xhr
     
-                    xhr = xhr.target || xhr || {};
-                    var statusCode = xhrSuccessStatus[xhr.status] || xhr.status,
-                        statusType = Number(statusCode.toString()[0]),
-                        response;
-    
-    
-                    if (statusType < 3) {
-                        var data = processResponseData(httpReq.response || httpReq.responseText, httpReq.responseType, dataType);
-    
-                        response = {
-                            data: data,
-                            status: xhr.status,
-                            xhr: xhr
-                        };
-    
-                        if (callbackSuccess) {
-                            callbackSuccess.call(self, data, xhr.status, xhr);
-                        }
-    
-                        resolve(response);
-    
-                    } else if (statusType === 4) {
-                        response = {
-                            error: xhr.error,
-                            status: xhr.status,
-                            xhr: xhr
-                        };
-    
-                        if (callbackError) {
-                            callbackError.call(self, xhr.status, xhr, xhr.error);
-                        }
-    
-                        reject(response);
-                    }
+                    processResponse.call(self, {
+                        responseObject: xhr,
+                        dataType: xhr.dataType,
+                        responseType: xhr.responseType,
+                        response: xhr.response || xhr.responseText,
+                        status: xhr.status,
+                        responseObjectType: 'xhr',
+                        error: xhr.error
+                    }, {
+                        resolve: resolve,
+                        reject: reject
+                    }, callbackSuccess, callbackError);
     
                     //delete callbacks
                 };
     
                 //response fail ()
                 httpReq.onerror = function(xhr) {
-                    var response = {
-                        error: xhr.error,
+                    xhr = xhr.target || xhr; // only for fake sinon response xhr
+    
+                    processResponse.call(self, {
+                        responseObject: xhr,
+                        dataType: xhr.dataType,
+                        responseType: xhr.responseType,
+                        response: xhr.response || xhr.responseText,
                         status: xhr.status,
-                        xhr: xhr
-                    };
+                        responseObjectType: 'xhr',
+                        error: xhr.error
+                    }, {
+                        resolve: resolve,
+                        reject: reject
+                    }, callbackSuccess, callbackError);
     
-                    if (callbackError) {
-                        callbackError.call(self, xhr.status, xhr, xhr.error);
-                    }
-    
-                    reject(response);
-                    //delete callbacks
                 };
     
             });

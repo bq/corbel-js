@@ -24,10 +24,11 @@ module.exports = function(grunt) {
     grunt.initConfig({
         execute: {
             nodeapp: {
-                target: {
-                    src: ['examples/nodeapp/main.js']
-                }
+                src: ['examples/nodeapp/main.js']
             }
+        },
+        exec: {
+            test: 'npm run test'
         },
         open: {
             webapp: {
@@ -44,6 +45,7 @@ module.exports = function(grunt) {
                 'web-port': 3000,
                 'web-host': 'localhost',
                 'debug-port': 5857,
+                'node-debug': true,
                 'save-live-edit': true,
                 'no-preload': true,
                 'stack-trace-limit': 4,
@@ -111,6 +113,16 @@ module.exports = function(grunt) {
                 options: {
                     livereload: 35729
                 }
+            },
+            'test-node': {
+                files: [
+                    'test/browser/**',
+                    'src/**/*'
+                ],
+                tasks: ['dist', 'test:node:reload'],
+                options: {
+                    livereload: 35729
+                }
             }
         },
         express: {
@@ -133,7 +145,7 @@ module.exports = function(grunt) {
             },
             noreporter: {
                 src: ['test/node/**/*.js']
-            },
+            }
         }, //test for browser app with mocha and phanthom
         'mocha_phantomjs': {
             options: {
@@ -194,7 +206,7 @@ module.exports = function(grunt) {
                 src: 'src/build/bundle.js',
                 dest: 'dist/silkroad-bundle.js'
             },
-            test: {
+            'test-browser': {
                 src: 'test/browser/test-suite-pre.js',
                 dest: 'test/browser/test-suite.js'
             }
@@ -211,13 +223,17 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['test:browser', 'test:node']);
 
-    grunt.registerTask('test:browser', ['preprocess:test', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter']);
+    grunt.registerTask('test:browser', ['preprocess:test-browser', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter']);
 
-    grunt.registerTask('test:browser:reload', ['preprocess:test', 'express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
+    grunt.registerTask('test:browser:reload', ['preprocess:test-browser', 'express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
+
+    grunt.registerTask('test:node:reload', ['express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
 
     grunt.registerTask('test:node', ['express:load', 'mochaTest:noreporter']); //'mochaTest:tap', 'lineremover:tap'
 
     grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
+
+    grunt.registerTask('server:test:node', ['test:node', 'open:test', 'watch:test-node']);
 
     grunt.registerTask('test:tap', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter', 'mochaTest:noreporter', 'lineremover:tap']);
 

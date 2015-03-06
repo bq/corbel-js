@@ -26,6 +26,7 @@
     "setFixtures"        : true,
     "appendLoadFixtures" : true,
     "waits"              : true,
-    "runs"               : true
+    "runs"               : true,
+    "Silkroad"           : true
   }
 }
