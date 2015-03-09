@@ -10,7 +10,7 @@
     } else if (typeof module !== 'undefined' && module.exports) {
         module.exports = factory(root);
     } else if (window !== undefined) {
-        root.Silkroad = factory(root);
+        root.corbel = factory(root);
     }
 
 })(this, function(root) {
@@ -978,19 +978,19 @@
         }
     }).call(this);
 
-    var Silkroad = {};
+    var corbel = {};
 
 
     // Request module
     //
     //
-    Silkroad.request = {};
+    corbel.request = {};
     
     //nodejs
     if (typeof module !== 'undefined' && module.exports) {
         var http = require('http');
     
-        Silkroad.request.send = function(options) {
+        corbel.request.send = function(options) {
             options = options || {};
             var that = this,
                 callback = options.succes;
@@ -1017,13 +1017,13 @@
         };
     
     
-        module.exports = Silkroad.request;
+        module.exports = corbel.request;
     }
     
     //browser
     if (typeof window !== 'undefined') {
     
-        Silkroad.request.send = function(options) {
+        corbel.request.send = function(options) {
             options = options || {};
     
             var xhr = new XMLHttpRequest(),
@@ -1089,5 +1089,5 @@
     }
 
 
-    return Silkroad;
+    return corbel;
 });

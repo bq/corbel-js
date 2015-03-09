@@ -1,10 +1,9 @@
-console.log('eoo');
+'use strict';
+var corbel = require('../../dist/corbel.js');
 
-var silkroad = require('../../dist/silkroad.js');
-
-silkroad.request.send({
+corbel.request.send({
     url: 'http://localhost:3000',
     method: 'GET'
 }, function() {
-    console.log("recieved: ", arguments);
+    console.log('recieved: ', arguments);
 });

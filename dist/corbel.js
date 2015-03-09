@@ -15,16 +15,16 @@
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
             root.ES6Promise.polyfill();
         }
-        root.Silkroad = factory(root);
+        root.corbel = factory(root);
     }
 
 })(this, function(root) {
     'use strict';
     /* jshint unused: false */
 
-    var Silkroad = {};
+    var corbel = {};
 
-    //-----------Utils and libraries (exports into Silkroad namespace)---------------------------
+    //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     (function() {
         /**
@@ -33,7 +33,7 @@
          * @namespace
          * @memberof app
          */
-        var utils = Silkroad.utils = {};
+        var utils = corbel.utils = {};
     
         /**
          * Extend a given object with all the properties in passed-in object(s).
@@ -71,7 +71,7 @@
          * @namespace
          * @memberof app
          */
-        var validate = Silkroad.validate = {};
+        var validate = corbel.validate = {};
     
         /**
          * Checks if some value is not undefined
@@ -172,7 +172,8 @@
     })();
 
 
-    Silkroad.cryptography = (function() {
+    /* jshint camelcase:false */
+    corbel.cryptography = (function() {
         'use strict';
         /*
          * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -189,7 +190,7 @@
          * the server-side, but the defaults work in most cases.
          */
         var hexcase = 0; /* hex output format. 0 - lowercase; 1 - uppercase        */
-        var b64pad = ""; /* base-64 pad character. "=" for strict RFC compliance   */
+        var b64pad = ''; /* base-64 pad character. "=" for strict RFC compliance   */
     
         /*
          * These are the functions you'll usually want to call
@@ -223,8 +224,8 @@
          * Perform a simple self-test to see if the VM is working
          */
         function sha256_vm_test() {
-            return hex_sha256("abc").toLowerCase() ==
-                "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+            return hex_sha256('abc').toLowerCase() ==
+                'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
         }
     
         /*
@@ -261,8 +262,8 @@
             } catch (e) {
                 hexcase = 0;
             }
-            var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-            var output = "";
+            var hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
+            var output = '';
             var x;
             for (var i = 0; i < input.length; i++) {
                 x = input.charCodeAt(i);
@@ -280,8 +281,8 @@
             } catch (e) {
                 b64pad = '';
             }
-            var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-            var output = "";
+            var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            var output = '';
             var len = input.length;
             for (var i = 0; i < len; i += 3) {
                 var triplet = (input.charCodeAt(i) << 16) | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0) | (i + 2 < len ? input.charCodeAt(i + 2) : 0);
@@ -328,7 +329,7 @@
             }
     
             /* Convert the remainders to the output string */
-            var output = "";
+            var output = '';
             for (i = remainders.length - 1; i >= 0; i--)
                 output += encoding.charAt(remainders[i]);
     
@@ -346,7 +347,7 @@
          * For efficiency, this assumes the input is valid utf-16.
          */
         function str2rstr_utf8(input) {
-            var output = "";
+            var output = '';
             var i = -1;
             var x, y;
     
@@ -382,7 +383,7 @@
          * Encode a string as utf-16
          */
         function str2rstr_utf16le(input) {
-            var output = "";
+            var output = '';
             for (var i = 0; i < input.length; i++)
                 output += String.fromCharCode(input.charCodeAt(i) & 0xFF, (input.charCodeAt(i) >>> 8) & 0xFF);
             return output;
@@ -413,7 +414,7 @@
          * Convert an array of big-endian words to a string
          */
         function binb2rstr(input) {
-            var output = "";
+            var output = '';
             for (var i = 0; i < input.length * 32; i += 8)
                 output += String.fromCharCode((input[i >> 5] >>> (24 - i % 32)) & 0xFF);
             return output;
@@ -676,23 +677,23 @@
          * @return {String} Base64URL encoded string
          */
         function b64tob64u(s) {
-            s = s.replace(/\=/g, "");
-            s = s.replace(/\+/g, "-");
-            s = s.replace(/\//g, "_");
+            s = s.replace(/\=/g, '');
+            s = s.replace(/\+/g, '-');
+            s = s.replace(/\//g, '_');
             return s;
         }
     
         /**
          * convert a Base64URL encoded string to a Base64 encoded string.<br/>
-         * Example: "ab-c3f_" &rarr; "ab+c3f/=="
+         * Example: 'ab-c3f_' &rarr; 'ab+c3f/=='
          * @param {String} s Base64URL encoded string
          * @return {String} Base64 encoded string
          */
         function b64utob64(s) {
-            if (s.length % 4 == 2) s = s + "==";
-            else if (s.length % 4 == 3) s = s + "=";
-            s = s.replace(/-/g, "+");
-            s = s.replace(/_/g, "/");
+            if (s.length % 4 == 2) s = s + '==';
+            else if (s.length % 4 == 3) s = s + '=';
+            s = s.replace(/-/g, '+');
+            s = s.replace(/_/g, '/');
             return s;
         }
     
@@ -817,9 +818,9 @@
          * rstrtohex("a\x00a") &rarr; "610061"
          */
         function rstrtohex(s) {
-            var result = "";
+            var result = '';
             for (var i = 0; i < s.length; i++) {
-                result += ("0" + s.charCodeAt(i).toString(16)).slice(-2);
+                result += ('0' + s.charCodeAt(i).toString(16)).slice(-2);
             }
             return result;
         }
@@ -838,7 +839,7 @@
          */
         function hextob64nl(s) {
             var b64 = hextob64(s);
-            var b64nl = b64.replace(/(.{64})/g, "$1\r\n");
+            var b64nl = b64.replace(/(.{64})/g, '$1\r\n');
             b64nl = b64nl.replace(/\r\n$/, '');
             return b64nl;
         }
@@ -860,7 +861,7 @@
          * @since 1.1
          */
         function uricmptohex(s) {
-            return s.replace(/%/g, "");
+            return s.replace(/%/g, '');
         }
     
         /**
@@ -870,7 +871,7 @@
          * @since 1.1
          */
         function hextouricmp(s) {
-            return s.replace(/(..)/g, "%$1");
+            return s.replace(/(..)/g, '%$1');
         }
     
         // ==== URIComponent ================================
@@ -886,13 +887,13 @@
          */
         function encodeURIComponentAll(u8) {
             var s = encodeURIComponent(u8);
-            var s2 = "";
+            var s2 = '';
             for (var i = 0; i < s.length; i++) {
-                if (s[i] == "%") {
+                if (s[i] == '%') {
                     s2 = s2 + s.substr(i, 3);
                     i = i + 2;
                 } else {
-                    s2 = s2 + "%" + stohex(s[i]);
+                    s2 = s2 + '%' + stohex(s[i]);
                 }
             }
             return s2;
@@ -906,19 +907,19 @@
          * @return {String} converted string
          */
         function newline_toUnix(s) {
-            s = s.replace(/\r\n/mg, "\n");
+            s = s.replace(/\r\n/mg, '\n');
             return s;
         }
     
         /**
-         * convert all UNIX new line("\r\n") to DOS new line("\n") in
-         * a String "s".
+         * convert all UNIX new line('\r\n') to DOS new line('\n') in
+         * a String 's'.
          * @param {String} s string
          * @return {String} converted string
          */
         function newline_toDos(s) {
-            s = s.replace(/\r\n/mg, "\n");
-            s = s.replace(/\n/mg, "\r\n");
+            s = s.replace(/\r\n/mg, '\n');
+            s = s.replace(/\n/mg, '\r\n');
             return s;
         }
     
@@ -932,16 +933,16 @@
     })();
 
 
-    //----------Silkroad modules----------------
+    //----------corbel modules----------------
 
     (function() {
         /**
          * Application global common, config and params
          * @exports common
          * @namespace
-         * @memberof Silkroad
+         * @memberof corbel
          */
-        var common = Silkroad.common = {
+        var common = corbel.common = {
             config: {}
         };
     
@@ -981,7 +982,7 @@
              * @type {String}
              * @default
              */
-            appName: 'Silkroad-js',
+            appName: 'corbel-js',
     
             /**
              * Client type
@@ -1021,7 +1022,7 @@
          * @param {Object} config An object with params to set as new config
          */
         common.setConfig = function(config) {
-            this.config = Silkroad.utils.extend(this.config, config);
+            this.config = corbel.utils.extend(this.config, config);
             this.config.production = this.isProduction();
             return this;
         };
@@ -1069,7 +1070,7 @@
         // Request module
         //
         //
-        Silkroad.request = {};
+        corbel.request = {};
     
         var xhrSuccessStatus = {
             // file protocol always yields status code 0, assume 200
@@ -1155,7 +1156,7 @@
         if (typeof module !== 'undefined' && module.exports) {
             var request = require('request');
     
-            Silkroad.request.send = function(options) {
+            corbel.request.send = function(options) {
                 options = options || {};
     
                 var method = String((options.type || 'GET')).toUpperCase(),
@@ -1207,13 +1208,13 @@
                 return promise;
             };
     
-            module.exports = Silkroad.request;
+            module.exports = corbel.request;
         }
     
         //browser
         if (typeof window !== 'undefined') {
     
-            Silkroad.request.send = function(options) {
+            corbel.request.send = function(options) {
                 options = options || {};
     
                 var httpReq = new XMLHttpRequest(),
@@ -1304,7 +1305,7 @@
         }
     
     
-        return Silkroad.request;
+        return corbel.request;
     
     })();
 
@@ -1312,7 +1313,7 @@
     (function() {
     
     
-        Silkroad.jwt = {
+        corbel.jwt = {
     
     
     
@@ -1326,15 +1327,15 @@
              */
             generate: function(claims, secret, alg) {
                 // console.log('jwt.generate', claims, secret, alg);
-                secret = secret || Silkroad.common.get('clientSecret'); //Todo
-                alg = alg || Silkroad.common.get('jwtAlgorithm'); //Todo
+                secret = secret || corbel.common.get('clientSecret'); //Todo
+                alg = alg || corbel.common.get('jwtAlgorithm'); //Todo
     
-                var bAlg = Silkroad.cryptography.rstr2b64(Silkroad.cryptography.str2rstr_utf8(JSON.stringify({
+                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                         alg: alg
                     }))),
-                    bClaims = Silkroad.cryptography.rstr2b64(Silkroad.cryptography.str2rstr_utf8(JSON.stringify(claims))),
+                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(claims))),
                     segment = bAlg + '.' + bClaims,
-                    assertion = Silkroad.cryptography.b64tob64u(Silkroad.cryptography.b64_hmac_sha256(secret, segment));
+                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
     
                 return segment + '.' + assertion;
             },
@@ -1349,15 +1350,15 @@
     
                 // Default claims values
                 var claims = {
-                    iss: Silkroad.common.get('clientId'), //TODO
-                    aud: Silkroad.common.get('claimAud'), //TODO
-                    scope: Silkroad.common.getOrDefault('claimScopes'), //TODO
-                    version: Silkroad.common.get('version') //TODO
+                    iss: corbel.common.get('clientId'), //TODO
+                    aud: corbel.common.get('claimAud'), //TODO
+                    scope: corbel.common.getOrDefault('claimScopes'), //TODO
+                    version: corbel.common.get('version') //TODO
                 };
     
-                claims.exp = Math.round((new Date().getTime() / 1000)) + Silkroad.common.get('claimExp');
+                claims.exp = Math.round((new Date().getTime() / 1000)) + corbel.common.get('claimExp');
     
-                claims = Silkroad.utils.extend(claims, params);
+                claims = corbel.utils.extend(claims, params);
     
                 // console.log('jwt.createClaims.claims', claims);
     
@@ -1365,9 +1366,10 @@
             }
         };
     
-        return Silkroad.jwt;
+        return corbel.jwt;
     
     })();
+    
 
 
     (function() {
@@ -1375,7 +1377,7 @@
     
         /** --core engine services-- */
     
-        var SilkroadServices = Silkroad.services = {
+        var corbelServices = corbel.services = {
             /**
              * method constants
              * @namespace
@@ -1435,7 +1437,7 @@
     
         /**
          * Generic Services request.
-         * Support all Silkroad.request parameters and some more:
+         * Support all corbel.request parameters and some more:
          * @param {Object} args
          * @param {String} [args.method=app.services.method.GET]
          * @param {String} [args.accessToken] set request with auth. (accessToken overrides args.withAuth)
@@ -1444,12 +1446,12 @@
          * @param {String} [args.retryHook] [reqres hook to retry refresh token]
          * @return {ES6 Promise}
          */
-        SilkroadServices.request = function(args) {
+        corbelServices.request = function(args) {
     
             return new Promise(function(resolve, reject) {
     
     
-                SilkroadServices.makeRequest({
+                corbelServices.makeRequest({
                     resolve: resolve,
                     reject: reject
                 }, args);
@@ -1462,7 +1464,7 @@
          * Check if an url should be process as a crossdomain resource.
          * @return {Boolean}
          */
-        SilkroadServices.isCrossDomain = function(url) {
+        corbelServices.isCrossDomain = function(url) {
             if (url && url.indexOf('http') !== -1) {
                 return true;
             } else {
@@ -1475,7 +1477,7 @@
          * @param  {Array} scopes
          * @return {String}
          */
-        SilkroadServices.arrayScopesToString = function(scopes) {
+        corbelServices.arrayScopesToString = function(scopes) {
             var memo = '';
     
             scopes.forEach(function(scope) {
@@ -1495,11 +1497,11 @@
          * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
          * @param  {Object} args    The request arguments.
          */
-        SilkroadServices.makeRequest = function(resolver, args) {
+        corbelServices.makeRequest = function(resolver, args) {
             // console.log('services.doRequestCall.args', args);
     
-            var params = SilkroadServices.buildParams(args);
-            Silkroad.request.send(params).then(function(response) {
+            var params = corbelServices.buildParams(args);
+            corbel.request.send(params).then(function(response) {
     
                 // console.log('doRequestCall.resolve', arguments);
     
@@ -1522,7 +1524,7 @@
                         retries++;
                         // session.add(_FORCE_UPDATE_STATUS, retries); //TODO SESSION
     
-                        Silkroad.utils.reload();
+                        corbel.utils.reload();
                     } else {
                         // console.log('services.request.force_update.fail');
     
@@ -1548,14 +1550,14 @@
     
     
         /**
-         * Returns a valid Silkroad.request parameters with default values,
+         * Returns a valid corbel.request parameters with default values,
          * CORS detection and authorization params if needed.
          * By default, all request are json (dataType/contentType)
          * with object serialization support
          * @param  {Object} args
          * @return {Object}
          */
-        SilkroadServices.buildParams = function(args) {
+        corbelServices.buildParams = function(args) {
     
             // Default values
             args = args || {};
@@ -1593,7 +1595,7 @@
                 url: url,
                 dataType: args.dataType,
                 contentType: args.contentType,
-                type: args.method || SilkroadServices.method.GET,
+                type: args.method || corbelServices.method.GET,
                 headers: headers,
                 data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
                 dataFilter: args.dataFilter
@@ -1607,7 +1609,7 @@
             //     params.processData = false;
             // }
     
-            // if (SilkroadServices.isCrossDomain(url)) {
+            // if (corbelServices.isCrossDomain(url)) {
             //     // http://stackoverflow.com/questions/5241088/jquery-call-to-webservice-returns-no-transport-error
             //     $.support.cors = true;
             //     params.crossDomain = true;
@@ -1638,20 +1640,20 @@
         /** end--core engine services-- */
     
     
-        return SilkroadServices;
+        return corbelServices;
     
     })();
 
 
     'use strict';
-    /* global define, console, Silkroad */
+    /* global define, console, corbel */
     
     // define([
     //     'corejs/app',
     //     'corejs/engine/jwt',
     //     'corejs/engine/validate',
-    //     'corejs/modules/silkroad/services',
-    //     'corejs/modules/silkroad/common',
+    //     'corejs/modules/corbel/services',
+    //     'corejs/modules/corbel/common',
     //     'underscore',
     //     'q'
     // ], function(app, jwt, //validate, services, common, _, q) {
@@ -1660,9 +1662,9 @@
      * A module to make iam requests.
      * @exports iam
      * @namespace
-     * @memberof app.silkroad
+     * @memberof app.corbel
      */
-    var iam = Silkroad.iam = {};
+    var iam = corbel.iam = {};
     
     /**
      * Creates a TokenBuilder for token requests
@@ -1689,12 +1691,12 @@
      * @param  {Object} params          Parameters to authorice
      * @param {String} [params.jwt]     Assertion to generate the token
      * @param {Object} [params.claims]  Claims to generate the token
-     * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
      */
     iam.TokenBuilder.prototype.create = function(params, setCookie) {
         // console.log('iamInterface.token.create', params);
         // we need params to create access token
-        Silkroad.validate.isValue(params, 'Create token request must contains params');
+        corbel.validate.isValue(params, 'Create token request must contains params');
         // if there are oauth params this mean we should do use the GET verb
         if (params.oauth) {
             return doGetTokenRequest(this.uri, params, setCookie);
@@ -1709,15 +1711,15 @@
      * @memberOf iam.TokenBuilder
      * @param {String} [refresh_token]   Token to refresh an AccessToken
      * @param {String} [scopes]          Scopes to the AccessToken
-     * @return {Promise}                 Q promise that resolves to an AccesToken {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise}                 Q promise that resolves to an AccesToken {Object} or rejects with a {@link corbelError}
      */
     iam.TokenBuilder.prototype.refresh = function(refreshToken, scopes) {
         // console.log('iamInterface.token.refresh', refreshToken);
         // we need refresh token to refresh access token
-        Silkroad.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
+        corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
         // we need create default claims to refresh access token
         var params = {
-            'claims': Silkroad.jwt.createClaims({
+            'claims': corbel.jwt.createClaims({
                 'refresh_token': refreshToken
             })
         };
@@ -1738,7 +1740,7 @@
         if (id) {
             return new UserBuilder(id);
         }
-        return new Silkroad.UsersBuilder();
+        return new corbel.UsersBuilder();
     };
     
     /**
@@ -1756,18 +1758,18 @@
      * @method
      * @memberOf oauth.UsersBuilder
      * @param  {String} userEmailToReset The email to send the message
-     * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.sendResetPasswordEmail = function(userEmailToReset) {
         console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
         var query = 'email=' + userEmailToReset;
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri + '/resetPassword'),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             query: query,
             withAuth: true
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -1776,17 +1778,17 @@
      * @method
      * @memberOf iam.UsersBuilder
      * @param  {Object} data The user data.
-     * @return {Promise}     A promise which resolves into the ID of the created user or fails with a {@link SilkRoadError}.
+     * @return {Promise}     A promise which resolves into the ID of the created user or fails with a {@link corbelError}.
      */
     UsersBuilder.prototype.create = function(data) {
         console.log('iamInterface.users.create', data);
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri),
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: data,
             withAuth: true
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -1794,24 +1796,24 @@
      * Gets the logged user
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.getMe = function() {
         console.log('iamInterface.users.getMe');
-        return getUser(Silkroad.services.method.GET, this.uri, 'me');
+        return getUser(corbel.services.method.GET, this.uri, 'me');
     };
     
     /**
      * Gets all users of the current domain
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to an {Array} of Users or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to an {Array} of Users or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.get = function(params) {
         console.log('iamInterface.users.get', params);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             query: params ? common.serializeParams(params) : null,
             withAuth: true
         });
@@ -1832,11 +1834,11 @@
      * Gets the user
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.get = function() {
         console.log('iamInterface.user.get');
-        return getUser(Silkroad.services.method.GET, this.uri, this.id);
+        return getUser(corbel.services.method.GET, this.uri, this.id);
     };
     
     /**
@@ -1844,13 +1846,13 @@
      * @method
      * @memberOf iam.UserBuilder
      * @param  {Object} data    The data to update
-     * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.update = function(data) {
         console.log('iamInterface.user.update', data);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id),
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             data: data,
             withAuth: true
         });
@@ -1862,13 +1864,13 @@
      * @memberOf iam.UsersBuilder
      * @param  {Object} data    The data to update
      * @param  {String} [token]   Token to use
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.updateMe = function(data, token) {
         console.log('iamInterface.users.updateMe', data);
         var args = {
             url: buildUri(this.uri, 'me'),
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             data: data,
             args: args,
             withAuth: true
@@ -1876,20 +1878,20 @@
         if (token) {
             args.accessToken = token;
         }
-        return Silkroad.services.request(args);
+        return corbel.services.request(args);
     };
     
     /**
      * Deletes the user
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.delete = function() {
         console.log('iamInterface.user.delete');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id),
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -1898,13 +1900,13 @@
      * Delete the logged user
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.deleteMe = function() {
         console.log('iamInterface.users.deleteMe');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me'),
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -1913,13 +1915,13 @@
      * Sign Out the logged user
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.signOutMe = function() {
         // console.log('iamInterface.users.signOutMe');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/signout',
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             withAuth: true
         });
     };
@@ -1928,13 +1930,13 @@
      * disconnect the user, all his tokens are deleted
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.disconnect = function() {
         // console.log('iamInterface.user.disconnect');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/disconnect',
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             withAuth: true
         });
     };
@@ -1943,13 +1945,13 @@
      * disconnect the logged user, all his tokens are deleted
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.disconnectMe = function() {
         // console.log('iamInterface.users.disconnectMe');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/disconnect',
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             withAuth: true
         });
     };
@@ -1960,15 +1962,15 @@
      * @memberOf iam.UserBuilder
      * @param {Object} identity     The data of the identity
      * @param {String} oauthId      The oauth ID of the user
-     * @param {String} oauthService The oauth service to connect (facebook, twitter, google, silkroad)
-     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @param {String} oauthService The oauth service to connect (facebook, twitter, google, corbel)
+     * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.addIdentity = function(identity) {
         // console.log('iamInterface.user.addIdentity', identity);
-        Silkroad.validate.isValue(identity, 'Missing identity');
-        return Silkroad.services.request({
+        corbel.validate.isValue(identity, 'Missing identity');
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/identity',
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: identity,
             withAuth: true
         });
@@ -1978,13 +1980,13 @@
      * Get user identities (links to oauth servers or social networks)
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise}  Q promise that resolves to {Array} of Identity or rejects with a {@link SilkRoadError}
+     * @return {Promise}  Q promise that resolves to {Array} of Identity or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.getIdentities = function() {
         console.log('iamInterface.user.getIdentities');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/identity',
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -1997,17 +1999,17 @@
      * @param  {Object} data.URI  The device token
      * @param  {Object} data.name The device name
      * @param  {Object} data.type The device type (Android, Apple)
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.registerMyDevice = function(data) {
         console.log('iamInterface.user.registerMyDevice');
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri, 'me') + '/devices',
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             withAuth: true,
             data: data
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -2019,17 +2021,17 @@
      * @param  {Object} data.URI  The device token
      * @param  {Object} data.name The device name
      * @param  {Object} data.type The device type (Android, Apple)
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.registerDevice = function(data) {
         console.log('iamInterface.user.registerDevice');
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri, this.id) + '/devices',
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             withAuth: true,
             data: data
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -2038,13 +2040,13 @@
      * @method
      * @memberOf iam.UserBuilder
      * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.getDevice = function(deviceId) {
         console.log('iamInterface.user.getDevice');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/devices/' + deviceId,
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2053,13 +2055,13 @@
      * Get devices
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.getDevices = function() {
         console.log('iamInterface.user.getDevices');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/devices/',
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2068,13 +2070,13 @@
      * Get my user devices
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.getMyDevices = function() {
         console.log('iamInterface.user.getMyDevices');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/devices',
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2084,13 +2086,13 @@
      * @method
      * @memberOf iam.UsersBuilder
      * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.getMyDevice = function(deviceId) {
         console.log('iamInterface.user.getMyDevice');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/devices/' + deviceId,
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2100,13 +2102,13 @@
      * @method
      * @memberOf iam.UsersBuilder
      * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.deleteMyDevice = function(deviceId) {
         console.log.debug('iamInterface.user.deleteMyDevice');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/devices/' + deviceId,
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -2116,13 +2118,13 @@
      * @method
      * @memberOf iam.UserBuilder
      * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.deleteDevice = function(deviceId) {
         console.log.debug('iamInterface.user.deleteDevice');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/devices/' + deviceId,
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -2155,9 +2157,9 @@
      */
     UsernameBuilder.prototype.availability = function(username) {
         console.log('iamInterface.username.availability', username);
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri, username),
-            method: Silkroad.services.method.HEAD,
+            method: corbel.services.method.HEAD,
             withAuth: true
         }).then(
             function() {
@@ -2179,13 +2181,13 @@
      * Gets the logged user profile
      * @method
      * @memberOf iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User Profile {Object} or rejects with a {@link SilkRoadError}
+     * @return {Promise} Q promise that resolves to a User Profile {Object} or rejects with a {@link corbelError}
      */
     UsersBuilder.prototype.getMeProfile = function() {
         console.log('iamInterface.users.getMeProfile');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, 'me') + '/profile',
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2194,23 +2196,23 @@
      * Get user profiles
      * @method
      * @memberOf iam.UserBuilder
-     * @return {Promise}  Q promise that resolves to a User Profile or rejects with a {@link SilkRoadError}
+     * @return {Promise}  Q promise that resolves to a User Profile or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.getProfile = function() {
         console.log('iamInterface.user.getProfile');
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri, this.id) + '/profile',
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
     
     UsersBuilder.prototype.getProfiles = function(params) {
         console.log('iamInterface.users.getProfiles', params);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri) + '/profile',
-            method: Silkroad.services.method.GET,
-            query: params ? common.serializeParams(params) : null, //TODO cambiar por common
+            method: corbel.services.method.GET,
+            query: params ? common.serializeParams(params) : null, //TODO cambiar por util e implementar dicho metodo
             withAuth: true
         });
     };
@@ -2256,17 +2258,17 @@
      * @param {Object} domain.userProfileFields  User profile fields.
      *
      * @return {Promise} A promise with the id of the created domain or fails
-     *                   with a {@link SilkRoadError}.
+     *                   with a {@link corbelError}.
      */
     DomainBuilder.prototype.create = function(domain) {
         console.log('iamInterface.domain.create', domain);
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri),
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: domain,
             withAuth: true
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -2276,13 +2278,13 @@
      * @method
      * @memberOf iam.DomainBuilder
      *
-     * @return {Promise} A promise with the domain or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
      */
     DomainBuilder.prototype.get = function() {
         console.log('iamInterface.domain.get', this.domainId);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2302,13 +2304,13 @@
      * @param {Object} domain.authConfigurations Authentication configuration.
      * @param {Object} domain.userProfileFields  User profile fields.
      *
-     * @return {Promise} A promise or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     DomainBuilder.prototype.update = function(domain) {
         console.log('iamInterface.domain.update', domain);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId),
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             data: domain,
             withAuth: true
         });
@@ -2322,13 +2324,13 @@
      *
      * @param {String} domainId The domain id.
      *
-     * @return {Promise} A promise or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     DomainBuilder.prototype.remove = function() {
         console.log('iamInterface.domain.remove', this.domainId);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId),
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -2379,17 +2381,17 @@
      * @param {String} client.resetNotificationId      Reset password notification id.
      *
      * @return {Promise} A promise with the id of the created client or fails
-     *                   with a {@link SilkRoadError}.
+     *                   with a {@link corbelError}.
      */
     ClientBuilder.prototype.create = function(client) {
         console.log('iamInterface.domain.create', client);
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri + '/' + this.domainId + '/client'),
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: client,
             withAuth: true
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -2401,13 +2403,13 @@
      *
      * @param {String} clientId Client id.
      *
-     * @return {Promise} A promise with the client or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise with the client or fails with a {@link corbelError}.
      */
     ClientBuilder.prototype.get = function() {
         console.log('iamInterface.domain.get', this.clientId);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2428,13 +2430,13 @@
      * @param {String} client.resetUrl                 Reset password url.
      * @param {String} client.resetNotificationId      Reset password notification id.
      *
-     * @return {Promise} A promise or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     ClientBuilder.prototype.update = function(client) {
         console.log('iamInterface.domain.update', client);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: Silkroad.services.method.PUT,
+            method: corbel.services.method.PUT,
             data: client,
             withAuth: true
         });
@@ -2448,13 +2450,13 @@
      *
      * @param {String} clientId The client id.
      *
-     * @return {Promise} A promise or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     ClientBuilder.prototype.remove = function() {
         console.log('iamInterface.domain.remove', this.domainId, this.clientId);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -2496,17 +2498,17 @@
      * @param {Object} scope.scopes Scopes for a composite scope.
      *
      * @return {Promise} A promise with the id of the created scope or fails
-     *                   with a {@link SilkRoadError}.
+     *                   with a {@link corbelError}.
      */
     ScopeBuilder.prototype.create = function(scope) {
         console.log('iamInterface.scope.create', scope);
-        return Silkroad.services.requestXHR({
+        return corbel.services.requestXHR({
             url: buildUri(this.uri),
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: scope,
             withAuth: true
         }).then(function(res) {
-            return Silkroad.services.extractLocationId(res);
+            return corbel.services.extractLocationId(res);
         });
     };
     
@@ -2516,13 +2518,13 @@
      * @method
      * @memberOf iam.ScopeBuilder
      *
-     * @return {Promise} A promise with the scope or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise with the scope or fails with a {@link corbelError}.
      */
     ScopeBuilder.prototype.get = function() {
         console.log('iamInterface.scope.get', this.id);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.id),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
@@ -2532,13 +2534,13 @@
      *
      * @method
      * @memberOf iam.ScopeBuilder
-     * @return {Promise} A promise user or fails with a {@link SilkRoadError}.
+     * @return {Promise} A promise user or fails with a {@link corbelError}.
      */
     ScopeBuilder.prototype.remove = function() {
         console.log('iamInterface.scope.remove', this.id);
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: buildUri(this.uri + '/' + this.id),
-            method: Silkroad.services.method.DELETE,
+            method: corbel.services.method.DELETE,
             withAuth: true
         });
     };
@@ -2547,16 +2549,16 @@
         if (id) {
             uri += '/' + id;
         }
-        return app.common.get('iamEndpoint') + uri; //TODO common
+        return corbel.common.get('iamEndpoint') + uri;
     };
     
     var doGetTokenRequest = function(uri, params, setCookie) {
         var args = {
             url: buildUri(uri),
-            method: Silkroad.services.method.GET,
-            query: $.param(_.extend({ //hacernos nuestro utils.param
+            method: corbel.services.method.GET,
+            query: $.param(_.extend({ //TODO hacernos nuestro utils.param
                 assertion: getJwt(params),
-                'grant_type': app.common.get('grantType') //TODO common
+                'grant_type': corbel.common.get('grantType')
             }, params.oauth))
         };
     
@@ -2566,16 +2568,16 @@
             };
         }
     
-        return Silkroad.services.request(args);
+        return corbel.services.request(args);
     };
     
     var doPostTokenRequest = function(uri, params, setCookie) {
         var args = {
             url: buildUri(uri),
-            method: Silkroad.services.method.POST,
+            method: corbel.services.method.POST,
             data: {
                 assertion: getJwt(params),
-                'grant_type': app.common.get('grantType') //TODO common
+                'grant_type': corbel.common.get('grantType')
             },
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
         };
@@ -2585,7 +2587,7 @@
                 RequestCookie: 'true'
             };
         }
-        return Silkroad.services.request(args);
+        return corbel.services.request(args);
     };
     
     var getJwt = function(params) {
@@ -2593,20 +2595,20 @@
             return params.jwt;
         }
         if (params.claims) {
-            return Silkroad.jwt.generate(params.claims);
+            return corbel.jwt.generate(params.claims);
         } else {
             throw new Error('Create token request must contains either jwt or claims parameter');
         }
     };
     
     var getUser = function(method, uri, id, postfix) {
-        return Silkroad.services.request({
+        return corbel.services.request({
             url: (postfix ? buildUri(uri, id) + postfix : buildUri(uri, id)),
-            method: Silkroad.services.method.GET,
+            method: corbel.services.method.GET,
             withAuth: true
         });
     };
 
 
-    return Silkroad;
+    return corbel;
 });

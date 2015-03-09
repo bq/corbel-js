@@ -1,13 +1,13 @@
-silkroad-js
+corbel-js
 ===========
 
 
-[![Build Status](https://api.travis-ci.org/bq-devtools/silkroad-js.png?branch=master)](http://travis-ci.org/bq-devtools/silkroad-js)
-[![npm version](https://badge.fury.io/js/silkroad-js.svg)](http://badge.fury.io/js/silkroad-js)
-[![Bower version](https://badge.fury.io/bo/silkroad-js.svg)](http://badge.fury.io/bo/silkroad-js)
-[![Coverage Status](https://coveralls.io/repos/bq-devtools/silkroad-js/badge.png)](https://coveralls.io/r/bq-devtools/silkroad-js)
-[![Dependency status](https://david-dm.org/bq-devtools/silkroad-js/status.png)](https://david-dm.org/bq-devtools/silkroad-js#info=dependencies&view=table)
-[![Dev Dependency Status](https://david-dm.org/bq-devtools/silkroad-js/dev-status.png)](https://david-dm.org/bq-devtools/silkroad-js#info=devDependencies&view=table)
+[![Build Status](https://api.travis-ci.org/bq/corbel-js.png?branch=master)](http://travis-ci.org/bq/corbel-js)
+[![npm version](https://badge.fury.io/js/corbel-js.svg)](http://badge.fury.io/js/corbel-js)
+[![Bower version](https://badge.fury.io/bo/corbel-js.svg)](http://badge.fury.io/bo/corbel-js)
+[![Coverage Status](https://coveralls.io/repos/bq/corbel-js/badge.png)](https://coveralls.io/r/bq/corbel-js)
+[![Dependency status](https://david-dm.org/bq/corbel-js/status.png)](https://david-dm.org/bq/corbel-js#info=dependencies&view=table)
+[![Dev Dependency Status](https://david-dm.org/bq/corbel-js/dev-status.png)](https://david-dm.org/bq/corbel-js#info=devDependencies&view=table)
 
-A SDK for SilkRoad compatible with browsers and node.
+A SDK for corbel compatible with browsers and node.
 src/

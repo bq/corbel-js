@@ -2,14 +2,14 @@
 
     //@exclude
     'use strict';
-    /*globals Silkroad,module,require */
+    /*globals corbel,module,require */
     //@endexclude
 
 
     // Request module
     //
     //
-    Silkroad.request = {};
+    corbel.request = {};
 
     var xhrSuccessStatus = {
         // file protocol always yields status code 0, assume 200
@@ -95,7 +95,7 @@
     if (typeof module !== 'undefined' && module.exports) {
         var request = require('request');
 
-        Silkroad.request.send = function(options) {
+        corbel.request.send = function(options) {
             options = options || {};
 
             var method = String((options.type || 'GET')).toUpperCase(),
@@ -147,13 +147,13 @@
             return promise;
         };
 
-        module.exports = Silkroad.request;
+        module.exports = corbel.request;
     }
 
     //browser
     if (typeof window !== 'undefined') {
 
-        Silkroad.request.send = function(options) {
+        corbel.request.send = function(options) {
             options = options || {};
 
             var httpReq = new XMLHttpRequest(),
@@ -244,6 +244,6 @@
     }
 
 
-    return Silkroad.request;
+    return corbel.request;
 
 })();

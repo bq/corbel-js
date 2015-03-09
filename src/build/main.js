@@ -15,16 +15,16 @@
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
             root.ES6Promise.polyfill();
         }
-        root.Silkroad = factory(root);
+        root.corbel = factory(root);
     }
 
 })(this, function(root) {
     'use strict';
     /* jshint unused: false */
 
-    var Silkroad = {};
+    var corbel = {};
 
-    //-----------Utils and libraries (exports into Silkroad namespace)---------------------------
+    //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     //  @include ../utils.js
 
@@ -35,7 +35,7 @@
     //  @include ../cryptography.js
 
 
-    //----------Silkroad modules----------------
+    //----------corbel modules----------------
 
     //  @include ../common.js
 
@@ -52,5 +52,5 @@
     //  @include ../iam.js
 
 
-    return Silkroad;
+    return corbel;
 });

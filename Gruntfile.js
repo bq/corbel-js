@@ -6,22 +6,23 @@ module.exports = function(grunt) {
         return connect.static(require('path').resolve(dir));
     };
 
-    var getConcatBanner = function() {
-        return '/* global module, require */ \n' +
-            '/* jshint node: true */\n' +
-            '\'use strict\'; \n \n' +
-            '(function(root,factory){ \n \n';
-    };
-
-    var getConcatFooter = function() {
-        return '\n \n })();';
-    };
-
     var path = require('path');
 
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
+        jshint: {
+            options: {
+                jshintrc: '.jshintrc',
+                reporter: require('jshint-stylish')
+            },
+            all: [
+                'Gruntfile.js',
+                // 'src/{,**/}*.js',
+                'test/{,**/}*.js',
+                'examples/{,**/}*.js'
+            ]
+        },
         execute: {
             nodeapp: {
                 src: ['examples/nodeapp/main.js']
@@ -86,7 +87,7 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            silkroad: {
+            corbel: {
                 files: ['src/**/*']
             },
             webapp: {
@@ -138,8 +139,7 @@ module.exports = function(grunt) {
                 options: {
                     reporter: 'tap',
                     captureFile: 'target/node/test_results.dirty.tap', // Optionally capture the reporter output to a file
-                    quiet: false, // Optionally suppress output to standard out (defaults to false)
-                    clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
+                    quiet: false // Optionally suppress output to standard out (defaults to false)
                 },
                 src: ['test/node/**/*.js']
             },
@@ -200,11 +200,11 @@ module.exports = function(grunt) {
         preprocess: {
             main: {
                 src: 'src/build/main.js',
-                dest: 'dist/silkroad.js'
+                dest: 'dist/corbel.js'
             },
             bundle: {
                 src: 'src/build/bundle.js',
-                dest: 'dist/silkroad-bundle.js'
+                dest: 'dist/corbel-bundle.js'
             },
             'test-browser': {
                 src: 'test/browser/test-suite-pre.js',

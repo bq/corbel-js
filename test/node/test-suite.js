@@ -1,8 +1,8 @@
-mocha = require("mocha");
-sinon = require("sinon");
-chai = require("chai");
+'use strict';
+
+mocha = require('mocha');
+sinon = require('sinon');
+chai = require('chai');
 expect = chai.expect;
-
-
 
 require('./unit/request.js');

@@ -3,10 +3,10 @@
 
     //@exclude
     'use strict';
-    /* global Silkroad */
+    /* global corbel */
     //@endexclude
 
-    Silkroad.jwt = {
+    corbel.jwt = {
 
 
 
@@ -20,15 +20,15 @@
          */
         generate: function(claims, secret, alg) {
             // console.log('jwt.generate', claims, secret, alg);
-            secret = secret || Silkroad.common.get('clientSecret'); //Todo
-            alg = alg || Silkroad.common.get('jwtAlgorithm'); //Todo
+            secret = secret || corbel.common.get('clientSecret'); //Todo
+            alg = alg || corbel.common.get('jwtAlgorithm'); //Todo
 
-            var bAlg = Silkroad.cryptography.rstr2b64(Silkroad.cryptography.str2rstr_utf8(JSON.stringify({
+            var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                     alg: alg
                 }))),
-                bClaims = Silkroad.cryptography.rstr2b64(Silkroad.cryptography.str2rstr_utf8(JSON.stringify(claims))),
+                bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(claims))),
                 segment = bAlg + '.' + bClaims,
-                assertion = Silkroad.cryptography.b64tob64u(Silkroad.cryptography.b64_hmac_sha256(secret, segment));
+                assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
 
             return segment + '.' + assertion;
         },
@@ -43,15 +43,15 @@
 
             // Default claims values
             var claims = {
-                iss: Silkroad.common.get('clientId'), //TODO
-                aud: Silkroad.common.get('claimAud'), //TODO
-                scope: Silkroad.common.getOrDefault('claimScopes'), //TODO
-                version: Silkroad.common.get('version') //TODO
+                iss: corbel.common.get('clientId'), //TODO
+                aud: corbel.common.get('claimAud'), //TODO
+                scope: corbel.common.getOrDefault('claimScopes'), //TODO
+                version: corbel.common.get('version') //TODO
             };
 
-            claims.exp = Math.round((new Date().getTime() / 1000)) + Silkroad.common.get('claimExp');
+            claims.exp = Math.round((new Date().getTime() / 1000)) + corbel.common.get('claimExp');
 
-            claims = Silkroad.utils.extend(claims, params);
+            claims = corbel.utils.extend(claims, params);
 
             // console.log('jwt.createClaims.claims', claims);
 
@@ -59,6 +59,6 @@
         }
     };
 
-    return Silkroad.jwt;
+    return corbel.jwt;
 
 })();

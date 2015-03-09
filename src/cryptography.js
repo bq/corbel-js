@@ -1,4 +1,5 @@
-Silkroad.cryptography = (function() {
+/* jshint camelcase:false */
+corbel.cryptography = (function() {
     'use strict';
     /*
      * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -15,7 +16,7 @@ Silkroad.cryptography = (function() {
      * the server-side, but the defaults work in most cases.
      */
     var hexcase = 0; /* hex output format. 0 - lowercase; 1 - uppercase        */
-    var b64pad = ""; /* base-64 pad character. "=" for strict RFC compliance   */
+    var b64pad = ''; /* base-64 pad character. "=" for strict RFC compliance   */
 
     /*
      * These are the functions you'll usually want to call
@@ -49,8 +50,8 @@ Silkroad.cryptography = (function() {
      * Perform a simple self-test to see if the VM is working
      */
     function sha256_vm_test() {
-        return hex_sha256("abc").toLowerCase() ==
-            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+        return hex_sha256('abc').toLowerCase() ==
+            'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
     }
 
     /*
@@ -87,8 +88,8 @@ Silkroad.cryptography = (function() {
         } catch (e) {
             hexcase = 0;
         }
-        var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-        var output = "";
+        var hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
+        var output = '';
         var x;
         for (var i = 0; i < input.length; i++) {
             x = input.charCodeAt(i);
@@ -106,8 +107,8 @@ Silkroad.cryptography = (function() {
         } catch (e) {
             b64pad = '';
         }
-        var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        var output = "";
+        var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        var output = '';
         var len = input.length;
         for (var i = 0; i < len; i += 3) {
             var triplet = (input.charCodeAt(i) << 16) | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0) | (i + 2 < len ? input.charCodeAt(i + 2) : 0);
@@ -154,7 +155,7 @@ Silkroad.cryptography = (function() {
         }
 
         /* Convert the remainders to the output string */
-        var output = "";
+        var output = '';
         for (i = remainders.length - 1; i >= 0; i--)
             output += encoding.charAt(remainders[i]);
 
@@ -172,7 +173,7 @@ Silkroad.cryptography = (function() {
      * For efficiency, this assumes the input is valid utf-16.
      */
     function str2rstr_utf8(input) {
-        var output = "";
+        var output = '';
         var i = -1;
         var x, y;
 
@@ -208,7 +209,7 @@ Silkroad.cryptography = (function() {
      * Encode a string as utf-16
      */
     function str2rstr_utf16le(input) {
-        var output = "";
+        var output = '';
         for (var i = 0; i < input.length; i++)
             output += String.fromCharCode(input.charCodeAt(i) & 0xFF, (input.charCodeAt(i) >>> 8) & 0xFF);
         return output;
@@ -239,7 +240,7 @@ Silkroad.cryptography = (function() {
      * Convert an array of big-endian words to a string
      */
     function binb2rstr(input) {
-        var output = "";
+        var output = '';
         for (var i = 0; i < input.length * 32; i += 8)
             output += String.fromCharCode((input[i >> 5] >>> (24 - i % 32)) & 0xFF);
         return output;
@@ -502,23 +503,23 @@ Silkroad.cryptography = (function() {
      * @return {String} Base64URL encoded string
      */
     function b64tob64u(s) {
-        s = s.replace(/\=/g, "");
-        s = s.replace(/\+/g, "-");
-        s = s.replace(/\//g, "_");
+        s = s.replace(/\=/g, '');
+        s = s.replace(/\+/g, '-');
+        s = s.replace(/\//g, '_');
         return s;
     }
 
     /**
      * convert a Base64URL encoded string to a Base64 encoded string.<br/>
-     * Example: "ab-c3f_" &rarr; "ab+c3f/=="
+     * Example: 'ab-c3f_' &rarr; 'ab+c3f/=='
      * @param {String} s Base64URL encoded string
      * @return {String} Base64 encoded string
      */
     function b64utob64(s) {
-        if (s.length % 4 == 2) s = s + "==";
-        else if (s.length % 4 == 3) s = s + "=";
-        s = s.replace(/-/g, "+");
-        s = s.replace(/_/g, "/");
+        if (s.length % 4 == 2) s = s + '==';
+        else if (s.length % 4 == 3) s = s + '=';
+        s = s.replace(/-/g, '+');
+        s = s.replace(/_/g, '/');
         return s;
     }
 
@@ -643,9 +644,9 @@ Silkroad.cryptography = (function() {
      * rstrtohex("a\x00a") &rarr; "610061"
      */
     function rstrtohex(s) {
-        var result = "";
+        var result = '';
         for (var i = 0; i < s.length; i++) {
-            result += ("0" + s.charCodeAt(i).toString(16)).slice(-2);
+            result += ('0' + s.charCodeAt(i).toString(16)).slice(-2);
         }
         return result;
     }
@@ -664,7 +665,7 @@ Silkroad.cryptography = (function() {
      */
     function hextob64nl(s) {
         var b64 = hextob64(s);
-        var b64nl = b64.replace(/(.{64})/g, "$1\r\n");
+        var b64nl = b64.replace(/(.{64})/g, '$1\r\n');
         b64nl = b64nl.replace(/\r\n$/, '');
         return b64nl;
     }
@@ -686,7 +687,7 @@ Silkroad.cryptography = (function() {
      * @since 1.1
      */
     function uricmptohex(s) {
-        return s.replace(/%/g, "");
+        return s.replace(/%/g, '');
     }
 
     /**
@@ -696,7 +697,7 @@ Silkroad.cryptography = (function() {
      * @since 1.1
      */
     function hextouricmp(s) {
-        return s.replace(/(..)/g, "%$1");
+        return s.replace(/(..)/g, '%$1');
     }
 
     // ==== URIComponent ================================
@@ -712,13 +713,13 @@ Silkroad.cryptography = (function() {
      */
     function encodeURIComponentAll(u8) {
         var s = encodeURIComponent(u8);
-        var s2 = "";
+        var s2 = '';
         for (var i = 0; i < s.length; i++) {
-            if (s[i] == "%") {
+            if (s[i] == '%') {
                 s2 = s2 + s.substr(i, 3);
                 i = i + 2;
             } else {
-                s2 = s2 + "%" + stohex(s[i]);
+                s2 = s2 + '%' + stohex(s[i]);
             }
         }
         return s2;
@@ -732,19 +733,19 @@ Silkroad.cryptography = (function() {
      * @return {String} converted string
      */
     function newline_toUnix(s) {
-        s = s.replace(/\r\n/mg, "\n");
+        s = s.replace(/\r\n/mg, '\n');
         return s;
     }
 
     /**
-     * convert all UNIX new line("\r\n") to DOS new line("\n") in
-     * a String "s".
+     * convert all UNIX new line('\r\n') to DOS new line('\n') in
+     * a String 's'.
      * @param {String} s string
      * @return {String} converted string
      */
     function newline_toDos(s) {
-        s = s.replace(/\r\n/mg, "\n");
-        s = s.replace(/\n/mg, "\r\n");
+        s = s.replace(/\r\n/mg, '\n');
+        s = s.replace(/\n/mg, '\r\n');
         return s;
     }
 

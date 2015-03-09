@@ -2,7 +2,7 @@
 
     //@exclude
     'use strict';
-    /* global Silkroad */
+    /* global corbel */
     //@endexclude
 
 
@@ -12,7 +12,7 @@
      * @namespace
      * @memberof app
      */
-    var validate = Silkroad.validate = {};
+    var validate = corbel.validate = {};
 
     /**
      * Checks if some value is not undefined

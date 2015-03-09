@@ -10,7 +10,7 @@
     } else if (typeof module !== 'undefined' && module.exports) {
         module.exports = factory(root);
     } else if (window !== undefined) {
-        root.Silkroad = factory(root);
+        root.corbel = factory(root);
     }
 
 })(this, function(root) {
@@ -19,11 +19,11 @@
 
     //  @include ../../bower_components/es6-promise/promise.js
 
-    var Silkroad = {};
+    var corbel = {};
 
 
     //  @include ../request.js
 
 
-    return Silkroad;
+    return corbel;
 });

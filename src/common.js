@@ -2,7 +2,7 @@
     //@exclude
 
     'use strict';
-    /* globals Silkroad */
+    /* globals corbel */
 
     //@endexclude
 
@@ -10,9 +10,9 @@
      * Application global common, config and params
      * @exports common
      * @namespace
-     * @memberof Silkroad
+     * @memberof corbel
      */
-    var common = Silkroad.common = {
+    var common = corbel.common = {
         config: {}
     };
 
@@ -52,7 +52,7 @@
          * @type {String}
          * @default
          */
-        appName: 'Silkroad-js',
+        appName: 'corbel-js',
 
         /**
          * Client type
@@ -92,7 +92,7 @@
      * @param {Object} config An object with params to set as new config
      */
     common.setConfig = function(config) {
-        this.config = Silkroad.utils.extend(this.config, config);
+        this.config = corbel.utils.extend(this.config, config);
         this.config.production = this.isProduction();
         return this;
     };

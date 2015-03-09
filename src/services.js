@@ -3,12 +3,12 @@
 
     //@exclude
     'use strict';
-    /* globals Silkroad */
+    /* globals corbel */
     //@endexclude
 
     /** --core engine services-- */
 
-    var SilkroadServices = Silkroad.services = {
+    var corbelServices = corbel.services = {
         /**
          * method constants
          * @namespace
@@ -68,7 +68,7 @@
 
     /**
      * Generic Services request.
-     * Support all Silkroad.request parameters and some more:
+     * Support all corbel.request parameters and some more:
      * @param {Object} args
      * @param {String} [args.method=app.services.method.GET]
      * @param {String} [args.accessToken] set request with auth. (accessToken overrides args.withAuth)
@@ -77,12 +77,12 @@
      * @param {String} [args.retryHook] [reqres hook to retry refresh token]
      * @return {ES6 Promise}
      */
-    SilkroadServices.request = function(args) {
+    corbelServices.request = function(args) {
 
         return new Promise(function(resolve, reject) {
 
 
-            SilkroadServices.makeRequest({
+            corbelServices.makeRequest({
                 resolve: resolve,
                 reject: reject
             }, args);
@@ -95,7 +95,7 @@
      * Check if an url should be process as a crossdomain resource.
      * @return {Boolean}
      */
-    SilkroadServices.isCrossDomain = function(url) {
+    corbelServices.isCrossDomain = function(url) {
         if (url && url.indexOf('http') !== -1) {
             return true;
         } else {
@@ -108,7 +108,7 @@
      * @param  {Array} scopes
      * @return {String}
      */
-    SilkroadServices.arrayScopesToString = function(scopes) {
+    corbelServices.arrayScopesToString = function(scopes) {
         var memo = '';
 
         scopes.forEach(function(scope) {
@@ -128,11 +128,11 @@
      * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
      * @param  {Object} args    The request arguments.
      */
-    SilkroadServices.makeRequest = function(resolver, args) {
+    corbelServices.makeRequest = function(resolver, args) {
         // console.log('services.doRequestCall.args', args);
 
-        var params = SilkroadServices.buildParams(args);
-        Silkroad.request.send(params).then(function(response) {
+        var params = corbelServices.buildParams(args);
+        corbel.request.send(params).then(function(response) {
 
             // console.log('doRequestCall.resolve', arguments);
 
@@ -155,7 +155,7 @@
                     retries++;
                     // session.add(_FORCE_UPDATE_STATUS, retries); //TODO SESSION
 
-                    Silkroad.utils.reload();
+                    corbel.utils.reload();
                 } else {
                     // console.log('services.request.force_update.fail');
 
@@ -181,14 +181,14 @@
 
 
     /**
-     * Returns a valid Silkroad.request parameters with default values,
+     * Returns a valid corbel.request parameters with default values,
      * CORS detection and authorization params if needed.
      * By default, all request are json (dataType/contentType)
      * with object serialization support
      * @param  {Object} args
      * @return {Object}
      */
-    SilkroadServices.buildParams = function(args) {
+    corbelServices.buildParams = function(args) {
 
         // Default values
         args = args || {};
@@ -226,7 +226,7 @@
             url: url,
             dataType: args.dataType,
             contentType: args.contentType,
-            type: args.method || SilkroadServices.method.GET,
+            type: args.method || corbelServices.method.GET,
             headers: headers,
             data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
             dataFilter: args.dataFilter
@@ -240,7 +240,7 @@
         //     params.processData = false;
         // }
 
-        // if (SilkroadServices.isCrossDomain(url)) {
+        // if (corbelServices.isCrossDomain(url)) {
         //     // http://stackoverflow.com/questions/5241088/jquery-call-to-webservice-returns-no-transport-error
         //     $.support.cors = true;
         //     params.crossDomain = true;
@@ -271,6 +271,6 @@
     /** end--core engine services-- */
 
 
-    return SilkroadServices;
+    return corbelServices;
 
 })();

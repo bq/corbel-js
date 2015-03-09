@@ -1,5 +1,5 @@
  'use strict';
- describe('Silkroad-js browser', function() {
+ describe('corbel-js browser', function() {
 
      var sandbox;
 
@@ -14,12 +14,12 @@
      });
 
 
-     it('Silkroad-js namespace exists and exports as global', function() {
-         expect(window).to.include.keys('Silkroad');
+     it('corbel-js namespace exists and exports as global', function() {
+         expect(window).to.include.keys('corbel');
      });
 
-     it('Silkroad-js contains all modules', function() {
-         expect(window.Silkroad).to.include.keys('request');
+     it('corbel-js contains all modules', function() {
+         expect(window.corbel).to.include.keys('request');
      });
 
 
@@ -49,7 +49,7 @@
 
          before(function() {
              server = sinon.fakeServer.create();
-             request = window.Silkroad.request;
+             request = window.corbel.request;
          });
 
          after(function() {

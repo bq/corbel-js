@@ -1,18 +1,18 @@
 {
-    "name": "silkroad-js",
+    "name": "corbel-js",
     "version": "0.0.1",
-    "homepage": "https://github.com/bq-devtools/silkroad-js",
+    "homepage": "https://github.com/bq/corbel-js",
     "authors": [
         "Daniel García González"
     ],
-    "description": "Silkroad SDK compatiblecon browser y nodejs",
+    "description": "corbel SDK compatiblecon browser y nodejs",
     "main": "src/main.js",
     "keywords": [
         "request",
         "http",
         "ajax",
         "cors",
-        "silkroad",
+        "corbel",
         "nodejs"
     ],
     "license": "LGPL",

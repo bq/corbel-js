@@ -1,8 +1,8 @@
 'use strict';
 
-var Silkroad = require('../../../dist/silkroad.js');
+var corbel = require('../../../dist/corbel.js');
 
-describe('Silkroad-js node', function() {
+describe('corbel-js node', function() {
 
     var sandbox;
 
@@ -16,8 +16,8 @@ describe('Silkroad-js node', function() {
         sandbox.restore();
     });
 
-    it('Silkroad-js contains all modules', function() {
-        expect(Silkroad).to.include.keys('request');
+    it('corbel-js contains all modules', function() {
+        expect(corbel).to.include.keys('request');
     });
 
     describe('request module', function() {
@@ -26,7 +26,7 @@ describe('Silkroad-js node', function() {
             request;
 
         before(function() {
-            request = Silkroad.request;
+            request = corbel.request;
         });
 
         it('should has own properties', function() {

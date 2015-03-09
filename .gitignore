@@ -2,3 +2,4 @@ node_modules
 examples/webserver/node_modules
 bower_components
 target
+*.log

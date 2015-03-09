@@ -2,7 +2,7 @@
     //@exclude
 
     'use strict';
-    /* global Silkroad */
+    /* global corbel */
 
     //@endexclude
 
@@ -13,7 +13,7 @@
      * @namespace
      * @memberof app
      */
-    var utils = Silkroad.utils = {};
+    var utils = corbel.utils = {};
 
     /**
      * Extend a given object with all the properties in passed-in object(s).
