@@ -10,7 +10,21 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
 
+    var ports = {
+        server: 9000,
+        test: 8000,
+        livereload: 35729,
+        expres: 3000
+    };
+
     grunt.initConfig({
+
+        pkg: grunt.file.readJSON('./package.json'),
+
+        clean: {
+            all: ['.tmp', 'dist']
+        },
+
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
@@ -28,22 +42,19 @@ module.exports = function(grunt) {
                 src: ['examples/nodeapp/main.js']
             }
         },
-        exec: {
-            test: 'npm run test'
-        },
         open: {
             webapp: {
-                path: 'http://localhost:9000',
+                path: 'http://localhost:' + ports.server,
                 app: 'google-chrome'
             },
             test: {
-                path: 'http://localhost:8000',
+                path: 'http://localhost:' + ports.test,
                 app: 'google-chrome'
             }
         },
         'node-inspector': {
             options: {
-                'web-port': 3000,
+                'web-port': 3001,
                 'web-host': 'localhost',
                 'debug-port': 5857,
                 'node-debug': true,
@@ -54,10 +65,13 @@ module.exports = function(grunt) {
             }
         },
         connect: {
+            options: {
+                hostname: '0.0.0.0',
+                livereload: ports.livereload
+            },
             webserver: {
                 options: {
-                    port: 9000,
-                    hostname: '0.0.0.0',
+                    port: ports.server,
                     middleware: function(connect) {
                         return [
                             mountFolder(connect, 'examples/webapp/'),
@@ -66,27 +80,28 @@ module.exports = function(grunt) {
                             mountFolder(connect, 'vendor/')
                         ];
                     },
-                    livereload: 35729
                 }
             },
             'test_webserver': {
                 options: {
-                    port: 8000,
-                    hostname: '0.0.0.0',
+                    port: ports.test,
                     middleware: function(connect) {
                         return [
-                            mountFolder(connect, 'test/browser/'),
+                            mountFolder(connect, '.tmp/test/browser/'),
                             mountFolder(connect, 'dist/'),
                             mountFolder(connect, 'bower_components/'),
                             mountFolder(connect, 'vendor/')
                         ];
                     },
-                    livereload: 35729
                 }
 
             }
         },
         watch: {
+            options: {
+                nospawn: true,
+                livereload: ports.livereload
+            },
             corbel: {
                 files: ['src/**/*']
             },
@@ -95,10 +110,7 @@ module.exports = function(grunt) {
                     'examples/webapp/**/*',
                     'src/**/*'
                 ],
-                tasks: ['dist'],
-                options: {
-                    livereload: 35729
-                }
+                tasks: ['build']
             },
             nodeapp: {
                 files: [
@@ -110,29 +122,22 @@ module.exports = function(grunt) {
                     'test/browser/**',
                     'src/**/*'
                 ],
-                tasks: ['dist', 'test:browser:reload'],
-                options: {
-                    livereload: 35729
-                }
+                tasks: ['build', 'test:browser:reload']
             },
             'test-node': {
                 files: [
                     'test/browser/**',
                     'src/**/*'
                 ],
-                tasks: ['dist', 'test:node:reload'],
-                options: {
-                    livereload: 35729
-                }
+                tasks: ['build', 'test:node:reload']
             }
         },
         express: {
-            load: {
-                options: {
-                    port: 3000,
-                    server: path.resolve('./examples/express/express')
-                }
-            }
+            options: {
+                port: ports.express,
+                server: path.resolve('./examples/express/app')
+            },
+            load: {}
         },
         mochaTest: { //test for nodejs app with mocha
             tap: {
@@ -141,16 +146,16 @@ module.exports = function(grunt) {
                     captureFile: 'target/node/test_results.dirty.tap', // Optionally capture the reporter output to a file
                     quiet: false // Optionally suppress output to standard out (defaults to false)
                 },
-                src: ['test/node/**/*.js']
+                src: ['test/node/test-suite.js']
             },
             noreporter: {
-                src: ['test/node/**/*.js']
+                src: ['test/node/test-suite.js']
             }
         }, //test for browser app with mocha and phanthom
         'mocha_phantomjs': {
             options: {
                 urls: [
-                    'http://localhost:8000' /*<%= connect.options.port %>*/
+                    'http://localhost:' + ports.test /*<%= connect.options.port %>*/
                 ],
                 setting: [
                     'webSecurityEnabled=false',
@@ -198,51 +203,107 @@ module.exports = function(grunt) {
             }
         },
         preprocess: {
-            main: {
-                src: 'src/build/main.js',
+            'default': {
+                src: 'src/build/default.js',
                 dest: 'dist/corbel.js'
             },
-            bundle: {
-                src: 'src/build/bundle.js',
-                dest: 'dist/corbel-bundle.js'
+            'polyfills': {
+                src: 'src/build/with-polyfills.js',
+                dest: 'dist/corbel.with-polyfills.js'
             },
             'test-browser': {
-                src: 'test/browser/test-suite-pre.js',
-                dest: 'test/browser/test-suite.js'
+                src: 'test/browser/test-suite.js',
+                dest: '.tmp/test/browser/test-suite.js'
+            }
+        },
+        copy: {
+            'test-browser': {
+                src: ['test/browser/index.html'],
+                dest: '.tmp/',
             }
         }
     });
 
     grunt.loadTasks('tasks');
 
-    grunt.registerTask('server:webapp', ['dist', 'express:load', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
+    grunt.registerTask('serve:webapp', [
+        'build',
+        'express:load',
+        'execute:nodeapp',
+        'connect:webserver',
+        'open:webapp',
+        'watch:webapp'
+    ]);
 
-    grunt.registerTask('server:webapp:debug', ['dist', 'execute:nodeapp', 'connect:webserver', 'open:webapp', 'watch:webapp']);
+    grunt.registerTask('serve:webapp:debug', [
+        'build',
+        'execute:nodeapp',
+        'connect:webserver',
+        'open:webapp',
+        'watch:webapp'
+    ]);
 
-    grunt.registerTask('server:nodeapp', ['express:load', 'execute:nodeapp', 'watch:nodeapp']);
+    grunt.registerTask('serve:nodeapp', [
+        'express:load',
+        'execute:nodeapp',
+        'watch:nodeapp'
+    ]);
 
-    grunt.registerTask('test', ['test:browser', 'test:node']);
+    grunt.registerTask('test', [
+        'test:browser',
+        'test:node'
+    ]);
 
-    grunt.registerTask('test:browser', ['preprocess:test-browser', 'express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter']);
+    grunt.registerTask('test:browser', [
+        'build',
+        'copy:test-browser',
+        'preprocess:test-browser',
+        'express:load',
+        'connect:test_webserver',
+        'mocha_phantomjs:noreporter'
+    ]);
 
-    grunt.registerTask('test:browser:reload', ['preprocess:test-browser', 'express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
+    grunt.registerTask('test:node', [
+        'build',
+        'express:load',
+        'mochaTest:noreporter'
+    ]); //'mochaTest:tap', 'lineremover:tap'
 
-    grunt.registerTask('test:node:reload', ['express:load', 'mocha_phantomjs:noreporter']); //mocha_phantomjs:tap, 'lineremover:tap'
+    grunt.registerTask('test:browser:reload', [
+        'copy:test-browser',
+        'preprocess:test-browser',
+        'express:load',
+        'mocha_phantomjs:noreporter'
+    ]); //mocha_phantomjs:tap, 'lineremover:tap'
 
-    grunt.registerTask('test:node', ['express:load', 'mochaTest:noreporter']); //'mochaTest:tap', 'lineremover:tap'
-
-    grunt.registerTask('server:test', ['test:browser', 'open:test', 'watch:test']);
-
-    grunt.registerTask('server:test:node', ['test:node', 'open:test', 'watch:test-node']);
-
-    grunt.registerTask('test:tap', ['express:load', 'connect:test_webserver', 'mocha_phantomjs:noreporter', 'mochaTest:noreporter', 'lineremover:tap']);
+    grunt.registerTask('test:node:reload', [
+        'express:load',
+        'mocha_phantomjs:noreporter'
+    ]); //mocha_phantomjs:tap, 'lineremover:tap'
 
 
+    grunt.registerTask('serve:test', [
+        'test:browser',
+        'open:test',
+        'watch:test'
+    ]);
 
-    grunt.registerTask('build', ['test', 'preprocess:main']);
+    grunt.registerTask('serve:test:node', [
+        'test:node',
+        'open:test',
+        'watch:test-node'
+    ]);
 
-    grunt.registerTask('dist', ['preprocess:main']);
+    grunt.registerTask('test:tap', [
+        'express:load',
+        'connect:test_webserver',
+        'mocha_phantomjs:noreporter',
+        'mochaTest:noreporter',
+        'lineremover:tap'
+    ]);
 
-    grunt.registerTask('build:bundle', ['preprocess:bundle']);
+    grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills']);
+
+    grunt.registerTask('dist', ['test']);
 
 };
