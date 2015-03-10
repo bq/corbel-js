@@ -61,8 +61,6 @@
         return utils;
     
     })();
-
-
     (function() {
     
         /**
@@ -170,8 +168,6 @@
         return validate;
     
     })();
-
-
     /* jshint camelcase:false */
     corbel.cryptography = (function() {
         'use strict';
@@ -932,7 +928,6 @@
         }
     })();
 
-
     //----------corbel modules----------------
 
     (function() {
@@ -1066,8 +1061,6 @@
         return common;
     
     })();
-
-
     (function() {
     
         /**
@@ -1329,8 +1322,6 @@
     
     })();
     
-
-
     (function() {
     
         /* jshint camelcase:false */
@@ -1390,8 +1381,6 @@
     
     })();
     
-
-
     (function() {
     
     
@@ -1663,8 +1652,6 @@
         return corbelServices;
     
     })();
-
-
     'use strict';
     /* global define, console, corbel */
     
@@ -2628,7 +2615,6 @@
             withAuth: true
         });
     };
-
 
     return corbel;
 });
