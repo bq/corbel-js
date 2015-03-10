@@ -1,6 +1,8 @@
 'use strict';
 
-var corbel = require('../../../dist/corbel.js');
+var corbel = require('../../../dist/corbel.js'),
+    expect = require('chai').expect,
+    sinon = require('sinon');
 
 describe('corbel-js node', function() {
 

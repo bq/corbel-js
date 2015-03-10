@@ -954,6 +954,9 @@
             return !common.config.mode;
         };
     
+    
+        var isNode = typeof module !== 'undefined' && module.exports;
+    
         /**
          * Config data structure
          * @namespace
@@ -989,14 +992,14 @@
              * @type {String}
              * @default
              */
-            clientType: window === undefined ? 'NODE' : 'WEB',
+            clientType: isNode ? 'NODE' : 'WEB',
     
             /**
              * WebApp root URL
              * @type {String}
              * @default
              */
-            wwwRoot: common.config.clientType === 'WEB' ? window.location.protocol + '//' + window.location.host + window.location.pathname : 'localhost',
+            wwwRoot: !isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost',
     
             /**
              * Default lang
@@ -1067,9 +1070,10 @@
 
     (function() {
     
-        // Request module
-        //
-        //
+        /**
+         * Request object available for brwoser and node environment
+         * @type {Object}
+         */
         corbel.request = {};
     
         var xhrSuccessStatus = {
@@ -1080,77 +1084,93 @@
             1223: 204
         };
     
-        //  Process the server response to the specified object/array/blob/byteArray/text
-        //  args: data: the server response,
-        //  type: the class of the server response (array, blob, json),
-        //  dataType: is an extra param to form the blob object (if the type is blob)
+        /**
+         * Process the server response to the specified object/array/blob/byteArray/text
+         * @param  {Mixed} data                             The server response
+         * @param  {String} type='array'|'blob'|'json'      The class of the server response
+         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+         * @return {Mixed}                                  Processed data
+         */
         var processResponseData = function(data, type, dataType) {
-                var parsedData = data;
+            var parsedData = data;
     
-                if (type === 'arraybuffer') {
-                    parsedData = new Uint8Array(data);
-                } else if (type === 'blob') {
-                    parsedData = new Blob([data], {
-                        type: dataType
-                    });
+            if (type === 'arraybuffer') {
+                parsedData = new Uint8Array(data);
+            } else if (type === 'blob') {
+                parsedData = new Blob([data], {
+                    type: dataType
+                });
+            }
+    
+            return parsedData;
+    
+        };
+    
+        /**
+         * Serialize the data to be sent to the server
+         * @param  {Mixed} data                             The data that would be sent to the server
+         * @param  {String} type='array'|'blob'|'json'      The class of the data (array, blob, json)
+         * @return {String}                                 Serialized data
+         */
+        var serializeData = function(data, type) {
+            var serializedData = data;
+    
+            if (type === 'json' && typeof data === 'object') {
+                serializedData = JSON.stringify(data);
+            }
+    
+            return serializedData;
+    
+        };
+    
+        /**
+         * [processResponse description]
+         * @param  {[type]} response        [description]
+         * @param  {[type]} resolver        [description]
+         * @param  {[type]} callbackSuccess [description]
+         * @param  {[type]} callbackError   [description]
+         * @return {[type]}                 [description]
+         */
+        var processResponse = function(response, resolver, callbackSuccess, callbackError) {
+    
+            //xhr = xhr.target || xhr || {};
+            var statusCode = xhrSuccessStatus[response.status] || response.status,
+                statusType = Number(response.status.toString()[0]),
+                promiseResponse;
+    
+            if (statusType < 3) {
+                var data = processResponseData(response.responseType, response.dataType);
+    
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, response.status, response.responseObject);
                 }
     
-                return parsedData;
+                promiseResponse = {
+                    data: data,
+                    status: response.status,
+                };
     
-            },
-            //  Serialize the data to be sent to the server
-            //  args: the data that would be sent to the server,
-            //  type: the class of the data (array, blob, json)
-            serializeData = function(data, type) {
-                var serializedData = data;
+                promiseResponse[response.responseObjectType] = response.responseObject;
     
-                if (type === 'json' && typeof data === 'object') {
-                    serializedData = JSON.stringify(data);
+                resolver.resolve(promiseResponse);
+    
+            } else if (statusType === 4) {
+    
+                if (callbackError) {
+                    callbackError.call(this, response.status, response.responseObject, response.error);
                 }
     
-                return serializedData;
+                promiseResponse = {
+                    error: response.error,
+                    status: response.status,
+                };
     
-            },
-            processResponse = function(response, resolver, callbackSuccess, callbackError) {
+                promiseResponse[response.responseObjectType] = response.responseObject;
     
-                //xhr = xhr.target || xhr || {};
-                var statusCode = xhrSuccessStatus[response.status] || response.status,
-                    statusType = Number(response.status.toString()[0]),
-                    promiseResponse;
+                resolver.reject(promiseResponse);
+            }
     
-                if (statusType < 3) {
-                    var data = processResponseData(response.responseType, response.dataType);
-    
-                    if (callbackSuccess) {
-                        callbackSuccess.call(this, data, response.status, response.responseObject);
-                    }
-    
-                    promiseResponse = {
-                        data: data,
-                        status: response.status,
-                    };
-    
-                    promiseResponse[response.responseObjectType] = response.responseObject;
-    
-                    resolver.resolve(promiseResponse);
-    
-                } else if (statusType === 4) {
-    
-                    if (callbackError) {
-                        callbackError.call(this, response.status, response.responseObject, response.error);
-                    }
-    
-                    promiseResponse = {
-                        error: response.error,
-                        status: response.status,
-                    };
-    
-                    promiseResponse[response.responseObjectType] = response.responseObject;
-    
-                    resolver.reject(promiseResponse);
-                }
-    
-            };
+        };
     
         //nodejs
         if (typeof module !== 'undefined' && module.exports) {
@@ -1308,14 +1328,14 @@
         return corbel.request;
     
     })();
+    
 
 
     (function() {
     
+        /* jshint camelcase:false */
     
         corbel.jwt = {
-    
-    
     
             /**
              * JWT-HmacSHA256 generator
