@@ -9,8 +9,6 @@
   },
   "dependencies": {
     "es6-promise": "^2.0.1",
-    "grunt-contrib-jshint": "^0.11.0",
-    "jshint-stylish": "^1.0.1",
     "request": "^2.53.0"
   },
   "devDependencies": {
@@ -27,6 +25,9 @@
     "grunt-contrib-cssmin": "^0.11.0",
     "grunt-contrib-uglify": "^0.7.0",
     "grunt-contrib-watch": "0.6.1",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-jshint": "^0.11.0",
     "grunt-exec": "^0.4.6",
     "grunt-execute": "0.2.2",
     "grunt-express": "1.4.1",
@@ -40,16 +41,18 @@
     "grunt-requirejs": "^0.4.2",
     "grunt-usemin": "^3.0.0",
     "load-grunt-tasks": "^3.1.0",
+    "jshint-stylish": "^1.0.1",
     "mocha": "2.0.1",
     "node-inspector": "^0.8.3",
-    "sinon": "1.11.1"
+    "sinon": "^1.13.0"
   },
   "scripts": {
-    "test": "node-debug $(which grunt) test:node",
-    "clean": "rm -rf node_modules",
-    "reset": "npm run clean && npm install",
+    "test": "node $(which grunt) test:node",
+    "test:debug": "node-debug $(which grunt) test:node",
+    "clean": "rm -rf node_modules bower_components",
+    "reinstall": "npm run clean && npm install",
     "postinstall": "bower install",
-    "build": "grunt build"
+    "build": "grunt dist"
   },
   "repository": {
     "type": "git",
@@ -63,8 +66,11 @@
     "corbel",
     "nodejs"
   ],
-  "author": "Daniel García González",
-  "license": "LGPL",
+  "author": [
+    "Daniel García González <daniel.garcia@bq.com>",
+    "Anthanh Pham Trinh <anthanh.pham@bq.com>"
+  ],
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/bq/corbel-js/issues"
   },

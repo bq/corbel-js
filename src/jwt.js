@@ -1,5 +1,6 @@
 (function() {
 
+    /* jshint camelcase:false */
 
     //@exclude
     'use strict';
@@ -7,8 +8,6 @@
     //@endexclude
 
     corbel.jwt = {
-
-
 
         /**
          * JWT-HmacSHA256 generator
