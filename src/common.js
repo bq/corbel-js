@@ -2,7 +2,7 @@
     //@exclude
 
     'use strict';
-    /* globals corbel */
+    /* globals corbel, root */
 
     //@endexclude
 
@@ -23,6 +23,9 @@
     common.isProduction = function() {
         return !common.config.mode;
     };
+
+
+    var isNode = typeof module !== 'undefined' && module.exports;
 
     /**
      * Config data structure
@@ -59,14 +62,14 @@
          * @type {String}
          * @default
          */
-        clientType: window === undefined ? 'NODE' : 'WEB',
+        clientType: isNode ? 'NODE' : 'WEB',
 
         /**
          * WebApp root URL
          * @type {String}
          * @default
          */
-        wwwRoot: common.config.clientType === 'WEB' ? window.location.protocol + '//' + window.location.host + window.location.pathname : 'localhost',
+        wwwRoot: !isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost',
 
         /**
          * Default lang
