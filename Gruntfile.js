@@ -14,7 +14,7 @@ module.exports = function(grunt) {
         server: 9000,
         test: 8000,
         livereload: 35729,
-        expres: 3000
+        express: 3000
     };
 
     grunt.initConfig({
@@ -32,7 +32,8 @@ module.exports = function(grunt) {
             },
             all: [
                 'Gruntfile.js',
-                // 'src/{,**/}*.js',
+                'src/{,**/}*.js',
+                '!src/cryptography.js', // vendor @todo remove or clean this dep
                 'test/{,**/}*.js',
                 'examples/{,**/}*.js'
             ]

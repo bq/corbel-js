@@ -78,12 +78,12 @@
             var data = processResponseData(response.responseType, response.dataType);
 
             if (callbackSuccess) {
-                callbackSuccess.call(this, data, response.status, response.responseObject);
+                callbackSuccess.call(this, data, statusCode, response.responseObject);
             }
 
             promiseResponse = {
                 data: data,
-                status: response.status,
+                status: statusCode,
             };
 
             promiseResponse[response.responseObjectType] = response.responseObject;
@@ -93,12 +93,13 @@
         } else if (statusType === 4) {
 
             if (callbackError) {
-                callbackError.call(this, response.status, response.responseObject, response.error);
+                callbackError.call(this, response.error, statusCode, response.responseObject);
             }
 
             promiseResponse = {
-                error: response.error,
-                status: response.status,
+                data: response.responseObject,
+                status: statusCode,
+                error: response.error
             };
 
             promiseResponse[response.responseObjectType] = response.responseObject;
@@ -115,21 +116,20 @@
         corbel.request.send = function(options) {
             options = options || {};
 
-            var method = String((options.type || 'GET')).toUpperCase(),
+            var method = String((options.method || 'GET')).toUpperCase(),
                 url = options.url,
                 headers = typeof options.headers === 'object' ? options.headers : {},
                 contentType = options.contentType || 'application/json',
-                isJSON = contentType === 'application/json; charset=utf-8' ? true : false,
+                isJSON = contentType.indexOf('json') !==-1 ? true : false,
                 callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
                 self = this,
-                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+                //responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
                 dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
-                data = options.data || {};
-
+                data = (method === 'PUT' || method === 'POST' || method === 'PATCH') ? options.data || {} : undefined;
 
             if (!url) {
-                throw new Error('You must define an url');
+                throw new Error('undefined:url');
             }
 
             headers['content-type'] = contentType;
@@ -142,7 +142,7 @@
                     headers: headers,
                     json: isJSON,
                     body: data
-                }, function(error, response, body) { //callback
+                }, function(error, response, body) {
 
                     processResponse.call(self, {
                         responseObject: response,
@@ -180,12 +180,12 @@
                 callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
                 self = this,
-                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-                dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined;
+                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json';
+                //dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined;
 
 
             if (!url) {
-                throw new Error('You must define an url');
+                throw new Error('undefined:url');
             }
 
             var method = String((options.type || 'GET')).toUpperCase();
