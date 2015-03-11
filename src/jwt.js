@@ -1,13 +1,15 @@
 (function() {
-
     /* jshint camelcase:false */
-
     //@exclude
     'use strict';
     /* global corbel */
     //@endexclude
 
     corbel.jwt = {
+
+        EXPIRATION: 3500,
+        ALGORITHM: 'HS256',
+        VERSION: '1.0.0',
 
         /**
          * JWT-HmacSHA256 generator
@@ -19,8 +21,8 @@
          */
         generate: function(claims, secret, alg) {
             // console.log('jwt.generate', claims, secret, alg);
-            secret = secret || corbel.common.get('clientSecret'); //Todo
-            alg = alg || corbel.common.get('jwtAlgorithm'); //Todo
+            secret = secret || corbel.common.get('clientSecret');
+            alg = alg || corbel.jwt.ALGORITHM;
 
             var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                     alg: alg
@@ -42,17 +44,27 @@
 
             // Default claims values
             var claims = {
-                iss: corbel.common.get('clientId'), //TODO
-                aud: corbel.common.get('claimAud'), //TODO
-                scope: corbel.common.getOrDefault('claimScopes'), //TODO
-                version: corbel.common.get('version') //TODO
+                version: params.version || corbel.jwt.VERSION,
+                exp: params.exp || Math.round((new Date().getTime() / 1000)) + corbel.jwt.EXPIRATION
             };
-
-            claims.exp = Math.round((new Date().getTime() / 1000)) + corbel.common.get('claimExp');
 
             claims = corbel.utils.extend(claims, params);
 
-            // console.log('jwt.createClaims.claims', claims);
+            if (!claims.iss) {
+                throw new Error('jwt:undefined:iss');
+            }
+            if (!claims.aud) {
+                throw new Error('jwt:undefined:aud');
+            }
+            if (!claims.scope) {
+                throw new Error('jwt:undefined:scope');
+            }
+            if (!claims.version) {
+                throw new Error('jwt:undefined:version');
+            }
+            if (!claims.exp) {
+                throw new Error('jwt:undefined:exp');
+            }
 
             return claims;
         }
