@@ -12,7 +12,7 @@
      * @namespace
      * @memberof app
      */
-    var validate = corbel.validate = {};
+    corbel.validate = {};
 
     /**
      * Checks if some value is not undefined
@@ -21,7 +21,7 @@
      * @throws {Error} If return value is false and message are defined
      * @return {Boolean}
      */
-    validate.isDefined = function(value, message) {
+    corbel.validate.isDefined = function(value, message) {
         var isUndefined = value === undefined;
 
         if (isUndefined && message) {
@@ -38,7 +38,7 @@
      * @return {Boolean}
      */
 
-    validate.failIfIsDefined = function(value, message) {
+    corbel.validate.failIfIsDefined = function(value, message) {
         var isDefined = value !== undefined;
 
         if (isDefined && message) {
@@ -54,7 +54,7 @@
      * @throws {Error} If return value is false and message are defined
      * @return {Boolean}
      */
-    validate.isNotNull = function(value, message) {
+    corbel.validate.isNotNull = function(value, message) {
         var isNull = value === null;
 
         if (isNull && message) {
@@ -70,7 +70,7 @@
      * @throws {Error} If return value is false and message are defined
      * @return {Boolean}
      */
-    validate.isValue = function(value, message) {
+    corbel.validate.isValue = function(value, message) {
         return this.isDefined(value, message) && this.isNotNull(value, message);
     };
 
@@ -82,7 +82,7 @@
      * @throws {Error} If return value is false and message are defined
      * @return {Boolean}
      */
-    validate.isGreaterThan = function(value, greaterThan, message) {
+    corbel.validate.isGreaterThan = function(value, greaterThan, message) {
         var gt = this.isValue(value) && value > greaterThan;
 
         if (!gt && message) {
@@ -99,7 +99,7 @@
      * @throws {Error} If return value is false and message are defined
      * @return {Boolean}
      */
-    validate.isGreaterThanOrEqual = function(value, isGreaterThanOrEqual, message) {
+    corbel.validate.isGreaterThanOrEqual = function(value, isGreaterThanOrEqual, message) {
         var gte = this.isValue(value) && value >= isGreaterThanOrEqual;
 
         if (!gte && message) {
@@ -107,7 +107,5 @@
         }
         return gte;
     };
-
-    return validate;
 
 })();

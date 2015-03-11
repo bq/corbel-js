@@ -70,22 +70,22 @@
          it('send method accepts all http verbs', function() {
 
              request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url
              });
 
              request.send({
-                 type: 'POST',
+                 method: 'POST',
                  url: url
              });
 
              request.send({
-                 type: 'PUT',
+                 method: 'PUT',
                  url: url
              });
 
              request.send({
-                 type: 'HEAD',
+                 method: 'HEAD',
                  url: url
              });
 
@@ -95,31 +95,31 @@
 
              var fn = function() {
                  return request.send({
-                     type: 'GET'
+                     method: 'GET'
                  });
              };
 
-             expect(fn).to.throw(Error);
+             expect(fn).to.throw('undefined:url');
          });
 
          it('send mehtod returns a promise', function() {
 
              var promise = request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url
              });
 
              expect(promise).to.be.instanceof(Promise);
          });
 
-         it('send mehtod returns a promise and resolve it', function() {
+         it('send mehtod returns a promise and resolve it', function(done) {
 
              var resolveCallback = function() {};
 
              var spyResolve = sandbox.spy(resolveCallback);
 
              var promise = request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url
              });
 
@@ -128,6 +128,7 @@
              promise.then(function() {
                  spyResolve();
                  expect(spyResolve.calledOnce).to.be.equal(true);
+                 done();
              });
 
          });
@@ -138,7 +139,7 @@
              var spyError = sandbox.spy(errorCallback);
 
              var promise = request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url
              });
 
@@ -159,7 +160,7 @@
                  spySuccessCallback = sandbox.spy(successCallback);
 
              request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url,
                  success: function() {
                      spySuccessCallback();
@@ -177,7 +178,7 @@
                  spySuccessCallback = sandbox.spy(successCallback);
 
              request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url,
                  success: function() {
                      spySuccessCallback.apply(this, arguments);
@@ -199,7 +200,7 @@
                  spyErrorCallback = sandbox.spy(errorCallback);
 
              request.send({
-                 type: 'GET',
+                 method: 'GET',
                  url: url,
                  error: function() {
                      spyErrorCallback();
