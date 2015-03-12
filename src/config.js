@@ -1,9 +1,9 @@
-(function() {
+//@exclude
+'use strict';
+/* globals corbel, root */
+//@endexclude
 
-    //@exclude
-    'use strict';
-    /* globals corbel, root */
-    //@endexclude
+(function() {
 
     function Config(config) {
         config = config || {};
@@ -16,7 +16,7 @@
     corbel.Config = Config;
 
     corbel.Config.isNode = typeof module !== 'undefined' && module.exports;
-    
+
     /**
      * Client type
      * @type {String}

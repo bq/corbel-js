@@ -1,9 +1,10 @@
+//@exclude
+'use strict';
+/* global corbel */
+//@endexclude
+
 (function() {
 
-    //@exclude
-    'use strict';
-    /* global corbel */
-    //@endexclude
 
 
     /**

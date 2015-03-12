@@ -1,10 +1,9 @@
+//@exclude
+'use strict';
+/* globals corbel */
+//@endexclude
+
 (function() {
-
-
-    //@exclude
-    'use strict';
-    /* globals corbel */
-    //@endexclude
 
     /** --core engine services-- */
 

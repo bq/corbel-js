@@ -26,6 +26,7 @@
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
+    //  @include ../corbel.js
     //  @include ../utils.js
     //  @include ../validate.js
     //  @include ../cryptography.js
@@ -33,11 +34,10 @@
     //----------corbel modules----------------
 
     //  @include ../config.js
-    //  @include ../common.js
     //  @include ../request.js
     //  @include ../jwt.js
     //  @include ../services.js
-    //  @include ../iam.js
+    //  @include ../iam/iam.js
 
     return corbel;
 });

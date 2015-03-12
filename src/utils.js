@@ -1,11 +1,9 @@
+//@exclude
+'use strict';
+/* globals corbel */
+//@endexclude
+
 (function() {
-    //@exclude
-
-    'use strict';
-    /* global corbel */
-
-    //@endexclude
-
 
     /**
      * A module to some library corbel.utils.

@@ -3,5 +3,6 @@ node_js:
   - 0.10
 before_script: npm run bower
 script:
-    -   grunt dist
-    -   grunt coverage:node
+  - grunt test:browser
+  - grunt test:node
+  - grunt coverage:node
