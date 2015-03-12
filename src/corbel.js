@@ -6,7 +6,7 @@
 (function() {
 	
 	function CorbelDriver(config) {
-		this.config = corbel.config.create(config);
+		this.config = corbel.Config.create(config);
 	}
 
 	corbel.CorbelDriver = CorbelDriver;

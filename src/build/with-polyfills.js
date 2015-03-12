@@ -29,6 +29,7 @@
 
     //----------corbel modules----------------
 
+    //  @include ../config.js
     //  @include ../common.js
     //  @include ../request.js
     //  @include ../jwt.js
