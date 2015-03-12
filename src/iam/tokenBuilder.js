@@ -112,13 +112,13 @@
         corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
         // we need create default claims to refresh access token
         var params = {
-            'claims': corbel.jwt.createClaims({
+            claims: corbel.jwt.createClaims({
+                'iss': this.driver.config.get('clientId'),
+                'aud': corbel.Iam.AUD,
+                'scope': scopes || this.driver.config.get('scopesApp'),
                 'refresh_token': refreshToken
             })
         };
-        if (scopes) {
-            params.claims.scope = scopes;
-        }
         // we use the traditional POST verb to refresh access token.
         return this._doPostTokenRequest(this.uri, params);
     };

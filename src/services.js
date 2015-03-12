@@ -80,7 +80,6 @@
 
         return new Promise(function(resolve, reject) {
 
-
             corbelServices.makeRequest({
                 resolve: resolve,
                 reject: reject

@@ -180,7 +180,7 @@ module.exports = function(grunt) {
                 options: {
                     reporter: 'mocha-lcov-reporter',
                     quiet: true,
-                    captureFile: '.tmp/coverage.lcov'
+                    captureFile: '.tmp/lcov.info'
                 },
                 src: ['.tmp/coverage/test/node/test-suite.js']
             },
@@ -223,8 +223,8 @@ module.exports = function(grunt) {
             }
         },
         coveralls: {
-            options: {
-                src: '.tmp/coverage.lcov'
+            'default': {
+                src: '.tmp/lcov.info'
             }
         },
         lineremover: {
