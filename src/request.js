@@ -12,6 +12,68 @@
      */
     corbel.request = {};
 
+
+    /**
+     * Public method to make ajax request
+     * @param  {Object} options                                     Object options for ajax request
+     * @param  {String} options.url                                 The request url domain
+     * @param  {String} options.method                              The method used for the request
+     * @param  {Object} options.headers                             The request headers
+     * @param  {String} options.contentType                         The content type of the body
+     * @param  {Object || Uint8Array || blob} options.data          Optional data sent to the server
+     * @param  {Function} options.success                           Callback function for success request response
+     * @param  {Function} options.error                             Callback function for handle error in the request
+     * @return {ES6 Promise}                                        Promise about the request status and response
+     */
+    corbel.request.send = function(options) {
+        options = options || {};
+
+        var params = {
+            method: String((options.method || 'GET')).toUpperCase(),
+            url: options.url,
+            headers: typeof options.headers === 'object' ? options.headers : {},
+            contentType: options.contentType || 'application/json',
+            get isJSON() {
+                return this.contentType.indexOf('json') !== -1 ? true : false;
+            },
+            callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
+            callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
+            //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+            dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
+            get data() {
+                return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data || {} : undefined;
+            }
+        };
+
+        if (!params.url) {
+            throw new Error('undefined:url');
+        }
+
+
+        // add responseType to the request (blob || arraybuffer || text)
+        // httpReq.responseType = responseType;
+
+        //add content - type header
+        params.headers['content-type'] = params.contentType;
+
+        var promise = new Promise(function(resolve, reject) {
+
+            var resolver = {
+                resolve: resolve,
+                reject: reject
+            };
+
+            if (typeof module !== 'undefined' && module.exports) { //nodejs
+                nodeAjax.call(this, params, resolver);
+            } else if (typeof window !== 'undefined') { //browser
+                browserAjax.call(this, params, resolver);
+            }
+        }.bind(this));
+
+
+        return promise;
+    };
+
     var xhrSuccessStatus = {
         // file protocol always yields status code 0, assume 200
         0: 200,
@@ -21,7 +83,7 @@
     };
 
     /**
-     * Process the server response to the specified object/array/blob/byteArray/text
+     * Process the server response data to the specified object/array/blob/byteArray/text
      * @param  {Mixed} data                             The server response
      * @param  {String} type='array'|'blob'|'json'      The class of the server response
      * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
@@ -60,12 +122,11 @@
     };
 
     /**
-     * [processResponse description]
-     * @param  {[type]} response        [description]
-     * @param  {[type]} resolver        [description]
-     * @param  {[type]} callbackSuccess [description]
-     * @param  {[type]} callbackError   [description]
-     * @return {[type]}                 [description]
+     * Process server response
+     * @param  {[Response object]} response
+     * @param  {[Object]} resolver
+     * @param  {[Function]} callbackSuccess
+     * @param  {[Function]} callbackError
      */
     var processResponse = function(response, resolver, callbackSuccess, callbackError) {
 
@@ -109,157 +170,86 @@
 
     };
 
-    //nodejs
-    if (typeof module !== 'undefined' && module.exports) {
+
+    var nodeAjax = function(params, resolver) {
+
         var request = require('request');
 
-        corbel.request.send = function(options) {
-            options = options || {};
+        request({
+            method: params.method,
+            url: params.url,
+            headers: params.headers,
+            json: params.isJSON,
+            body: params.data
+        }, function(error, response, body) {
 
-            var method = String((options.method || 'GET')).toUpperCase(),
-                url = options.url,
-                headers = typeof options.headers === 'object' ? options.headers : {},
-                contentType = options.contentType || 'application/json',
-                isJSON = contentType.indexOf('json') !==-1 ? true : false,
-                callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
-                callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
-                self = this,
-                //responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-                dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
-                data = (method === 'PUT' || method === 'POST' || method === 'PATCH') ? options.data || {} : undefined;
+            processResponse.call(this, {
+                responseObject: response,
+                dataType: params.dataType,
+                responseType: response.headers['content-type'],
+                response: body,
+                status: response.statusCode,
+                responseObjectType: 'response',
+                error: error
+            }, resolver, params.callbackSuccess, params.callbackError);
 
-            if (!url) {
-                throw new Error('undefined:url');
+        }.bind(this));
+
+    };
+
+    var browserAjax = function(params, resolver) {
+
+        var httpReq = new XMLHttpRequest();
+
+
+        httpReq.open(params.method, params.url, true);
+
+        /* add request headers */
+        for (var header in params.headers) {
+            if (params.headers.hasOwnProperty(header)) {
+                httpReq.setRequestHeader(header, params.headers[header]);
             }
+        }
 
-            headers['content-type'] = contentType;
+        httpReq.onload = function(xhr) {
+            xhr = xhr.target || xhr; // only for fake sinon response xhr
 
-            var promise = new Promise(function(resolve, reject) {
+            processResponse.call(this, {
+                responseObject: xhr,
+                dataType: xhr.dataType,
+                responseType: xhr.responseType,
+                response: xhr.response || xhr.responseText,
+                status: xhr.status,
+                responseObjectType: 'xhr',
+                error: xhr.error
+            }, resolver, params.callbackSuccess, params.callbackError);
 
-                request({
-                    method: method,
-                    url: url,
-                    headers: headers,
-                    json: isJSON,
-                    body: data
-                }, function(error, response, body) {
+            //delete callbacks
+        }.bind(this);
 
-                    processResponse.call(self, {
-                        responseObject: response,
-                        dataType: dataType,
-                        responseType: response.headers['content-type'],
-                        response: body,
-                        status: response.statusCode,
-                        responseObjectType: 'response',
-                        error: error
-                    }, {
-                        resolve: resolve,
-                        reject: reject
-                    }, callbackSuccess, callbackError);
+        //response fail ()
+        httpReq.onerror = function(xhr) {
+            xhr = xhr.target || xhr; // only for fake sinon response xhr
 
-                });
+            processResponse.call(this, {
+                responseObject: xhr,
+                dataType: xhr.dataType,
+                responseType: xhr.responseType,
+                response: xhr.response || xhr.responseText,
+                status: xhr.status,
+                responseObjectType: 'xhr',
+                error: xhr.error
+            }, resolver, params.callbackSuccess, params.callbackError);
 
-            });
+        }.bind(this);
 
-            return promise;
-        };
+        if (params.data) {
+            httpReq.send(serializeData(params.data, params.responseType));
+        } else {
+            httpReq.send();
+        }
 
-        module.exports = corbel.request;
-    }
-
-    //browser
-    if (typeof window !== 'undefined') {
-
-        corbel.request.send = function(options) {
-            options = options || {};
-
-            var httpReq = new XMLHttpRequest(),
-                url = options.url,
-                headers = typeof options.headers === 'object' ? options.headers : {},
-                contentType = options.contentType || 'application/json',
-                callbackSuccess = options.success && typeof options.success === 'function' ? options.success : undefined,
-                callbackError = options.error && typeof options.error === 'function' ? options.error : undefined,
-                self = this,
-                responseType = options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json';
-                //dataType = options.responseType === 'blob' ? options.type || 'image/jpg' : undefined;
-
-
-            if (!url) {
-                throw new Error('undefined:url');
-            }
-
-            var method = String((options.type || 'GET')).toUpperCase();
-
-            // add responseType to the request (blob || arraybuffer || text)
-            httpReq.responseType = responseType;
-
-            //add content-type header
-            headers['content-type'] = contentType;
-
-            httpReq.open(method, url, true);
-
-            /* add request headers */
-            for (var header in headers) {
-                if (headers.hasOwnProperty(header)) {
-                    httpReq.setRequestHeader(header, headers[header]);
-                }
-            }
-
-            //  Process the server response to the specified object type
-            var promise = new Promise(function(resolve, reject) {
-                //response recieved
-                httpReq.onload = function(xhr) {
-                    xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-                    processResponse.call(self, {
-                        responseObject: xhr,
-                        dataType: xhr.dataType,
-                        responseType: xhr.responseType,
-                        response: xhr.response || xhr.responseText,
-                        status: xhr.status,
-                        responseObjectType: 'xhr',
-                        error: xhr.error
-                    }, {
-                        resolve: resolve,
-                        reject: reject
-                    }, callbackSuccess, callbackError);
-
-                    //delete callbacks
-                };
-
-                //response fail ()
-                httpReq.onerror = function(xhr) {
-                    xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-                    processResponse.call(self, {
-                        responseObject: xhr,
-                        dataType: xhr.dataType,
-                        responseType: xhr.responseType,
-                        response: xhr.response || xhr.responseText,
-                        status: xhr.status,
-                        responseObjectType: 'xhr',
-                        error: xhr.error
-                    }, {
-                        resolve: resolve,
-                        reject: reject
-                    }, callbackSuccess, callbackError);
-
-                };
-
-            });
-
-            if (options.data) {
-                httpReq.send(serializeData(options.data, responseType));
-            } else {
-                httpReq.send();
-            }
-
-
-            return promise;
-
-        };
-    }
-
+    };
 
     return corbel.request;
 
