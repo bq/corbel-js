@@ -34,7 +34,7 @@ describe('in corbel module', function() {
                 corbel.getDriver({
                     urlBase: 'url'
                 });
-            }).to.throw('undefined:urlBase');
+            }).to.throw('undefined:clientId');
         });
 
         it('clientSecret is required', function() {
@@ -43,7 +43,7 @@ describe('in corbel module', function() {
                     urlBase: 'url',
                     clientId: 'clientId'
                 });
-            }).to.throw('undefined:urlBase');
+            }).to.throw('undefined:clientSecret');
         });
 
         it('scopesApp is required', function() {
@@ -53,7 +53,7 @@ describe('in corbel module', function() {
                     clientId: 'clientId',
                     clientSecret: 'clientSecret'
                 });
-            }).to.throw('undefined:urlBase');
+            }).to.throw('undefined:scopesApp');
         });
 
         it('scopesUserLogin is required', function() {
@@ -64,7 +64,7 @@ describe('in corbel module', function() {
                     clientSecret: 'clientSecret',
                     scopesApp: 'scopesApp'
                 });
-            }).to.throw('undefined:urlBase');
+            }).to.throw('undefined:scopesUserLogin');
         });
 
         it('scopesUserCreate is required', function() {
@@ -76,24 +76,201 @@ describe('in corbel module', function() {
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin'
                 });
-            }).to.throw('undefined:urlBase');
+            }).to.throw('undefined:scopesUserCreate');
+        });
+
+
+        it('resourcesEndpoint is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate'
+                });
+            }).to.throw('undefined:resourcesEndpoint');
+        });
+
+        it('iamEndpoint is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/'
+                });
+            }).to.throw('undefined:iamEndpoint');
+        });
+
+        it('evciEndpoint is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/'
+                });
+            }).to.throw('undefined:evciEndpoint');
+        });
+
+        it('oauthEndpoint is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/'
+                });
+            }).to.throw('undefined:oauthEndpoint');
+        });
+
+        it('oauthClientId is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
+                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/'
+                });
+            }).to.throw('undefined:oauthClientId');
+        });
+
+        it('oauthSecret is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
+                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+                    
+                    oauthClientId: 'bitbloq-client'
+                });
+            }).to.throw('undefined:oauthSecret');
+        });
+
+        it('oauthService is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
+                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+                    
+                    oauthClientId: 'bitbloq-client',
+                    oauthSecret: 'bitbloq-secret'
+                });
+            }).to.throw('undefined:oauthService');
         });
 
         describe('with all parametes', function() {
 
-            it('is a CorbelBuilder instance', function() {
+            it('it creates a CorbelDriver', function() {
                 expect(corbel.getDriver({
                     urlBase: 'url',
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
                     scopesApp: 'scopesApp',
-                    scopesUserLogin: 'scopesUserLogin'
-                })).to.be.an.instanceof(corbel.CorberDriver);
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
+                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+                    
+                    oauthClientId: 'bitbloq-client',
+                    oauthSecret: 'bitbloq-secret',
+                    oauthService: 'corbel'
+                })).to.be.an.instanceof(corbel.CorbelDriver);
             });
 
         });
 
+        describe('with a CorbelDriverer instance', function() {
+            
+            var corbelDriver;
 
+            beforeEach(function() {
+                corbelDriver = corbel.getDriver({
+                    urlBase: 'url',
+
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    
+                    scopesApp: 'scopesApp',
+                    scopesUserLogin: 'scopesUserLogin',
+                    scopesUserCreate: 'scopesUserCreate',
+
+                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
+                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
+                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
+                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+                    
+                    oauthClientId: 'bitbloq-client',
+                    oauthSecret: 'bitbloq-secret',
+                    oauthService: 'corbel'
+                });
+            });
+
+            it('has all members', function() {
+                expect(corbelDriver).to.have.ownProperty('config');
+                expect(corbelDriver.config).to.be.an.instanceof(corbel.Config);
+                expect(corbel).to.have.ownProperty('Iam');
+            });
+
+        });
 
     });
 });

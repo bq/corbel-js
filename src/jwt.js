@@ -1,9 +1,10 @@
+/* jshint camelcase:false */
+//@exclude
+'use strict';
+/* global corbel */
+//@endexclude
+
 (function() {
-    /* jshint camelcase:false */
-    //@exclude
-    'use strict';
-    /* global corbel */
-    //@endexclude
 
     corbel.jwt = {
 
@@ -14,14 +15,12 @@
         /**
          * JWT-HmacSHA256 generator
          * http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
-         * @param  {Object} claims Specific claims to include in the JWT (iss, aud, exp, scope, ...)
-         * @param  {String} [secret='common.clientSecret'] String with the client assigned secret
-         * @param  {Object} [alg='common.jwtAlgorithm']   Object with the algorithm type
-         * @return {String} jwt JWT string
+         * @param  {Object}                                 claims Specific claims to include in the JWT (iss, aud, exp, scope, ...)
+         * @param  {String} secret                          String with the client assigned secret
+         * @param  {Object} [alg='corbel.jwt.ALGORITHM']    Object with the algorithm type
+         * @return {String} jwt                             JWT string
          */
         generate: function(claims, secret, alg) {
-            // console.log('jwt.generate', claims, secret, alg);
-            secret = secret || corbel.common.get('clientSecret');
             alg = alg || corbel.jwt.ALGORITHM;
 
             var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({

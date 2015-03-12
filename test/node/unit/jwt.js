@@ -6,18 +6,8 @@ var corbel = require('../../../dist/corbel.js'),
 
 describe('JWT module', function() {
 
-    var backupCFG;
-    before(function() {
-        backupCFG = corbel.common.getConfig();
-        corbel.common.setConfig({
-            clientId: '38c1a251',
-            claimScopes: 'resources:bookland:read_catalog iam:user:create iam:user:delete iam:user:read'
-        });
-    });
-
-    after(function() {
-        corbel.common.setConfig(backupCFG);
-    });
+    var CLIENT_ID = '38c1a251';
+    var SCOPES = 'resources:bookland:read_catalog iam:user:create iam:user:delete iam:user:read';
 
     it('exists and is an object', function() {
         expect(corbel.jwt).to.be.an('object');
@@ -33,7 +23,7 @@ describe('JWT module', function() {
     it('generates a valid JWT', function() {
         var secret = '4f768d88820c997b5e25d0c6f614d1e4ab4a356c85ec1ea194712fef8427da7c',
             claims = {
-                'iss': '38c1a251',
+                'iss': CLIENT_ID,
                 'aud': 'http://iam.bqws.io',
                 'exp': 1391535,
                 'scope': 'resources:bookland:read_catalog'
@@ -50,14 +40,14 @@ describe('JWT module', function() {
 
     it('generates a default claims object', function() {
         var claims = corbel.jwt.createClaims({
-            iss: corbel.common.get('clientId'),
-            aud: corbel.iam.AUD,
-            scope: corbel.common.get('claimScopes')
+            iss: CLIENT_ID,
+            aud: 'aud',
+            scope: SCOPES
         });
 
-        expect(claims.iss).to.be.equal(corbel.common.get('clientId'));
-        expect(claims.aud).to.be.equal(corbel.iam.AUD);
-        expect(claims.scope).to.be.equal(corbel.common.get('claimScopes'));
+        expect(claims.iss).to.be.equal(CLIENT_ID);
+        expect(claims.aud).to.be.equal('aud');
+        expect(claims.scope).to.be.equal(SCOPES);
         expect(claims.version).to.be.equal(corbel.jwt.VERSION);
 
     });
@@ -65,8 +55,8 @@ describe('JWT module', function() {
     it('can overrride default claims fields', function() {
         var claims = corbel.jwt.createClaims({
             iss: 'myiss',
-            aud: corbel.iam.AUD,
-            scope: corbel.common.get('claimScopes'),
+            aud: 'aud',
+            scope: 'scopes',
             custom: true
         });
 
@@ -99,7 +89,7 @@ describe('JWT module', function() {
             expect(function() {
                 corbel.jwt.createClaims({
                     iss: 'myiss',
-                    aud: corbel.iam.AUD
+                    aud: 'aud'
                 });
             }).to.throw('jwt:undefined:scope');
 
@@ -110,8 +100,8 @@ describe('JWT module', function() {
             expect(function() {
                 corbel.jwt.createClaims({
                     iss: 'myiss',
-                    aud: corbel.iam.AUD,
-                    scope: corbel.common.get('claimScopes'),
+                    aud: 'aud',
+                    scope: 'scopes',
                     exp: 0
                 });
             }).to.throw('jwt:undefined:exp');

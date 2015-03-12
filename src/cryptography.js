@@ -1,8 +1,12 @@
+//@exclude
+'use strict';
+/* globals corbel, root */
+//@endexclude
+
 (function() {
 
     /* jshint camelcase:false */
     corbel.cryptography = (function() {
-        'use strict';
         /*
          * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
          * in FIPS 180-2

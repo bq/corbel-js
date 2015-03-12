@@ -1,9 +1,10 @@
+//@exclude
+'use strict';
+/*globals corbel */
+//@endexclude
+
 (function() {
 
-    //@exclude
-    'use strict';
-    /*globals corbel,module,require */
-    //@endexclude
 
 
     /**
