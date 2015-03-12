@@ -25,6 +25,27 @@ module.exports = function(grunt) {
             all: ['.tmp', 'dist']
         },
 
+        copy: {
+            coverage: {
+                expand: true,
+                src: [
+                    'test/**'
+                ],
+                dest: '.tmp/coverage/'
+            },
+            'test-browser': {
+                src: ['test/browser/index.html'],
+                dest: '.tmp/',
+            }
+        },
+
+        blanket: {
+            coverage: {
+                src: ['dist/'],
+                dest: '.tmp/coverage/dist/'
+            }
+        },
+
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
@@ -141,6 +162,34 @@ module.exports = function(grunt) {
             load: {}
         },
         mochaTest: { //test for nodejs app with mocha
+            testCoverage: {
+                options: {
+                    reporter: 'spec',
+                },
+                src: ['.tmp/coverage/test/node/test-suite.js']
+            },
+            coverage: {
+                options: {
+                    reporter: 'html-cov',
+                    quiet: true,
+                    captureFile: '.tmp/coverage.html'
+                },
+                src: ['.tmp/coverage/test/node/test-suite.js']
+            },
+            coveralls: {
+                options: {
+                    reporter: 'mocha-lcov-reporter',
+                    quiet: true,
+                    captureFile: '.tmp/coverage.lcov'
+                },
+                src: ['.tmp/coverage/test/node/test-suite.js']
+            },
+            'travis-cov': {
+                options: {
+                    reporter: 'travis-cov'
+                },
+                src: ['.tmp/coverage/test/node/test-suite.js']
+            },
             tap: {
                 options: {
                     reporter: 'tap',
@@ -171,6 +220,11 @@ module.exports = function(grunt) {
                     reporter: 'tap',
                     output: 'target/browser/test_results.dirty.tap'
                 }
+            }
+        },
+        coveralls: {
+            options: {
+                src: '.tmp/coverage.lcov'
             }
         },
         lineremover: {
@@ -215,12 +269,6 @@ module.exports = function(grunt) {
             'test-browser': {
                 src: 'test/browser/test-suite.js',
                 dest: '.tmp/test/browser/test-suite.js'
-            }
-        },
-        copy: {
-            'test-browser': {
-                src: ['test/browser/index.html'],
-                dest: '.tmp/',
             }
         }
     });
@@ -301,6 +349,20 @@ module.exports = function(grunt) {
         'mocha_phantomjs:ci',
         'mochaTest:ci',
         'lineremover:tap'
+    ]);
+
+    grunt.registerTask('coverage:node', [
+        'clean',
+        'jshint',
+        'build',
+        'blanket',
+        'copy:coverage',
+        'express:load',
+        'mochaTest:testCoverage',
+        'mochaTest:coverage',
+        'mochaTest:coveralls',
+        'mochaTest:travis-cov',
+        'coveralls'
     ]);
 
     grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills']);
