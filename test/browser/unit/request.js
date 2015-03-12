@@ -173,25 +173,25 @@
 
          });
 
-         it('success callback expect responseText, xhr.status , xhr object', function() {
-             var successCallback = function() {},
-                 spySuccessCallback = sandbox.spy(successCallback);
+        // it('success callback expect responseText, xhr.status , xhr object', function() {
+        //     var successCallback = function() {},
+        //         spySuccessCallback = sandbox.spy(successCallback);
 
-             request.send({
-                 method: 'GET',
-                 url: url,
-                 success: function() {
-                     spySuccessCallback.apply(this, arguments);
-                 }
-             });
+        //     request.send({
+        //         method: 'GET',
+        //         url: url,
+        //         success: function() {
+        //             spySuccessCallback.apply(this, arguments);
+        //         }
+        //     });
 
-             server.respond(successResponse);
+        //     server.respond(successResponse);
 
-             expect(spySuccessCallback.getCall(0).args[0]).to.be.a('string');
-             expect(spySuccessCallback.getCall(0).args[1]).to.be.a('number');
-             expect(spySuccessCallback.getCall(0).args[2]).to.be.an('object');
+        //     expect(spySuccessCallback.getCall(0).args[0]).to.be.a('string');
+        //     expect(spySuccessCallback.getCall(0).args[1]).to.be.a('number');
+        //     expect(spySuccessCallback.getCall(0).args[2]).to.be.an('object');
 
-         });
+        // });
 
          it('send mehtod accepts an error callback', function() {
              var errorCallback = function() {
