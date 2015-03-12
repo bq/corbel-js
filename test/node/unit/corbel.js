@@ -102,7 +102,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -119,7 +119,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -137,7 +137,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -156,7 +156,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -176,7 +176,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -185,7 +185,7 @@ describe('in corbel module', function() {
                     iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
                     evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
                     oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
-                    
+
                     oauthClientId: 'bitbloq-client'
                 });
             }).to.throw('undefined:oauthSecret');
@@ -198,7 +198,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -207,7 +207,7 @@ describe('in corbel module', function() {
                     iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
                     evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
                     oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
-                    
+
                     oauthClientId: 'bitbloq-client',
                     oauthSecret: 'bitbloq-secret'
                 });
@@ -229,7 +229,7 @@ describe('in corbel module', function() {
                     iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
                     evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
                     oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
-                    
+
                     oauthClientId: 'bitbloq-client',
                     oauthSecret: 'bitbloq-secret',
                     oauthService: 'corbel'
@@ -239,7 +239,7 @@ describe('in corbel module', function() {
         });
 
         describe('with a CorbelDriverer instance', function() {
-            
+
             var corbelDriver;
 
             beforeEach(function() {
@@ -248,7 +248,7 @@ describe('in corbel module', function() {
 
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
-                    
+
                     scopesApp: 'scopesApp',
                     scopesUserLogin: 'scopesUserLogin',
                     scopesUserCreate: 'scopesUserCreate',
@@ -257,7 +257,7 @@ describe('in corbel module', function() {
                     iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
                     evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
                     oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
-                    
+
                     oauthClientId: 'bitbloq-client',
                     oauthSecret: 'bitbloq-secret',
                     oauthService: 'corbel'
@@ -267,6 +267,8 @@ describe('in corbel module', function() {
             it('has all members', function() {
                 expect(corbelDriver).to.have.ownProperty('config');
                 expect(corbelDriver.config).to.be.an.instanceof(corbel.Config);
+                expect(corbelDriver.iam).to.be.an.instanceof(corbel.Iam);
+                expect(corbelDriver).to.have.ownProperty('iam');
                 expect(corbel).to.have.ownProperty('Iam');
             });
 

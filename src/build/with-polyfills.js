@@ -35,6 +35,12 @@
     //  @include ../jwt.js
     //  @include ../services.js
     //  @include ../iam/iam.js
+    //  @include ../iam/clientBuilder.js
+    //  @include ../iam/domainBuilder.js
+    //  @include ../iam/scopeBuilder.js
+    //  @include ../iam/tokenBuilder.js
+    //  @include ../iam/usernameBuilder.js
+    //  @include ../iam/usersBuilder.js
 
     return corbel;
 });
