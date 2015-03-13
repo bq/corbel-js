@@ -45,6 +45,7 @@
     //  @include ../iam/usernameBuilder.js
     //  @include ../iam/usersBuilder.js
     //  @include ../resources/resources.js
+    //  @include ../resources/resource-base.js
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js

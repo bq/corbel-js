@@ -42,7 +42,7 @@
             //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
             dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
             get data() {
-                return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data || {} : undefined;
+                return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data : undefined;
             }
         };
 
@@ -93,7 +93,7 @@
     var processResponseData = function(data, responseType, dataType) {
         var parsedData = data;
 
-        if (responseType.indexOf('json') !== -1 && data) {
+        if (responseType.indexOf('json') !== -1 && data && typeof data === 'string') {
             parsedData = JSON.parse(parsedData + '');
         } else if (responseType === 'arraybuffer') {
             parsedData = new Uint8Array(data);
@@ -185,7 +185,7 @@
             url: params.url,
             headers: params.headers,
             json: params.isJSON,
-            body: params.data
+            body: params.data || ''
         }, function(error, response, body) {
 
             processResponse.call(this, {
