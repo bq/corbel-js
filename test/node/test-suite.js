@@ -6,3 +6,4 @@ require('./unit/validate.js');
 require('./unit/request.js');
 require('./unit/jwt.js');
 require('./unit/iam.js');
+require('./unit/resources.js');
