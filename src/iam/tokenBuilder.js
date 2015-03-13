@@ -26,16 +26,29 @@
 
     TokenBuilder.prototype._buildUri = corbel.Iam._buildUri;
 
+    /**
+     * Build a JWT with default driver config
+     * @param  {Object} params
+     * @param  {String} [params.secret]
+     * @param  {Object} [params.claims]
+     * @param  {String} [params.claims.iss]
+     * @param  {String} [params.claims.aud]
+     * @param  {String} [params.claims.scope]
+     * @return {String} JWT assertion
+     */
     TokenBuilder.prototype._getJwt = function(params) {
+        params = params || {};
+        params.claims = params.claims || {};
+        
         if (params.jwt) {
             return params.jwt;
         }
-        if (params.claims) {
-            params.claims.aud = params.claims.aud || corbel.Iam.AUD;
-            return corbel.jwt.generate(params.claims);
-        } else {
-            throw new Error('Create token request must contains either jwt or claims parameter');
-        }
+
+        var secret = params.secret || this.driver.config.get('clientSecret');
+        params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
+        params.claims.aud = params.claims.aud || corbel.Iam.AUD;
+        params.claims.scope = params.claims.scope || this.driver.config.get('scopesApp');
+        return corbel.jwt.generate(params.claims, secret);
     };
 
     TokenBuilder.prototype._doGetTokenRequest = function(uri, params, setCookie) {
@@ -87,9 +100,7 @@
      * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
      */
     TokenBuilder.prototype.create = function(params, setCookie) {
-        // console.log('iamInterface.token.create', params);
-        // we need params to create access token
-        corbel.validate.isValue(params, 'Create token request must contains params');
+        params = params || {};
         // if there are oauth params this mean we should do use the GET verb
         if (params.oauth) {
             return this._doGetTokenRequest(this.uri, params, setCookie);
@@ -112,12 +123,10 @@
         corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
         // we need create default claims to refresh access token
         var params = {
-            claims: corbel.jwt.createClaims({
-                'iss': this.driver.config.get('clientId'),
-                'aud': corbel.Iam.AUD,
-                'scope': scopes || this.driver.config.get('scopesApp'),
+            claims: {
+                'scope': scopes,
                 'refresh_token': refreshToken
-            })
+            }
         };
         // we use the traditional POST verb to refresh access token.
         return this._doPostTokenRequest(this.uri, params);
