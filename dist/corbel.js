@@ -1425,33 +1425,11 @@
              * @return {String} jwt                             JWT string
              */
             generate: function(claims, secret, alg) {
+                claims = claims || {};
                 alg = alg || corbel.jwt.ALGORITHM;
     
-                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
-                        alg: alg
-                    }))),
-                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(claims))),
-                    segment = bAlg + '.' + bClaims,
-                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
-    
-                return segment + '.' + assertion;
-            },
-    
-            /**
-             * Returns a claim with default values, that can be overriden with params values.
-             * @param  {Object} params Dicctionary with claims values
-             * @return {Object}        Claims Object
-             */
-            createClaims: function(params) {
-                params = params || {};
-    
-                // Default claims values
-                var claims = {
-                    version: params.version || corbel.jwt.VERSION,
-                    exp: params.exp || Math.round((new Date().getTime() / 1000)) + corbel.jwt.EXPIRATION
-                };
-    
-                claims = corbel.utils.extend(claims, params);
+                claims.version = claims.version || corbel.jwt.VERSION;
+                claims.exp = claims.exp || corbel.jwt._generateExp();
     
                 if (!claims.iss) {
                     throw new Error('jwt:undefined:iss');
@@ -1462,15 +1440,43 @@
                 if (!claims.scope) {
                     throw new Error('jwt:undefined:scope');
                 }
-                if (!claims.version) {
-                    throw new Error('jwt:undefined:version');
-                }
-                if (!claims.exp) {
-                    throw new Error('jwt:undefined:exp');
-                }
     
-                return claims;
+                // Ensure claims specific order
+                var claimsKeys = [
+                    'iss',
+                    'aud',
+                    'exp',
+                    'scope',
+                    'prn',
+                    'version',
+                    'refresh_token',
+                    'request_domain',
+                    'device_id'
+                ];
+    
+                var finalClaims = {};
+                claimsKeys.forEach(function(key) {
+                    if (claims[key]) {
+                        finalClaims[key] = claims[key];
+                    }
+                });
+    
+                corbel.utils.extend(finalClaims, claims);
+    
+                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
+                        alg: alg
+                    }))),
+                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
+                    segment = bAlg + '.' + bClaims,
+                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
+    
+                return segment + '.' + assertion;
+            },
+    
+            _generateExp: function() {
+                return Math.round((new Date().getTime() / 1000)) + corbel.jwt.EXPIRATION;
             }
+    
         };
     
         return corbel.jwt;
@@ -1553,7 +1559,6 @@
         corbelServices.request = function(args) {
     
             return new Promise(function(resolve, reject) {
-    
     
                 corbelServices.makeRequest({
                     resolve: resolve,
@@ -1755,7 +1760,7 @@
          * @namespace
          * @memberof app.corbel
          */
-        
+    
         var Iam = corbel.Iam = function(driver) {
             this.driver = driver;
         };
@@ -1783,6 +1788,1006 @@
                 uri += '/' + id;
             }
             return this.driver.config.get('iamEndpoint') + uri;
+        };
+    
+    })();
+    
+    (function() {
+    	
+    
+        /**
+         * A builder for client management requests.
+         *
+         * @param {String} domainId Domain id.
+         * @param {String} clientId Client id.
+         *
+         * @class
+         * @memberOf iam
+         */
+        var ClientBuilder = corbel.Iam.ClientBuilder = function(domainId, clientId) {
+            this.domainId = domainId;
+            this.clientId = clientId;
+            this.uri = 'domain';
+        };
+    
+        ClientBuilder.prototype._buildUri = corbel.Iam._buildUri;
+    
+        /**
+         * Creates a ClientBuilder for client managing requests.
+         *
+         * @param {String} domainId Domain id (optional).
+         * @param {String} clientId Client id (optional).
+         *
+         * @return {corbel.Iam.ClientBuilder}
+         */
+        corbel.Iam.prototype.client = function(domainId, clientId) {
+            var client = new ClientBuilder(domainId, clientId);
+            client.driver = this.driver;
+            return client;
+        };
+    
+        /**
+         * Adds a new client.
+         *
+         * @method
+         * @memberOf corbel.Iam.ClientBuilder
+         *
+         * @param {Object} client                          The client data.
+         * @param {String} client.id                       Client id.
+         * @param {String} client.name                     Client domain (obligatory).
+         * @param {String} client.key                      Client key (obligatory).
+         * @param {String} client.version                  Client version.
+         * @param {String} client.signatureAlghorithm      Signature alghorithm.
+         * @param {Object} client.scopes                   Scopes of the client.
+         * @param {String} client.clientSideAuthentication Option for client side authentication.
+         * @param {String} client.resetUrl                 Reset password url.
+         * @param {String} client.resetNotificationId      Reset password notification id.
+         *
+         * @return {Promise} A promise with the id of the created client or fails
+         *                   with a {@link corbelError}.
+         */
+        ClientBuilder.prototype.create = function(client) {
+            console.log('iamInterface.domain.create', client);
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
+                method: corbel.services.method.POST,
+                data: client,
+                withAuth: true
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Gets a client.
+         *
+         * @method
+         * @memberOf corbel.Iam.ClientBuilder
+         *
+         * @param {String} clientId Client id.
+         *
+         * @return {Promise} A promise with the client or fails with a {@link corbelError}.
+         */
+        ClientBuilder.prototype.get = function() {
+            console.log('iamInterface.domain.get', this.clientId);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Updates a client.
+         *
+         * @method
+         * @memberOf corbel.Iam.ClientBuilder
+         *
+         * @param {Object} client                          The client data.
+         * @param {String} client.name                     Client domain (obligatory).
+         * @param {String} client.key                      Client key (obligatory).
+         * @param {String} client.version                  Client version.
+         * @param {String} client.signatureAlghorithm      Signature alghorithm.
+         * @param {Object} client.scopes                   Scopes of the client.
+         * @param {String} client.clientSideAuthentication Option for client side authentication.
+         * @param {String} client.resetUrl                 Reset password url.
+         * @param {String} client.resetNotificationId      Reset password notification id.
+         *
+         * @return {Promise} A promise or fails with a {@link corbelError}.
+         */
+        ClientBuilder.prototype.update = function(client) {
+            console.log('iamInterface.domain.update', client);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+                method: corbel.services.method.PUT,
+                data: client,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Removes a client.
+         *
+         * @method
+         * @memberOf corbel.Iam.ClientBuilder
+         *
+         * @param {String} clientId The client id.
+         *
+         * @return {Promise} A promise or fails with a {@link corbelError}.
+         */
+        ClientBuilder.prototype.remove = function() {
+            console.log('iamInterface.domain.remove', this.domainId, this.clientId);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+    })();
+    (function() {
+    
+        /**
+         * A builder for domain management requests.
+         *
+         * @param {String} domainId Domain id (optional).
+         *
+         * @class
+         * @memberOf iam
+         */
+        var DomainBuilder = corbel.Iam.DomainBuilder = function(domainId) {
+            this.domainId = domainId;
+            this.uri = 'domain';
+        };
+    
+        DomainBuilder.prototype._buildUri = corbel.Iam._buildUri;
+    
+        /**
+         * Creates a DomainBuilder for domain managing requests.
+         *
+         * @param {String} domainId Domain id.
+         *
+         * @return {corbel.Iam.DomainBuilder}
+         */
+        corbel.Iam.prototype.domain = function(domainId) {
+            var domain = new DomainBuilder(domainId);
+            domain.driver = this.driver;
+            return domain;
+        };
+    
+        /**
+         * Creates a new domain.
+         *
+         * @method
+         * @memberOf corbel.Iam.DomainBuilder
+         *
+         * @param {Object} domain                    The domain data.
+         * @param {String} domain.description        Description of the domain.
+         * @param {String} domain.authUrl            Authentication url.
+         * @param {String} domain.allowedDomains     Allowed domains.
+         * @param {String} domain.scopes             Scopes of the domain.
+         * @param {String} domain.defaultScopes      Default copes of the domain.
+         * @param {Object} domain.authConfigurations Authentication configuration.
+         * @param {Object} domain.userProfileFields  User profile fields.
+         *
+         * @return {Promise} A promise with the id of the created domain or fails
+         *                   with a {@link corbelError}.
+         */
+        DomainBuilder.prototype.create = function(domain) {
+            console.log('iamInterface.domain.create', domain);
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri),
+                method: corbel.services.method.POST,
+                data: domain,
+                withAuth: true
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Gets a domain.
+         *
+         * @method
+         * @memberOf corbel.Iam.DomainBuilder
+         *
+         * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
+         */
+        DomainBuilder.prototype.get = function() {
+            console.log('iamInterface.domain.get', this.domainId);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId),
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Updates a domain.
+         *
+         * @method
+         * @memberOf corbel.Iam.DomainBuilder
+         *
+         * @param {Object} domain                    The domain data.
+         * @param {String} domain.description        Description of the domain.
+         * @param {String} domain.authUrl            Authentication url.
+         * @param {String} domain.allowedDomains     Allowed domains.
+         * @param {String} domain.scopes             Scopes of the domain.
+         * @param {String} domain.defaultScopes      Default copes of the domain.
+         * @param {Object} domain.authConfigurations Authentication configuration.
+         * @param {Object} domain.userProfileFields  User profile fields.
+         *
+         * @return {Promise} A promise or fails with a {@link corbelError}.
+         */
+        DomainBuilder.prototype.update = function(domain) {
+            console.log('iamInterface.domain.update', domain);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId),
+                method: corbel.services.method.PUT,
+                data: domain,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Removes a domain.
+         *
+         * @method
+         * @memberOf corbel.Iam.DomainBuilder
+         *
+         * @param {String} domainId The domain id.
+         *
+         * @return {Promise} A promise or fails with a {@link corbelError}.
+         */
+        DomainBuilder.prototype.remove = function() {
+            console.log('iamInterface.domain.remove', this.domainId);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.domainId),
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+    })();
+    
+    (function() {
+    
+        /**
+         * A builder for scope management requests.
+         *
+         * @param {String} id Scope id.
+         *
+         * @class
+         * @memberOf iam
+         */
+        var ScopeBuilder = corbel.Iam.ScopeBuilder = function(id) {
+            this.id = id;
+            this.uri = 'scope';
+        };
+    
+        ScopeBuilder.prototype._buildUri = corbel.Iam._buildUri;
+    
+        /**
+         * Creates a ScopeBuilder for scope managing requests.
+         *
+         * @param {String} id Scope id.
+         *
+         * @return {corbel.Iam.ScopeBuilder}
+         */
+        corbel.Iam.prototype.scope = function(id) {
+            var scope = new ScopeBuilder(id);
+            scope.driver = this.driver;
+            return scope;
+        };
+    
+        /**
+         * Creates a new scope.
+         *
+         * @method
+         * @memberOf corbel.Iam.ScopeBuilder
+         *
+         * @param {Object} scope        The scope.
+         * @param {Object} scope.rules  Scope rules.
+         * @param {String} scope.type   Scope type.
+         * @param {Object} scope.scopes Scopes for a composite scope.
+         *
+         * @return {Promise} A promise with the id of the created scope or fails
+         *                   with a {@link corbelError}.
+         */
+        ScopeBuilder.prototype.create = function(scope) {
+            console.log('iamInterface.scope.create', scope);
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri),
+                method: corbel.services.method.POST,
+                data: scope,
+                withAuth: true
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Gets a scope.
+         *
+         * @method
+         * @memberOf corbel.Iam.ScopeBuilder
+         *
+         * @return {Promise} A promise with the scope or fails with a {@link corbelError}.
+         */
+        ScopeBuilder.prototype.get = function() {
+            console.log('iamInterface.scope.get', this.id);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.id),
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Removes a scope.
+         *
+         * @method
+         * @memberOf corbel.Iam.ScopeBuilder
+         * @return {Promise} A promise user or fails with a {@link corbelError}.
+         */
+        ScopeBuilder.prototype.remove = function() {
+            console.log('iamInterface.scope.remove', this.id);
+            return corbel.request.send({
+                url: this._buildUri(this.uri + '/' + this.id),
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+    })();
+    
+    (function() {
+    
+        /**
+         * A builder for token requests
+         * @class
+         * @memberOf Iam
+         */
+        var TokenBuilder = corbel.Iam.TokenBuilder = function() {
+            this.uri = 'oauth/token';
+        };
+    
+        /**
+         * Creates a TokenBuilder for token requests
+         * @return {corbel.Iam.TokenBuilder}
+         */
+        corbel.Iam.prototype.token = function() {
+            var tokenBuilder = new TokenBuilder(this.driver);
+            tokenBuilder.driver = this.driver;
+            return tokenBuilder;
+        };
+    
+        TokenBuilder.prototype._buildUri = corbel.Iam._buildUri;
+    
+        /**
+         * Build a JWT with default driver config
+         * @param  {Object} params
+         * @param  {String} [params.secret]
+         * @param  {Object} [params.claims]
+         * @param  {String} [params.claims.iss]
+         * @param  {String} [params.claims.aud]
+         * @param  {String} [params.claims.scope]
+         * @return {String} JWT assertion
+         */
+        TokenBuilder.prototype._getJwt = function(params) {
+            params = params || {};
+            params.claims = params.claims || {};
+            
+            if (params.jwt) {
+                return params.jwt;
+            }
+    
+            var secret = params.secret || this.driver.config.get('clientSecret');
+            params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
+            params.claims.aud = params.claims.aud || corbel.Iam.AUD;
+            params.claims.scope = params.claims.scope || this.driver.config.get('scopesApp');
+            return corbel.jwt.generate(params.claims, secret);
+        };
+    
+        TokenBuilder.prototype._doGetTokenRequest = function(uri, params, setCookie) {
+            var args = {
+                url: this._buildUri(uri),
+                method: corbel.services.method.GET,
+                query: corbel.utils.param(corbel.utils.extend({
+                    assertion: this._getJwt(params),
+                    'grant_type': corbel.Iam.GRANT_TYPE
+                }, params.oauth))
+            };
+    
+            if (setCookie) {
+                args.headers = {
+                    RequestCookie: 'true'
+                };
+            }
+    
+            return corbel.request.send(args);
+        };
+    
+        TokenBuilder.prototype._doPostTokenRequest = function(uri, params, setCookie) {
+            var args = {
+                url: this._buildUri(uri),
+                method: corbel.services.method.POST,
+                data: {
+                    assertion: this._getJwt(params),
+                    'grant_type': corbel.Iam.GRANT_TYPE
+                },
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+    
+            if (setCookie) {
+                args.headers = {
+                    RequestCookie: 'true'
+                };
+            }
+            return corbel.request.send(args);
+        };
+    
+        /**
+         * Creates a token to connect with iam
+         * @method
+         * @memberOf corbel.Iam.TokenBuilder
+         * @param  {Object} params          Parameters to authorice
+         * @param {String} [params.jwt]     Assertion to generate the token
+         * @param {Object} [params.claims]  Claims to generate the token
+         * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
+         * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
+         */
+        TokenBuilder.prototype.create = function(params, setCookie) {
+            params = params || {};
+            // if there are oauth params this mean we should do use the GET verb
+            if (params.oauth) {
+                return this._doGetTokenRequest(this.uri, params, setCookie);
+            }
+            // otherwise we use the traditional POST verb.
+            return this._doPostTokenRequest(this.uri, params, setCookie);
+        };
+    
+        /**
+         * Refresh a token to connect with iam
+         * @method
+         * @memberOf corbel.Iam.TokenBuilder
+         * @param {String} [refresh_token]   Token to refresh an AccessToken
+         * @param {String} [scopes]          Scopes to the AccessToken
+         * @return {Promise}                 Q promise that resolves to an AccesToken {Object} or rejects with a {@link corbelError}
+         */
+        TokenBuilder.prototype.refresh = function(refreshToken, scopes) {
+            // console.log('iamInterface.token.refresh', refreshToken);
+            // we need refresh token to refresh access token
+            corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
+            // we need create default claims to refresh access token
+            var params = {
+                claims: {
+                    'scope': scopes,
+                    'refresh_token': refreshToken
+                }
+            };
+            // we use the traditional POST verb to refresh access token.
+            return this._doPostTokenRequest(this.uri, params);
+        };
+    
+    })();
+    
+    (function() {
+    
+        /**
+         * Builder for creating requests of users name
+         * @class
+         * @memberOf iam
+         */
+    
+        var UsernameBuilder = corbel.Iam.UsernameBuilder = function() {
+            this.uri = 'username';
+        };
+    
+        UsernameBuilder.prototype._buildUri = corbel.Iam._buildUri;
+    
+        /**
+         * Starts a username request
+         * @return {corbel.Iam.UsernameBuilder}    The builder to create the request
+         */
+        corbel.Iam.prototype.username = function() {
+            var username = new UsernameBuilder();
+            username.driver = this.driver;
+            return username;
+        };
+    
+        /**
+         * Return availability endpoint.
+         * @method
+         * @memberOf corbel.Iam.UsernameBuilder
+         * @param  {String} username The username.
+         * @return {Promise}     A promise which resolves into usename availability boolean state.
+         */
+        UsernameBuilder.prototype.availability = function(username) {
+            console.log('iamInterface.username.availability', username);
+            return corbel.request.send({
+                url: this._buildUri(this.uri, username),
+                method: corbel.services.method.HEAD,
+                withAuth: true
+            }).then(function() {
+                return false;
+            }).catch(function(response) {
+                if (response.status === 404) {
+                    return true;
+                } else {
+                    return Promise.reject(response);
+                }
+            });
+        };
+    
+    })();
+    
+    (function() {
+    
+        /**
+         * getUser mixin for UserBuilder & UsersBuilder
+         * @param  {String=GET|POST|PUT} method
+         * @param  {String} uri
+         * @param  {String} id
+         * @param  {Bolean} postfix
+         * @return {Promise}
+         */
+        corbel.Iam._getUser = function(method, uri, id, postfix) {
+            return corbel.request.send({
+                url: (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id)),
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Builder for a specific user requests
+         * @class
+         * @memberOf iam
+         * @param {String} id The id of the user
+         */
+        var UserBuilder = corbel.Iam.UserBuilder = function(id) {
+            this.uri = 'user';
+            this.id = id;
+        };
+    
+        UserBuilder.prototype._buildUri = corbel.Iam._buildUri;
+        UserBuilder.prototype._getUser = corbel.Iam._getUser;
+    
+        /**
+         * Starts a user request
+         * @param  {String} [id] Id of the user to perform the request
+         * @return {corbel.Iam.UserBuilder | corbel.Iam.UsersBuilder}    The builder to create the request
+         */
+        corbel.Iam.prototype.user = function(id) {
+            var builder;
+            if (id) {
+                builder = new UserBuilder(id);
+            } else {
+                builder = new UsersBuilder();
+            }
+    
+            builder.driver = this.driver;
+            return builder;
+        };
+    
+        /**
+         * Builder for creating requests of users collection
+         * @class
+         * @memberOf iam
+         */
+    
+        var UsersBuilder = corbel.Iam.UsersBuilder = function() {
+            this.uri = 'user';
+        };
+    
+    
+        UsersBuilder.prototype._buildUri = corbel.Iam._buildUri;
+        UsersBuilder.prototype._getUser = corbel.Iam._getUser;
+    
+        /**
+         * Sends a reset password email to the email address recived.
+         * @method
+         * @memberOf oauth.UsersBuilder
+         * @param  {String} userEmailToReset The email to send the message
+         * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.sendResetPasswordEmail = function(userEmailToReset) {
+            console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
+            var query = 'email=' + userEmailToReset;
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri + '/resetPassword'),
+                method: corbel.services.method.GET,
+                query: query,
+                withAuth: true
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Creates a new user.
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @param  {Object} data The user data.
+         * @return {Promise}     A promise which resolves into the ID of the created user or fails with a {@link corbelError}.
+         */
+        UsersBuilder.prototype.create = function(data) {
+            console.log('iamInterface.users.create', data);
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri),
+                method: corbel.services.method.POST,
+                data: data,
+                withAuth: true
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Gets the logged user
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.getMe = function() {
+            console.log('iamInterface.users.getMe');
+            return this._getUser(corbel.services.method.GET, this.uri, 'me');
+        };
+    
+        /**
+         * Gets all users of the current domain
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to an {Array} of Users or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.get = function(params) {
+            console.log('iamInterface.users.get', params);
+            return corbel.request.send({
+                url: this._buildUri(this.uri),
+                method: corbel.services.method.GET,
+                query: params ? corbel.utils.serializeParams(params) : null,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Gets the user
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.get = function() {
+            console.log('iamInterface.user.get');
+            return this._getUser(corbel.services.method.GET, this.uri, this.id);
+        };
+    
+        /**
+         * Updates the user
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @param  {Object} data    The data to update
+         * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.update = function(data) {
+            console.log('iamInterface.user.update', data);
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id),
+                method: corbel.services.method.PUT,
+                data: data,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Update the logged user
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @param  {Object} data    The data to update
+         * @param  {String} [token]   Token to use
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.updateMe = function(data, token) {
+            console.log('iamInterface.users.updateMe', data);
+            var args = {
+                url: this._buildUri(this.uri, 'me'),
+                method: corbel.services.method.PUT,
+                data: data,
+                args: args,
+                withAuth: true
+            };
+            if (token) {
+                args.accessToken = token;
+            }
+            return corbel.request.send(args);
+        };
+    
+        /**
+         * Deletes the user
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.delete = function() {
+            console.log('iamInterface.user.delete');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id),
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Delete the logged user
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.deleteMe = function() {
+            console.log('iamInterface.users.deleteMe');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me'),
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Sign Out the logged user
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.signOutMe = function() {
+            // console.log('iamInterface.users.signOutMe');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/signout',
+                method: corbel.services.method.PUT,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * disconnect the user, all his tokens are deleted
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.disconnect = function() {
+            // console.log('iamInterface.user.disconnect');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/disconnect',
+                method: corbel.services.method.PUT,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * disconnect the logged user, all his tokens are deleted
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.disconnectMe = function() {
+            // console.log('iamInterface.users.disconnectMe');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/disconnect',
+                method: corbel.services.method.PUT,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Adds an identity (link to an oauth server or social network) to the user
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @param {Object} identity     The data of the identity
+         * @param {String} oauthId      The oauth ID of the user
+         * @param {String} oauthService The oauth service to connect (facebook, twitter, google, corbel)
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.addIdentity = function(identity) {
+            // console.log('iamInterface.user.addIdentity', identity);
+            corbel.validate.isValue(identity, 'Missing identity');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/identity',
+                method: corbel.services.method.POST,
+                data: identity,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Get user identities (links to oauth servers or social networks)
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to {Array} of Identity or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.getIdentities = function() {
+            console.log('iamInterface.user.getIdentities');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/identity',
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * User device register
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @param  {Object} data      The device data
+         * @param  {Object} data.URI  The device token
+         * @param  {Object} data.name The device name
+         * @param  {Object} data.type The device type (Android, Apple)
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.registerMyDevice = function(data) {
+            console.log('iamInterface.user.registerMyDevice');
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri, 'me') + '/devices',
+                method: corbel.services.method.PUT,
+                withAuth: true,
+                data: data
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * User device register
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @param  {Object} data      The device data
+         * @param  {Object} data.URI  The device token
+         * @param  {Object} data.name The device name
+         * @param  {Object} data.type The device type (Android, Apple)
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.registerDevice = function(data) {
+            console.log('iamInterface.user.registerDevice');
+            return corbel.requestXHR.send({
+                url: this._buildUri(this.uri, this.id) + '/devices',
+                method: corbel.services.method.PUT,
+                withAuth: true,
+                data: data
+            }).then(function(res) {
+                return corbel.services.extractLocationId(res);
+            });
+        };
+    
+        /**
+         * Get device
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.getDevice = function(deviceId) {
+            console.log('iamInterface.user.getDevice');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Get devices
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.getDevices = function() {
+            console.log('iamInterface.user.getDevices');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/devices/',
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Get my user devices
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.getMyDevices = function() {
+            console.log('iamInterface.user.getMyDevices');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/devices',
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Get my user devices
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.getMyDevice = function(deviceId) {
+            console.log('iamInterface.user.getMyDevice');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Delete user device
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.deleteMyDevice = function(deviceId) {
+            console.log.debug('iamInterface.user.deleteMyDevice');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Delete user device
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.deleteDevice = function(deviceId) {
+            console.log.debug('iamInterface.user.deleteDevice');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                method: corbel.services.method.DELETE,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Gets the logged user profile
+         * @method
+         * @memberOf corbel.Iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a User Profile {Object} or rejects with a {@link corbelError}
+         */
+        UsersBuilder.prototype.getMeProfile = function() {
+            console.log('iamInterface.users.getMeProfile');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, 'me') + '/profile',
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        /**
+         * Get user profiles
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to a User Profile or rejects with a {@link corbelError}
+         */
+        UserBuilder.prototype.getProfile = function() {
+            console.log('iamInterface.user.getProfile');
+            return corbel.request.send({
+                url: this._buildUri(this.uri, this.id) + '/profile',
+                method: corbel.services.method.GET,
+                withAuth: true
+            });
+        };
+    
+        UsersBuilder.prototype.getProfiles = function(params) {
+            console.log('iamInterface.users.getProfiles', params);
+            return corbel.request.send({
+                url: this._buildUri(this.uri) + '/profile',
+                method: corbel.services.method.GET,
+                query: params ? corbel.utils.serializeParams(params) : null, //TODO cambiar por util e implementar dicho metodo
+                withAuth: true
+            });
         };
     
     })();

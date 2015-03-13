@@ -36,22 +36,19 @@
      */
     UsernameBuilder.prototype.availability = function(username) {
         console.log('iamInterface.username.availability', username);
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri, username),
             method: corbel.services.method.HEAD,
             withAuth: true
-        }).then(
-            function() {
-                return false;
-            },
-            function(response) {
-                if (response.httpStatus === 404) {
-                    return true;
-                } else {
-                    return Promise.reject(response);
-                }
+        }).then(function() {
+            return false;
+        }).catch(function(response) {
+            if (response.status === 404) {
+                return true;
+            } else {
+                return Promise.reject(response);
             }
-        );
+        });
     };
 
 })();
