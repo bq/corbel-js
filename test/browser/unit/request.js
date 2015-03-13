@@ -3,7 +3,7 @@
 
      var sandbox;
 
-     this.timeout(4000);
+     this.timeout(400000);
 
      beforeEach(function() {
          sandbox = sinon.sandbox.create();
@@ -25,41 +25,12 @@
 
      describe('request module', function() {
 
-         var server,
-             url = 'http://localhost:3000/',
-             request,
-             errorResponse = [400, {
-                     'Content-Type': 'application/json',
-                     'Access-Controll-Allow-origin': '*',
-                     'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
-                 },
-                 JSON.stringify({
-                     error: 'error'
-                 })
-             ],
-             successResponse = [200, {
-                     'Content-Type': 'application/json',
-                     'Access-Controll-Allow-origin': '*',
-                     'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE'
-                 },
-                 JSON.stringify({
-                     result: 'result'
-                 })
-             ];
+         var url = 'http://localhost:3000/',
+             urlRequestFail = 'http://localhost:3000/request/fail',
+             request;
 
          before(function() {
-             server = sinon.fakeServer.create();
              request = window.corbel.request;
-         });
-
-         after(function() {
-             server.restore();
-         });
-
-         beforeEach(function() {
-
-             server.respondWith(successResponse);
-
          });
 
          it('should has own properties', function() {
@@ -74,21 +45,30 @@
                  url: url
              });
 
+
              request.send({
                  method: 'POST',
-                 url: url
+                 url: url,
+                 data: {
+                     someData: 'data text'
+                 }
              });
 
              request.send({
                  method: 'PUT',
-                 url: url
+                 url: url,
+                 data: {
+                     someData: 'data text'
+                 }
              });
 
              request.send({
                  method: 'HEAD',
-                 url: url
+                 url: url,
+                 data: {
+                     someData: 'data text'
+                 }
              });
-
          });
 
          it('send method throws an error if no url setting', function() {
@@ -123,37 +103,38 @@
                  url: url
              });
 
-             server.respond(successResponse);
-
              promise.then(function() {
                  spyResolve();
                  expect(spyResolve.calledOnce).to.be.equal(true);
                  done();
+             }).catch(function() {
+                 done(new Error());
              });
 
          });
 
-         it('send mehtod returns a promise and reject it', function() {
+         it('send mehtod returns a promise and reject it', function(done) {
              var errorCallback = function() {};
 
              var spyError = sandbox.spy(errorCallback);
 
              var promise = request.send({
                  method: 'GET',
-                 url: url
+                 url: urlRequestFail
              });
 
-             server.respond(errorResponse);
-
              promise.then(function() {
+                 done(new Error());
+             }).catch(function() {
                  spyError();
                  expect(spyError.calledOnce).to.be.equal(true);
+                 done();
              });
 
          });
 
 
-         it('send mehtod accepts a success callback', function() {
+         it('send mehtod accepts a success callback', function(done) {
              var successCallback = function() {
 
                  },
@@ -164,36 +145,38 @@
                  url: url,
                  success: function() {
                      spySuccessCallback();
+                     expect(spySuccessCallback.called).to.be.equal(true);
+                     done();
+                 },
+                 error: function() {
+                     done(new Error());
                  }
              });
 
-             server.respond(successResponse);
+         });
 
-             expect(spySuccessCallback.called).to.be.equal(true);
+         it('success callback expect responseText, xhr.status , xhr object', function(done) {
+             var successCallback = function() {},
+                 spySuccessCallback = sandbox.spy(successCallback);
+
+             request.send({
+                 method: 'GET',
+                 url: url,
+                 success: function() {
+                     spySuccessCallback.apply(this, arguments);
+                     expect(spySuccessCallback.getCall(0).args[0]).to.be.a('object');
+                     expect(spySuccessCallback.getCall(0).args[1]).to.be.a('number');
+                     expect(spySuccessCallback.getCall(0).args[2]).to.be.an('object');
+                     done();
+                 },
+                 error: function() {
+                     done(new Error());
+                 }
+             });
 
          });
 
-        // it('success callback expect responseText, xhr.status , xhr object', function() {
-        //     var successCallback = function() {},
-        //         spySuccessCallback = sandbox.spy(successCallback);
-
-        //     request.send({
-        //         method: 'GET',
-        //         url: url,
-        //         success: function() {
-        //             spySuccessCallback.apply(this, arguments);
-        //         }
-        //     });
-
-        //     server.respond(successResponse);
-
-        //     expect(spySuccessCallback.getCall(0).args[0]).to.be.a('string');
-        //     expect(spySuccessCallback.getCall(0).args[1]).to.be.a('number');
-        //     expect(spySuccessCallback.getCall(0).args[2]).to.be.an('object');
-
-        // });
-
-         it('send mehtod accepts an error callback', function() {
+         it('send mehtod accepts an error callback', function(done) {
              var errorCallback = function() {
 
                  },
@@ -201,18 +184,16 @@
 
              request.send({
                  method: 'GET',
-                 url: url,
+                 url: urlRequestFail,
                  error: function() {
                      spyErrorCallback();
+                     expect(spyErrorCallback.calledOnce).to.be.equal(true);
+                     done();
                  },
                  success: function() {
-                     window.console.log('a');
+                     done(new Error());
                  }
              });
-
-             server.respond(errorResponse);
-
-             expect(spyErrorCallback.calledOnce).to.be.equal(true);
 
          });
 

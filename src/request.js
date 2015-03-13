@@ -90,19 +90,23 @@
      * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
      * @return {Mixed}                                  Processed data
      */
-    var processResponseData = function(data, type, dataType) {
+    var processResponseData = function(data, responseType, dataType) {
         var parsedData = data;
 
-        if (type === 'arraybuffer') {
+        if (responseType.indexOf('json') !== -1 && data) {
+            parsedData = JSON.parse(parsedData + '');
+        } else if (responseType === 'arraybuffer') {
             parsedData = new Uint8Array(data);
-        } else if (type === 'blob') {
+        } else if (responseType === 'blob') {
             parsedData = new Blob([data], {
                 type: dataType
             });
+        } else if (responseType.indexOf('xml') !== -1) {
+            //parsear a xml
         }
 
-        return parsedData;
 
+        return parsedData;
     };
 
     /**
@@ -137,7 +141,7 @@
             promiseResponse;
 
         if (statusType < 3) {
-            var data = processResponseData(response.responseType, response.dataType);
+            var data = processResponseData(response.response, response.responseType, response.dataType);
 
             if (callbackSuccess) {
                 callbackSuccess.call(this, data, statusCode, response.responseObject);
@@ -218,7 +222,7 @@
             processResponse.call(this, {
                 responseObject: xhr,
                 dataType: xhr.dataType,
-                responseType: xhr.responseType,
+                responseType: xhr.getResponseHeader('content-type'), //xhr.responseType,
                 response: xhr.response || xhr.responseText,
                 status: xhr.status,
                 responseObjectType: 'xhr',

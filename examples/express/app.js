@@ -8,11 +8,12 @@ var express = require('express'),
 var timeout = require('connect-timeout');
 app.use(timeout(10000));
 
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 app.options('*', cors());
 
 var HTTP_VERBS = ['get', 'put', 'post', 'delete', 'head', 'patch'];
@@ -37,9 +38,25 @@ HTTP_VERBS.forEach(function(verb) {
             body: body
         };
 
-        res.send(JSON.stringify(response, null, 3));
+        res.send(response);
     });
+
+    app[verb]('request/fail', cors(), function(req, res) {
+
+        var headers = req.headers;
+        var body = req.body;
+
+        var response = {
+            headers: headers,
+            body: body
+        };
+
+        res.status(404);
+        res.send(response);
+    });
+
 });
+
 
 // Since this is the last non-error-handling
 // middleware use()d, we assume 404, as nothing else
