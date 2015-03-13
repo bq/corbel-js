@@ -131,10 +131,10 @@ describe('corbel-js node', function() {
             request.send({
                 method: 'GET',
                 url: url,
-                success: function(responseText, status, data) {
-                    expect(responseText).to.be.a('string');
+                success: function(data, status, httpResponse) {
+                    expect(data).to.be.a('object');
                     expect(status).to.be.a('number');
-                    expect(data).to.be.an('object');
+                    expect(httpResponse).to.be.an('object');
                     done();
                 }
             });
@@ -144,7 +144,7 @@ describe('corbel-js node', function() {
             request.send({
                 method: 'GET',
                 url: url + '404',
-                error: function(responseText, status) {
+                error: function(data, status) {
                     expect(status).to.be.equal(404);
                     done();
                 }
