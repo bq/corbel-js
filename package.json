@@ -1,13 +1,9 @@
 {
     "name": "corbel-js",
-    "version": "0.0.1",
     "description": "corbel SDK compatible with browser and nodejs",
-    "homepage": "https://github.com/bq/corbel-js",
+    "version": "0.0.1",
+    "main": "dist/corbel.js",
     "license": "Apache-2.0",
-    "author": [
-        "Daniel García González <daniel.garcia@bq.com>",
-        "Anthanh Pham Trinh <anthanh.pham@bq.com>"
-    ],
     "keywords": [
         "request",
         "http",
@@ -16,6 +12,11 @@
         "corbel",
         "nodejs"
     ],
+    "contributors": [
+        "Daniel García González <daniel.garcia@bq.com>",
+        "Anthanh Pham Trinh <@antaipt>"
+    ],
+    "homepage": "http://opensource.bq.com/corbel-js/",
     "repository": {
         "type": "git",
         "url": "https://github.com/bq/corbel-js.git"
@@ -23,7 +24,6 @@
     "bugs": {
         "url": "https://github.com/bq/corbel-js/issues"
     },
-    "main": "src/main.js",
     "directories": {
         "example": "examples",
         "test": "test"
@@ -85,7 +85,7 @@
     },
     "config": {
         "travis-cov": {
-            "threshold": 45
+            "threshold": 65
         }
     }
 }
