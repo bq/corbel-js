@@ -11,6 +11,8 @@
 
 A SDK for corbel compatible with browsers and node.
 
+## [Homepage](http://opensource.bq.com/corbel-js/)
+
 ## Quickstart
 
 ### Instance a new driver
