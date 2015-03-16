@@ -77,7 +77,7 @@
         oauthService: 'corbel'
     };
 
-    describe('Silkroad Resources module', function() {
+    describe('corbel resources module', function() {
 
         var sandbox = sinon.sandbox.create(),
             resources;
