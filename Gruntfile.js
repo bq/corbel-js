@@ -361,8 +361,7 @@ module.exports = function(grunt) {
         'mochaTest:testCoverage',
         'mochaTest:coverage',
         'mochaTest:coveralls',
-        'mochaTest:travis-cov',
-        'coveralls'
+        'mochaTest:travis-cov'
     ]);
 
     grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills']);
