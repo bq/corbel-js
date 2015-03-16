@@ -6,3 +6,4 @@ script:
   - grunt test:browser
   - grunt test:node
   - grunt coverage:node
+  - grunt coveralls
