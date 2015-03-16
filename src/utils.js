@@ -51,6 +51,38 @@
         }
     };
 
+    corbel.utils.inherit = function(prototypeProperties, staticProperties) {
+        var parent = this,
+            child;
+
+
+        if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
+            child = prototypeProperties.constructor;
+        } else {
+            child = function() {
+                return parent.apply(this, arguments);
+            };
+        }
+
+        corbel.utils.extend(child, parent, staticProperties);
+
+        var Surrogate = function() {
+            this.constructor = child;
+        };
+
+        Surrogate.prototype = parent.prototype;
+        child.prototype = new Surrogate; // jshint ignore:line
+
+        if (prototypeProperties) {
+            corbel.utils.extend(child.prototype, prototypeProperties);
+        }
+
+        child.__super__ = parent.prototype;
+
+        return child;
+
+    };
+
     /**
      * Translate this full exampe query to a Silkroad Compliant QueryString
      * @param {Object} params
