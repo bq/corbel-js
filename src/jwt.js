@@ -6,10 +6,11 @@
 
 (function() {
 
-    corbel.jwt = {
+    var jwt = corbel.jwt = {
 
         EXPIRATION: 3500,
         ALGORITHM: 'HS256',
+        TYP: 'JWT',
         VERSION: '1.0.0',
 
         /**
@@ -22,10 +23,9 @@
          */
         generate: function(claims, secret, alg) {
             claims = claims || {};
-            alg = alg || corbel.jwt.ALGORITHM;
+            alg = alg || jwt.ALGORITHM;
 
-            claims.version = claims.version || corbel.jwt.VERSION;
-            claims.exp = claims.exp || corbel.jwt._generateExp();
+            claims.exp = claims.exp || jwt._generateExp();
 
             if (!claims.iss) {
                 throw new Error('jwt:undefined:iss');
@@ -47,6 +47,10 @@
                 'version',
                 'refresh_token',
                 'request_domain',
+
+                'basic_auth.username',
+                'basic_auth.password',
+
                 'device_id'
             ];
 
@@ -60,6 +64,7 @@
             corbel.utils.extend(finalClaims, claims);
 
             var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
+                    typ: jwt.TYP,
                     alg: alg
                 }))),
                 bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
@@ -70,11 +75,11 @@
         },
 
         _generateExp: function() {
-            return Math.round((new Date().getTime() / 1000)) + corbel.jwt.EXPIRATION;
+            return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION;
         }
 
     };
 
-    return corbel.jwt;
+    return jwt;
 
 })();

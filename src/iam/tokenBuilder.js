@@ -54,7 +54,7 @@
     TokenBuilder.prototype._doGetTokenRequest = function(uri, params, setCookie) {
         var args = {
             url: this._buildUri(uri),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             query: corbel.utils.param(corbel.utils.extend({
                 assertion: this._getJwt(params),
                 'grant_type': corbel.Iam.GRANT_TYPE
@@ -73,7 +73,7 @@
     TokenBuilder.prototype._doPostTokenRequest = function(uri, params, setCookie) {
         var args = {
             url: this._buildUri(uri),
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: {
                 assertion: this._getJwt(params),
                 'grant_type': corbel.Iam.GRANT_TYPE

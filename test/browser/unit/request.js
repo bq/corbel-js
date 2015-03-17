@@ -1,204 +1,162 @@
- 'use strict';
- describe('corbel-js browser', function() {
+'use strict';
+describe('corbel-js browser', function() {
 
-     var sandbox;
+    var sandbox;
 
-     this.timeout(400000);
+    this.timeout(4000);
 
-     beforeEach(function() {
-         sandbox = sinon.sandbox.create();
-     });
+    beforeEach(function() {
+        sandbox = sinon.sandbox.create();
+    });
 
-     afterEach(function() {
-         sandbox.restore();
-     });
+    afterEach(function() {
+        sandbox.restore();
+    });
 
+    it('corbel-js contains all modules', function() {
+        expect(corbel).to.include.keys('request');
+    });
 
-     it('corbel-js namespace exists and exports as global', function() {
-         expect(window).to.include.keys('corbel');
-     });
+    describe('request module', function() {
 
-     it('corbel-js contains all modules', function() {
-         expect(window.corbel).to.include.keys('request');
-     });
+        var url = 'http://localhost:3000/',
+            request;
 
+        before(function() {
+            request = corbel.request;
+        });
 
-     describe('request module', function() {
+        it('should has own properties', function() {
+            expect(request).to.include.keys('method');
+            expect(request.method).to.include.keys('GET');
+            expect(request.method).to.include.keys('POST');
+            expect(request.method).to.include.keys('PUT');
+            expect(request.method).to.include.keys('DELETE');
+            expect(request.method).to.include.keys('OPTIONS');
+            expect(request.method).to.include.keys('PATCH');
+            expect(request.method).to.include.keys('HEAD');
+        });
 
-         var url = 'http://localhost:3000/',
-             urlRequestFail = 'http://localhost:3000/request/fail',
-             request;
+        it('expected methods are available', function() {
+            expect(request).to.respondTo('send');
+        });
 
-         before(function() {
-             request = window.corbel.request;
-         });
+        it('send method accepts all http verbs', function(done) {
 
-         it('should has own properties', function() {
-             expect(request).to.include.keys('send');
-         });
+            request.send({
+                method: 'GET',
+                url: url
+            }).then(function() {
+                return request.send({
+                    method: 'POST',
+                    url: url
+                });
+            }).then(function() {
+                return request.send({
+                    method: 'PATCH',
+                    url: url
+                });
+            }).then(function() {
+                return request.send({
+                    method: 'PUT',
+                    url: url
+                });
+            }).then(function() {
+                return request.send({
+                    method: 'HEAD',
+                    url: url
+                });
+            }).then(function() {
+                done();
+            }).catch(function(error) {
+                done(error);
+            });
 
+        });
 
-         it('send method accepts all http verbs', function() {
+        it('send method throws an error if no url setting', function() {
 
-             request.send({
-                 method: 'GET',
-                 url: url
-             });
+            var fn = function() {
+                return request.send({
+                    method: 'GET'
+                });
+            };
 
+            expect(fn).to.throw('undefined:url');
+        });
 
-             request.send({
-                 method: 'POST',
-                 url: url,
-                 data: {
-                     someData: 'data text'
-                 }
-             });
+        it('send mehtod returns a promise', function() {
 
-             request.send({
-                 method: 'PUT',
-                 url: url,
-                 data: {
-                     someData: 'data text'
-                 }
-             });
+            var promise = request.send({
+                method: 'GET',
+                url: url
+            });
 
-             request.send({
-                 method: 'HEAD',
-                 url: url,
-                 data: {
-                     someData: 'data text'
-                 }
-             });
-         });
+            expect(promise).to.be.instanceof(Promise);
+        });
 
-         it('send method throws an error if no url setting', function() {
+        it('send mehtod returns a promise and it resolves', function(done) {
 
-             var fn = function() {
-                 return request.send({
-                     method: 'GET'
-                 });
-             };
+            request.send({
+                method: 'GET',
+                url: url
+            }).then(function() {
+                done();
+            });
 
-             expect(fn).to.throw('undefined:url');
-         });
+        });
 
-         it('send mehtod returns a promise', function() {
+        it('send mehtod returns a promise and reject it', function(done) {
+            var promise = request.send({
+                method: 'GET',
+                url: url + '404'
+            });
 
-             var promise = request.send({
-                 method: 'GET',
-                 url: url
-             });
+            promise.catch(function(error) {
+                expect(error.status).to.be.equal(404);
+                done();
+            });
 
-             expect(promise).to.be.instanceof(Promise);
-         });
+        });
 
-         it('send mehtod returns a promise and resolve it', function(done) {
+        it('send mehtod accepts a success callback', function(done) {
+            request.send({
+                method: 'GET',
+                url: url,
+                success: function() {
+                    done();
+                },
+                error: function(error) {
+                    done(error);
+                },
+            });
+        });
 
-             var resolveCallback = function() {};
+        it('success callback expect responseText, status , incoming message object', function(done) {
+            request.send({
+                method: 'GET',
+                url: url,
+                success: function(data, status, httpResponse) {
+                    expect(data).to.be.a('object');
+                    expect(status).to.be.a('number');
+                    expect(httpResponse).to.be.an('object');
+                    done();
+                }
+            });
+        });
 
-             var spyResolve = sandbox.spy(resolveCallback);
+        it('send mehtod accepts an error callback', function(done) {
+            request.send({
+                method: 'GET',
+                url: url + '404',
+                error: function(data, status) {
+                    expect(status).to.be.equal(404);
+                    done();
+                }
+            });
 
-             var promise = request.send({
-                 method: 'GET',
-                 url: url
-             });
+        });
 
-             promise.then(function() {
-                 spyResolve();
-                 expect(spyResolve.calledOnce).to.be.equal(true);
-                 done();
-             }).catch(function() {
-                 done(new Error());
-             });
+    });
 
-         });
-
-         it('send mehtod returns a promise and reject it', function(done) {
-             var errorCallback = function() {};
-
-             var spyError = sandbox.spy(errorCallback);
-
-             var promise = request.send({
-                 method: 'GET',
-                 url: urlRequestFail
-             });
-
-             promise.then(function() {
-                 done(new Error());
-             }).catch(function() {
-                 spyError();
-                 expect(spyError.calledOnce).to.be.equal(true);
-                 done();
-             });
-
-         });
-
-
-         it('send mehtod accepts a success callback', function(done) {
-             var successCallback = function() {
-
-                 },
-                 spySuccessCallback = sandbox.spy(successCallback);
-
-             request.send({
-                 method: 'GET',
-                 url: url,
-                 success: function() {
-                     spySuccessCallback();
-                     expect(spySuccessCallback.called).to.be.equal(true);
-                     done();
-                 },
-                 error: function() {
-                     done(new Error());
-                 }
-             });
-
-         });
-
-         it('success callback expect responseText, xhr.status , xhr object', function(done) {
-             var successCallback = function() {},
-                 spySuccessCallback = sandbox.spy(successCallback);
-
-             request.send({
-                 method: 'GET',
-                 url: url,
-                 success: function() {
-                     spySuccessCallback.apply(this, arguments);
-                     expect(spySuccessCallback.getCall(0).args[0]).to.be.a('object');
-                     expect(spySuccessCallback.getCall(0).args[1]).to.be.a('number');
-                     expect(spySuccessCallback.getCall(0).args[2]).to.be.an('object');
-                     done();
-                 },
-                 error: function() {
-                     done(new Error());
-                 }
-             });
-
-         });
-
-         it('send mehtod accepts an error callback', function(done) {
-             var errorCallback = function() {
-
-                 },
-                 spyErrorCallback = sandbox.spy(errorCallback);
-
-             request.send({
-                 method: 'GET',
-                 url: urlRequestFail,
-                 error: function() {
-                     spyErrorCallback();
-                     expect(spyErrorCallback.calledOnce).to.be.equal(true);
-                     done();
-                 },
-                 success: function() {
-                     done(new Error());
-                 }
-             });
-
-         });
-
-
-     });
-
-
- });
+});

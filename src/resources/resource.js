@@ -31,7 +31,7 @@
             // console.log('resourceInterface.resource.get', dataType);
             var args = params || {};
             args.url = this.buildUri(this.type, this.id);
-            args.method = corbel.services.method.GET;
+            args.method = corbel.request.method.GET;
             args.contentType = dataType;
             args.Accept = dataType;
             return this.request(args);
@@ -51,7 +51,7 @@
             // console.log('resourceInterface.resource', data);
             var args = params || {};
             args.url = this.buildUri(this.type, this.id);
-            args.method = corbel.services.method.PUT;
+            args.method = corbel.request.method.PUT;
             args.data = data;
             args.contentType = dataType;
             args.Accept = dataType;
@@ -68,7 +68,7 @@
             // console.log('resourceInterface.resource.delete');
             return this.request({
                 url: this.buildUri(this.type, this.id),
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.DELETE,
                 contentType: dataType,
                 Accept: dataType
             });

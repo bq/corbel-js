@@ -8,7 +8,6 @@
         this.driver = driver;
     }
 
-
     ResourceBase.inherit = corbel.utils.inherit;
 
     corbel.Resources.ResourceBase = ResourceBase.inherit({

@@ -33,7 +33,18 @@ describe('corbel-js node', function() {
         });
 
         it('should has own properties', function() {
-            expect(request).to.include.keys('send');
+            expect(request).to.include.keys('method');
+            expect(request.method).to.include.keys('GET');
+            expect(request.method).to.include.keys('POST');
+            expect(request.method).to.include.keys('PUT');
+            expect(request.method).to.include.keys('DELETE');
+            expect(request.method).to.include.keys('OPTIONS');
+            expect(request.method).to.include.keys('PATCH');
+            expect(request.method).to.include.keys('HEAD');
+        });
+
+        it('expected methods are available', function() {
+            expect(request).to.respondTo('send');
         });
 
         it('send method accepts all http verbs', function(done) {

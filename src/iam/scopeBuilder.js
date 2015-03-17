@@ -49,13 +49,14 @@
      */
     ScopeBuilder.prototype.create = function(scope) {
         console.log('iamInterface.scope.create', scope);
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri),
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: scope,
             withAuth: true
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
@@ -71,7 +72,7 @@
         console.log('iamInterface.scope.get', this.id);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.id),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -87,7 +88,7 @@
         console.log('iamInterface.scope.remove', this.id);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.id),
-            method: corbel.services.method.DELETE,
+            method: corbel.request.method.DELETE,
             withAuth: true
         });
     };

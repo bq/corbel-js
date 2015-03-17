@@ -38,7 +38,7 @@
         console.log('iamInterface.username.availability', username);
         return corbel.request.send({
             url: this._buildUri(this.uri, username),
-            method: corbel.services.method.HEAD,
+            method: corbel.request.method.HEAD,
             withAuth: true
         }).then(function() {
             return false;

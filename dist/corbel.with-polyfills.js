@@ -985,11 +985,12 @@
     (function() {
     
         function CorbelDriver(config) {
-        	// create isntance config
+            // create isntance config
             this.config = corbel.Config.create(config);
     
             // create isntance modules with injected driver
             this.iam = corbel.Iam.create(this);
+            this.resources = corbel.Resources.create(this);
         }
     
         corbel.CorbelDriver = CorbelDriver;
@@ -1014,9 +1015,9 @@
             ];
     
             keys.forEach(function(key) {
-            	if (!config[key]) {
-            		throw new Error('undefined:' + key);
-            	}
+                if (!config[key]) {
+                    throw new Error('undefined:' + key);
+                }
             });
     
             return new CorbelDriver(config);
@@ -1024,7 +1025,6 @@
     
     
     })();
-    
     (function() {
     
         /**
@@ -1071,6 +1071,38 @@
             if (window) {
                 window.location.reload();
             }
+        };
+    
+        corbel.utils.inherit = function(prototypeProperties, staticProperties) {
+            var parent = this,
+                child;
+    
+    
+            if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
+                child = prototypeProperties.constructor;
+            } else {
+                child = function() {
+                    return parent.apply(this, arguments);
+                };
+            }
+    
+            corbel.utils.extend(child, parent, staticProperties);
+    
+            var Surrogate = function() {
+                this.constructor = child;
+            };
+    
+            Surrogate.prototype = parent.prototype;
+            child.prototype = new Surrogate; // jshint ignore:line
+    
+            if (prototypeProperties) {
+                corbel.utils.extend(child.prototype, prototypeProperties);
+            }
+    
+            child.__super__ = parent.prototype;
+    
+            return child;
+    
         };
     
         /**
@@ -1157,7 +1189,6 @@
         };
     
     })();
-    
     (function() {
     
     
@@ -1287,47 +1318,8 @@
             var hexcase = 0; /* hex output format. 0 - lowercase; 1 - uppercase        */
             var b64pad = ''; /* base-64 pad character. "=" for strict RFC compliance   */
     
-            /*
-             * These are the functions you'll usually want to call
-             * They take string arguments and return either hex or base-64 encoded strings
-             */
-            function hex_sha256(s) {
-                return rstr2hex(rstr_sha256(str2rstr_utf8(s)));
-            }
-    
-            function b64_sha256(s) {
-                return rstr2b64(rstr_sha256(str2rstr_utf8(s)));
-            }
-    
-            function any_sha256(s, e) {
-                return rstr2any(rstr_sha256(str2rstr_utf8(s)), e);
-            }
-    
-            function hex_hmac_sha256(k, d) {
-                return rstr2hex(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));
-            }
-    
             function b64_hmac_sha256(k, d) {
                 return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));
-            }
-    
-            function any_hmac_sha256(k, d, e) {
-                return rstr2any(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)), e);
-            }
-    
-            /*
-             * Perform a simple self-test to see if the VM is working
-             */
-            function sha256_vm_test() {
-                return hex_sha256('abc').toLowerCase() ===
-                    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
-            }
-    
-            /*
-             * Calculate the sha256 of a raw string
-             */
-            function rstr_sha256(s) {
-                return binb2rstr(binb_sha256(rstr2binb(s), s.length * 8));
             }
     
             /*
@@ -1351,25 +1343,6 @@
             }
     
             /*
-             * Convert a raw string to a hex string
-             */
-            function rstr2hex(input) {
-                try {
-                    hexcase
-                } catch (e) {
-                    hexcase = 0;
-                }
-                var hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
-                var output = '';
-                var x;
-                for (var i = 0; i < input.length; i++) {
-                    x = input.charCodeAt(i);
-                    output += hex_tab.charAt((x >>> 4) & 0x0F) + hex_tab.charAt(x & 0x0F);
-                }
-                return output;
-            }
-    
-            /*
              * Convert a raw string to a base-64 string
              */
             function rstr2b64(input) {
@@ -1388,54 +1361,6 @@
                         else output += tab.charAt((triplet >>> 6 * (3 - j)) & 0x3F);
                     }
                 }
-                return output;
-            }
-    
-            /*
-             * Convert a raw string to an arbitrary string encoding
-             */
-            function rstr2any(input, encoding) {
-                var divisor = encoding.length;
-                var remainders = Array();
-                var i, q, x, quotient;
-    
-                /* Convert to an array of 16-bit big-endian values, forming the dividend */
-                var dividend = Array(Math.ceil(input.length / 2));
-                for (i = 0; i < dividend.length; i++) {
-                    dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1);
-                }
-    
-                /*
-                 * Repeatedly perform a long division. The binary array forms the dividend,
-                 * the length of the encoding is the divisor. Once computed, the quotient
-                 * forms the dividend for the next step. We stop when the dividend is zero.
-                 * All remainders are stored for later use.
-                 */
-                while (dividend.length > 0) {
-                    quotient = Array();
-                    x = 0;
-                    for (i = 0; i < dividend.length; i++) {
-                        x = (x << 16) + dividend[i];
-                        q = Math.floor(x / divisor);
-                        x -= q * divisor;
-                        if (quotient.length > 0 || q > 0)
-                            quotient[quotient.length] = q;
-                    }
-                    remainders[remainders.length] = x;
-                    dividend = quotient;
-                }
-    
-                /* Convert the remainders to the output string */
-                var output = '';
-                for (i = remainders.length - 1; i >= 0; i--)
-                    output += encoding.charAt(remainders[i]);
-    
-                /* Append leading zero equivalents */
-                var full_length = Math.ceil(input.length * 8 /
-                    (Math.log(encoding.length) / Math.log(2)))
-                for (i = output.length; i < full_length; i++)
-                    output = encoding[0] + output;
-    
                 return output;
             }
     
@@ -1473,24 +1398,6 @@
                             0x80 | ((x >>> 6) & 0x3F),
                             0x80 | (x & 0x3F));
                 }
-                return output;
-            }
-    
-            /*
-             * Encode a string as utf-16
-             */
-            function str2rstr_utf16le(input) {
-                var output = '';
-                for (var i = 0; i < input.length; i++)
-                    output += String.fromCharCode(input.charCodeAt(i) & 0xFF, (input.charCodeAt(i) >>> 8) & 0xFF);
-                return output;
-            }
-    
-            function str2rstr_utf16be(input) {
-                var output = "";
-                for (var i = 0; i < input.length; i++)
-                    output += String.fromCharCode((input.charCodeAt(i) >>> 8) & 0xFF,
-                        input.charCodeAt(i) & 0xFF);
                 return output;
             }
     
@@ -1550,22 +1457,6 @@
     
             function sha256_Gamma1256(x) {
                 return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ sha256_R(x, 10));
-            }
-    
-            function sha256_Sigma0512(x) {
-                return (sha256_S(x, 28) ^ sha256_S(x, 34) ^ sha256_S(x, 39));
-            }
-    
-            function sha256_Sigma1512(x) {
-                return (sha256_S(x, 14) ^ sha256_S(x, 18) ^ sha256_S(x, 41));
-            }
-    
-            function sha256_Gamma0512(x) {
-                return (sha256_S(x, 1) ^ sha256_S(x, 8) ^ sha256_R(x, 7));
-            }
-    
-            function sha256_Gamma1512(x) {
-                return (sha256_S(x, 19) ^ sha256_S(x, 61) ^ sha256_R(x, 6));
             }
     
             var sha256_K = new Array(
@@ -1680,92 +1571,6 @@
              */
             function Base64x() {}
     
-            // ==== string / byte array ================================
-            /**
-             * convert a string to an array of character codes
-             * @param {String} s
-             * @return {Array of Numbers}
-             */
-            function stoBA(s) {
-                var a = new Array();
-                for (var i = 0; i < s.length; i++) {
-                    a[i] = s.charCodeAt(i);
-                }
-                return a;
-            }
-    
-            /**
-             * convert an array of character codes to a string
-             * @param {Array of Numbers} a array of character codes
-             * @return {String} s
-             */
-            function BAtos(a) {
-                var s = "";
-                for (var i = 0; i < a.length; i++) {
-                    s = s + String.fromCharCode(a[i]);
-                }
-                return s;
-            }
-    
-            // ==== byte array / hex ================================
-            /**
-             * convert an array of bytes(Number) to hexadecimal string.<br/>
-             * @param {Array of Numbers} a array of bytes
-             * @return {String} hexadecimal string
-             */
-            function BAtohex(a) {
-                var s = "";
-                for (var i = 0; i < a.length; i++) {
-                    var hex1 = a[i].toString(16);
-                    if (hex1.length == 1) hex1 = "0" + hex1;
-                    s = s + hex1;
-                }
-                return s;
-            }
-    
-            // ==== string / hex ================================
-            /**
-             * convert a ASCII string to a hexadecimal string of ASCII codes.<br/>
-             * NOTE: This can't be used for non ASCII characters.
-             * @param {s} s ASCII string
-             * @return {String} hexadecimal string
-             */
-            function stohex(s) {
-                return BAtohex(stoBA(s));
-            }
-    
-            // ==== string / base64 ================================
-            /**
-             * convert a ASCII string to a Base64 encoded string.<br/>
-             * NOTE: This can't be used for non ASCII characters.
-             * @param {s} s ASCII string
-             * @return {String} Base64 encoded string
-             */
-            function stob64(s) {
-                return hex2b64(stohex(s));
-            }
-    
-            // ==== string / base64url ================================
-            /**
-             * convert a ASCII string to a Base64URL encoded string.<br/>
-             * NOTE: This can't be used for non ASCII characters.
-             * @param {s} s ASCII string
-             * @return {String} Base64URL encoded string
-             */
-            function stob64u(s) {
-                return b64tob64u(hex2b64(stohex(s)));
-            }
-    
-            /**
-             * convert a Base64URL encoded string to a ASCII string.<br/>
-             * NOTE: This can't be used for Base64URL encoded non ASCII characters.
-             * @param {s} s Base64URL encoded string
-             * @return {String} ASCII string
-             */
-            function b64utos(s) {
-                return BAtos(b64toBA(b64utob64(s)));
-            }
-    
             // ==== base64 / base64url ================================
             /**
              * convert a Base64 encoded string to a Base64URL encoded string.<br/>
@@ -1780,246 +1585,7 @@
                 return s;
             }
     
-            /**
-             * convert a Base64URL encoded string to a Base64 encoded string.<br/>
-             * Example: 'ab-c3f_' &rarr; 'ab+c3f/=='
-             * @param {String} s Base64URL encoded string
-             * @return {String} Base64 encoded string
-             */
-            function b64utob64(s) {
-                if (s.length % 4 == 2) s = s + '==';
-                else if (s.length % 4 == 3) s = s + '=';
-                s = s.replace(/-/g, '+');
-                s = s.replace(/_/g, '/');
-                return s;
-            }
-    
-            // ==== hex / base64url ================================
-            /**
-             * convert a hexadecimal string to a Base64URL encoded string.<br/>
-             * @param {String} s hexadecimal string
-             * @return {String} Base64URL encoded string
-             */
-            function hextob64u(s) {
-                return b64tob64u(hex2b64(s));
-            }
-    
-            /**
-             * convert a Base64URL encoded string to a hexadecimal string.<br/>
-             * @param {String} s Base64URL encoded string
-             * @return {String} hexadecimal string
-             */
-            function b64utohex(s) {
-                return b64tohex(b64utob64(s));
-            }
-    
             var utf8tob64u, b64utoutf8;
-    
-            if (typeof Buffer === 'function') {
-                utf8tob64u = function(s) {
-                    return b64tob64u(new Buffer(s, 'utf8').toString('base64'));
-                };
-    
-                b64utoutf8 = function(s) {
-                    return new Buffer(b64utob64(s), 'base64').toString('utf8');
-                };
-            } else {
-                // ==== utf8 / base64url ================================
-                /**
-                 * convert a UTF-8 encoded string including CJK or Latin to a Base64URL encoded string.<br/>
-                 * @param {String} s UTF-8 encoded string
-                 * @return {String} Base64URL encoded string
-                 * @since 1.1
-                 */
-                utf8tob64u = function(s) {
-                    return hextob64u(uricmptohex(encodeURIComponentAll(s)));
-                };
-    
-                /**
-                 * convert a Base64URL encoded string to a UTF-8 encoded string including CJK or Latin.<br/>
-                 * @param {String} s Base64URL encoded string
-                 * @return {String} UTF-8 encoded string
-                 * @since 1.1
-                 */
-                b64utoutf8 = function(s) {
-                    return decodeURIComponent(hextouricmp(b64utohex(s)));
-                };
-            }
-    
-            // ==== utf8 / base64url ================================
-            /**
-             * convert a UTF-8 encoded string including CJK or Latin to a Base64 encoded string.<br/>
-             * @param {String} s UTF-8 encoded string
-             * @return {String} Base64 encoded string
-             * @since 1.1.1
-             */
-            function utf8tob64(s) {
-                return hex2b64(uricmptohex(encodeURIComponentAll(s)));
-            }
-    
-            /**
-             * convert a Base64 encoded string to a UTF-8 encoded string including CJK or Latin.<br/>
-             * @param {String} s Base64 encoded string
-             * @return {String} UTF-8 encoded string
-             * @since 1.1.1
-             */
-            function b64toutf8(s) {
-                return decodeURIComponent(hextouricmp(b64tohex(s)));
-            }
-    
-            // ==== utf8 / hex ================================
-            /**
-             * convert a UTF-8 encoded string including CJK or Latin to a hexadecimal encoded string.<br/>
-             * @param {String} s UTF-8 encoded string
-             * @return {String} hexadecimal encoded string
-             * @since 1.1.1
-             */
-            function utf8tohex(s) {
-                return uricmptohex(encodeURIComponentAll(s));
-            }
-    
-            /**
-             * convert a hexadecimal encoded string to a UTF-8 encoded string including CJK or Latin.<br/>
-             * Note that when input is improper hexadecimal string as UTF-8 string, this function returns
-             * 'null'.
-             * @param {String} s hexadecimal encoded string
-             * @return {String} UTF-8 encoded string or null
-             * @since 1.1.1
-             */
-            function hextoutf8(s) {
-                return decodeURIComponent(hextouricmp(s));
-            }
-    
-            /**
-             * convert a hexadecimal encoded string to raw string including non printable characters.<br/>
-             * @param {String} s hexadecimal encoded string
-             * @return {String} raw string
-             * @since 1.1.2
-             * @example
-             * hextorstr("610061") &rarr; "a\x00a"
-             */
-            function hextorstr(sHex) {
-                var s = "";
-                for (var i = 0; i < sHex.length - 1; i += 2) {
-                    s += String.fromCharCode(parseInt(sHex.substr(i, 2), 16));
-                }
-                return s;
-            }
-    
-            /**
-             * convert a raw string including non printable characters to hexadecimal encoded string.<br/>
-             * @param {String} s raw string
-             * @return {String} hexadecimal encoded string
-             * @since 1.1.2
-             * @example
-             * rstrtohex("a\x00a") &rarr; "610061"
-             */
-            function rstrtohex(s) {
-                var result = '';
-                for (var i = 0; i < s.length; i++) {
-                    result += ('0' + s.charCodeAt(i).toString(16)).slice(-2);
-                }
-                return result;
-            }
-    
-            // ==== hex / b64nl =======================================
-    
-            /*
-             * since base64x 1.1.3
-             */
-            function hextob64(s) {
-                return hex2b64(s);
-            }
-    
-            /*
-             * since base64x 1.1.3
-             */
-            function hextob64nl(s) {
-                var b64 = hextob64(s);
-                var b64nl = b64.replace(/(.{64})/g, '$1\r\n');
-                b64nl = b64nl.replace(/\r\n$/, '');
-                return b64nl;
-            }
-    
-            /*
-             * since base64x 1.1.3
-             */
-            function b64nltohex(s) {
-                var b64 = s.replace(/[^0-9A-Za-z\/+=]*/g, '');
-                var hex = b64tohex(b64);
-                return hex;
-            }
-    
-            // ==== URIComponent / hex ================================
-            /**
-             * convert a URLComponent string such like "%67%68" to a hexadecimal string.<br/>
-             * @param {String} s URIComponent string such like "%67%68"
-             * @return {String} hexadecimal string
-             * @since 1.1
-             */
-            function uricmptohex(s) {
-                return s.replace(/%/g, '');
-            }
-    
-            /**
-             * convert a hexadecimal string to a URLComponent string such like "%67%68".<br/>
-             * @param {String} s hexadecimal string
-             * @return {String} URIComponent string such like "%67%68"
-             * @since 1.1
-             */
-            function hextouricmp(s) {
-                return s.replace(/(..)/g, '%$1');
-            }
-    
-            // ==== URIComponent ================================
-            /**
-             * convert UTFa hexadecimal string to a URLComponent string such like "%67%68".<br/>
-             * Note that these "<code>0-9A-Za-z!'()*-._~</code>" characters will not
-             * converted to "%xx" format by builtin 'encodeURIComponent()' function.
-             * However this 'encodeURIComponentAll()' function will convert
-             * all of characters into "%xx" format.
-             * @param {String} s hexadecimal string
-             * @return {String} URIComponent string such like "%67%68"
-             * @since 1.1
-             */
-            function encodeURIComponentAll(u8) {
-                var s = encodeURIComponent(u8);
-                var s2 = '';
-                for (var i = 0; i < s.length; i++) {
-                    if (s[i] == '%') {
-                        s2 = s2 + s.substr(i, 3);
-                        i = i + 2;
-                    } else {
-                        s2 = s2 + '%' + stohex(s[i]);
-                    }
-                }
-                return s2;
-            }
-    
-            // ==== new lines ================================
-            /**
-             * convert all DOS new line("\r\n") to UNIX new line("\n") in
-             * a String "s".
-             * @param {String} s string
-             * @return {String} converted string
-             */
-            function newline_toUnix(s) {
-                s = s.replace(/\r\n/mg, '\n');
-                return s;
-            }
-    
-            /**
-             * convert all UNIX new line('\r\n') to DOS new line('\n') in
-             * a String 's'.
-             * @param {String} s string
-             * @return {String} converted string
-             */
-            function newline_toDos(s) {
-                s = s.replace(/\r\n/mg, '\n');
-                s = s.replace(/\n/mg, '\r\n');
-                return s;
-            }
-    
     
             return {
                 rstr2b64: rstr2b64,
@@ -2118,332 +1684,7 @@
          * Request object available for brwoser and node environment
          * @type {Object}
          */
-        corbel.request = {};
-    
-    
-        /**
-         * Public method to make ajax request
-         * @param  {Object} options                                     Object options for ajax request
-         * @param  {String} options.url                                 The request url domain
-         * @param  {String} options.method                              The method used for the request
-         * @param  {Object} options.headers                             The request headers
-         * @param  {String} options.contentType                         The content type of the body
-         * @param  {Object || Uint8Array || blob} options.data          Optional data sent to the server
-         * @param  {Function} options.success                           Callback function for success request response
-         * @param  {Function} options.error                             Callback function for handle error in the request
-         * @return {ES6 Promise}                                        Promise about the request status and response
-         */
-        corbel.request.send = function(options) {
-            options = options || {};
-    
-            var params = {
-                method: String((options.method || 'GET')).toUpperCase(),
-                url: options.url,
-                headers: typeof options.headers === 'object' ? options.headers : {},
-                contentType: options.contentType || 'application/json',
-                get isJSON() {
-                    return this.contentType.indexOf('json') !== -1 ? true : false;
-                },
-                callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
-                callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-                //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-                dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
-                get data() {
-                    return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data || {} : undefined;
-                }
-            };
-    
-            if (!params.url) {
-                throw new Error('undefined:url');
-            }
-    
-    
-            // add responseType to the request (blob || arraybuffer || text)
-            // httpReq.responseType = responseType;
-    
-            //add content - type header
-            params.headers['content-type'] = params.contentType;
-    
-            var promise = new Promise(function(resolve, reject) {
-    
-                var resolver = {
-                    resolve: resolve,
-                    reject: reject
-                };
-    
-                if (typeof module !== 'undefined' && module.exports) { //nodejs
-                    nodeAjax.call(this, params, resolver);
-                } else if (typeof window !== 'undefined') { //browser
-                    browserAjax.call(this, params, resolver);
-                }
-            }.bind(this));
-    
-    
-            return promise;
-        };
-    
-        var xhrSuccessStatus = {
-            // file protocol always yields status code 0, assume 200
-            0: 200,
-            // Support: IE9
-            // #1450: sometimes IE returns 1223 when it should be 204
-            1223: 204
-        };
-    
-        /**
-         * Process the server response data to the specified object/array/blob/byteArray/text
-         * @param  {Mixed} data                             The server response
-         * @param  {String} type='array'|'blob'|'json'      The class of the server response
-         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
-         * @return {Mixed}                                  Processed data
-         */
-        var processResponseData = function(data, type, dataType) {
-            var parsedData = data;
-    
-            if (type === 'arraybuffer') {
-                parsedData = new Uint8Array(data);
-            } else if (type === 'blob') {
-                parsedData = new Blob([data], {
-                    type: dataType
-                });
-            }
-    
-            return parsedData;
-    
-        };
-    
-        /**
-         * Serialize the data to be sent to the server
-         * @param  {Mixed} data                             The data that would be sent to the server
-         * @param  {String} type='array'|'blob'|'json'      The class of the data (array, blob, json)
-         * @return {String}                                 Serialized data
-         */
-        var serializeData = function(data, type) {
-            var serializedData = data;
-    
-            if (type === 'json' && typeof data === 'object') {
-                serializedData = JSON.stringify(data);
-            }
-    
-            return serializedData;
-    
-        };
-    
-        /**
-         * Process server response
-         * @param  {[Response object]} response
-         * @param  {[Object]} resolver
-         * @param  {[Function]} callbackSuccess
-         * @param  {[Function]} callbackError
-         */
-        var processResponse = function(response, resolver, callbackSuccess, callbackError) {
-    
-            //xhr = xhr.target || xhr || {};
-            var statusCode = xhrSuccessStatus[response.status] || response.status,
-                statusType = Number(response.status.toString()[0]),
-                promiseResponse;
-    
-            if (statusType < 3) {
-                var data = processResponseData(response.responseType, response.dataType);
-    
-                if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject);
-                }
-    
-                promiseResponse = {
-                    data: data,
-                    status: statusCode,
-                };
-    
-                promiseResponse[response.responseObjectType] = response.responseObject;
-    
-                resolver.resolve(promiseResponse);
-    
-            } else if (statusType === 4) {
-    
-                if (callbackError) {
-                    callbackError.call(this, response.error, statusCode, response.responseObject);
-                }
-    
-                promiseResponse = {
-                    data: response.responseObject,
-                    status: statusCode,
-                    error: response.error
-                };
-    
-                promiseResponse[response.responseObjectType] = response.responseObject;
-    
-                resolver.reject(promiseResponse);
-            }
-    
-        };
-    
-    
-        var nodeAjax = function(params, resolver) {
-    
-            var request = require('request');
-    
-            request({
-                method: params.method,
-                url: params.url,
-                headers: params.headers,
-                json: params.isJSON,
-                body: params.data
-            }, function(error, response, body) {
-    
-                processResponse.call(this, {
-                    responseObject: response,
-                    dataType: params.dataType,
-                    responseType: response.headers['content-type'],
-                    response: body,
-                    status: response.statusCode,
-                    responseObjectType: 'response',
-                    error: error
-                }, resolver, params.callbackSuccess, params.callbackError);
-    
-            }.bind(this));
-    
-        };
-    
-        var browserAjax = function(params, resolver) {
-    
-            var httpReq = new XMLHttpRequest();
-    
-    
-            httpReq.open(params.method, params.url, true);
-    
-            /* add request headers */
-            for (var header in params.headers) {
-                if (params.headers.hasOwnProperty(header)) {
-                    httpReq.setRequestHeader(header, params.headers[header]);
-                }
-            }
-    
-            httpReq.onload = function(xhr) {
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-    
-                processResponse.call(this, {
-                    responseObject: xhr,
-                    dataType: xhr.dataType,
-                    responseType: xhr.responseType,
-                    response: xhr.response || xhr.responseText,
-                    status: xhr.status,
-                    responseObjectType: 'xhr',
-                    error: xhr.error
-                }, resolver, params.callbackSuccess, params.callbackError);
-    
-                //delete callbacks
-            }.bind(this);
-    
-            //response fail ()
-            httpReq.onerror = function(xhr) {
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-    
-                processResponse.call(this, {
-                    responseObject: xhr,
-                    dataType: xhr.dataType,
-                    responseType: xhr.responseType,
-                    response: xhr.response || xhr.responseText,
-                    status: xhr.status,
-                    responseObjectType: 'xhr',
-                    error: xhr.error
-                }, resolver, params.callbackSuccess, params.callbackError);
-    
-            }.bind(this);
-    
-            if (params.data) {
-                httpReq.send(serializeData(params.data, params.responseType));
-            } else {
-                httpReq.send();
-            }
-    
-        };
-    
-        return corbel.request;
-    
-    })();
-    
-    /* jshint camelcase:false */
-    (function() {
-    
-        corbel.jwt = {
-    
-            EXPIRATION: 3500,
-            ALGORITHM: 'HS256',
-            VERSION: '1.0.0',
-    
-            /**
-             * JWT-HmacSHA256 generator
-             * http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
-             * @param  {Object}                                 claims Specific claims to include in the JWT (iss, aud, exp, scope, ...)
-             * @param  {String} secret                          String with the client assigned secret
-             * @param  {Object} [alg='corbel.jwt.ALGORITHM']    Object with the algorithm type
-             * @return {String} jwt                             JWT string
-             */
-            generate: function(claims, secret, alg) {
-                claims = claims || {};
-                alg = alg || corbel.jwt.ALGORITHM;
-    
-                claims.version = claims.version || corbel.jwt.VERSION;
-                claims.exp = claims.exp || corbel.jwt._generateExp();
-    
-                if (!claims.iss) {
-                    throw new Error('jwt:undefined:iss');
-                }
-                if (!claims.aud) {
-                    throw new Error('jwt:undefined:aud');
-                }
-                if (!claims.scope) {
-                    throw new Error('jwt:undefined:scope');
-                }
-    
-                // Ensure claims specific order
-                var claimsKeys = [
-                    'iss',
-                    'aud',
-                    'exp',
-                    'scope',
-                    'prn',
-                    'version',
-                    'refresh_token',
-                    'request_domain',
-                    'device_id'
-                ];
-    
-                var finalClaims = {};
-                claimsKeys.forEach(function(key) {
-                    if (claims[key]) {
-                        finalClaims[key] = claims[key];
-                    }
-                });
-    
-                corbel.utils.extend(finalClaims, claims);
-    
-                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
-                        alg: alg
-                    }))),
-                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
-                    segment = bAlg + '.' + bClaims,
-                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
-    
-                return segment + '.' + assertion;
-            },
-    
-            _generateExp: function() {
-                return Math.round((new Date().getTime() / 1000)) + corbel.jwt.EXPIRATION;
-            }
-    
-        };
-    
-        return corbel.jwt;
-    
-    })();
-    
-    (function() {
-    
-        /** --core engine services-- */
-    
-        var corbelServices = corbel.services = {
+        corbel.request = {
             /**
              * method constants
              * @namespace
@@ -2497,9 +1738,278 @@
         };
     
     
+        /**
+         * Public method to make ajax request
+         * @param  {Object} options                                     Object options for ajax request
+         * @param  {String} options.url                                 The request url domain
+         * @param  {String} options.method                              The method used for the request
+         * @param  {Object} options.headers                             The request headers
+         * @param  {String} options.contentType                         The content type of the body
+         * @param  {Object || Uint8Array || blob} options.data          Optional data sent to the server
+         * @param  {Function} options.success                           Callback function for success request response
+         * @param  {Function} options.error                             Callback function for handle error in the request
+         * @return {ES6 Promise}                                        Promise about the request status and response
+         */
+        corbel.request.send = function(options) {
+            options = options || {};
+    
+            var params = {
+                method: String((options.method || 'GET')).toUpperCase(),
+                url: options.url,
+                headers: typeof options.headers === 'object' ? options.headers : {},
+                contentType: options.contentType || 'application/json',
+                get isJSON() {
+                    return this.contentType.indexOf('json') !== -1 ? true : false;
+                },
+                callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
+                callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
+                //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+                dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
+                get data() {
+                    return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data : undefined;
+                }
+            };
+    
+            if (!params.url) {
+                throw new Error('undefined:url');
+            }
+    
+    
+            // add responseType to the request (blob || arraybuffer || text)
+            // httpReq.responseType = responseType;
+    
+            //add content - type header
+            params.headers['content-type'] = params.contentType;
+    
+            var promise = new Promise(function(resolve, reject) {
+    
+                var resolver = {
+                    resolve: resolve,
+                    reject: reject
+                };
+    
+                if (typeof module !== 'undefined' && module.exports) { //nodejs
+                    nodeAjax.call(this, params, resolver);
+                } else if (typeof window !== 'undefined') { //browser
+                    browserAjax.call(this, params, resolver);
+                }
+            }.bind(this));
+    
+    
+            return promise;
+        };
+    
+        var xhrSuccessStatus = {
+            // file protocol always yields status code 0, assume 200
+            0: 200,
+            // Support: IE9
+            // #1450: sometimes IE returns 1223 when it should be 204
+            1223: 204
+        };
+    
+        /**
+         * Process the server response data to the specified object/array/blob/byteArray/text
+         * @param  {Mixed} data                             The server response
+         * @param  {String} type='array'|'blob'|'json'      The class of the server response
+         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+         * @return {Mixed}                                  Processed data
+         */
+        var processResponseData = function(data, responseType, dataType) {
+            var parsedData = data;
+    
+            if (responseType.indexOf('json') !== -1 && data && typeof data === 'string') {
+                parsedData = JSON.parse(parsedData + '');
+            } else if (responseType === 'arraybuffer') {
+                parsedData = new Uint8Array(data);
+            } else if (responseType === 'blob') {
+                parsedData = new Blob([data], {
+                    type: dataType
+                });
+            } else if (responseType.indexOf('xml') !== -1) {
+                //parsear a xml
+            }
+    
+    
+            return parsedData;
+        };
+    
+        /**
+         * Serialize the data to be sent to the server
+         * @param  {Mixed} data                             The data that would be sent to the server
+         * @param  {String} type='array'|'blob'|'json'      The class of the data (array, blob, json)
+         * @return {String}                                 Serialized data
+         */
+        var serializeData = function(data, type) {
+            var serializedData = data;
+    
+            if (type === 'json' && typeof data === 'object') {
+                serializedData = JSON.stringify(data);
+            }
+    
+            return serializedData;
+    
+        };
+    
+        /**
+         * Process server response
+         * @param  {[Response object]} response
+         * @param  {[Object]} resolver
+         * @param  {[Function]} callbackSuccess
+         * @param  {[Function]} callbackError
+         */
+        var processResponse = function(response, resolver, callbackSuccess, callbackError) {
+    
+            //xhr = xhr.target || xhr || {};
+            var statusCode = xhrSuccessStatus[response.status] || response.status,
+                statusType = Number(response.status.toString()[0]),
+                promiseResponse;
+    
+            if (statusType < 3) {
+                var data = processResponseData(response.response, response.responseType, response.dataType);
+    
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, statusCode, response.responseObject);
+                }
+    
+                promiseResponse = {
+                    data: data,
+                    status: statusCode,
+                };
+    
+                promiseResponse[response.responseObjectType] = response.responseObject;
+    
+                resolver.resolve(promiseResponse);
+    
+            } else if (statusType === 4) {
+    
+                if (callbackError) {
+                    callbackError.call(this, response.error, statusCode, response.responseObject);
+                }
+    
+                promiseResponse = {
+                    data: response.responseObject,
+                    status: statusCode,
+                    error: response.error
+                };
+    
+                promiseResponse[response.responseObjectType] = response.responseObject;
+    
+                resolver.reject(promiseResponse);
+            }
+    
+        };
+    
+    
+        var nodeAjax = function(params, resolver) {
+    
+            var request = require('request');
+    
+            request({
+                method: params.method,
+                url: params.url,
+                headers: params.headers,
+                json: params.isJSON,
+                body: params.data || ''
+            }, function(error, response, body) {
+    
+                processResponse.call(this, {
+                    responseObject: response,
+                    dataType: params.dataType,
+                    responseType: response.headers['content-type'],
+                    response: body,
+                    status: response.statusCode,
+                    responseObjectType: 'response',
+                    error: error
+                }, resolver, params.callbackSuccess, params.callbackError);
+    
+            }.bind(this));
+    
+        };
+    
+        var browserAjax = function(params, resolver) {
+    
+            var httpReq = new XMLHttpRequest();
+    
+    
+            httpReq.open(params.method, params.url, true);
+    
+            /* add request headers */
+            for (var header in params.headers) {
+                if (params.headers.hasOwnProperty(header)) {
+                    httpReq.setRequestHeader(header, params.headers[header]);
+                }
+            }
+    
+            httpReq.onload = function(xhr) {
+                xhr = xhr.target || xhr; // only for fake sinon response xhr
+    
+                processResponse.call(this, {
+                    responseObject: xhr,
+                    dataType: xhr.dataType,
+                    responseType: xhr.getResponseHeader('content-type'), //xhr.responseType,
+                    response: xhr.response || xhr.responseText,
+                    status: xhr.status,
+                    responseObjectType: 'xhr',
+                    error: xhr.error
+                }, resolver, params.callbackSuccess, params.callbackError);
+    
+                //delete callbacks
+            }.bind(this);
+    
+            //response fail ()
+            httpReq.onerror = function(xhr) {
+                xhr = xhr.target || xhr; // only for fake sinon response xhr
+    
+                processResponse.call(this, {
+                    responseObject: xhr,
+                    dataType: xhr.dataType,
+                    responseType: xhr.responseType,
+                    response: xhr.response || xhr.responseText,
+                    status: xhr.status,
+                    responseObjectType: 'xhr',
+                    error: xhr.error
+                }, resolver, params.callbackSuccess, params.callbackError);
+    
+            }.bind(this);
+    
+            if (params.data) {
+                httpReq.send(serializeData(params.data, params.responseType));
+            } else {
+                httpReq.send();
+            }
+    
+        };
+    
+        return corbel.request;
+    
+    })();
+    (function() {
+    
+        /** --core engine services-- */
+    
+        var services = corbel.services = {};
+    
+    
         var _FORCE_UPDATE_TEXT = 'unsupported_version',
             _FORCE_UPDATE_MAX_RETRIES = 3;
         // _FORCE_UPDATE_STATUS = 'fu_r';
+    
+    
+        /**
+         * Extract a id from the location header of a requestXHR
+         * @param  {Promise} res response from a requestXHR
+         * @return {String}  id from the Location
+         */
+        services.getLocationId = function(responseObject) {
+            var location;
+            
+            if (responseObject.xhr) {
+                location = arguments[0].xhr.getResponseHeader('location');
+            } else if (responseObject.response.headers.location) {
+                location = responseObject.response.headers.location;
+            }
+            return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+        };
     
         /**
          * Generic Services request.
@@ -2512,11 +2022,10 @@
          * @param {String} [args.retryHook] [reqres hook to retry refresh token]
          * @return {ES6 Promise}
          */
-        corbelServices.request = function(args) {
-    
+        services.request = function(args) {
             return new Promise(function(resolve, reject) {
     
-                corbelServices.makeRequest({
+                services.makeRequest({
                     resolve: resolve,
                     reject: reject
                 }, args);
@@ -2529,7 +2038,7 @@
          * Check if an url should be process as a crossdomain resource.
          * @return {Boolean}
          */
-        corbelServices.isCrossDomain = function(url) {
+        services.isCrossDomain = function(url) {
             if (url && url.indexOf('http') !== -1) {
                 return true;
             } else {
@@ -2542,7 +2051,7 @@
          * @param  {Array} scopes
          * @return {String}
          */
-        corbelServices.arrayScopesToString = function(scopes) {
+        services.arrayScopesToString = function(scopes) {
             var memo = '';
     
             scopes.forEach(function(scope) {
@@ -2562,10 +2071,10 @@
          * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
          * @param  {Object} args    The request arguments.
          */
-        corbelServices.makeRequest = function(resolver, args) {
+        services.makeRequest = function(resolver, args) {
             // console.log('services.doRequestCall.args', args);
     
-            var params = corbelServices.buildParams(args);
+            var params = services.buildParams(args);
             corbel.request.send(params).then(function(response) {
     
                 // console.log('doRequestCall.resolve', arguments);
@@ -2622,7 +2131,7 @@
          * @param  {Object} args
          * @return {Object}
          */
-        corbelServices.buildParams = function(args) {
+        services.buildParams = function(args) {
     
             // Default values
             args = args || {};
@@ -2660,7 +2169,7 @@
                 url: url,
                 dataType: args.dataType,
                 contentType: args.contentType,
-                type: args.method || corbelServices.method.GET,
+                type: args.method || corbel.request.method.GET,
                 headers: headers,
                 data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
                 dataFilter: args.dataFilter
@@ -2674,7 +2183,7 @@
             //     params.processData = false;
             // }
     
-            // if (corbelServices.isCrossDomain(url)) {
+            // if (services.isCrossDomain(url)) {
             //     // http://stackoverflow.com/questions/5241088/jquery-call-to-webservice-returns-no-transport-error
             //     $.support.cors = true;
             //     params.crossDomain = true;
@@ -2705,9 +2214,90 @@
         /** end--core engine services-- */
     
     
-        return corbelServices;
+        return services;
     
     })();
+    /* jshint camelcase:false */
+    (function() {
+    
+        var jwt = corbel.jwt = {
+    
+            EXPIRATION: 3500,
+            ALGORITHM: 'HS256',
+            TYP: 'JWT',
+            VERSION: '1.0.0',
+    
+            /**
+             * JWT-HmacSHA256 generator
+             * http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
+             * @param  {Object}                                 claims Specific claims to include in the JWT (iss, aud, exp, scope, ...)
+             * @param  {String} secret                          String with the client assigned secret
+             * @param  {Object} [alg='corbel.jwt.ALGORITHM']    Object with the algorithm type
+             * @return {String} jwt                             JWT string
+             */
+            generate: function(claims, secret, alg) {
+                claims = claims || {};
+                alg = alg || jwt.ALGORITHM;
+    
+                claims.exp = claims.exp || jwt._generateExp();
+    
+                if (!claims.iss) {
+                    throw new Error('jwt:undefined:iss');
+                }
+                if (!claims.aud) {
+                    throw new Error('jwt:undefined:aud');
+                }
+                if (!claims.scope) {
+                    throw new Error('jwt:undefined:scope');
+                }
+    
+                // Ensure claims specific order
+                var claimsKeys = [
+                    'iss',
+                    'aud',
+                    'exp',
+                    'scope',
+                    'prn',
+                    'version',
+                    'refresh_token',
+                    'request_domain',
+    
+                    'basic_auth.username',
+                    'basic_auth.password',
+    
+                    'device_id'
+                ];
+    
+                var finalClaims = {};
+                claimsKeys.forEach(function(key) {
+                    if (claims[key]) {
+                        finalClaims[key] = claims[key];
+                    }
+                });
+    
+                corbel.utils.extend(finalClaims, claims);
+    
+                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
+                        typ: jwt.TYP,
+                        alg: alg
+                    }))),
+                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
+                    segment = bAlg + '.' + bClaims,
+                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
+    
+                return segment + '.' + assertion;
+            },
+    
+            _generateExp: function() {
+                return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION;
+            }
+    
+        };
+    
+        return jwt;
+    
+    })();
+    
     (function() {
     
         /**
@@ -2804,13 +2394,14 @@
          */
         ClientBuilder.prototype.create = function(client) {
             console.log('iamInterface.domain.create', client);
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: client,
                 withAuth: true
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
@@ -2828,7 +2419,7 @@
             console.log('iamInterface.domain.get', this.clientId);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -2855,7 +2446,7 @@
             console.log('iamInterface.domain.update', client);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-                method: corbel.services.method.PUT,
+                method: corbel.request.method.PUT,
                 data: client,
                 withAuth: true
             });
@@ -2875,7 +2466,7 @@
             console.log('iamInterface.domain.remove', this.domainId, this.clientId);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.DELETE,
                 withAuth: true
             });
         };
@@ -2931,13 +2522,14 @@
          */
         DomainBuilder.prototype.create = function(domain) {
             console.log('iamInterface.domain.create', domain);
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: domain,
                 withAuth: true
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
@@ -2953,7 +2545,7 @@
             console.log('iamInterface.domain.get', this.domainId);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -2979,7 +2571,7 @@
             console.log('iamInterface.domain.update', domain);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId),
-                method: corbel.services.method.PUT,
+                method: corbel.request.method.PUT,
                 data: domain,
                 withAuth: true
             });
@@ -2999,7 +2591,7 @@
             console.log('iamInterface.domain.remove', this.domainId);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.domainId),
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.DELETE,
                 withAuth: true
             });
         };
@@ -3052,13 +2644,14 @@
          */
         ScopeBuilder.prototype.create = function(scope) {
             console.log('iamInterface.scope.create', scope);
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: scope,
                 withAuth: true
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
@@ -3074,7 +2667,7 @@
             console.log('iamInterface.scope.get', this.id);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.id),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -3090,7 +2683,7 @@
             console.log('iamInterface.scope.remove', this.id);
             return corbel.request.send({
                 url: this._buildUri(this.uri + '/' + this.id),
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.DELETE,
                 withAuth: true
             });
         };
@@ -3148,7 +2741,7 @@
         TokenBuilder.prototype._doGetTokenRequest = function(uri, params, setCookie) {
             var args = {
                 url: this._buildUri(uri),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 query: corbel.utils.param(corbel.utils.extend({
                     assertion: this._getJwt(params),
                     'grant_type': corbel.Iam.GRANT_TYPE
@@ -3167,7 +2760,7 @@
         TokenBuilder.prototype._doPostTokenRequest = function(uri, params, setCookie) {
             var args = {
                 url: this._buildUri(uri),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: {
                     assertion: this._getJwt(params),
                     'grant_type': corbel.Iam.GRANT_TYPE
@@ -3263,7 +2856,7 @@
             console.log('iamInterface.username.availability', username);
             return corbel.request.send({
                 url: this._buildUri(this.uri, username),
-                method: corbel.services.method.HEAD,
+                method: corbel.request.method.HEAD,
                 withAuth: true
             }).then(function() {
                 return false;
@@ -3291,7 +2884,7 @@
         corbel.Iam._getUser = function(method, uri, id, postfix) {
             return corbel.request.send({
                 url: (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id)),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -3312,8 +2905,8 @@
     
         /**
          * Starts a user request
-         * @param  {String} [id] Id of the user to perform the request
-         * @return {corbel.Iam.UserBuilder | corbel.Iam.UsersBuilder}    The builder to create the request
+         * @param  {String} [id=undefined|id|'me'] Id of the user to perform the request
+         * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.user = function(id) {
             var builder;
@@ -3339,7 +2932,6 @@
     
     
         UsersBuilder.prototype._buildUri = corbel.Iam._buildUri;
-        UsersBuilder.prototype._getUser = corbel.Iam._getUser;
     
         /**
          * Sends a reset password email to the email address recived.
@@ -3351,13 +2943,14 @@
         UsersBuilder.prototype.sendResetPasswordEmail = function(userEmailToReset) {
             console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
             var query = 'email=' + userEmailToReset;
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri + '/resetPassword'),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 query: query,
                 withAuth: true
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
@@ -3370,26 +2963,17 @@
          */
         UsersBuilder.prototype.create = function(data) {
             console.log('iamInterface.users.create', data);
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: data,
                 withAuth: true
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
-        /**
-         * Gets the logged user
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.getMe = function() {
-            console.log('iamInterface.users.getMe');
-            return this._getUser(corbel.services.method.GET, this.uri, 'me');
-        };
     
         /**
          * Gets all users of the current domain
@@ -3401,7 +2985,7 @@
             console.log('iamInterface.users.get', params);
             return corbel.request.send({
                 url: this._buildUri(this.uri),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null,
                 withAuth: true
             });
@@ -3415,7 +2999,7 @@
          */
         UserBuilder.prototype.get = function() {
             console.log('iamInterface.user.get');
-            return this._getUser(corbel.services.method.GET, this.uri, this.id);
+            return this._getUser(corbel.request.method.GET, this.uri, this.id);
         };
     
         /**
@@ -3429,33 +3013,10 @@
             console.log('iamInterface.user.update', data);
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id),
-                method: corbel.services.method.PUT,
+                method: corbel.request.method.PUT,
                 data: data,
                 withAuth: true
             });
-        };
-    
-        /**
-         * Update the logged user
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @param  {Object} data    The data to update
-         * @param  {String} [token]   Token to use
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.updateMe = function(data, token) {
-            console.log('iamInterface.users.updateMe', data);
-            var args = {
-                url: this._buildUri(this.uri, 'me'),
-                method: corbel.services.method.PUT,
-                data: data,
-                args: args,
-                withAuth: true
-            };
-            if (token) {
-                args.accessToken = token;
-            }
-            return corbel.request.send(args);
         };
     
         /**
@@ -3468,37 +3029,24 @@
             console.log('iamInterface.user.delete');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id),
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.DELETE,
                 withAuth: true
             });
         };
     
         /**
-         * Delete the logged user
+         * Sign Out the logged user.
+         * @example
+         * iam().user('me').signOut();
          * @method
          * @memberOf corbel.Iam.UsersBuilder
          * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
          */
-        UsersBuilder.prototype.deleteMe = function() {
-            console.log('iamInterface.users.deleteMe');
+        UserBuilder.prototype.signOut = function() {
+            console.log('iamInterface.users.signOutMe');
             return corbel.request.send({
-                url: this._buildUri(this.uri, 'me'),
-                method: corbel.services.method.DELETE,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * Sign Out the logged user
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.signOutMe = function() {
-            // console.log('iamInterface.users.signOutMe');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/signout',
-                method: corbel.services.method.PUT,
+                url: this._buildUri(this.uri, this.id) + '/signout',
+                method: corbel.request.method.PUT,
                 withAuth: true
             });
         };
@@ -3510,25 +3058,10 @@
          * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
          */
         UserBuilder.prototype.disconnect = function() {
-            // console.log('iamInterface.user.disconnect');
+            console.log('iamInterface.user.disconnect');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/disconnect',
-                method: corbel.services.method.PUT,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * disconnect the logged user, all his tokens are deleted
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.disconnectMe = function() {
-            // console.log('iamInterface.users.disconnectMe');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/disconnect',
-                method: corbel.services.method.PUT,
+                method: corbel.request.method.PUT,
                 withAuth: true
             });
         };
@@ -3547,7 +3080,7 @@
             corbel.validate.isValue(identity, 'Missing identity');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/identity',
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 data: identity,
                 withAuth: true
             });
@@ -3563,30 +3096,8 @@
             console.log('iamInterface.user.getIdentities');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/identity',
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
-            });
-        };
-    
-        /**
-         * User device register
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @param  {Object} data      The device data
-         * @param  {Object} data.URI  The device token
-         * @param  {Object} data.name The device name
-         * @param  {Object} data.type The device type (Android, Apple)
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.registerMyDevice = function(data) {
-            console.log('iamInterface.user.registerMyDevice');
-            return corbel.requestXHR.send({
-                url: this._buildUri(this.uri, 'me') + '/devices',
-                method: corbel.services.method.PUT,
-                withAuth: true,
-                data: data
-            }).then(function(res) {
-                return corbel.services.extractLocationId(res);
             });
         };
     
@@ -3602,13 +3113,14 @@
          */
         UserBuilder.prototype.registerDevice = function(data) {
             console.log('iamInterface.user.registerDevice');
-            return corbel.requestXHR.send({
+            return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/devices',
-                method: corbel.services.method.PUT,
+                method: corbel.request.method.PUT,
                 withAuth: true,
                 data: data
             }).then(function(res) {
-                return corbel.services.extractLocationId(res);
+                res.data = corbel.services.extractLocationId(res);
+                return res;
             });
         };
     
@@ -3623,13 +3135,13 @@
             console.log('iamInterface.user.getDevice');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
     
         /**
-         * Get devices
+         * Get all user devices
          * @method
          * @memberOf corbel.Iam.UserBuilder
          * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
@@ -3638,54 +3150,7 @@
             console.log('iamInterface.user.getDevices');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/devices/',
-                method: corbel.services.method.GET,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * Get my user devices
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.getMyDevices = function() {
-            console.log('iamInterface.user.getMyDevices');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/devices',
-                method: corbel.services.method.GET,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * Get my user devices
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @param  {String}  deviceId    The device id
-         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.getMyDevice = function(deviceId) {
-            console.log('iamInterface.user.getMyDevice');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-                method: corbel.services.method.GET,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * Delete user device
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @param  {String}  deviceId    The device id
-         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.deleteMyDevice = function(deviceId) {
-            console.log.debug('iamInterface.user.deleteMyDevice');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-                method: corbel.services.method.DELETE,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -3698,25 +3163,10 @@
          * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
          */
         UserBuilder.prototype.deleteDevice = function(deviceId) {
-            console.log.debug('iamInterface.user.deleteDevice');
+            console.log('iamInterface.user.deleteDevice');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
-                method: corbel.services.method.DELETE,
-                withAuth: true
-            });
-        };
-    
-        /**
-         * Gets the logged user profile
-         * @method
-         * @memberOf corbel.Iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a User Profile {Object} or rejects with a {@link corbelError}
-         */
-        UsersBuilder.prototype.getMeProfile = function() {
-            console.log('iamInterface.users.getMeProfile');
-            return corbel.request.send({
-                url: this._buildUri(this.uri, 'me') + '/profile',
-                method: corbel.services.method.GET,
+                method: corbel.request.method.DELETE,
                 withAuth: true
             });
         };
@@ -3731,7 +3181,7 @@
             console.log('iamInterface.user.getProfile');
             return corbel.request.send({
                 url: this._buildUri(this.uri, this.id) + '/profile',
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 withAuth: true
             });
         };
@@ -3740,7 +3190,7 @@
             console.log('iamInterface.users.getProfiles', params);
             return corbel.request.send({
                 url: this._buildUri(this.uri) + '/profile',
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null, //TODO cambiar por util e implementar dicho metodo
                 withAuth: true
             });

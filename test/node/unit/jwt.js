@@ -28,7 +28,7 @@ describe('JWT module', function() {
                 'scope': SCOPES,
                 'version': '1.0.0'
             };
-        var EXPECTED_ASSERTION = 'eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDTElFTlRfSUQiLCJhdWQiOiJodHRwOi8vaWFtLmJxd3MuaW8iLCJleHAiOjEzOTE1MzUsInNjb3BlIjoic2NvcGUxIHNjb3BlMiIsInZlcnNpb24iOiIxLjAuMCJ9.KbOL9oWU2U49klueNeMUM_HoTAh3Anw8Uk0giskTyAw';
+        var EXPECTED_ASSERTION = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDTElFTlRfSUQiLCJhdWQiOiJodHRwOi8vaWFtLmJxd3MuaW8iLCJleHAiOjEzOTE1MzUsInNjb3BlIjoic2NvcGUxIHNjb3BlMiIsInZlcnNpb24iOiIxLjAuMCJ9._TCKYb3gbsuznfwA1gopY4mSYr7VHmvFQGxW1CJJjHQ';
 
         // without alg
         var assertion = corbel.jwt.generate(claims, secret);

@@ -21,6 +21,7 @@
     "jquery": true,
     "mocha": true,
     "globals": {
+        "corbel": true,
         "expect": true,
         "sinon": true,
         "mocha": true,

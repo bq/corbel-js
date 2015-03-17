@@ -16,7 +16,7 @@
     corbel.Iam._getUser = function(method, uri, id, postfix) {
         return corbel.request.send({
             url: (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id)),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -37,8 +37,8 @@
 
     /**
      * Starts a user request
-     * @param  {String} [id] Id of the user to perform the request
-     * @return {corbel.Iam.UserBuilder | corbel.Iam.UsersBuilder}    The builder to create the request
+     * @param  {String} [id=undefined|id|'me'] Id of the user to perform the request
+     * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
      */
     corbel.Iam.prototype.user = function(id) {
         var builder;
@@ -64,7 +64,6 @@
 
 
     UsersBuilder.prototype._buildUri = corbel.Iam._buildUri;
-    UsersBuilder.prototype._getUser = corbel.Iam._getUser;
 
     /**
      * Sends a reset password email to the email address recived.
@@ -76,13 +75,14 @@
     UsersBuilder.prototype.sendResetPasswordEmail = function(userEmailToReset) {
         console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
         var query = 'email=' + userEmailToReset;
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri + '/resetPassword'),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             query: query,
             withAuth: true
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
@@ -95,26 +95,17 @@
      */
     UsersBuilder.prototype.create = function(data) {
         console.log('iamInterface.users.create', data);
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri),
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: data,
             withAuth: true
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
-    /**
-     * Gets the logged user
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.getMe = function() {
-        console.log('iamInterface.users.getMe');
-        return this._getUser(corbel.services.method.GET, this.uri, 'me');
-    };
 
     /**
      * Gets all users of the current domain
@@ -126,7 +117,7 @@
         console.log('iamInterface.users.get', params);
         return corbel.request.send({
             url: this._buildUri(this.uri),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             query: params ? corbel.utils.serializeParams(params) : null,
             withAuth: true
         });
@@ -140,7 +131,7 @@
      */
     UserBuilder.prototype.get = function() {
         console.log('iamInterface.user.get');
-        return this._getUser(corbel.services.method.GET, this.uri, this.id);
+        return this._getUser(corbel.request.method.GET, this.uri, this.id);
     };
 
     /**
@@ -154,33 +145,10 @@
         console.log('iamInterface.user.update', data);
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id),
-            method: corbel.services.method.PUT,
+            method: corbel.request.method.PUT,
             data: data,
             withAuth: true
         });
-    };
-
-    /**
-     * Update the logged user
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @param  {Object} data    The data to update
-     * @param  {String} [token]   Token to use
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.updateMe = function(data, token) {
-        console.log('iamInterface.users.updateMe', data);
-        var args = {
-            url: this._buildUri(this.uri, 'me'),
-            method: corbel.services.method.PUT,
-            data: data,
-            args: args,
-            withAuth: true
-        };
-        if (token) {
-            args.accessToken = token;
-        }
-        return corbel.request.send(args);
     };
 
     /**
@@ -193,37 +161,24 @@
         console.log('iamInterface.user.delete');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id),
-            method: corbel.services.method.DELETE,
+            method: corbel.request.method.DELETE,
             withAuth: true
         });
     };
 
     /**
-     * Delete the logged user
+     * Sign Out the logged user.
+     * @example
+     * iam().user('me').signOut();
      * @method
      * @memberOf corbel.Iam.UsersBuilder
      * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
      */
-    UsersBuilder.prototype.deleteMe = function() {
-        console.log('iamInterface.users.deleteMe');
+    UserBuilder.prototype.signOut = function() {
+        console.log('iamInterface.users.signOutMe');
         return corbel.request.send({
-            url: this._buildUri(this.uri, 'me'),
-            method: corbel.services.method.DELETE,
-            withAuth: true
-        });
-    };
-
-    /**
-     * Sign Out the logged user
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.signOutMe = function() {
-        // console.log('iamInterface.users.signOutMe');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/signout',
-            method: corbel.services.method.PUT,
+            url: this._buildUri(this.uri, this.id) + '/signout',
+            method: corbel.request.method.PUT,
             withAuth: true
         });
     };
@@ -235,25 +190,10 @@
      * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.disconnect = function() {
-        // console.log('iamInterface.user.disconnect');
+        console.log('iamInterface.user.disconnect');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/disconnect',
-            method: corbel.services.method.PUT,
-            withAuth: true
-        });
-    };
-
-    /**
-     * disconnect the logged user, all his tokens are deleted
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.disconnectMe = function() {
-        // console.log('iamInterface.users.disconnectMe');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/disconnect',
-            method: corbel.services.method.PUT,
+            method: corbel.request.method.PUT,
             withAuth: true
         });
     };
@@ -272,7 +212,7 @@
         corbel.validate.isValue(identity, 'Missing identity');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/identity',
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: identity,
             withAuth: true
         });
@@ -288,30 +228,8 @@
         console.log('iamInterface.user.getIdentities');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/identity',
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
-        });
-    };
-
-    /**
-     * User device register
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @param  {Object} data      The device data
-     * @param  {Object} data.URI  The device token
-     * @param  {Object} data.name The device name
-     * @param  {Object} data.type The device type (Android, Apple)
-     * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.registerMyDevice = function(data) {
-        console.log('iamInterface.user.registerMyDevice');
-        return corbel.requestXHR.send({
-            url: this._buildUri(this.uri, 'me') + '/devices',
-            method: corbel.services.method.PUT,
-            withAuth: true,
-            data: data
-        }).then(function(res) {
-            return corbel.services.extractLocationId(res);
         });
     };
 
@@ -327,13 +245,14 @@
      */
     UserBuilder.prototype.registerDevice = function(data) {
         console.log('iamInterface.user.registerDevice');
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/devices',
-            method: corbel.services.method.PUT,
+            method: corbel.request.method.PUT,
             withAuth: true,
             data: data
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
@@ -348,13 +267,13 @@
         console.log('iamInterface.user.getDevice');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
 
     /**
-     * Get devices
+     * Get all user devices
      * @method
      * @memberOf corbel.Iam.UserBuilder
      * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
@@ -363,54 +282,7 @@
         console.log('iamInterface.user.getDevices');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/devices/',
-            method: corbel.services.method.GET,
-            withAuth: true
-        });
-    };
-
-    /**
-     * Get my user devices
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.getMyDevices = function() {
-        console.log('iamInterface.user.getMyDevices');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/devices',
-            method: corbel.services.method.GET,
-            withAuth: true
-        });
-    };
-
-    /**
-     * Get my user devices
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.getMyDevice = function(deviceId) {
-        console.log('iamInterface.user.getMyDevice');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-            method: corbel.services.method.GET,
-            withAuth: true
-        });
-    };
-
-    /**
-     * Delete user device
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @param  {String}  deviceId    The device id
-     * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.deleteMyDevice = function(deviceId) {
-        console.log.debug('iamInterface.user.deleteMyDevice');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-            method: corbel.services.method.DELETE,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -423,25 +295,10 @@
      * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
      */
     UserBuilder.prototype.deleteDevice = function(deviceId) {
-        console.log.debug('iamInterface.user.deleteDevice');
+        console.log('iamInterface.user.deleteDevice');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
-            method: corbel.services.method.DELETE,
-            withAuth: true
-        });
-    };
-
-    /**
-     * Gets the logged user profile
-     * @method
-     * @memberOf corbel.Iam.UsersBuilder
-     * @return {Promise} Q promise that resolves to a User Profile {Object} or rejects with a {@link corbelError}
-     */
-    UsersBuilder.prototype.getMeProfile = function() {
-        console.log('iamInterface.users.getMeProfile');
-        return corbel.request.send({
-            url: this._buildUri(this.uri, 'me') + '/profile',
-            method: corbel.services.method.GET,
+            method: corbel.request.method.DELETE,
             withAuth: true
         });
     };
@@ -456,7 +313,7 @@
         console.log('iamInterface.user.getProfile');
         return corbel.request.send({
             url: this._buildUri(this.uri, this.id) + '/profile',
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -465,7 +322,7 @@
         console.log('iamInterface.users.getProfiles', params);
         return corbel.request.send({
             url: this._buildUri(this.uri) + '/profile',
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             query: params ? corbel.utils.serializeParams(params) : null, //TODO cambiar por util e implementar dicho metodo
             withAuth: true
         });

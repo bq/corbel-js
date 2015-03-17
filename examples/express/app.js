@@ -14,7 +14,11 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-app.options('*', cors());
+var corsOptions = {
+    exposedHeaders: ['location']
+};
+
+app.options('*', cors(corsOptions));
 
 var HTTP_VERBS = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 
@@ -29,7 +33,9 @@ var HTTP_VERBS = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 //////////////////////////
 
 HTTP_VERBS.forEach(function(verb) {
-    app[verb]('/', cors(), function(req, res) {
+    app[verb]('/', cors(corsOptions), function(req, res) {
+        res.setHeader('location', 'http://domain.com/path/locationId');
+
         var headers = req.headers;
         var body = req.body;
 
@@ -41,8 +47,7 @@ HTTP_VERBS.forEach(function(verb) {
         res.send(response);
     });
 
-    app[verb]('request/fail', cors(), function(req, res) {
-
+    app[verb]('request/fail', cors(corsOptions), function(req, res) {
         var headers = req.headers;
         var body = req.body;
 

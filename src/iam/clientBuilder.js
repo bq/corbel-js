@@ -59,13 +59,14 @@
      */
     ClientBuilder.prototype.create = function(client) {
         console.log('iamInterface.domain.create', client);
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: client,
             withAuth: true
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
@@ -83,7 +84,7 @@
         console.log('iamInterface.domain.get', this.clientId);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -110,7 +111,7 @@
         console.log('iamInterface.domain.update', client);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: corbel.services.method.PUT,
+            method: corbel.request.method.PUT,
             data: client,
             withAuth: true
         });
@@ -130,7 +131,7 @@
         console.log('iamInterface.domain.remove', this.domainId, this.clientId);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
-            method: corbel.services.method.DELETE,
+            method: corbel.request.method.DELETE,
             withAuth: true
         });
     };
