@@ -6,8 +6,6 @@ var corbel = require('../../../dist/corbel.js'),
 
 describe('JWT module', function() {
 
-    var CLIENT_ID = '38c1a251';
-
     it('exists and is an object', function() {
         expect(corbel.jwt).to.be.an('object');
     });
@@ -18,23 +16,25 @@ describe('JWT module', function() {
         );
     });
 
-    it.skip('generates a valid JWT', function() {
+    it('generates a valid JWT', function() {
         // @todo: generate an example jwt with version claim
-        var secret = '4f768d88820c997b5e25d0c6f614d1e4ab4a356c85ec1ea194712fef8427da7c',
+        var secret = 'secret',
             claims = {
-                'iss': CLIENT_ID,
+                'iss': 'clientId',
                 'aud': 'http://iam.bqws.io',
-                'exp': 1391535,
-                'scope': 'resources:bookland:read_catalog'
+                'exp': 12345,
+                'scope': 'scope:example'
             };
+
+        var EXPECTED = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjbGllbnRJZCIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTIzNDUsInNjb3BlIjoic2NvcGU6ZXhhbXBsZSJ9.eYv4fd3ZUe5ToefpKgdyrXy8iR8fHy754vkOtXsWm20';
 
         // without alg
         var assertion = corbel.jwt.generate(claims, secret);
-        expect(assertion).to.be.equal('eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIzOGMxYTI1MSIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTM5MTUzNSwic2NvcGUiOiJyZXNvdXJjZXM6Ym9va2xhbmQ6cmVhZF9jYXRhbG9nIn0.mYpJNS6LcTzglqoLf4xw9Uv8g_wASV22bGNXEv4nwoc');
+        expect(assertion).to.be.equal(EXPECTED);
 
         // with alg
         assertion = corbel.jwt.generate(claims, secret, 'HS256');
-        expect(assertion).to.be.equal('eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIzOGMxYTI1MSIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTM5MTUzNSwic2NvcGUiOiJyZXNvdXJjZXM6Ym9va2xhbmQ6cmVhZF9jYXRhbG9nIn0.mYpJNS6LcTzglqoLf4xw9Uv8g_wASV22bGNXEv4nwoc');
+        expect(assertion).to.be.equal(EXPECTED);
     });
 
     describe('when generating claims', function() {

@@ -35,8 +35,8 @@
 
     //  @include ../config.js
     //  @include ../request.js
-    //  @include ../jwt.js
     //  @include ../services.js
+    //  @include ../jwt.js
     //  @include ../iam/iam.js
     //  @include ../iam/clientBuilder.js
     //  @include ../iam/domainBuilder.js

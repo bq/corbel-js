@@ -262,7 +262,7 @@ describe('corbel IAM module', function() {
 
     });
 
-    describe.skip('Users Management', function() {
+    describe('Users Management', function() {
 
         it('Create user', function() {
             var username = 'username';
@@ -287,7 +287,7 @@ describe('corbel IAM module', function() {
         });
 
         it('Get user me', function() {
-            corbelDriver.iam.user().getMe();
+            corbelDriver.iam.user('me').get();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me');
@@ -318,7 +318,7 @@ describe('corbel IAM module', function() {
         it('Update user me', function() {
             var username = 'username';
 
-            corbelDriver.iam.user().updateMe({
+            corbelDriver.iam.user('me').update({
                 username: username
             });
 
@@ -339,7 +339,7 @@ describe('corbel IAM module', function() {
 
         it('Delete user me', function() {
 
-            corbelDriver.iam.user().deleteMe();
+            corbelDriver.iam.user('me').delete();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me');
@@ -349,7 +349,7 @@ describe('corbel IAM module', function() {
 
         it('Sign Out user me', function() {
 
-            corbelDriver.iam.user().signOutMe();
+            corbelDriver.iam.user('me').signOut();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/signout');
@@ -367,7 +367,7 @@ describe('corbel IAM module', function() {
 
         it('Disconnect user logged', function() {
 
-            corbelDriver.iam.user().disconnectMe();
+            corbelDriver.iam.user('me').disconnect();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/disconnect');
@@ -402,6 +402,7 @@ describe('corbel IAM module', function() {
                 throw('Missing identity');
             });
         });
+
         it('Get user identities', function() {
             corbelDriver.iam.user('userId').getIdentities();
 
@@ -410,10 +411,8 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-
-
         it('Get user profile me', function() {
-            corbelDriver.iam.user().getMeProfile();
+            corbelDriver.iam.user('me').getProfile();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/profile');
@@ -438,10 +437,10 @@ describe('corbel IAM module', function() {
 
     });
 
-    describe.skip('User devices', function() {
+    describe('User devices', function() {
 
         it('Register my device', function() {
-            corbelDriver.iam.user().registerMyDevice('Device data');
+            corbelDriver.iam.user('me').registerDevice('Device data');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/devices');
@@ -473,15 +472,15 @@ describe('corbel IAM module', function() {
         });
 
         it('Get my devices', function() {
-            corbelDriver.iam.user().getMyDevices();
+            corbelDriver.iam.user('me').getDevices();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/devices');
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/devices/');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
         it('Get my device', function() {
-            corbelDriver.iam.user().getMyDevice('123');
+            corbelDriver.iam.user('me').getDevice('123');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/devices/123');
@@ -489,7 +488,7 @@ describe('corbel IAM module', function() {
         });
 
         it('Delete my device', function() {
-            corbelDriver.iam.user().deleteMyDevice('deviceId');
+            corbelDriver.iam.user('me').deleteDevice('deviceId');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me/devices/deviceId');
@@ -516,7 +515,7 @@ describe('corbel IAM module', function() {
             return entity;
         }
 
-        it.skip('Create a new domain', function() {
+        it('Create a new domain', function() {
             var domain = getEntity();
             corbelDriver.iam.domain().create(domain).
             then(function(id) {
@@ -554,7 +553,7 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
-        it.skip('Create a new client', function() {
+        it('Create a new client', function() {
             var client = getEntity();
             corbelDriver.iam.client(client.domain).create(client).
             then(function(id) {
@@ -595,7 +594,7 @@ describe('corbel IAM module', function() {
     });
 
     describe('Scope admin interface', function() {
-        it.skip('Create a new scope', function() {
+        it('Create a new scope', function() {
             var scope = {
                 id: 'jklsdfbnwerj'
             };

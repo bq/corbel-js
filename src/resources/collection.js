@@ -30,7 +30,7 @@
             // console.log('resourceInterface.collection.get', params);
             return this.request({
                 url: this.buildUri(this.type),
-                method: corbel.services.method.GET,
+                method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null,
                 Accept: dataType
             });
@@ -47,7 +47,7 @@
             // console.log('resourceInterface.collection.add', data);
             return corbel.services.requestXHR({
                 url: this.buildUri(this.type),
-                method: corbel.services.method.POST,
+                method: corbel.request.method.POST,
                 contentType: dataType,
                 Accept: dataType,
                 data: data,

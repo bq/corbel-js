@@ -33,7 +33,7 @@
              // console.log('resourceInterface.relation.get', params);
              return this.request({
                  url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 method: corbel.services.method.GET,
+                 method: corbel.request.method.GET,
                  query: params ? corbel.util.serializeParams(params) : null,
                  Accept: dataType
              });
@@ -53,7 +53,7 @@
                  url: this.buildUri(this.type, this.srcId, this.destType, destId),
                  contentType: 'application/json',
                  data: relationData,
-                 method: corbel.services.method.PUT
+                 method: corbel.request.method.PUT
              });
          },
          /**
@@ -71,7 +71,7 @@
                  data: {
                      '_order': '$pos(' + pos + ')'
                  },
-                 method: corbel.services.method.PUT
+                 method: corbel.request.method.PUT
              });
          },
          /**
@@ -87,7 +87,7 @@
              // console.log('resourceInterface.relation.delete', destId);
              return this.request({
                  url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 method: corbel.services.method.DELETE
+                 method: corbel.request.method.DELETE
              });
          }
      });

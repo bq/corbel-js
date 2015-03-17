@@ -1,69 +1,35 @@
 //@exclude
 'use strict';
-/* globals corbel */
+/* global corbel */
 //@endexclude
 
 (function() {
 
     /** --core engine services-- */
 
-    var corbelServices = corbel.services = {
-        /**
-         * method constants
-         * @namespace
-         */
-        method: {
-
-            /**
-             * GET constant
-             * @constant
-             * @type {String}
-             * @default
-             */
-            GET: 'GET',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            POST: 'POST',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            PUT: 'PUT',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            DELETE: 'DELETE',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            OPTIONS: 'OPTIONS',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            PATCH: 'PATCH',
-            /**
-             * @constant
-             * @type {String}
-             * @default
-             */
-            HEAD: 'HEAD'
-        }
-    };
+    var services = corbel.services = {};
 
 
     var _FORCE_UPDATE_TEXT = 'unsupported_version',
         _FORCE_UPDATE_MAX_RETRIES = 3;
     // _FORCE_UPDATE_STATUS = 'fu_r';
+
+
+    /**
+     * Extract a id from the location header of a requestXHR
+     * @param  {Promise} res response from a requestXHR
+     * @return {String}  id from the Location
+     */
+    services.getLocationId = function(responseObject) {
+        var location;
+        
+        if (responseObject.xhr) {
+            location = arguments[0].xhr.getResponseHeader('location');
+        } else if (responseObject.response.headers.location) {
+            location = responseObject.response.headers.location;
+        }
+        return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+    };
 
     /**
      * Generic Services request.
@@ -76,11 +42,10 @@
      * @param {String} [args.retryHook] [reqres hook to retry refresh token]
      * @return {ES6 Promise}
      */
-    corbelServices.request = function(args) {
-
+    services.request = function(args) {
         return new Promise(function(resolve, reject) {
 
-            corbelServices.makeRequest({
+            services.makeRequest({
                 resolve: resolve,
                 reject: reject
             }, args);
@@ -93,7 +58,7 @@
      * Check if an url should be process as a crossdomain resource.
      * @return {Boolean}
      */
-    corbelServices.isCrossDomain = function(url) {
+    services.isCrossDomain = function(url) {
         if (url && url.indexOf('http') !== -1) {
             return true;
         } else {
@@ -106,7 +71,7 @@
      * @param  {Array} scopes
      * @return {String}
      */
-    corbelServices.arrayScopesToString = function(scopes) {
+    services.arrayScopesToString = function(scopes) {
         var memo = '';
 
         scopes.forEach(function(scope) {
@@ -126,10 +91,10 @@
      * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
      * @param  {Object} args    The request arguments.
      */
-    corbelServices.makeRequest = function(resolver, args) {
+    services.makeRequest = function(resolver, args) {
         // console.log('services.doRequestCall.args', args);
 
-        var params = corbelServices.buildParams(args);
+        var params = services.buildParams(args);
         corbel.request.send(params).then(function(response) {
 
             // console.log('doRequestCall.resolve', arguments);
@@ -186,7 +151,7 @@
      * @param  {Object} args
      * @return {Object}
      */
-    corbelServices.buildParams = function(args) {
+    services.buildParams = function(args) {
 
         // Default values
         args = args || {};
@@ -224,7 +189,7 @@
             url: url,
             dataType: args.dataType,
             contentType: args.contentType,
-            type: args.method || corbelServices.method.GET,
+            type: args.method || corbel.request.method.GET,
             headers: headers,
             data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
             dataFilter: args.dataFilter
@@ -238,7 +203,7 @@
         //     params.processData = false;
         // }
 
-        // if (corbelServices.isCrossDomain(url)) {
+        // if (services.isCrossDomain(url)) {
         //     // http://stackoverflow.com/questions/5241088/jquery-call-to-webservice-returns-no-transport-error
         //     $.support.cors = true;
         //     params.crossDomain = true;
@@ -269,6 +234,6 @@
     /** end--core engine services-- */
 
 
-    return corbelServices;
+    return services;
 
 })();

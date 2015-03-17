@@ -11,7 +11,58 @@
      * Request object available for brwoser and node environment
      * @type {Object}
      */
-    corbel.request = {};
+    corbel.request = {
+        /**
+         * method constants
+         * @namespace
+         */
+        method: {
+
+            /**
+             * GET constant
+             * @constant
+             * @type {String}
+             * @default
+             */
+            GET: 'GET',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            POST: 'POST',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            PUT: 'PUT',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            DELETE: 'DELETE',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            OPTIONS: 'OPTIONS',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            PATCH: 'PATCH',
+            /**
+             * @constant
+             * @type {String}
+             * @default
+             */
+            HEAD: 'HEAD'
+        }
+    };
 
 
     /**

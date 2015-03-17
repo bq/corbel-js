@@ -18,21 +18,38 @@ A SDK for corbel compatible with browsers and node.
 ### Instance a new driver
 
 ```
-var corbelDriver = corbel.getDriver({
-	'urlBase': 'http://localhost:8080',
+var corbelDriver = corbel.getDriver(options);
+```
+
+### Driver options
+
+```
+var options = {
 	'clientId': 'clientId',
 	'clientSecret': 'clientSecret',
+	
+	'urlBase': 'http://localhost:8080/{{module}}',
+    'resourcesEndpoint',
+    'iamEndpoint',
+    'evciEndpoint',
+    'oauthEndpoint',
+	
 	'scopesApp': 'scopesApp',
 	'scopesUserLogin': 'scopesUserLogin',
-	'scopesUserCreate': 'scopesUserCreate'
-	...
-});
+	'scopesUserCreate': 'scopesUserCreate',
+
+    'oauthClientId',
+    'oauthSecret',
+    'oauthService',
+
+    'device_id'
+}
 ```
 
 ### Get an application token
 
 ```
-corbelDriver.iam.token().create(...);
+corbelDriver.iam.token().create();
 corbelDriver.resources.resource().get(...);
 ```
 

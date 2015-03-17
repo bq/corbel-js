@@ -53,13 +53,14 @@
      */
     DomainBuilder.prototype.create = function(domain) {
         console.log('iamInterface.domain.create', domain);
-        return corbel.requestXHR.send({
+        return corbel.request.send({
             url: this._buildUri(this.uri),
-            method: corbel.services.method.POST,
+            method: corbel.request.method.POST,
             data: domain,
             withAuth: true
         }).then(function(res) {
-            return corbel.services.extractLocationId(res);
+            res.data = corbel.services.extractLocationId(res);
+            return res;
         });
     };
 
@@ -75,7 +76,7 @@
         console.log('iamInterface.domain.get', this.domainId);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId),
-            method: corbel.services.method.GET,
+            method: corbel.request.method.GET,
             withAuth: true
         });
     };
@@ -101,7 +102,7 @@
         console.log('iamInterface.domain.update', domain);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId),
-            method: corbel.services.method.PUT,
+            method: corbel.request.method.PUT,
             data: domain,
             withAuth: true
         });
@@ -121,7 +122,7 @@
         console.log('iamInterface.domain.remove', this.domainId);
         return corbel.request.send({
             url: this._buildUri(this.uri + '/' + this.domainId),
-            method: corbel.services.method.DELETE,
+            method: corbel.request.method.DELETE,
             withAuth: true
         });
     };

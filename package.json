@@ -85,7 +85,7 @@
     },
     "config": {
         "travis-cov": {
-            "threshold": 65
+            "threshold": 80
         }
     }
 }
