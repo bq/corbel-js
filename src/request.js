@@ -11,7 +11,7 @@
      * Request object available for brwoser and node environment
      * @type {Object}
      */
-    corbel.request = {
+    var request = corbel.request = {
         /**
          * method constants
          * @namespace
@@ -64,7 +64,6 @@
         }
     };
 
-
     /**
      * Public method to make ajax request
      * @param  {Object} options                                     Object options for ajax request
@@ -77,11 +76,11 @@
      * @param  {Function} options.error                             Callback function for handle error in the request
      * @return {ES6 Promise}                                        Promise about the request status and response
      */
-    corbel.request.send = function(options) {
+    request.send = function(options) {
         options = options || {};
 
         var params = {
-            method: String((options.method || 'GET')).toUpperCase(),
+            method: String((options.method || request.method.GET)).toUpperCase(),
             url: options.url,
             headers: typeof options.headers === 'object' ? options.headers : {},
             contentType: options.contentType || 'application/json',
@@ -93,7 +92,7 @@
             //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
             dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
             get data() {
-                return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data : undefined;
+                return (params.method === request.method.PUT || params.method === request.method.POST || params.method === request.method.PATCH) ? options.data : undefined;
             }
         };
 
@@ -252,11 +251,26 @@
         }.bind(this));
 
     };
+    
+    /**
+     * Check if an url should be process as a crossdomain resource.
+     * @return {Boolean}
+     */
+    request.isCrossDomain = function(url) {
+        if (url && url.indexOf('http') !== -1) {
+            return true;
+        } else {
+            return false;
+        }
+    };
 
     var browserAjax = function(params, resolver) {
 
         var httpReq = new XMLHttpRequest();
 
+        if (request.isCrossDomain(params.url)) {
+            httpReq.withCredentials = true;
+        }
 
         httpReq.open(params.method, params.url, true);
 
@@ -307,6 +321,6 @@
 
     };
 
-    return corbel.request;
+    return request;
 
 })();

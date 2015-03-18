@@ -54,8 +54,7 @@
                 'evciEndpoint',
                 'oauthEndpoint',
                 'oauthClientId',
-                'oauthSecret',
-                'oauthService'
+                'oauthSecret'
             ];
     
             keys.forEach(function(key) {
@@ -728,7 +727,7 @@
          * Request object available for brwoser and node environment
          * @type {Object}
          */
-        corbel.request = {
+        var request = corbel.request = {
             /**
              * method constants
              * @namespace
@@ -781,7 +780,6 @@
             }
         };
     
-    
         /**
          * Public method to make ajax request
          * @param  {Object} options                                     Object options for ajax request
@@ -794,11 +792,11 @@
          * @param  {Function} options.error                             Callback function for handle error in the request
          * @return {ES6 Promise}                                        Promise about the request status and response
          */
-        corbel.request.send = function(options) {
+        request.send = function(options) {
             options = options || {};
     
             var params = {
-                method: String((options.method || 'GET')).toUpperCase(),
+                method: String((options.method || request.method.GET)).toUpperCase(),
                 url: options.url,
                 headers: typeof options.headers === 'object' ? options.headers : {},
                 contentType: options.contentType || 'application/json',
@@ -810,7 +808,7 @@
                 //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
                 dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
                 get data() {
-                    return (params.method === 'PUT' || params.method === 'POST' || params.method === 'PATCH') ? options.data : undefined;
+                    return (params.method === request.method.PUT || params.method === request.method.POST || params.method === request.method.PATCH) ? options.data : undefined;
                 }
             };
     
@@ -969,11 +967,26 @@
             }.bind(this));
     
         };
+        
+        /**
+         * Check if an url should be process as a crossdomain resource.
+         * @return {Boolean}
+         */
+        request.isCrossDomain = function(url) {
+            if (url && url.indexOf('http') !== -1) {
+                return true;
+            } else {
+                return false;
+            }
+        };
     
         var browserAjax = function(params, resolver) {
     
             var httpReq = new XMLHttpRequest();
     
+            if (request.isCrossDomain(params.url)) {
+                httpReq.withCredentials = true;
+            }
     
             httpReq.open(params.method, params.url, true);
     
@@ -1024,20 +1037,16 @@
     
         };
     
-        return corbel.request;
+        return request;
     
     })();
     (function() {
     
-        /** --core engine services-- */
-    
         var services = corbel.services = {};
-    
     
         var _FORCE_UPDATE_TEXT = 'unsupported_version',
             _FORCE_UPDATE_MAX_RETRIES = 3;
         // _FORCE_UPDATE_STATUS = 'fu_r';
-    
     
         /**
          * Extract a id from the location header of a requestXHR
@@ -1046,7 +1055,7 @@
          */
         services.getLocationId = function(responseObject) {
             var location;
-            
+    
             if (responseObject.xhr) {
                 location = arguments[0].xhr.getResponseHeader('location');
             } else if (responseObject.response.headers.location) {
@@ -1057,7 +1066,7 @@
     
         /**
          * Generic Services request.
-         * Support all corbel.request parameters and some more:
+         * Support all corbel.request parameters and more:
          * @param {Object} args
          * @param {String} [args.method=app.services.method.GET]
          * @param {String} [args.accessToken] set request with auth. (accessToken overrides args.withAuth)
@@ -1077,35 +1086,6 @@
             });
         };
     
-    
-        /**
-         * Check if an url should be process as a crossdomain resource.
-         * @return {Boolean}
-         */
-        services.isCrossDomain = function(url) {
-            if (url && url.indexOf('http') !== -1) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-    
-        /**
-         * Transform an array of scopes to a string separated by an space
-         * @param  {Array} scopes
-         * @return {String}
-         */
-        services.arrayScopesToString = function(scopes) {
-            var memo = '';
-    
-            scopes.forEach(function(scope) {
-                memo += ' ' + scope;
-            });
-    
-            return memo.substr(1);
-        };
-    
-    
         /**
          * Execute the actual ajax request.
          * Retries request with refresh token when credentials are needed.
@@ -1115,23 +1095,16 @@
          * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
          * @param  {Object} args    The request arguments.
          */
-        services.makeRequest = function(resolver, args) {
-            // console.log('services.doRequestCall.args', args);
+        services.makeRequest = function(args) {
     
             var params = services.buildParams(args);
-            corbel.request.send(params).then(function(response) {
-    
-                // console.log('doRequestCall.resolve', arguments);
+            return corbel.request.send(params).then(function(response) {
     
                 // session.add(_FORCE_UPDATE_STATUS, 0); //TODO SESSION
     
-                resolver.resolve({
-                    data: response.data, //arguments[0]
-                    textStatus: response.status, //arguments[1]
-                    responseObject: response.response || response.xhr //arguments[2]
-                });
+                return Promise.resolve(response);
     
-            }).fail(function(response) {
+            }).catch(function(response) {
                 // Force update
                 if (response.status === 403 &&
                     response.textStatus === _FORCE_UPDATE_TEXT) {
@@ -1142,30 +1115,20 @@
                         retries++;
                         // session.add(_FORCE_UPDATE_STATUS, retries); //TODO SESSION
     
-                        corbel.utils.reload();
+                        //corbel.utils.reload();
                     } else {
                         // console.log('services.request.force_update.fail');
     
                         // Send an error to the caller
-                        resolver.reject({
-                            responseObject: response.xhr || response.response, //arguments[0]
-                            textStatus: response.status, //arguments[1]
-                            errorThrown: response.error //arguments[2]
-                        });
-    
+                        return Promise.reject(response);
                     }
                 } else {
                     // Any other error fail to the caller
-                    resolver.reject({
-                        responseObject: response.xhr || response.response, //arguments[0]
-                        textStatus: response.status, //arguments[1]
-                        errorThrown: response.error //arguments[2]
-                    });
+                    return Promise.reject(response);
                 }
     
             });
         };
-    
     
         /**
          * Returns a valid corbel.request parameters with default values,
@@ -1208,7 +1171,6 @@
                 args.dataType = undefined; // Accept & dataType are incompatibles
             }
     
-    
             var params = {
                 url: url,
                 dataType: args.dataType,
@@ -1227,17 +1189,6 @@
             //     params.processData = false;
             // }
     
-            // if (services.isCrossDomain(url)) {
-            //     // http://stackoverflow.com/questions/5241088/jquery-call-to-webservice-returns-no-transport-error
-            //     $.support.cors = true;
-            //     params.crossDomain = true;
-            //     if (args.withCredentials) {
-            //         params.xhrFields = {
-            //             withCredentials: true
-            //         };
-            //     }
-            // }
-    
             // console.log('services.buildParams (params)', params);
             // if (args.data) {
             //      console.log('services.buildParams (data)', args.data);
@@ -1246,7 +1197,6 @@
             return params;
         };
     
-    
         var addEmptyJson = function(response, type) {
             if (!response && type === 'json') {
                 response = '{}';
@@ -1254,13 +1204,10 @@
             return response;
         };
     
-    
-        /** end--core engine services-- */
-    
-    
         return services;
     
     })();
+    
     /* jshint camelcase:false */
     (function() {
     
@@ -1320,6 +1267,10 @@
                 });
     
                 corbel.utils.extend(finalClaims, claims);
+    
+                if (Array.isArray(finalClaims.scope)) {
+                    finalClaims.scope = finalClaims.scope.join(' ');
+                }
     
                 var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                         typ: jwt.TYP,
