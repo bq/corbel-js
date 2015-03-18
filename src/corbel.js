@@ -31,8 +31,7 @@
             'evciEndpoint',
             'oauthEndpoint',
             'oauthClientId',
-            'oauthSecret',
-            'oauthService'
+            'oauthSecret'
         ];
 
         keys.forEach(function(key) {

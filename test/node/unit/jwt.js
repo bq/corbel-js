@@ -20,13 +20,13 @@ describe('JWT module', function() {
         // @todo: generate an example jwt with version claim
         var secret = 'secret',
             claims = {
-                'iss': 'clientId',
-                'aud': 'http://iam.bqws.io',
-                'exp': 12345,
-                'scope': 'scope:example'
+                iss: 'clientId',
+                aud: 'http://iam.bqws.io',
+                exp: 12345,
+                scope: 'scope:example1 scope:example2'
             };
 
-        var EXPECTED = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjbGllbnRJZCIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTIzNDUsInNjb3BlIjoic2NvcGU6ZXhhbXBsZSJ9.eYv4fd3ZUe5ToefpKgdyrXy8iR8fHy754vkOtXsWm20';
+        var EXPECTED = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjbGllbnRJZCIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTIzNDUsInNjb3BlIjoic2NvcGU6ZXhhbXBsZTEgc2NvcGU6ZXhhbXBsZTIifQ.18g9YO_KgWtW1s7HSo87mIjG02u8Pe880tdLbg_JxC4';
 
         // without alg
         var assertion = corbel.jwt.generate(claims, secret);
@@ -34,6 +34,11 @@ describe('JWT module', function() {
 
         // with alg
         assertion = corbel.jwt.generate(claims, secret, 'HS256');
+        expect(assertion).to.be.equal(EXPECTED);
+
+        // with array scopes
+        claims.scope = ['scope:example1', 'scope:example2'];
+        assertion = corbel.jwt.generate(claims, secret);
         expect(assertion).to.be.equal(EXPECTED);
     });
 
