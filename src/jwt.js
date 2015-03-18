@@ -63,6 +63,10 @@
 
             corbel.utils.extend(finalClaims, claims);
 
+            if (Array.isArray(finalClaims.scope)) {
+                finalClaims.scope = finalClaims.scope.join(' ');
+            }
+
             var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                     typ: jwt.TYP,
                     alg: alg

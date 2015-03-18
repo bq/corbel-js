@@ -14,9 +14,16 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
+
 var corsOptions = {
-    exposedHeaders: ['location']
+    origin: function(origin, callback) {
+        callback(null, true);
+    },
+    exposedHeaders: ['location'],
+    credentials: true
 };
+
+app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions));
 
@@ -33,7 +40,7 @@ var HTTP_VERBS = ['get', 'put', 'post', 'delete', 'head', 'patch'];
 //////////////////////////
 
 HTTP_VERBS.forEach(function(verb) {
-    app[verb]('/', cors(corsOptions), function(req, res) {
+    app[verb]('/', function(req, res) {
         res.setHeader('location', 'http://domain.com/path/locationId');
 
         var headers = req.headers;
@@ -47,7 +54,7 @@ HTTP_VERBS.forEach(function(verb) {
         res.send(response);
     });
 
-    app[verb]('request/fail', cors(corsOptions), function(req, res) {
+    app[verb]('request/fail', function(req, res) {
         var headers = req.headers;
         var body = req.body;
 

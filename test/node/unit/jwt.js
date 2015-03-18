@@ -37,6 +37,11 @@ describe('JWT module', function() {
         // with alg
         assertion = corbel.jwt.generate(claims, secret, 'HS256');
         expect(assertion).to.be.equal(EXPECTED_ASSERTION);
+
+        // with array scopes
+        claims.scope = ['scope1', 'scope2'];
+        assertion = corbel.jwt.generate(claims, secret);
+        expect(assertion).to.be.equal(EXPECTED_ASSERTION);
     });
 
     describe('when generating claims', function() {

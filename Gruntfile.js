@@ -332,7 +332,11 @@ module.exports = function(grunt) {
 
 
     grunt.registerTask('serve:test', [
-        'test:browser',
+        'build',
+        'copy:test-browser',
+        'preprocess:test-browser',
+        'express:load',
+        'connect:test_webserver',
         'open:test',
         'watch:test'
     ]);
