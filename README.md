@@ -17,13 +17,13 @@ A SDK for corbel compatible with browsers and node.
 
 ### Instance a new driver
 
-```
+```javascript
 var corbelDriver = corbel.getDriver(options);
 ```
 
 ### Driver options
 
-```
+```javascript
 var options = {
 	'clientId': 'clientId',
 	'clientSecret': 'clientSecret',
@@ -48,16 +48,24 @@ var options = {
 
 ### Get an application token
 
-```
-corbelDriver.iam.token().create();
-corbelDriver.resources.resource().get(...);
+```javascript
+corbelDriver.iam.token().create().then(function() {
+	return corbelDriver.resources.collection(collectionName).add('application/json', params);
+}).then(function(response) {
+	var resourceId = response.data;
+	return corbelDriver.resources.resource(collectionName, respurceId).get();
+}).then(function(response) {
+	console.log('resource', response.data);
+}).catch(function(error) {
+	console.error('some.error', error);
+});
 ```
 
-// library static methods
-```
-corbel.jwt.generate(...);
-corbel.request.send(...);
-corbel.utils.param(...);
-corbel.cryptography.b64_hmac_sha256(...);
+### library static methods
+
+```javascript
+corbel.jwt.generate(claimsObject, secret);
+corbel.request.send(params);
+// ... more
 ```
 
