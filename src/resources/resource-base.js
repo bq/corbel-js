@@ -4,13 +4,8 @@
     /*globals corbel */
     //@endexclude
 
-    function ResourceBase(driver) {
-        this.driver = driver;
-    }
+    corbel.Resources.ResourceBase = corbel.Services.inherit({
 
-    ResourceBase.inherit = corbel.utils.inherit;
-
-    corbel.Resources.ResourceBase = ResourceBase.inherit({
         /**
          * Helper function to build the request uri
          * @param  {String} srcType     Type of the resource
@@ -32,13 +27,11 @@
             }
             return uri;
         },
+
         getURL: function(params) {
             return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
-        },
-        request: function(params) {
-            params.withAuth = true;
-            return corbel.services.request(params);
         }
+
     });
 
     return corbel.Resources.ResourceBase;

@@ -10,25 +10,30 @@ var corbel = require('../../../dist/corbel.js'),
 describe('corbel IAM module', function() {
 
     var sandbox = sinon.sandbox.create();
-    //var TEST_ACCESS_TOKEN = 'token';
     var CONFIG = {
         urlBase: 'url',
 
-        clientId: 'clientId',
-        clientSecret: 'clientSecret',
+        clientId: 'a9fb0e79',
+        clientSecret: '90f6ed907ce7e2426e51aa52a18470195f4eb04725beb41569db3f796a018dbd',
 
-        scopesApp: 'scopesApp',
-        scopesUserLogin: 'scopesUserLogin',
-        scopesUserCreate: 'scopesUserCreate',
+        scopesApp: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
+        scopesUserLogin: 'silkroad-qa:user',
+        scopesUserCreate: 'silkroad-qa:user',
 
+        oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
         resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
         iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
         evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
-        oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+        ecEndpoint: 'https://ec-qa.bqws.io/v1.0/',
+        assetsEndpoint: 'https://assets-qa.bqws.io/v1.0/',
+        notificationsEndpoint: 'https://notifications-qa.bqws.io/v1.0/',
+        bqponEndpoint: 'https://bqpon-qa.bqws.io/v1.0/',
+        webfsEndpoint: 'https://webfs-qa.bqws.io/v1.0/',
+        schedulerEndpoint: 'https://scheduler-qa.bqws.io/v1.0/',
+        borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/',
 
-        oauthClientId: 'bitbloq-client',
-        oauthSecret: 'bitbloq-secret',
-        oauthService: 'corbel'
+        oauthClientId: 'silkroad-qa-1-client',
+        oauthSecret: 'silkroad-qa-1-secret'
     };
 
     var corbelDriver = corbel.getDriver(CONFIG);
@@ -231,7 +236,6 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'username/' + USERNAME);
             expect(callRequestParam.method).to.be.equal('HEAD');
-            expect(callRequestParam.withAuth).to.be.equal(true);
         });
 
         it('Username available return true', function(done) {
@@ -272,9 +276,8 @@ describe('corbel IAM module', function() {
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user');
-            expect(callRequestParam.withAuth).to.be.equal(true);
             expect(callRequestParam.method).to.be.equal('POST');
-            expect(callRequestParam.data.username).to.be.equal(username);
+            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
         });
 
         it('Get all users', function() {
@@ -283,7 +286,6 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.withAuth).to.be.equal(true);
         });
 
         it('Get user me', function() {
@@ -312,7 +314,7 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/userId');
             expect(callRequestParam.method).to.be.equal('PUT');
-            expect(callRequestParam.data.username).to.be.equal(username);
+            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
         });
 
         it('Update user me', function() {
@@ -325,7 +327,7 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/me');
             expect(callRequestParam.method).to.be.equal('PUT');
-            expect(callRequestParam.data.username).to.be.equal(username);
+            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
         });
 
         it('Delete user', function() {
@@ -377,9 +379,8 @@ describe('corbel IAM module', function() {
         it('generate sendResetPasswordEmail request correctly', function() {
             corbelDriver.iam.user().sendResetPasswordEmail('test@email.com');
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/resetPassword');
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/resetPassword?email=test@email.com');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.query).to.be.equal('email=test@email.com');
         });
 
         describe('Adding user identity', function() {
@@ -393,8 +394,8 @@ describe('corbel IAM module', function() {
                 var callRequestParam = corbel.request.send.firstCall.args[0];
                 expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'user/userId/identity');
                 expect(callRequestParam.method).to.be.equal('POST');
-                expect(callRequestParam.data.oAuthService).to.be.equal('silkroad');
-                expect(callRequestParam.data.oAuthId).to.be.equal('12435');
+                expect(JSON.parse(callRequestParam.data).oAuthService).to.be.equal('silkroad');
+                expect(JSON.parse(callRequestParam.data).oAuthId).to.be.equal('12435');
             });
 
             it('without passing an identity object', function() {
@@ -507,40 +508,34 @@ describe('corbel IAM module', function() {
     });
 
     describe('Domain admin interface', function() {
-        function getEntity() {
-            var entity = {
-                id: 'jklasdfjklasdf',
-                domain: 'wenuirasdj'
-            };
-            return entity;
-        }
+        var data = {
+            id: 'jklasdfjklasdf',
+            domain: 'wenuirasdj'
+        };
 
         it('Create a new domain', function() {
-            var domain = getEntity();
-            corbelDriver.iam.domain().create(domain).
+            corbelDriver.iam.domain().create(data).
             then(function(id) {
                 var callRequestParam = corbel.request.send.firstCall.args[0];
                 expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain');
                 expect(callRequestParam.method).to.be.equal('POST');
-                expect(domain.id).to.be.equal(id);
+                expect(data.id).to.be.equal(id);
             });
         });
 
         it('Gets a domain', function() {
-            var domain = getEntity();
-            corbelDriver.iam.domain(domain.id).get();
+            corbelDriver.iam.domain(data.id).get();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + domain.id);
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.id);
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
         it('Update a domain', function() {
-            var domain = getEntity();
-            corbelDriver.iam.domain(domain.id).update(domain);
+            corbelDriver.iam.domain(data.id).update(data);
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + domain.id);
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.id);
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
@@ -554,40 +549,36 @@ describe('corbel IAM module', function() {
         });
 
         it('Create a new client', function() {
-            var client = getEntity();
-            corbelDriver.iam.client(client.domain).create(client).
+            corbelDriver.iam.client(data.domain).create(data).
             then(function(id) {
                 var callRequestParam = corbel.request.send.firstCall.args[0];
-                expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + client.domain + '/client');
+                expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.domain + '/client');
                 expect(callRequestParam.method).to.be.equal('POST');
-                expect(client.id).to.be.equal(id);
+                expect(data.id).to.be.equal(id);
             });
         });
 
         it('Get a client', function() {
-            var client = getEntity();
-            corbelDriver.iam.client(client.domain, client.id).get();
+            corbelDriver.iam.client(data.domain, data.id).get();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + client.domain + '/client/' + client.id);
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.domain + '/client/' + data.id);
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
         it('Update a client', function() {
-            var client = getEntity();
-            corbelDriver.iam.client(client.domain, client.id).update(client);
+            corbelDriver.iam.client(data.domain, data.id).update(data);
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + client.domain + '/client/' + client.id);
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.domain + '/client/' + data.id);
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
         it('Remove a client', function() {
-            var client = getEntity();
-            corbelDriver.iam.client(client.domain, client.id).remove();
+            corbelDriver.iam.client(data.domain, data.id).remove();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + client.domain + '/client/' + client.id);
+            expect(callRequestParam.url).to.be.equal(CONFIG.iamEndpoint + 'domain/' + data.domain + '/client/' + data.id);
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 

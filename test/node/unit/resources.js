@@ -9,7 +9,7 @@
         sinon = require('sinon'),
         expect = chai.expect;
 
-    var TEST_ENDPOINT = 'http://resources-int.bqws.io/v1.0/',
+    var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
         DEFAULT_QUERY_OBJECT_STRING = '[{"$eq":{"field3":true}},{"$eq":{"field4":true}},{"$gt":{"field5":"value"}},{"$gte":{"field5":"value"}},{"$lt":{"field5":"value"}},{"$lte":{"field5":"value"}},{"$ne":{"field5":"value"}},{"$in":{"field2":["pepe","juan"]}},{"$all":{"field5":["pepe","juan"]}},{"$like":{"field5":"value"}}]',
 
         URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search=test&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
@@ -57,7 +57,7 @@
             }
         }];
 
-    var common = {
+    var CONFIG = {
         urlBase: 'url',
 
         clientId: 'clientId',
@@ -67,33 +67,37 @@
         scopesUserLogin: 'scopesUserLogin',
         scopesUserCreate: 'scopesUserCreate',
 
-        resourcesEndpoint: TEST_ENDPOINT,
+        oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+        resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
         iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
         evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
-        oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
+        ecEndpoint: 'https://ec-qa.bqws.io/v1.0/',
+        assetsEndpoint: 'https://assets-qa.bqws.io/v1.0/',
+        notificationsEndpoint: 'https://notifications-qa.bqws.io/v1.0/',
+        bqponEndpoint: 'https://bqpon-qa.bqws.io/v1.0/',
+        webfsEndpoint: 'https://webfs-qa.bqws.io/v1.0/',
+        schedulerEndpoint: 'https://scheduler-qa.bqws.io/v1.0/',
+        borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/',
 
-        oauthClientId: 'bitbloq-client',
-        oauthSecret: 'bitbloq-secret',
-        oauthService: 'corbel'
+        oauthClientId: 'silkroad-qa-1-client',
+        oauthSecret: 'silkroad-qa-1-secret'
     };
 
     describe('corbel resources module', function() {
 
         var sandbox = sinon.sandbox.create(),
+            corbelDriver,
             resources;
 
         before(function() {
-            resources = corbel.getDriver(common).resources;
+            corbelDriver = corbel.getDriver(CONFIG);
+            resources = corbelDriver.resources;
         });
 
         after(function() {});
 
         beforeEach(function() {
-            sandbox.stub(corbel.services, 'request').returns(
-                new Promise(function(resolve) {
-                    resolve();
-                })
-            );
+            sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
         });
 
         afterEach(function() {
@@ -169,28 +173,25 @@
         it('gets all resources in a collection correctly', function() {
             resources.collection('books:Book').get();
 
-            var callRequestParam = corbel.services.request.firstCall.args[0];
+            var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.withAuth).to.be.equal(true);
         });
 
         it('gets all resources in a collection with a mediaType', function() {
-            resources.collection('books:Book').get(undefined, 'epub');
-            var callRequestParam = corbel.services.request.firstCall.args[0];
+            resources.collection('books:Book').get('epub', undefined);
+            var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.Accept).to.be.equal('epub');
-            expect(callRequestParam.withAuth).to.be.equal(true);
+            expect(callRequestParam.headers.Accept).to.be.equal('epub');
         });
 
         it('get a resource with mediaType', function() {
             resources.resource('books:Book', '123').get('application/json');
-            var callRequestParam = corbel.services.request.firstCall.args[0];
+            var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.Accept).to.be.equal('application/json');
-            expect(callRequestParam.withAuth).to.be.equal(true);
+            expect(callRequestParam.headers.Accept).to.be.equal('application/json');
         });
 
         //Sanity check SILKROAD-712
@@ -198,12 +199,11 @@
             resources.resource('books:Book', '123').get('application/json', {
                 noRedirect: true
             });
-            var callRequestParam = corbel.services.request.firstCall.args[0];
+            var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(callRequestParam.Accept).to.be.equal('application/json');
-            expect(callRequestParam.noRedirect).to.be.equal(true);
-            expect(callRequestParam.withAuth).to.be.equal(true);
+            expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+            expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
         });
 
     });

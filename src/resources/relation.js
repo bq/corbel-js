@@ -23,13 +23,13 @@
           * Gets the resources of a relation
           * @method
           * @memberOf resources.RelationBuilder
-          * @param  {Object} params      Params of the silkroad request
           * @param  {String} dataType    Mime type of the expected resource
-          * @param  {String} uri         Relationed resource
+          * @param  {String} destId         Relationed resource
+          * @param  {Object} params      Params of the silkroad request
           * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
           * @see {@link corbel.util.serializeParams} to see a example of the params
           */
-         get: function(params, dataType, destId) {
+         get: function(dataType, destId, params) {
              // console.log('resourceInterface.relation.get', params);
              return this.request({
                  url: this.buildUri(this.type, this.srcId, this.destType, destId),
@@ -42,7 +42,7 @@
           * Adds a new relation between Resources
           * @method
           * @memberOf Resources.RelationBuilder
-          * @param  {String} uri          Relationed resource
+          * @param  {String} destId          Relationed resource
           * @param  {Object} relationData Additional data to be added to the relation (in json)
           * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
           * @example uri = '555'
