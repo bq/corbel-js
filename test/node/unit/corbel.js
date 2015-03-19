@@ -243,7 +243,7 @@ describe('in corbel module', function() {
                 expect(corbelDriver).to.have.ownProperty('config');
                 expect(corbelDriver.config).to.be.an.instanceof(corbel.Config);
                 expect(corbelDriver.iam).to.be.an.instanceof(corbel.Iam);
-                expect(corbelDriver).to.have.ownProperty('iam');
+                expect(corbelDriver.services).to.be.an.instanceof(corbel.Services);
                 expect(corbel).to.have.ownProperty('Iam');
             });
 

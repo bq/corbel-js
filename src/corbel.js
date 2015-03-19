@@ -12,6 +12,7 @@
         // create isntance modules with injected driver
         this.iam = corbel.Iam.create(this);
         this.resources = corbel.Resources.create(this);
+        this.services = corbel.Services.create(this);
     }
 
     corbel.CorbelDriver = CorbelDriver;

@@ -12,16 +12,18 @@
      * @param  {String} id      The resource id
      */
     corbel.Resources.Resource = corbel.Resources.ResourceBase.inherit({
+
         constructor: function(type, id, driver) {
             this.type = type;
             this.id = id;
             this.driver = driver;
         },
+
         /**
          * Gets a resource
          * @method
          * @memberOf resources.ResourceBuilder
-         * @param  {String} dataType                Mime type of the expected resource
+         * @param  {String} [dataType="application/json"]                Mime type of the expected resource
          * @param  {Object} [params]                Additional request parameters
          * @param  {String} [params.binaryType]     XMLHttpRequest 2 responseType value ('blob'|'arraybuffer'|undefined)
          * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link SilkRoadError}
@@ -36,18 +38,19 @@
             args.Accept = dataType;
             return this.request(args);
         },
+
         /**
          * Updates a resource
          * @method
          * @memberOf resources.ResourceBuilder
          * @param  {Object} data                    Data to be updated
-         * @param  {String} dataType                Mime tipe of the sent data
          * @param  {Object} [params]                Additional request parameters
          * @param  {String} [params.binaryType]     XMLHttpRequest 2 content type value for the sending content ('blob'|'arraybuffer'|undefined)
+         * @param  {String} dataType                Mime tipe of the sent data
          * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
          * @see {@link services.request} to see a example of the params
          */
-        update: function(data, dataType, params) {
+        update: function(dataType, data, params) {
             // console.log('resourceInterface.resource', data);
             var args = params || {};
             args.url = this.buildUri(this.type, this.id);
@@ -57,6 +60,7 @@
             args.Accept = dataType;
             return this.request(args);
         },
+
         /**
          * Deletes a resource
          * @method
@@ -73,6 +77,7 @@
                 Accept: dataType
             });
         }
+
     });
 
     return corbel.Resources.Resource;

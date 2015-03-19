@@ -5,18 +5,32 @@
 
 (function() {
 
-    var services = corbel.services = {};
+    /**
+     * A module to make iam requests.
+     * @exports Services
+     * @namespace
+     * @memberof corbel
+     */
+    var Services = corbel.Services = function(driver) {
+        this.driver = driver;
+    };
 
-    var _FORCE_UPDATE_TEXT = 'unsupported_version',
-        _FORCE_UPDATE_MAX_RETRIES = 3;
+    Services.create = function(driver) {
+        return new Services(driver);
+    };
+
+    Services._FORCE_UPDATE_TEXT = 'unsupported_version';
+    Services._FORCE_UPDATE_MAX_RETRIES = 3;
     // _FORCE_UPDATE_STATUS = 'fu_r';
+
+    Services.inherit = corbel.utils.inherit;
 
     /**
      * Extract a id from the location header of a requestXHR
      * @param  {Promise} res response from a requestXHR
      * @return {String}  id from the Location
      */
-    services.getLocationId = function(responseObject) {
+    Services.getLocationId = function(responseObject) {
         var location;
 
         if (responseObject.xhr) {
@@ -38,15 +52,8 @@
      * @param {String} [args.retryHook] [reqres hook to retry refresh token]
      * @return {ES6 Promise}
      */
-    services.request = function(args) {
-        return new Promise(function(resolve, reject) {
-
-            services.makeRequest({
-                resolve: resolve,
-                reject: reject
-            }, args);
-
-        });
+    Services.prototype.request = function(args) {
+        return this.makeRequest(args);
     };
 
     /**
@@ -58,9 +65,9 @@
      * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
      * @param  {Object} args    The request arguments.
      */
-    services.makeRequest = function(args) {
+    Services.prototype.makeRequest = function(args) {
 
-        var params = services.buildParams(args);
+        var params = this._buildParams(args);
         return corbel.request.send(params).then(function(response) {
 
             // session.add(_FORCE_UPDATE_STATUS, 0); //TODO SESSION
@@ -70,15 +77,15 @@
         }).catch(function(response) {
             // Force update
             if (response.status === 403 &&
-                response.textStatus === _FORCE_UPDATE_TEXT) {
+                response.textStatus === Services._FORCE_UPDATE_TEXT) {
 
                 var retries = /*session.get(_FORCE_UPDATE_STATUS) ||*/ 0; //TODO SESSION
-                if (retries < _FORCE_UPDATE_MAX_RETRIES) {
+                if (retries < Services._FORCE_UPDATE_MAX_RETRIES) {
                     // console.log('services.request.force_update.reload', retries);
                     retries++;
                     // session.add(_FORCE_UPDATE_STATUS, retries); //TODO SESSION
 
-                    //corbel.utils.reload();
+                    // corbel.utils.reload();
                 } else {
                     // console.log('services.request.force_update.fail');
 
@@ -101,13 +108,13 @@
      * @param  {Object} args
      * @return {Object}
      */
-    services.buildParams = function(args) {
+    Services.prototype._buildParams = function(args) {
 
         // Default values
         args = args || {};
 
-        // args.dataType = args.dataType || 'json';
-        // args.contentType = args.contentType || 'application/json; charset=utf-8';
+        args.dataType = args.dataType || 'json';
+        args.contentType = args.contentType || 'application/json; charset=utf-8';
         args.dataFilter = args.dataFilter || addEmptyJson;
 
         // Construct url with query string
@@ -122,6 +129,10 @@
         }
 
         var headers = args.headers || {};
+
+        // @todo: support to oauth token and custom handlers
+        args.accessToken = args.accessToken || this.driver.config.get('IamToken', null);
+
         // Use access access token if exists
         if (args.accessToken) {
             headers.Authorization = 'Bearer ' + args.accessToken;
@@ -129,6 +140,8 @@
         if (args.noRedirect) {
             headers['No-Redirect'] = true;
         }
+
+        headers.Accept = 'application/json';
         if (args.Accept) {
             headers.Accept = args.Accept;
             args.dataType = undefined; // Accept & dataType are incompatibles
@@ -138,7 +151,7 @@
             url: url,
             dataType: args.dataType,
             contentType: args.contentType,
-            type: args.method || corbel.request.method.GET,
+            method: args.method || corbel.request.method.GET,
             headers: headers,
             data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
             dataFilter: args.dataFilter
@@ -148,13 +161,13 @@
         params.dataType = args.binaryType || params.dataType;
 
         // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
-        // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.type === 'PUT' || params.type === 'POST')) {
+        // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
         //     params.processData = false;
         // }
 
-        // console.log('services.buildParams (params)', params);
+        // console.log('services._buildParams (params)', params);
         // if (args.data) {
-        //      console.log('services.buildParams (data)', args.data);
+        //      console.log('services._buildParams (data)', args.data);
         // }
 
         return params;
@@ -167,6 +180,6 @@
         return response;
     };
 
-    return services;
+    return Services;
 
 })();

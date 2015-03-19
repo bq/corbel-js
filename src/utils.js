@@ -11,14 +11,14 @@
      * @namespace
      * @memberof app
      */
-    corbel.utils = {};
+    var utils = corbel.utils = {};
 
     /**
      * Extend a given object with all the properties in passed-in object(s).
      * @param  {Object}  obj
      * @return {Object}
      */
-    corbel.utils.extend = function(obj) {
+    utils.extend = function(obj) {
         Array.prototype.slice.call(arguments, 1).forEach(function(source) {
             if (source) {
                 for (var prop in source) {
@@ -34,7 +34,7 @@
      * @param  {Object} obj Plain object to serialize
      * @return {String}
      */
-    corbel.utils.param = function(obj) {
+    utils.param = function(obj) {
         var str = [];
         for (var p in obj) {
             if (obj.hasOwnProperty(p)) {
@@ -44,14 +44,7 @@
         return str.join('&');
     };
 
-    corbel.utils.reload = function() {
-        // console.log('corbel.utils.reload');
-        if (window) {
-            window.location.reload();
-        }
-    };
-
-    corbel.utils.inherit = function(prototypeProperties, staticProperties) {
+    utils.inherit = function(prototypeProperties, staticProperties) {
         var parent = this,
             child;
 
@@ -64,7 +57,7 @@
             };
         }
 
-        corbel.utils.extend(child, parent, staticProperties);
+        utils.extend(child, parent, staticProperties);
 
         var Surrogate = function() {
             this.constructor = child;
@@ -74,7 +67,7 @@
         child.prototype = new Surrogate; // jshint ignore:line
 
         if (prototypeProperties) {
-            corbel.utils.extend(child.prototype, prototypeProperties);
+            utils.extend(child.prototype, prototypeProperties);
         }
 
         child.__super__ = parent.prototype;
@@ -115,7 +108,7 @@
      *     }
      * };
      */
-    corbel.utils.serializeParams = function(params) {
+    utils.serializeParams = function(params) {
         var result = '';
 
         if (params === undefined || params === null) {
@@ -165,5 +158,7 @@
 
         return result;
     };
+
+    return utils;
 
 })();
