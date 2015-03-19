@@ -54,7 +54,7 @@
                 Accept: dataType,
                 data: data
             }).then(function(res) {
-                return corbel.Services.extractLocationId(res);
+                return corbel.Services.getLocationId(res);
             });
         }
 

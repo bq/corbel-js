@@ -174,7 +174,7 @@
                 method: corbel.request.method.PUT,
                 data: data
             }).then(function(res) {
-                res.data = corbel.Services.extractLocationId(res);
+                res.data = corbel.Services.getLocationId(res);
                 return res;
             });
         },
@@ -268,7 +268,7 @@
                 method: corbel.request.method.GET,
                 query: query
             }).then(function(res) {
-                res.data = corbel.Services.extractLocationId(res);
+                res.data = corbel.Services.getLocationId(res);
                 return res;
             });
         },
@@ -287,7 +287,7 @@
                 method: corbel.request.method.POST,
                 data: data
             }).then(function(res) {
-                res.data = corbel.Services.extractLocationId(res);
+                res.data = corbel.Services.getLocationId(res);
                 return res;
             });
         },
