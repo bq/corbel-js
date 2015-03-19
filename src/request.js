@@ -64,14 +64,74 @@
         }
     };
 
+    request.serializeHandlers = {
+        json: function(data) {
+            if (typeof data !== 'string') {
+                return JSON.stringify(data);
+            } else {
+                return data;
+            }
+        },
+        'form-urlencoded': function(data) {
+            return corbel.utils.toURLEncoded(data);
+        }
+    };
+
+    request.serialize = function (data, contentType) {
+        var serialized;
+        Object.keys(request.serializeHandlers).forEach(function(type) {
+            if (contentType.indexOf(type) !== -1) {
+                serialized =  request.serializeHandlers[type](data);
+            }
+        });
+        return serialized;
+    };
+
+    request.parseHandlers = {
+        json: function(data) {
+            data = data || '{}';
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+            return data;
+        },
+        arraybuffer: function(data) {
+            return new Uint8Array(data);
+        },
+        blob: function(data, dataType) {
+            return new Blob([data], {
+                type: dataType
+            });
+        },
+        // @todo: xml
+    };
+
+    /**
+     * Process the server response data to the specified object/array/blob/byteArray/text
+     * @param  {Mixed} data                             The server response
+     * @param  {String} type='array'|'blob'|'json'      The class of the server response
+     * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+     * @return {Mixed}                                  Processed data
+     */
+    request.parse = function(data, responseType, dataType) {
+        var parsed;
+        Object.keys(request.parseHandlers).forEach(function(type) {
+            if (responseType.indexOf(type) !== -1) {
+                parsed = request.parseHandlers[type](data, dataType);
+            }
+        });
+        return parsed;
+    };
+
     /**
      * Public method to make ajax request
      * @param  {Object} options                                     Object options for ajax request
      * @param  {String} options.url                                 The request url domain
      * @param  {String} options.method                              The method used for the request
      * @param  {Object} options.headers                             The request headers
+     * @param  {String} options.responseType                         The response type of the body
      * @param  {String} options.contentType                         The content type of the body
-     * @param  {Object || Uint8Array || blob} options.data          Optional data sent to the server
+     * @param  {Object || Uint8Array || blob} options.dataType          Optional data sent to the server
      * @param  {Function} options.success                           Callback function for success request response
      * @param  {Function} options.error                             Callback function for handle error in the request
      * @return {ES6 Promise}                                        Promise about the request status and response
@@ -79,33 +139,30 @@
     request.send = function(options) {
         options = options || {};
 
-        var params = {
-            method: String((options.method || request.method.GET)).toUpperCase(),
-            url: options.url,
-            headers: typeof options.headers === 'object' ? options.headers : {},
-            contentType: options.contentType || 'application/json',
-            get isJSON() {
-                return this.contentType.indexOf('json') !== -1 ? true : false;
-            },
-            callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
-            callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-            //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-            dataType: options.responseType === 'blob' ? options.type || 'image/jpg' : undefined,
-            get data() {
-                return (params.method === request.method.PUT || params.method === request.method.POST || params.method === request.method.PATCH) ? options.data : undefined;
-            }
-        };
-
-        if (!params.url) {
+        if (!options.url) {
             throw new Error('undefined:url');
         }
 
+        var params = {
+            method: options.method || request.method.GET,
+            url: options.url,
+            headers: typeof options.headers === 'object' ? options.headers : {},
+            callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
+            callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
+            //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+            dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
+        };
+
+        // default content-type
+        params.headers['content-type'] = options.contentType || 'application/json';
+
+        var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
+        if (dataMethods.indexOf(params.method) !== -1) {
+            params.data = request.serialize(options.data, params.headers['content-type']);
+        }
 
         // add responseType to the request (blob || arraybuffer || text)
         // httpReq.responseType = responseType;
-
-        //add content - type header
-        params.headers['content-type'] = params.contentType;
 
         var promise = new Promise(function(resolve, reject) {
 
@@ -134,49 +191,6 @@
     };
 
     /**
-     * Process the server response data to the specified object/array/blob/byteArray/text
-     * @param  {Mixed} data                             The server response
-     * @param  {String} type='array'|'blob'|'json'      The class of the server response
-     * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
-     * @return {Mixed}                                  Processed data
-     */
-    var processResponseData = function(data, responseType, dataType) {
-        var parsedData = data;
-
-        if (responseType.indexOf('json') !== -1 && data && typeof data === 'string') {
-            parsedData = JSON.parse(parsedData + '');
-        } else if (responseType === 'arraybuffer') {
-            parsedData = new Uint8Array(data);
-        } else if (responseType === 'blob') {
-            parsedData = new Blob([data], {
-                type: dataType
-            });
-        } else if (responseType.indexOf('xml') !== -1) {
-            //parsear a xml
-        }
-
-
-        return parsedData;
-    };
-
-    /**
-     * Serialize the data to be sent to the server
-     * @param  {Mixed} data                             The data that would be sent to the server
-     * @param  {String} type='array'|'blob'|'json'      The class of the data (array, blob, json)
-     * @return {String}                                 Serialized data
-     */
-    var serializeData = function(data, type) {
-        var serializedData = data;
-
-        if (type === 'json' && typeof data === 'object') {
-            serializedData = JSON.stringify(data);
-        }
-
-        return serializedData;
-
-    };
-
-    /**
      * Process server response
      * @param  {[Response object]} response
      * @param  {[Object]} resolver
@@ -191,7 +205,11 @@
             promiseResponse;
 
         if (statusType < 3) {
-            var data = processResponseData(response.response, response.responseType, response.dataType);
+
+            var data = response.response;
+            if (response.response) {
+                data = request.parse(response.response, response.responseType, response.dataType);
+            }
 
             if (callbackSuccess) {
                 callbackSuccess.call(this, data, statusCode, response.responseObject);
@@ -234,14 +252,14 @@
             method: params.method,
             url: params.url,
             headers: params.headers,
-            json: params.isJSON,
+            json: params.headers['content-type'].indexOf('json') !== -1 ? true : false,
             body: params.data || ''
         }, function(error, response, body) {
 
             processResponse.call(this, {
                 responseObject: response,
                 dataType: params.dataType,
-                responseType: response.headers['content-type'],
+                responseType: response.responseType || response.headers['content-type'],
                 response: body,
                 status: response.statusCode,
                 responseObjectType: 'response',
@@ -282,12 +300,12 @@
         }
 
         httpReq.onload = function(xhr) {
-            xhr = xhr.target || xhr; // only for fake sinon response xhr
+            xhr = xhr.target || xhr; // only for mock testing purpose
 
             processResponse.call(this, {
                 responseObject: xhr,
                 dataType: xhr.dataType,
-                responseType: xhr.getResponseHeader('content-type'), //xhr.responseType,
+                responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
                 response: xhr.response || xhr.responseText,
                 status: xhr.status,
                 responseObjectType: 'xhr',
@@ -304,7 +322,7 @@
             processResponse.call(this, {
                 responseObject: xhr,
                 dataType: xhr.dataType,
-                responseType: xhr.responseType,
+                responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
                 response: xhr.response || xhr.responseText,
                 status: xhr.status,
                 responseObjectType: 'xhr',
@@ -313,12 +331,7 @@
 
         }.bind(this);
 
-        if (params.data) {
-            httpReq.send(serializeData(params.data, params.responseType));
-        } else {
-            httpReq.send();
-        }
-
+        httpReq.send(params.data);
     };
 
     return request;

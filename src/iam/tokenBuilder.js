@@ -104,11 +104,18 @@
         create: function(params, setCookie) {
             params = params || {};
             // if there are oauth params this mean we should do use the GET verb
+            var promise;
             if (params.oauth) {
-                return this._doGetTokenRequest(this.uri, params, setCookie);
+                promise = this._doGetTokenRequest(this.uri, params, setCookie);
             }
             // otherwise we use the traditional POST verb.
-            return this._doPostTokenRequest(this.uri, params, setCookie);
+            promise = this._doPostTokenRequest(this.uri, params, setCookie);
+
+            var that = this;
+            return promise.then(function(response) {
+                that.driver.config.set('IamToken', response.data);
+                return response;
+            });
         },
 
         /**
@@ -133,6 +140,7 @@
             // we use the traditional POST verb to refresh access token.
             return this._doPostTokenRequest(this.uri, params);
         }
+
     });
 
 })();
