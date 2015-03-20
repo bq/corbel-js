@@ -36,27 +36,9 @@
 
     corbel.Resources.create = function(driver) {
 
-        return new ResourcesBuilder(driver);
+        return new corbel._ResourcesBuilder(driver);
 
     };
-
-
-    function ResourcesBuilder(driver) {
-        this.driver = driver;
-    }
-
-    ResourcesBuilder.prototype.collection = function(type) {
-        return new corbel.Resources.Collection(type, this.driver);
-    };
-
-    ResourcesBuilder.prototype.resource = function(type, id) {
-        return new corbel.Resources.Resource(type, id, this.driver);
-    };
-
-    ResourcesBuilder.prototype.relation = function(srcType, srcId, destType) {
-        return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
-    };
-
 
     return corbel.Resources;
 
