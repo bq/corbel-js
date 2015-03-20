@@ -76,6 +76,15 @@
     };
 
     /**
+     * Checks if a variable is a type of object
+     * @param  {object}  test object
+     * @return {Boolean}
+     */
+    corbel.validate.isObject = function(obj) {
+        return typeof obj === 'object';
+    };
+
+    /**
      * Checks whenever a value is greater than other
      * @param  {Mixed}  value
      * @param  {Mixed}  greaterThan
