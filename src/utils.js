@@ -26,24 +26,16 @@
                 }
             }
         });
+
         return obj;
     };
 
     /**
-     * Serialize a plain object to query string
-     * @param  {Object} obj Plain object to serialize
-     * @return {String}
+     * Set up the prototype chain, for subclasses. Uses a hash of prototype properties and class properties to be extended.
+     * @param  {Object} Prototype object properties
+     * @param  {Object} Static object properties
+     * @return {Object} Return a new object that inherit from the context object
      */
-    utils.param = function(obj) {
-        var str = [];
-        for (var p in obj) {
-            if (obj.hasOwnProperty(p)) {
-                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-            }
-        }
-        return str.join('&');
-    };
-
     utils.inherit = function(prototypeProperties, staticProperties) {
         var parent = this,
             child;
@@ -76,7 +68,37 @@
 
     };
 
-    utils.toURLEncoded = function(obj) {
+
+    /**
+     * Generate a uniq random GUID
+     */
+    utils.guid = function() {
+
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+
+    /**
+     * Reload browser
+     */
+    utils.reload = function() {
+        if (window !== undefined) {
+            window.location.reload();
+        }
+    };
+
+    /**
+     * Serialize a plain object to query string
+     * @param  {Object} obj Plain object to serialize
+     * @return {String}
+     */
+    utils.param = function(obj) {
         var str = [];
         for (var p in obj) {
             if (obj.hasOwnProperty(p)) {
@@ -86,6 +108,16 @@
         return str.join('&');
     };
 
+
+    utils.toURLEncoded = function(obj) {
+        var str = [];
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+            }
+        }
+        return str.join('&');
+    };
 
     /**
      * Translate this full exampe query to a Silkroad Compliant QueryString
