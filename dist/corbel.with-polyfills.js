@@ -985,13 +985,15 @@
     (function() {
     
         function CorbelDriver(config) {
-            // create isntance config
+            // create instance config
+            this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
     
             // create isntance modules with injected driver
             this.iam = corbel.Iam.create(this);
             this.resources = corbel.Resources.create(this);
             this.services = corbel.Services.create(this);
+            this.session = corbel.Session.create(this);
         }
     
         corbel.CorbelDriver = CorbelDriver;
@@ -1048,24 +1050,16 @@
                     }
                 }
             });
+    
             return obj;
         };
     
         /**
-         * Serialize a plain object to query string
-         * @param  {Object} obj Plain object to serialize
-         * @return {String}
+         * Set up the prototype chain, for subclasses. Uses a hash of prototype properties and class properties to be extended.
+         * @param  {Object} Prototype object properties
+         * @param  {Object} Static object properties
+         * @return {Object} Return a new object that inherit from the context object
          */
-        utils.param = function(obj) {
-            var str = [];
-            for (var p in obj) {
-                if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                }
-            }
-            return str.join('&');
-        };
-    
         utils.inherit = function(prototypeProperties, staticProperties) {
             var parent = this,
                 child;
@@ -1098,7 +1092,37 @@
     
         };
     
-        utils.toURLEncoded = function(obj) {
+    
+        /**
+         * Generate a uniq random GUID
+         */
+        utils.guid = function() {
+    
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+    
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                s4() + '-' + s4() + s4() + s4();
+        };
+    
+        /**
+         * Reload browser
+         */
+        utils.reload = function() {
+            if (window !== undefined) {
+                window.location.reload();
+            }
+        };
+    
+        /**
+         * Serialize a plain object to query string
+         * @param  {Object} obj Plain object to serialize
+         * @return {String}
+         */
+        utils.param = function(obj) {
             var str = [];
             for (var p in obj) {
                 if (obj.hasOwnProperty(p)) {
@@ -1108,6 +1132,16 @@
             return str.join('&');
         };
     
+    
+        utils.toURLEncoded = function(obj) {
+            var str = [];
+            for (var p in obj) {
+                if (obj.hasOwnProperty(p)) {
+                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                }
+            }
+            return str.join('&');
+        };
     
         /**
          * Translate this full exampe query to a Silkroad Compliant QueryString
@@ -1195,7 +1229,6 @@
         return utils;
     
     })();
-    
     (function() {
     
     
@@ -1269,6 +1302,15 @@
         };
     
         /**
+         * Checks if a variable is a type of object
+         * @param  {object}  test object
+         * @return {Boolean}
+         */
+        corbel.validate.isObject = function(obj) {
+            return typeof obj === 'object';
+        };
+    
+        /**
          * Checks whenever a value is greater than other
          * @param  {Mixed}  value
          * @param  {Mixed}  greaterThan
@@ -1303,7 +1345,18 @@
         };
     
     })();
+    (function() {
     
+    
+        corbel.Object = function() {
+            return this;
+        };
+    
+        corbel.Object.inherit = corbel.utils.inherit;
+    
+        return corbel.Object;
+    
+    })();
     (function() {
     
         /* jshint camelcase:false */
@@ -1604,6 +1657,263 @@
     
     })();
     
+    (function() {
+    
+        /**
+         * A module to manage session data.
+         * @exports session
+         * @namespace
+         * @memberof corbel
+         */
+        corbel.Session = corbel.Object.inherit({
+            constructor: function(driver) {
+                this.driver = driver;
+                this.status = '';
+                //Set localStorage in node-js enviroment
+                if (typeof localStorage === 'undefined' || localStorage === null && /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                    var LocalStorage = require('node-localstorage').LocalStorage,
+                        fs = require('fs');
+    
+                    if (fs.existsSync(corbel.Session.SESSION_PATH_DIR) === false) {
+                        fs.mkdirSync(corbel.Session.SESSION_PATH_DIR);
+                    }
+    
+                    if (fs.existsSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid) === false) {
+                        fs.mkdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
+                    }
+    
+                    this.localStorage = new LocalStorage(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
+    
+                    process.on('exit', function() {
+                        // if (this.isPersistent() === false) {
+                        this.destroy();
+                        this.removeDir();
+                        // }
+                    }.bind(this));
+    
+                } else {
+                    this.localStorage = localStorage;
+                }
+    
+                //Set sessionStorage in node-js enviroment
+                if (typeof sessionStorage === 'undefined' || sessionStorage === null) {
+                    this.sessionStorage = this.localStorage;
+                } else {
+                    this.sessionStorage = sessionStorage;
+                }
+            },
+            /**
+             * Sets an application status to STATUS_SELECTOR
+             * @param {String} status Name of the status
+             * @param {Boolean} active true if active, false id disabled
+             */
+            setStatus: function(status, active) {
+                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                    if (active) {
+                        this.status = status;
+                    } else {
+                        this.status = 'not-' + status;
+                    }
+                } else {
+                    if (active) {
+                        $(this.STATUS_SELECTOR).removeClass('not-' + status).addClass(status);
+                    } else {
+                        $(this.STATUS_SELECTOR).removeClass(status).addClass('not-' + status);
+                    }
+                }
+    
+                return this;
+            },
+    
+            /**
+             * Removes a specific status from STATUS_SELECTOR
+             * @param  {String} status
+             */
+            removeStatus: function(status) {
+                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                    this.status = '';
+                } else {
+                    $(this.STATUS_SELECTOR).removeClass(status).removeClass('not-' + status);
+                }
+            },
+    
+            /**
+             * Gets a specific session value
+             * @param  {String} key
+             * @return {String|Number|Boolean}
+             */
+            get: function(key) {
+    
+                key = key || 'session';
+    
+                var storage = this.localStorage;
+                if (!this.isPersistent()) {
+                    storage = this.sessionStorage;
+                }
+    
+                try {
+                    return JSON.parse(storage.getItem(key));
+                } catch (e) {
+                    return storage.getItem(key);
+                }
+            },
+    
+            /**
+             * Adds a key-value in the user session
+             * @param {String} key
+             * @param {String|Number|Boolean} value
+             * @param {Boolean} [forcePersistent] Force to save value in localStorage
+             */
+            add: function(key, value, forcePersistent) {
+                var storage = this.sessionStorage;
+    
+                if (this.isPersistent() || forcePersistent) {
+                    storage = localStorage;
+                }
+    
+                if (corbel.validate.isObject(value)) {
+                    value = JSON.stringify(value);
+                }
+                if (value === undefined) {
+                    storage.removeItem(key);
+                } else {
+                    storage.setItem(key, value);
+                }
+            },
+    
+            /**
+             * Checks active sessions and updates the app status
+             * @return {Boolean}
+             */
+            gatekeeper: function() {
+                var exist = this.exist();
+    
+                if (exist) {
+                    this.setStatus('logged', true);
+                } else {
+                    this.setStatus('logged', false);
+                }
+    
+                return exist;
+            },
+    
+            /**
+             * Checks when a session exists
+             * @return {Boolean}
+             */
+            exist: function() {
+                // TODO: Do it better, diff between anonymous and real user
+                // Setted at user.login()
+                return this.get('loggedTime') ? true : false;
+            },
+    
+            /**
+             * Creates a user session data
+             * @param  {Object} args
+             * @param  {Boolean} args.persistent
+             * @param  {String} args.accessToken
+             * @param  {String} args.oauthService
+             * @param  {Object} args.user
+             */
+            logged: function(args) {
+                corbel.validate.isValue(args.accessToken, 'Missing accessToken');
+                corbel.validate.isValue(args.refreshToken, 'Missing refreshToken');
+                corbel.validate.isValue(args.expiresAt, 'Missing expiresAt');
+                corbel.validate.isValue(args.user, 'Missing user');
+                corbel.validate.isValue(args.oauthService || args.loginBasic, 'Missing oauthService and loginBasic');
+    
+                this.setPersistent(args.persistent);
+    
+                this.add('accessToken', args.accessToken);
+                this.add('refreshToken', args.refreshToken);
+                this.add('expiresAt', args.expiresAt);
+                this.add('oauthService', args.oauthService);
+                this.add('loginBasic', args.loginBasic);
+                this.add('loggedTime', new Date().getTime());
+                this.add('user', args.user);
+    
+                this.setStatus('logged', true);
+            },
+    
+            /**
+             * Proxy call for session.add(key, undefined)
+             * @since 1.6.0
+             * @param  {String} key
+             */
+            remove: function(key) {
+                this.add(key);
+            },
+    
+            removeDir: function() {
+                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                    var fs = require('fs');
+                    try {
+                        fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
+                    } catch (ex) {}
+                }
+            },
+    
+            /**
+             * Checks if the current session is persistent or not
+             * @return {Boolean}
+             */
+            isPersistent: function() {
+                return (this.localStorage.persistent ? true : false);
+            },
+    
+            /**
+             * Creates a user session with
+             * @param {Boolean} persistent
+             */
+            setPersistent: function(persistent) {
+                if (persistent) {
+                    this.localStorage.setItem('persistent', persistent);
+                } else {
+                    this.localStorage.removeItem('persistent');
+                }
+            },
+    
+            /**
+             * Move a session value to a persistent value (if exists)
+             * @param  {String} name
+             */
+            persist: function(name) {
+                var value = this.sessionStorage.getItem(name);
+                if (value) {
+                    this.localStorage.setItem(name, value);
+                    this.sessionStorage.removeItem(name);
+                }
+            },
+    
+            /**
+             * Clears all user storage and remove storage dir for nodejs /*
+             */
+            destroy: function() {
+                this.localStorage.clear();
+                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+    
+                } else {
+                    this.sessionStorage.clear();
+                }
+    
+                this.setStatus('logged', false);
+            }
+        }, {
+            SESSION_PATH_DIR: './storage',
+    
+            /**
+             * Static factory method for session object
+             * @param  {corbel.Driver} corbel-js driver
+             * @return {corbel.session}
+             */
+            create: function(driver) {
+                return new corbel.Session(driver);
+            }
+        });
+    
+        return corbel.Session;
+    
+    })();
 
     //----------corbel modules----------------
 
@@ -2026,179 +2336,159 @@
          * @namespace
          * @memberof corbel
          */
-        var Services = corbel.Services = function(driver) {
-            this.driver = driver;
-        };
+        corbel.Services = corbel.Object.inherit({ //instance props
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+            /**
+             * Execute the actual ajax request.
+             * Retries request with refresh token when credentials are needed.
+             * Refreshes the client when a force update is detected.
+             * Returns a server error (403 - unsupported_version) when force update max retries are reached
+             *
+             * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
+             * @param  {Object} args    The request arguments.
+             */
+            request: function(args) {
     
-        Services.create = function(driver) {
-            return new Services(driver);
-        };
+                var params = this._buildParams(args);
+                return corbel.request.send(params).then(function(response) {
     
-        Services._FORCE_UPDATE_TEXT = 'unsupported_version';
-        Services._FORCE_UPDATE_MAX_RETRIES = 3;
-        // _FORCE_UPDATE_STATUS = 'fu_r';
+                    // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, 0);
     
-        Services.inherit = corbel.utils.inherit;
+                    return Promise.resolve(response);
     
-        /**
-         * Extract a id from the location header of a requestXHR
-         * @param  {Promise} res response from a requestXHR
-         * @return {String}  id from the Location
-         */
-        Services.getLocationId = function(responseObject) {
-            var location;
+                }).catch(function(response) {
     
-            if (responseObject.xhr) {
-                location = arguments[0].xhr.getResponseHeader('location');
-            } else if (responseObject.response.headers.location) {
-                location = responseObject.response.headers.location;
-            }
-            return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
-        };
+                    // Force update
+                    if (response.status === 403 &&
+                        response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
     
-        /**
-         * Generic Services request.
-         * Support all corbel.request parameters and more:
-         * @param {Object} args
-         * @param {String} [args.method=app.services.method.GET]
-         * @param {String} [args.accessToken] set request with auth. (accessToken overrides args.withAuth)
-         * @param {Boolean} [args.withAuth] set request with auth. (if not exists args.accessToken)
-         * @param {Boolean} [args.noRetry] [Disable automatic retry strategy]
-         * @param {String} [args.retryHook] [reqres hook to retry refresh token]
-         * @return {ES6 Promise}
-         */
-        Services.prototype.request = function(args) {
-            return this.makeRequest(args);
-        };
+                        var retries = 0; //this.driver.session.get(corbel.Services._FORCE_UPDATE_STATUS) || 0;
+                        if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
+                            retries++;
+                            // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, retries);
     
-        /**
-         * Execute the actual ajax request.
-         * Retries request with refresh token when credentials are needed.
-         * Refreshes the client when a force update is detected.
-         * Returns a server error (403 - unsupported_version) when force update max retries are reached
-         *
-         * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
-         * @param  {Object} args    The request arguments.
-         */
-        Services.prototype.makeRequest = function(args) {
+                            corbel.utils.reload(); //TODO nodejs
+                        } else {
     
-            var params = this._buildParams(args);
-            return corbel.request.send(params).then(function(response) {
-    
-                // session.add(_FORCE_UPDATE_STATUS, 0); //TODO SESSION
-    
-                return Promise.resolve(response);
-    
-            }).catch(function(response) {
-                // Force update
-                if (response.status === 403 &&
-                    response.textStatus === Services._FORCE_UPDATE_TEXT) {
-    
-                    var retries = /*session.get(_FORCE_UPDATE_STATUS) ||*/ 0; //TODO SESSION
-                    if (retries < Services._FORCE_UPDATE_MAX_RETRIES) {
-                        // console.log('services.request.force_update.reload', retries);
-                        retries++;
-                        // session.add(_FORCE_UPDATE_STATUS, retries); //TODO SESSION
-    
-                        // corbel.utils.reload();
+                            // Send an error to the caller
+                            return Promise.reject(response);
+                        }
                     } else {
-                        // console.log('services.request.force_update.fail');
-    
-                        // Send an error to the caller
+                        // Any other error fail to the caller
                         return Promise.reject(response);
                     }
-                } else {
-                    // Any other error fail to the caller
-                    return Promise.reject(response);
+    
+                }.bind(this));
+            },
+            /**
+             * Returns a valid corbel.request parameters with default values,
+             * CORS detection and authorization params if needed.
+             * By default, all request are json (dataType/contentType)
+             * with object serialization support
+             * @param  {Object} args
+             * @return {Object}
+             */
+            _buildParams: function(args) {
+    
+                // Default values
+                args = args || {};
+    
+                args.dataType = args.dataType || 'json';
+                args.contentType = args.contentType || 'application/json; charset=utf-8';
+                args.dataFilter = args.dataFilter || corbel.Services.addEmptyJson;
+    
+                // Construct url with query string
+                var url = args.url;
+    
+                if (!url) {
+                    throw new Error('You must define an url');
                 }
     
-            });
-        };
+                if (args.query) {
+                    url += '?' + args.query;
+                }
     
-        /**
-         * Returns a valid corbel.request parameters with default values,
-         * CORS detection and authorization params if needed.
-         * By default, all request are json (dataType/contentType)
-         * with object serialization support
-         * @param  {Object} args
-         * @return {Object}
-         */
-        Services.prototype._buildParams = function(args) {
+                var headers = args.headers || {};
     
-            // Default values
-            args = args || {};
+                // @todo: support to oauth token and custom handlers
+                args.accessToken = args.accessToken || this.driver.config.get('IamToken', {}).accessToken;
     
-            args.dataType = args.dataType || 'json';
-            args.contentType = args.contentType || 'application/json; charset=utf-8';
-            args.dataFilter = args.dataFilter || addEmptyJson;
+                // Use access access token if exists
+                if (args.accessToken) {
+                    headers.Authorization = 'Bearer ' + args.accessToken;
+                }
+                if (args.noRedirect) {
+                    headers['No-Redirect'] = true;
+                }
     
-            // Construct url with query string
-            var url = args.url;
+                headers.Accept = 'application/json';
+                if (args.Accept) {
+                    headers.Accept = args.Accept;
+                    args.dataType = undefined; // Accept & dataType are incompatibles
+                }
     
-            if (!url) {
-                throw new Error('You must define an url');
+                var params = {
+                    url: url,
+                    dataType: args.dataType,
+                    contentType: args.contentType,
+                    method: args.method || corbel.request.method.GET,
+                    headers: headers,
+                    data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
+                    dataFilter: args.dataFilter
+                };
+    
+                // For binary requests like 'blob' or 'arraybuffer', set correct dataType
+                params.dataType = args.binaryType || params.dataType;
+    
+                // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
+                // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
+                //     params.processData = false;
+                // }
+    
+                // console.log('services._buildParams (params)', params);
+                // if (args.data) {
+                //      console.log('services._buildParams (data)', args.data);
+                // }
+    
+                return params;
+            },
+    
+        }, { //Static props
+            _FORCE_UPDATE_TEXT: 'unsupported_version',
+            _FORCE_UPDATE_MAX_RETRIES: 3,
+            _FORCE_UPDATE_STATUS: 'fu_r',
+            create: function(driver) {
+                return new corbel.Services(driver);
+            },
+            /**
+             * Extract a id from the location header of a requestXHR
+             * @param  {Promise} res response from a requestXHR
+             * @return {String}  id from the Location
+             */
+            getLocationId: function(responseObject) {
+                var location;
+    
+                if (responseObject.xhr) {
+                    location = arguments[0].xhr.getResponseHeader('location');
+                } else if (responseObject.response.headers.location) {
+                    location = responseObject.response.headers.location;
+                }
+                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+            },
+            addEmptyJson: function(response, type) {
+                if (!response && type === 'json') {
+                    response = '{}';
+                }
+                return response;
             }
+        });
     
-            if (args.query) {
-                url += '?' + args.query;
-            }
     
-            var headers = args.headers || {};
-    
-            // @todo: support to oauth token and custom handlers
-            args.accessToken = args.accessToken || this.driver.config.get('IamToken', {}).accessToken;
-    
-            // Use access access token if exists
-            if (args.accessToken) {
-                headers.Authorization = 'Bearer ' + args.accessToken;
-            }
-            if (args.noRedirect) {
-                headers['No-Redirect'] = true;
-            }
-    
-            headers.Accept = 'application/json';
-            if (args.Accept) {
-                headers.Accept = args.Accept;
-                args.dataType = undefined; // Accept & dataType are incompatibles
-            }
-    
-            var params = {
-                url: url,
-                dataType: args.dataType,
-                contentType: args.contentType,
-                method: args.method || corbel.request.method.GET,
-                headers: headers,
-                data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
-                dataFilter: args.dataFilter
-            };
-    
-            // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-            params.dataType = args.binaryType || params.dataType;
-    
-            // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
-            // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
-            //     params.processData = false;
-            // }
-    
-            // console.log('services._buildParams (params)', params);
-            // if (args.data) {
-            //      console.log('services._buildParams (data)', args.data);
-            // }
-    
-            return params;
-        };
-    
-        var addEmptyJson = function(response, type) {
-            if (!response && type === 'json') {
-                response = '{}';
-            }
-            return response;
-        };
-    
-        return Services;
+        return corbel.Services;
     
     })();
-    
     /* jshint camelcase:false */
     (function() {
     
@@ -3182,6 +3472,336 @@
             }
     
         });
+    
+    })();
+    
+    (function() {
+        /**
+         * constant with diferents sort posibilities
+         * @namespace
+         */
+        corbel.Resources = {
+            sort: {
+                /**
+                 * Ascending sort
+                 * @type {String}
+                 * @constant
+                 * @default
+                 */
+                ASC: 'asc',
+                /**
+                 * Descending sort
+                 * @type {String}
+                 * @constant
+                 * @default
+                 */
+                DESC: 'desc'
+            },
+            /**
+             * constant for use to specify all resources wildcard
+             * @namespace
+             */
+            ALL: '_'
+        };
+    
+    
+        corbel.Resources.create = function(driver) {
+    
+            return new corbel._ResourcesBuilder(driver);
+    
+        };
+    
+        return corbel.Resources;
+    
+    })();
+    (function() {
+        corbel._ResourcesBuilder = corbel.Object.inherit({
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+            collection: function(type) {
+                return new corbel.Resources.Collection(type, this.driver);
+            },
+    
+            resource: function(type, id) {
+                return new corbel.Resources.Resource(type, id, this.driver);
+            },
+    
+            relation: function(srcType, srcId, destType) {
+                return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
+            }
+        });
+    
+        return corbel._ResourcesBuilder;
+    
+    })();
+    (function() {
+        corbel.Resources.ResourceBase = corbel.Services.inherit({
+    
+            /**
+             * Helper function to build the request uri
+             * @param  {String} srcType     Type of the resource
+             * @param  {String} srcId       Id of the resource
+             * @param  {String} relType     Type of the relationed resource
+             * @param  {String} destId      Information of the relationed resource
+             * @return {String}             Uri to perform the request
+             */
+            buildUri: function(srcType, srcId, destType, destId) {
+                var uri = this.driver.config.get('resourcesEndpoint') + 'resource/' + srcType;
+                if (srcId) {
+                    uri += '/' + srcId;
+                    if (destType) {
+                        uri += '/' + destType;
+                        if (destId) {
+                            uri += ';r=' + destType + '/' + destId;
+                        }
+                    }
+                }
+                return uri;
+            },
+    
+            getURL: function(params) {
+                return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
+            }
+    
+        });
+    
+        return corbel.Resources.ResourceBase;
+    
+    })();
+    
+     (function() {
+         /**
+          * Relation
+          * @class
+          * @memberOf Resources
+          * @param  {String} srcType     The source resource type
+          * @param  {String} srcId       The source resource id
+          * @param  {String} destType    The destination resource type
+          */
+         corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+             constructor: function(srcType, srcId, destType, driver) {
+                 this.type = srcType;
+                 this.srcId = srcId;
+                 this.destType = destType;
+                 this.driver = driver;
+             },
+             /**
+              * Gets the resources of a relation
+              * @method
+              * @memberOf resources.RelationBuilder
+              * @param  {String} dataType    Mime type of the expected resource
+              * @param  {String} destId         Relationed resource
+              * @param  {Object} params      Params of the silkroad request
+              * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
+              * @see {@link corbel.util.serializeParams} to see a example of the params
+              */
+             get: function(dataType, destId, params) {
+                 // console.log('resourceInterface.relation.get', params);
+                 return this.request({
+                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                     method: corbel.request.method.GET,
+                     query: params ? corbel.util.serializeParams(params) : null,
+                     Accept: dataType
+                 });
+             },
+             /**
+              * Adds a new relation between Resources
+              * @method
+              * @memberOf Resources.RelationBuilder
+              * @param  {String} destId          Relationed resource
+              * @param  {Object} relationData Additional data to be added to the relation (in json)
+              * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+              * @example uri = '555'
+              */
+             add: function(destId, relationData) {
+                 // console.log('resourceInterface.relation.add', relationData);
+                 return this.request({
+                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                     contentType: 'application/json',
+                     data: relationData,
+                     method: corbel.request.method.PUT
+                 });
+             },
+             /**
+              * Adds a new relation between Resources
+              * @method
+              * @memberOf Resources.RelationBuilder
+              * @param  {Integer} pos          The new position
+              * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+              */
+             move: function(destId, pos) {
+                 // console.log('resourceInterface.relation.move', pos);
+                 return this.request({
+                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                     contentType: 'application/json',
+                     data: {
+                         '_order': '$pos(' + pos + ')'
+                     },
+                     method: corbel.request.method.PUT
+                 });
+             },
+             /**
+              * Deletes a relation between Resources
+              * @method
+              * @memberOf Resources.RelationBuilder
+              * @param  {String} destId          Relationed resource
+              * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+              * @example
+              * destId = 'music:Track/555'
+              */
+             delete: function(destId) {
+                 // console.log('resourceInterface.relation.delete', destId);
+                 return this.request({
+                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                     method: corbel.request.method.DELETE
+                 });
+             }
+         });
+    
+    
+         return corbel.Resources.Relation;
+    
+     })();
+    (function() {
+    
+        /**
+         * Collection requests
+         * @class
+         * @memberOf Resources
+         * @param {String} type The collection type
+         * @param {CorbelDriver} corbel instance
+         */
+        corbel.Resources.Collection = corbel.Resources.ResourceBase.inherit({
+    
+            constructor: function(type, driver) {
+                this.type = type;
+                this.driver = driver;
+            },
+    
+            /**
+             * Gets a collection of elements, filtered, paginated or sorted
+             * @method
+             * @memberOf Resources.CollectionBuilder
+             * @param  {String} dataType            Type of the request data
+             * @param  {Object} params              Params of the silkroad request
+             * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link SilkRoadError}
+             * @see {@link corbel.util.serializeParams} to see a example of the params
+             */
+            get: function(dataType, params) {
+                // console.log('resourceInterface.collection.get', params);
+                return this.request({
+                    url: this.buildUri(this.type),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null,
+                    Accept: dataType
+                });
+            },
+    
+            /**
+             * Adds a new element to a collection
+             * @method
+             * @memberOf Resources.CollectionBuilder
+             * @param  {String} dataType   Mime type of the added data
+             * @param  {Object} data       The element to be added
+             * @return {Promise}           ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
+             */
+            add: function(dataType, data) {
+                return this.request({
+                    url: this.buildUri(this.type),
+                    method: corbel.request.method.POST,
+                    contentType: dataType,
+                    Accept: dataType,
+                    data: data
+                }).then(function(res) {
+                    return corbel.Services.getLocationId(res);
+                });
+            }
+    
+        });
+    
+        return corbel.Resources.Collection;
+    
+    })();
+    
+    (function() {
+        /**
+         * Builder for resource requests
+         * @class
+         * @memberOf resources
+         * @param  {String} type    The resource type
+         * @param  {String} id      The resource id
+         */
+        corbel.Resources.Resource = corbel.Resources.ResourceBase.inherit({
+    
+            constructor: function(type, id, driver) {
+                this.type = type;
+                this.id = id;
+                this.driver = driver;
+            },
+    
+            /**
+             * Gets a resource
+             * @method
+             * @memberOf resources.ResourceBuilder
+             * @param  {String} [dataType="application/json"]                Mime type of the expected resource
+             * @param  {Object} [params]                Additional request parameters
+             * @param  {String} [params.binaryType]     XMLHttpRequest 2 responseType value ('blob'|'arraybuffer'|undefined)
+             * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link SilkRoadError}
+             * @see {@link services.request} to see a example of the params
+             */
+            get: function(dataType, params) {
+                // console.log('resourceInterface.resource.get', dataType);
+                var args = params || {};
+                args.url = this.buildUri(this.type, this.id);
+                args.method = corbel.request.method.GET;
+                args.contentType = dataType;
+                args.Accept = dataType;
+                return this.request(args);
+            },
+    
+            /**
+             * Updates a resource
+             * @method
+             * @memberOf resources.ResourceBuilder
+             * @param  {Object} data                    Data to be updated
+             * @param  {Object} [params]                Additional request parameters
+             * @param  {String} [params.binaryType]     XMLHttpRequest 2 content type value for the sending content ('blob'|'arraybuffer'|undefined)
+             * @param  {String} dataType                Mime tipe of the sent data
+             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @see {@link services.request} to see a example of the params
+             */
+            update: function(dataType, data, params) {
+                // console.log('resourceInterface.resource', data);
+                var args = params || {};
+                args.url = this.buildUri(this.type, this.id);
+                args.method = corbel.request.method.PUT;
+                args.data = data;
+                args.contentType = dataType;
+                args.Accept = dataType;
+                return this.request(args);
+            },
+    
+            /**
+             * Deletes a resource
+             * @method
+             * @memberOf Resources.ResourceBuilder
+             * @param  {String} dataType    Mime tipe of the delete data
+             * @return {Promise}            ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            delete: function(dataType) {
+                // console.log('resourceInterface.resource.delete');
+                return this.request({
+                    url: this.buildUri(this.type, this.id),
+                    method: corbel.request.method.DELETE,
+                    contentType: dataType,
+                    Accept: dataType
+                });
+            }
+    
+        });
+    
+        return corbel.Resources.Resource;
     
     })();
     
