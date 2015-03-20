@@ -138,11 +138,7 @@
     }, { //Static props
         _FORCE_UPDATE_TEXT: 'unsupported_version',
         _FORCE_UPDATE_MAX_RETRIES: 3,
-        << << << < HEAD
-        // _FORCE_UPDATE_STATUS = 'fu_r',
-        === === =
-            _FORCE_UPDATE_STATUS: 'fu_r',
-        >>> >>> > c12f690a9b4ae81e8544c6671a81eaab3c358e8f
+        _FORCE_UPDATE_STATUS: 'fu_r',
         create: function(driver) {
             return new corbel.Services(driver);
         },
