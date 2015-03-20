@@ -28,6 +28,7 @@
     //  @include ../validate.js
     //  @include ../object.js
     //  @include ../cryptography.js
+    //  @include ../session.js
 
     //----------corbel modules----------------
 
