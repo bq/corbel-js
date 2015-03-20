@@ -34,7 +34,7 @@
             var params = this._buildParams(args);
             return corbel.request.send(params).then(function(response) {
 
-                this.driver.session.add(_FORCE_UPDATE_STATUS, 0);
+                // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, 0);
 
                 return Promise.resolve(response);
 
@@ -44,10 +44,10 @@
                 if (response.status === 403 &&
                     response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
 
-                    var retries = this.driver.session.get(_FORCE_UPDATE_STATUS) || 0;
+                    var retries = 0; //this.driver.session.get(corbel.Services._FORCE_UPDATE_STATUS) || 0;
                     if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
                         retries++;
-                        this.driver.session.add(_FORCE_UPDATE_STATUS, retries);
+                        // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, retries);
 
                         corbel.utils.reload(); //TODO nodejs
                     } else {
@@ -138,7 +138,11 @@
     }, { //Static props
         _FORCE_UPDATE_TEXT: 'unsupported_version',
         _FORCE_UPDATE_MAX_RETRIES: 3,
+        << << << < HEAD
         // _FORCE_UPDATE_STATUS = 'fu_r',
+        === === =
+            _FORCE_UPDATE_STATUS: 'fu_r',
+        >>> >>> > c12f690a9b4ae81e8544c6671a81eaab3c358e8f
         create: function(driver) {
             return new corbel.Services(driver);
         },
