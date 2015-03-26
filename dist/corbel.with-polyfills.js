@@ -1001,26 +1001,26 @@
         corbel.getDriver = function(config) {
             config = config || {};
     
-            var keys = [
-                'urlBase',
-                'clientId',
-                'clientSecret',
-                'scopesApp',
-                'scopesUserLogin',
-                'scopesUserCreate',
-                'resourcesEndpoint',
-                'iamEndpoint',
-                'evciEndpoint',
-                'oauthEndpoint',
-                'oauthClientId',
-                'oauthSecret'
-            ];
+            // var keys = [
+            //     'urlBase',
+            //     'clientId',
+            //     'clientSecret',
+            //     'scopesApp',
+            //     'scopesUserLogin',
+            //     'scopesUserCreate',
+            //     'resourcesEndpoint',
+            //     'iamEndpoint',
+            //     'evciEndpoint',
+            //     'oauthEndpoint',
+            //     'oauthClientId',
+            //     'oauthSecret'
+            // ];
     
-            keys.forEach(function(key) {
-                if (!config[key]) {
-                    throw new Error('undefined:' + key);
-                }
-            });
+            // keys.forEach(function(key) {
+            //     if (!config[key]) {
+            //         throw new Error('undefined:' + key);
+            //     }
+            // });
     
             return new CorbelDriver(config);
         };
