@@ -1,6 +1,5 @@
 (function(root, factory) {
     'use strict';
-    /* globals module, define, require */
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {

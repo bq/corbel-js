@@ -42,6 +42,35 @@ describe('JWT module', function() {
         expect(assertion).to.be.equal(EXPECTED);
     });
 
+    it('decodes expected values', function() {
+        var secret = 'secret',
+            claims = {
+                iss: 'clientId',
+                aud: 'http://iam.bqws.io',
+                exp: 12345,
+                scope: 'scope:example1 scope:example2'
+            };
+
+        var EXPECTED = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjbGllbnRJZCIsImF1ZCI6Imh0dHA6Ly9pYW0uYnF3cy5pbyIsImV4cCI6MTIzNDUsInNjb3BlIjoic2NvcGU6ZXhhbXBsZTEgc2NvcGU6ZXhhbXBsZTIifQ.18g9YO_KgWtW1s7HSo87mIjG02u8Pe880tdLbg_JxC4';
+
+        var assertion = corbel.jwt.generate(claims, secret);
+        expect(assertion).to.be.equal(EXPECTED);
+
+        // with array scopes
+        claims.scope = ['scope:example1', 'scope:example2'];
+        assertion = corbel.jwt.generate(claims, secret);
+        var jwtDecoded = corbel.jwt.decode(assertion);
+        expect(jwtDecoded.length).to.be.equal(2);
+        
+        expect(jwtDecoded[0].typ).to.be.equal('JWT');
+        expect(jwtDecoded[0].alg).to.be.equal('HS256');
+
+        expect(jwtDecoded[1].iss).to.be.equal('clientId');
+        expect(jwtDecoded[1].aud).to.be.equal('http://iam.bqws.io');
+        expect(jwtDecoded[1].exp).to.be.equal(12345);
+        expect(jwtDecoded[1].scope).to.be.equal('scope:example1 scope:example2');
+    });
+
     describe('when generating claims', function() {
 
         it('iss are required', function() {

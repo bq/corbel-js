@@ -1,6 +1,5 @@
 (function(root, factory) {
     'use strict';
-    /* globals module, define */
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
@@ -2564,6 +2563,18 @@
     
             _generateExp: function() {
                 return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION;
+            },
+    
+            decode: function(assertion) {
+                var serialize;
+                if (!root.atob) {
+                    // node environment
+                    serialize = require('atob');
+                } else {
+                    serialize = root.atob;
+                }
+                var decoded = assertion.split('.');
+                return [JSON.parse(serialize(decoded[0])), JSON.parse(serialize(decoded[1]))];
             }
     
         };
