@@ -49,7 +49,7 @@
             var secret = params.secret || this.driver.config.get('clientSecret');
             params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
             params.claims.aud = params.claims.aud || corbel.Iam.AUD;
-            params.claims.scope = params.claims.scope || this.driver.config.get('scopesApp');
+            params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
             return corbel.jwt.generate(params.claims, secret);
         },
 
@@ -113,7 +113,7 @@
 
             var that = this;
             return promise.then(function(response) {
-                that.driver.config.set('IamToken', response.data);
+                that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
                 return response;
             });
         },

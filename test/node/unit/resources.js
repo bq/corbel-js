@@ -62,9 +62,7 @@ var CONFIG = {
     clientId: 'clientId',
     clientSecret: 'clientSecret',
 
-    scopesApp: 'scopesApp',
-    scopesUserLogin: 'scopesUserLogin',
-    scopesUserCreate: 'scopesUserCreate',
+    scopes: 'scopesApp',
 
     oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
     resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
@@ -76,10 +74,7 @@ var CONFIG = {
     bqponEndpoint: 'https://bqpon-qa.bqws.io/v1.0/',
     webfsEndpoint: 'https://webfs-qa.bqws.io/v1.0/',
     schedulerEndpoint: 'https://scheduler-qa.bqws.io/v1.0/',
-    borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/',
-
-    oauthClientId: 'silkroad-qa-1-client',
-    oauthSecret: 'silkroad-qa-1-secret'
+    borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/'
 };
 
 describe('corbel resources module', function() {
