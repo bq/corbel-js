@@ -93,7 +93,7 @@
             var headers = args.headers || {};
 
             // @todo: support to oauth token and custom handlers
-            args.accessToken = args.accessToken || this.driver.config.get('IamToken', {}).accessToken;
+            args.accessToken = args.accessToken || this.driver.config.get('iamToken', {}).accessToken;
 
             // Use access access token if exists
             if (args.accessToken) {

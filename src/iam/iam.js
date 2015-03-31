@@ -22,6 +22,7 @@
 
     Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
     Iam.AUD = 'http://iam.bqws.io';
+    Iam.IAM_TOKEN = 'iamToken';
 
     /**
      * COMMON MIXINS

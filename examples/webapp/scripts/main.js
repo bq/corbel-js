@@ -8,9 +8,7 @@
         clientId: 'clientId',
         clientSecret: 'clientSecret',
 
-        scopesApp: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
-        scopesUserLogin: 'silkroad-qa:user',
-        scopesUserCreate: 'silkroad-qa:user',
+        scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
         oauthEndpoint: 'https://oauth.io/',
         resourcesEndpoint: 'https://resources.io/',
@@ -24,8 +22,6 @@
         schedulerEndpoint: 'https://scheduler.io/',
         borrowEndpoint: 'https://borrow.io/',
 
-        oauthClientId: 'silkroadClient',
-        oauthSecret: 'silkroadSecret'
     };
 
     var cd = corbel.getDriver(CONFIG);
@@ -45,6 +41,7 @@
             }
         };
         return cd.resources.collection(COLLECTION_NAME_CRUD).add('application/json', TEST_OBJECT);
+        //return cd.resources.resource(COLLECTION_NAME_CRUD, 'id').update('application/json', TEST_OBJECT);
 
     }).then(function(response) {
         console.log('ok', response);

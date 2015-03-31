@@ -7,9 +7,7 @@ var CONFIG = {
     clientId: 'clientId',
     clientSecret: 'clientSecret',
 
-    scopesApp: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
-    scopesUserLogin: 'silkroad-qa:user',
-    scopesUserCreate: 'silkroad-qa:user',
+    scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
     oauthEndpoint: 'https://oauth.io/',
     resourcesEndpoint: 'https://resources.io/',
@@ -23,8 +21,6 @@ var CONFIG = {
     schedulerEndpoint: 'https://scheduler.io/',
     borrowEndpoint: 'https://borrow.io/',
 
-    oauthClientId: 'silkroadClient',
-    oauthSecret: 'silkroadSecret'
 };
 
 var cd = corbel.getDriver(CONFIG);

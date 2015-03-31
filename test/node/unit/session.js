@@ -18,9 +18,7 @@ describe('In Session module', function() {
             clientId: 'a9fb0e79',
             clientSecret: '90f6ed907ce7e2426e51aa52a18470195f4eb04725beb41569db3f796a018dbd',
 
-            scopesApp: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
-            scopesUserLogin: 'silkroad-qa:user',
-            scopesUserCreate: 'silkroad-qa:user',
+            scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
             oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
             resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
@@ -32,10 +30,7 @@ describe('In Session module', function() {
             bqponEndpoint: 'https://bqpon-qa.bqws.io/v1.0/',
             webfsEndpoint: 'https://webfs-qa.bqws.io/v1.0/',
             schedulerEndpoint: 'https://scheduler-qa.bqws.io/v1.0/',
-            borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/',
-
-            oauthClientId: 'silkroad-qa-1-client',
-            oauthSecret: 'silkroad-qa-1-secret'
+            borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/'
         },
         corbelDriver = corbel.getDriver(CONFIG),
         session = corbelDriver.session,

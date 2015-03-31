@@ -44,19 +44,14 @@
         /**
          * Instanciates new corbel driver
          * @param {Object} config
-         * @param {String} config.urlBase
          * @param {String} [config.urlBase]
          * @param {String} [config.clientId]
          * @param {String} [config.clientSecret]
-         * @param {String} [config.scopesApp]
-         * @param {String} [config.scopesUserLogin]
-         * @param {String} [config.scopesUserCreate]
+         * @param {String} [config.scopes]
          * @param {String} [config.resourcesEndpoint]
          * @param {String} [config.iamEndpoint]
          * @param {String} [config.evciEndpoint]
          * @param {String} [config.oauthEndpoint]
-         * @param {String} [config.oauthClientId]
-         * @param {String} [config.oauthSecret]
          * @return {CorbelDriver}
          */
         corbel.getDriver = function(config) {
@@ -1454,7 +1449,7 @@
                 var headers = args.headers || {};
     
                 // @todo: support to oauth token and custom handlers
-                args.accessToken = args.accessToken || this.driver.config.get('IamToken', {}).accessToken;
+                args.accessToken = args.accessToken || this.driver.config.get('iamToken', {}).accessToken;
     
                 // Use access access token if exists
                 if (args.accessToken) {
@@ -1646,6 +1641,7 @@
     
         Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
         Iam.AUD = 'http://iam.bqws.io';
+        Iam.IAM_TOKEN = 'iamToken';
     
         /**
          * COMMON MIXINS
@@ -2064,7 +2060,7 @@
                 var secret = params.secret || this.driver.config.get('clientSecret');
                 params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
                 params.claims.aud = params.claims.aud || corbel.Iam.AUD;
-                params.claims.scope = params.claims.scope || this.driver.config.get('scopesApp');
+                params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
                 return corbel.jwt.generate(params.claims, secret);
             },
     
@@ -2128,7 +2124,7 @@
     
                 var that = this;
                 return promise.then(function(response) {
-                    that.driver.config.set('IamToken', response.data);
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
                     return response;
                 });
             },
