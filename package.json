@@ -82,8 +82,6 @@
         "test:node:debug": "node-debug $(which grunt) test:node",
         "test:browser:debug": "node-debug $(which grunt) test:browser",
         "clean": "rm -rf node_modules bower_components",
-        "reinstall": "npm run clean && npm install",
-        "postinstall": "bower install",
         "build": "grunt dist"
     },
     "config": {
