@@ -1008,8 +1008,6 @@
          * @param {String} [config.iamEndpoint]
          * @param {String} [config.evciEndpoint]
          * @param {String} [config.oauthEndpoint]
-         * @param {String} [config.oauthClientId]
-         * @param {String} [config.oauthSecret]
          * @return {CorbelDriver}
          */
         corbel.getDriver = function(config) {
@@ -2236,7 +2234,6 @@
                 method: params.method,
                 url: params.url,
                 headers: params.headers,
-                json: params.headers['content-type'].indexOf('json') !== -1 ? true : false,
                 body: params.data || ''
             }, function(error, response, body) {
     
