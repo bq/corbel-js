@@ -1278,7 +1278,6 @@
                 method: params.method,
                 url: params.url,
                 headers: params.headers,
-                json: params.headers['content-type'].indexOf('json') !== -1 ? true : false,
                 body: params.data || ''
             }, function(error, response, body) {
     
