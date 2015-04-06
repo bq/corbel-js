@@ -27,12 +27,26 @@
             }
             return uri;
         },
+        request: function(args) {
+            var params = corbel.utils.extend(this.params, args);
 
+            this.params = {}; //reset instance params
+
+            args.query = corbel.utils.serializeParams(params);
+
+            corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
+        },
         getURL: function(params) {
             return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
-        }
+        },
+        getDefaultOptions: function(options) {
+            options = options || {};
 
+            return options;
+        }
     });
+
+    corbel.utils.extend(corbel.Resources.ResourceBase.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
 
     return corbel.Resources.ResourceBase;
 

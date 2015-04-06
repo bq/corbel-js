@@ -7,4 +7,5 @@ require('./unit/request.js');
 require('./unit/jwt.js');
 require('./unit/iam.js');
 require('./unit/resources.js');
+require('./unit/resources-request-params.js');
 require('./unit/session.js');
