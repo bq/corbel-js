@@ -187,15 +187,15 @@
             result += 'api:sort=' + JSON.stringify(params.sort);
         }
 
-        if (params.page) {
-            if (params.page.page) {
+        if (params.pagination) {
+            if (params.pagination.page) {
                 result += result ? '&' : '';
-                result += 'api:page=' + params.page.page;
+                result += 'api:page=' + params.pagination.page;
             }
 
-            if (params.page.size) {
+            if (params.pagination.size) {
                 result += result ? '&' : '';
-                result += 'api:pageSize=' + params.page.size;
+                result += 'api:pageSize=' + params.pagination.size;
             }
         }
 
