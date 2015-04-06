@@ -59,7 +59,7 @@
 
             var args = corbel.utils.extend(options, {
                 url: this.buildUri(this.type, this.id),
-                method: corbel.request.method.GET,
+                method: corbel.request.method.PUT,
                 data: data,
                 contentType: options.dataType,
                 Accept: options.dataType
