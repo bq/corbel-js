@@ -61,6 +61,99 @@ corbelDriver.iam.token().create().then(function() {
 });
 ```
 
+### Resources API
+
+## Collections
+
+```javascript
+var collection = corbelDriver.resources.collection('books:book');
+
+collection.get({    //options passed to the collection request method (query,dataType etc.)
+
+}).then(function(collectionData){
+});
+
+collection.add({ // new model added to the collection
+
+}, {    //options passed to the collection request method (query,dataType etc.)
+
+}).then(function(idNewModel){
+
+});
+```
+
+## Relations
+
+```javascript
+var relation = corbelDriver.resources.relation('books:book','id1','id2');
+
+relation.get('destId',
+{    //options passed to the relation request method (query,dataType etc.)
+
+}).then(function(collectionData){
+});
+
+relation.add('destId',
+{   //related data
+
+},{ // new model added to the relation
+
+}, {    //options passed to the relation request method (query,dataType etc.)
+
+}).then(function(data){
+
+});
+
+relation.move('destId','pos',
+{    //options passed to the relation request method (query,dataType etc.)
+
+}).then(function(){
+
+});
+
+relation.delete('destId',
+{    //options passed to the relation request method (query,dataType etc.)
+
+}).then(function(){
+
+});
+```
+
+## Resources
+
+```javascript
+var resource = corbelDriver.resources.resource('books:book');
+
+resource.get('destId',
+{    //options passed to the collection request method (query,dataType etc.)
+
+}).then(function(resourceData){
+});
+
+resource.update('resource',
+{   //resource update data
+
+}, {    //options passed to the resource request method (query,dataType etc.)
+
+}).then(function(data){
+
+});
+
+resource.delete('resourceId',
+{    //options passed to the collection request method (query,dataType etc.)
+
+}).then(function(){
+
+});
+```
+
+
+
+
+
+
+
+
 ### Manage application session
 
 ```javascript
