@@ -58,7 +58,7 @@
                  url: this.buildUri(this.type, this.srcId, this.destType, destId),
                  contentType: 'application/json',
                  data: relationData,
-                 method: corbel.request.method.PUT
+                 method: corbel.request.method.POST
              });
 
              return this.request(args);

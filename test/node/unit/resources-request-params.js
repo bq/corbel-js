@@ -152,8 +152,27 @@ describe('corbel resources request-params module', function() {
 
         });
 
+        it('support all chain request params methods', function() {
+            collection.page(1)
+                .pageParam(5, 10)
+                .in('name', 'test')
+                .elemMatch('name', 'test')
+                .ne('name', 'test')
+                .lte('name', 'test')
+                .lt('name', 'test')
+                .gte('name', 'test')
+                .all('name', 'test')
+                .eq('name', 'test')
+                .gt('name', 'test')
+                .like('name', 'test')
+                .desc('field')
+                .get({
+                    dataType: 'application/json'
+                });
+        });
+
         it('can chain for a request', function() {
-            collection.page(1).pageSize(7).like('name', 'test').desc('field').get({
+            collection.page(1).pageSize(7).like('name', 'test').asc('field').get({
                 dataType: 'application/json'
             });
 
@@ -168,10 +187,21 @@ describe('corbel resources request-params module', function() {
                     }
                 }],
                 sort: {
-                    field: corbel.Resources.sort.DESC
+                    field: corbel.Resources.sort.ASC
                 }
             }));
+        });
 
+        it('can chain an aggregation for a request', function() {
+            collection.count('*').get({
+                dataType: 'application/json'
+            });
+
+            expect(serviceSpy.firstCall.args[0].query).to.be.equal(corbel.utils.serializeParams({
+                aggregation: {
+                    '$count': '*'
+                }
+            }));
         });
 
         it('can chain for a request with custom parameters on get call', function() {
