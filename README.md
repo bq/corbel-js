@@ -27,13 +27,13 @@ var corbelDriver = corbel.getDriver(options);
 var options = {
 	'clientId': 'clientId',
 	'clientSecret': 'clientSecret',
-	
+
 	'urlBase': 'http://localhost:8080/{{module}}',
     'resourcesEndpoint',
     'iamEndpoint',
     'evciEndpoint',
     'oauthEndpoint',
-	
+
 	'scopesApp': 'scopesApp',
 	'scopesUserLogin': 'scopesUserLogin',
 	'scopesUserCreate': 'scopesUserCreate',
@@ -50,15 +50,25 @@ var options = {
 
 ```javascript
 corbelDriver.iam.token().create().then(function() {
-	return corbelDriver.resources.collection(collectionName).add('application/json', params);
+    return corbelDriver.resources.collection(collectionName).add('application/json', params);
 }).then(function(response) {
-	var resourceId = response.data;
-	return corbelDriver.resources.resource(collectionName, respurceId).get();
+    var resourceId = response.data;
+    return corbelDriver.resources.resource(collectionName, respurceId).get();
 }).then(function(response) {
-	console.log('resource', response.data);
+    console.log('resource', response.data);
 }).catch(function(error) {
-	console.error('some.error', error);
+    console.error('some.error', error);
 });
+```
+
+### Manage application session
+
+```javascript
+corbelDriver.session.get('key'); //get value from local storage
+corbelDriver.session.add('key', value, isPersistent); //add value to the local storage
+corbelDriver.session.gatekeeper(); //return true if the session driver is active
+corbelDriver.session.destroy(); //clear the current session data
+corbelDriver.session.removeDir(); //in nodejs, remove the directory/files of the current session
 ```
 
 ### library static methods

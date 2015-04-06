@@ -136,7 +136,7 @@ describe('corbel resources module', function() {
         var requestParams = {
             query: DEFAULT_QUERY_OBJECT,
             search: 'test',
-            page: {
+            pagination: {
                 page: 1,
                 size: 5
             },
@@ -152,7 +152,7 @@ describe('corbel resources module', function() {
         var requestParams = {
             query: 'customQueryString',
             search: 'test',
-            page: {
+            pagination: {
                 page: 1,
                 size: 5
             },
@@ -173,7 +173,9 @@ describe('corbel resources module', function() {
     });
 
     it('gets all resources in a collection with a mediaType', function() {
-        resources.collection('books:Book').get('epub', undefined);
+        resources.collection('books:Book').get({
+            dataType: 'epub'
+        });
         var callRequestParam = corbel.request.send.firstCall.args[0];
         expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
         expect(callRequestParam.method).to.be.equal('GET');
@@ -181,7 +183,9 @@ describe('corbel resources module', function() {
     });
 
     it('get a resource with mediaType', function() {
-        resources.resource('books:Book', '123').get('application/json');
+        resources.resource('books:Book', '123').get({
+            dataType: 'application/json'
+        });
         var callRequestParam = corbel.request.send.firstCall.args[0];
         expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
         expect(callRequestParam.method).to.be.equal('GET');
@@ -190,7 +194,8 @@ describe('corbel resources module', function() {
 
     //Sanity check SILKROAD-712
     it('get a resource with mediaType and noContent', function() {
-        resources.resource('books:Book', '123').get('application/json', {
+        resources.resource('books:Book', '123').get({
+            dataType: 'application/json',
             noRedirect: true
         });
         var callRequestParam = corbel.request.send.firstCall.args[0];

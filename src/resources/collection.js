@@ -14,50 +14,55 @@
      */
     corbel.Resources.Collection = corbel.Resources.ResourceBase.inherit({
 
-        constructor: function(type, driver) {
+        constructor: function(type, driver, params) {
             this.type = type;
             this.driver = driver;
+            this.params = params || {};
         },
 
         /**
          * Gets a collection of elements, filtered, paginated or sorted
          * @method
          * @memberOf Resources.CollectionBuilder
-         * @param  {String} dataType            Type of the request data
-         * @param  {Object} params              Params of the silkroad request
+         * @param  {Object} options             Get options for the request
          * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link SilkRoadError}
          * @see {@link corbel.util.serializeParams} to see a example of the params
          */
-        get: function(dataType, params) {
-            // console.log('resourceInterface.collection.get', params);
-            return this.request({
+        get: function(options) {
+            options = this.getDefaultOptions(options);
+
+            var args = corbel.utils.extend(options, {
                 url: this.buildUri(this.type),
                 method: corbel.request.method.GET,
-                query: params ? corbel.utils.serializeParams(params) : null,
-                Accept: dataType
+                Accept: options.dataType
             });
+
+            return this.request(args);
         },
 
         /**
          * Adds a new element to a collection
          * @method
          * @memberOf Resources.CollectionBuilder
-         * @param  {String} dataType   Mime type of the added data
-         * @param  {Object} data       The element to be added
-         * @return {Promise}           ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
+         * @param  {[Object]} data      Data array added to the collection
+         * @param  {Object} options     Options object with dataType request option
+         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
          */
-        add: function(dataType, data) {
-            return this.request({
+        add: function(data, options) {
+            options = this.getDefaultOptions(options);
+
+            var args = corbel.utils.extend(options, {
                 url: this.buildUri(this.type),
                 method: corbel.request.method.POST,
-                contentType: dataType,
-                Accept: dataType,
+                contentType: options.dataType,
+                Accept: options.dataType,
                 data: data
-            }).then(function(res) {
+            });
+
+            return this.request(args).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });
         }
-
     });
 
     return corbel.Resources.Collection;
