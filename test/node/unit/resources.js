@@ -182,13 +182,31 @@ describe('corbel resources module', function() {
         expect(callRequestParam.headers.Accept).to.be.equal('epub');
     });
 
-    it('get a resource with mediaType', function() {
-        resources.resource('books:Book', '123').get({
-            dataType: 'application/json'
+    it('add model to a collection', function() {
+        resources.collection('books:Book').add({
+            name: 'test1',
+            data: 'test-data'
+        });
+        var callRequestParam = corbel.request.send.firstCall.args[0];
+        expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
+        expect(callRequestParam.method).to.be.equal('PUT');
+    });
+
+    it('update a resource', function() {
+        resources.resource('books:Book', '123').update({
+            name: 'test'
         });
         var callRequestParam = corbel.request.send.firstCall.args[0];
         expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
-        expect(callRequestParam.method).to.be.equal('GET');
+        expect(callRequestParam.method).to.be.equal('PUT');
+        expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    });
+
+    it('delete a resource', function() {
+        resources.resource('books:Book', '123').delete();
+        var callRequestParam = corbel.request.send.firstCall.args[0];
+        expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
+        expect(callRequestParam.method).to.be.equal('DELETE');
         expect(callRequestParam.headers.Accept).to.be.equal('application/json');
     });
 
@@ -204,5 +222,34 @@ describe('corbel resources module', function() {
         expect(callRequestParam.headers.Accept).to.be.equal('application/json');
         expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
     });
+
+    it('update a relation', function() {
+        resources.relation('books:Book', '123', '456').move({
+            name: 'test'
+        });
+        var callRequestParam = corbel.request.send.firstCall.args[0];
+        expect(callRequestParam.method).to.be.equal('PUT');
+        expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    });
+
+    it('delete a relation', function() {
+        resources.relation('books:Book', '123', '456').delete();
+        var callRequestParam = corbel.request.send.firstCall.args[0];
+        expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123/456');
+        expect(callRequestParam.method).to.be.equal('DELETE');
+        expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    });
+
+    it('add a relation', function() {
+        resources.relation('books:Book', '123', '456').add('457', {
+            name: 'test',
+            data: 'test'
+        });
+
+        var callRequestParam = corbel.request.send.firstCall.args[0];
+        expect(callRequestParam.method).to.be.equal('POST');
+        expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    });
+
 
 });

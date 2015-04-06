@@ -3636,15 +3636,6 @@
 
         /**
          * Sets an specific queryDomain, by default 'api'.
-         * @example
-         * var qb = new RequestParamsBuilder().setQueryDomain('api');
-         * // http://resources.endpoint?api:query={...}
-         *        this.addCriteria('$gte', field, value);
-         
-         * @example
-         * var qb = new RequestParamsBuilder().setQueryDomain('7digital');
-         * // http://resources.endpoint?7digital:query={...}
-         *
          * @param {String} queryDomain query domain name, 'api' and '7digital' supported
          */
         queryBuilder.setQueryDomain = function(queryDomain) {
@@ -3715,6 +3706,7 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         sortBuilder.asc = function(field) {
+            this.params.sort = this.params.sort || {};
             this.params.sort[field] = corbel.Resources.sort.ASC;
             return this;
         };
@@ -3839,7 +3831,7 @@
 
                 args.query = corbel.utils.serializeParams(params);
 
-                corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
+                return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
             },
             getURL: function(params) {
                 return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
@@ -3910,7 +3902,7 @@
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
                     contentType: 'application/json',
                     data: relationData,
-                    method: corbel.request.method.PUT
+                    method: corbel.request.method.POST
                 });
 
                 return this.request(args);
@@ -4012,7 +4004,7 @@
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
-                    method: corbel.request.method.POST,
+                    method: corbel.request.method.PUT,
                     contentType: options.dataType,
                     Accept: options.dataType,
                     data: data
@@ -4083,7 +4075,7 @@
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.id),
-                    method: corbel.request.method.GET,
+                    method: corbel.request.method.PUT,
                     data: data,
                     contentType: options.dataType,
                     Accept: options.dataType
