@@ -13,6 +13,7 @@ var sortBuilder = (function() {
      * @return {RequestParamsBuilder} RequestParamsBuilder
      */
     sortBuilder.asc = function(field) {
+        this.params.sort = this.params.sort || {};
         this.params.sort[field] = corbel.Resources.sort.ASC;
         return this;
     };
