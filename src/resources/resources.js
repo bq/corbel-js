@@ -4,12 +4,22 @@
     /*globals corbel */
     //@endexclude
 
+    corbel.Resources = corbel.Object.inherit({ //instance props
+        constructor: function(driver) {
+            this.driver = driver;
+        },
+        collection: function(type) {
+            return new corbel.Resources.Collection(type, this.driver);
+        },
 
-    /**
-     * constant with diferents sort posibilities
-     * @namespace
-     */
-    corbel.Resources = {
+        resource: function(type, id) {
+            return new corbel.Resources.Resource(type, id, this.driver);
+        },
+
+        relation: function(srcType, srcId, destType) {
+            return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
+        }
+    }, { //statics props
         sort: {
             /**
              * Ascending sort
@@ -30,15 +40,13 @@
          * constant for use to specify all resources wildcard
          * @namespace
          */
-        ALL: '_'
-    };
+        ALL: '_',
+        create: function(driver) {
 
+            return new corbel.Resources(driver);
 
-    corbel.Resources.create = function(driver) {
-
-        return new corbel._ResourcesBuilder(driver);
-
-    };
+        }
+    });
 
     return corbel.Resources;
 

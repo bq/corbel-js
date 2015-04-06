@@ -39,6 +39,11 @@ module.exports = function(grunt) {
             }
         },
 
+        jsbeautifier: {
+            files: ['dist/**/*.js'],
+            options: {}
+        },
+
         blanket: {
             coverage: {
                 src: ['dist/'],
@@ -368,7 +373,7 @@ module.exports = function(grunt) {
         'mochaTest:travis-cov'
     ]);
 
-    grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills']);
+    grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills', 'jsbeautifier']);
 
     grunt.registerTask('dist', ['jshint', 'test']);
 

@@ -23,535 +23,549 @@
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
      * @version   2.0.0
      */
-    
+
     (function() {
         "use strict";
-    
+
         function $$utils$$objectOrFunction(x) {
-          return typeof x === 'function' || (typeof x === 'object' && x !== null);
+            return typeof x === 'function' || (typeof x === 'object' && x !== null);
         }
-    
+
         function $$utils$$isFunction(x) {
-          return typeof x === 'function';
+            return typeof x === 'function';
         }
-    
+
         function $$utils$$isMaybeThenable(x) {
-          return typeof x === 'object' && x !== null;
+            return typeof x === 'object' && x !== null;
         }
-    
+
         var $$utils$$_isArray;
-    
+
         if (!Array.isArray) {
-          $$utils$$_isArray = function (x) {
-            return Object.prototype.toString.call(x) === '[object Array]';
-          };
+            $$utils$$_isArray = function(x) {
+                return Object.prototype.toString.call(x) === '[object Array]';
+            };
         } else {
-          $$utils$$_isArray = Array.isArray;
+            $$utils$$_isArray = Array.isArray;
         }
-    
+
         var $$utils$$isArray = $$utils$$_isArray;
-        var $$utils$$now = Date.now || function() { return new Date().getTime(); };
-        function $$utils$$F() { }
-    
-        var $$utils$$o_create = (Object.create || function (o) {
-          if (arguments.length > 1) {
-            throw new Error('Second argument not supported');
-          }
-          if (typeof o !== 'object') {
-            throw new TypeError('Argument must be an object');
-          }
-          $$utils$$F.prototype = o;
-          return new $$utils$$F();
-        });
-    
-        var $$asap$$len = 0;
-    
-        var $$asap$$default = function asap(callback, arg) {
-          $$asap$$queue[$$asap$$len] = callback;
-          $$asap$$queue[$$asap$$len + 1] = arg;
-          $$asap$$len += 2;
-          if ($$asap$$len === 2) {
-            // If len is 1, that means that we need to schedule an async flush.
-            // If additional callbacks are queued before the queue is flushed, they
-            // will be processed by this flush that we are scheduling.
-            $$asap$$scheduleFlush();
-          }
+        var $$utils$$now = Date.now || function() {
+            return new Date().getTime();
         };
-    
+
+        function $$utils$$F() {}
+
+        var $$utils$$o_create = (Object.create || function(o) {
+            if (arguments.length > 1) {
+                throw new Error('Second argument not supported');
+            }
+            if (typeof o !== 'object') {
+                throw new TypeError('Argument must be an object');
+            }
+            $$utils$$F.prototype = o;
+            return new $$utils$$F();
+        });
+
+        var $$asap$$len = 0;
+
+        var $$asap$$default = function asap(callback, arg) {
+            $$asap$$queue[$$asap$$len] = callback;
+            $$asap$$queue[$$asap$$len + 1] = arg;
+            $$asap$$len += 2;
+            if ($$asap$$len === 2) {
+                // If len is 1, that means that we need to schedule an async flush.
+                // If additional callbacks are queued before the queue is flushed, they
+                // will be processed by this flush that we are scheduling.
+                $$asap$$scheduleFlush();
+            }
+        };
+
         var $$asap$$browserGlobal = (typeof window !== 'undefined') ? window : {};
         var $$asap$$BrowserMutationObserver = $$asap$$browserGlobal.MutationObserver || $$asap$$browserGlobal.WebKitMutationObserver;
-    
+
         // test for web worker but not in IE10
         var $$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
-          typeof importScripts !== 'undefined' &&
-          typeof MessageChannel !== 'undefined';
-    
+            typeof importScripts !== 'undefined' &&
+            typeof MessageChannel !== 'undefined';
+
         // node
         function $$asap$$useNextTick() {
-          return function() {
-            process.nextTick($$asap$$flush);
-          };
+            return function() {
+                process.nextTick($$asap$$flush);
+            };
         }
-    
+
         function $$asap$$useMutationObserver() {
-          var iterations = 0;
-          var observer = new $$asap$$BrowserMutationObserver($$asap$$flush);
-          var node = document.createTextNode('');
-          observer.observe(node, { characterData: true });
-    
-          return function() {
-            node.data = (iterations = ++iterations % 2);
-          };
+            var iterations = 0;
+            var observer = new $$asap$$BrowserMutationObserver($$asap$$flush);
+            var node = document.createTextNode('');
+            observer.observe(node, {
+                characterData: true
+            });
+
+            return function() {
+                node.data = (iterations = ++iterations % 2);
+            };
         }
-    
+
         // web worker
         function $$asap$$useMessageChannel() {
-          var channel = new MessageChannel();
-          channel.port1.onmessage = $$asap$$flush;
-          return function () {
-            channel.port2.postMessage(0);
-          };
+            var channel = new MessageChannel();
+            channel.port1.onmessage = $$asap$$flush;
+            return function() {
+                channel.port2.postMessage(0);
+            };
         }
-    
+
         function $$asap$$useSetTimeout() {
-          return function() {
-            setTimeout($$asap$$flush, 1);
-          };
+            return function() {
+                setTimeout($$asap$$flush, 1);
+            };
         }
-    
+
         var $$asap$$queue = new Array(1000);
-    
+
         function $$asap$$flush() {
-          for (var i = 0; i < $$asap$$len; i+=2) {
-            var callback = $$asap$$queue[i];
-            var arg = $$asap$$queue[i+1];
-    
-            callback(arg);
-    
-            $$asap$$queue[i] = undefined;
-            $$asap$$queue[i+1] = undefined;
-          }
-    
-          $$asap$$len = 0;
+            for (var i = 0; i < $$asap$$len; i += 2) {
+                var callback = $$asap$$queue[i];
+                var arg = $$asap$$queue[i + 1];
+
+                callback(arg);
+
+                $$asap$$queue[i] = undefined;
+                $$asap$$queue[i + 1] = undefined;
+            }
+
+            $$asap$$len = 0;
         }
-    
+
         var $$asap$$scheduleFlush;
-    
+
         // Decide what async method to use to triggering processing of queued callbacks:
         if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
-          $$asap$$scheduleFlush = $$asap$$useNextTick();
+            $$asap$$scheduleFlush = $$asap$$useNextTick();
         } else if ($$asap$$BrowserMutationObserver) {
-          $$asap$$scheduleFlush = $$asap$$useMutationObserver();
+            $$asap$$scheduleFlush = $$asap$$useMutationObserver();
         } else if ($$asap$$isWorker) {
-          $$asap$$scheduleFlush = $$asap$$useMessageChannel();
+            $$asap$$scheduleFlush = $$asap$$useMessageChannel();
         } else {
-          $$asap$$scheduleFlush = $$asap$$useSetTimeout();
+            $$asap$$scheduleFlush = $$asap$$useSetTimeout();
         }
-    
+
         function $$$internal$$noop() {}
-        var $$$internal$$PENDING   = void 0;
+        var $$$internal$$PENDING = void 0;
         var $$$internal$$FULFILLED = 1;
-        var $$$internal$$REJECTED  = 2;
+        var $$$internal$$REJECTED = 2;
         var $$$internal$$GET_THEN_ERROR = new $$$internal$$ErrorObject();
-    
+
         function $$$internal$$selfFullfillment() {
-          return new TypeError("You cannot resolve a promise with itself");
+            return new TypeError("You cannot resolve a promise with itself");
         }
-    
+
         function $$$internal$$cannotReturnOwn() {
-          return new TypeError('A promises callback cannot return that same promise.')
+            return new TypeError('A promises callback cannot return that same promise.')
         }
-    
+
         function $$$internal$$getThen(promise) {
-          try {
-            return promise.then;
-          } catch(error) {
-            $$$internal$$GET_THEN_ERROR.error = error;
-            return $$$internal$$GET_THEN_ERROR;
-          }
+            try {
+                return promise.then;
+            } catch (error) {
+                $$$internal$$GET_THEN_ERROR.error = error;
+                return $$$internal$$GET_THEN_ERROR;
+            }
         }
-    
+
         function $$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-          try {
-            then.call(value, fulfillmentHandler, rejectionHandler);
-          } catch(e) {
-            return e;
-          }
+            try {
+                then.call(value, fulfillmentHandler, rejectionHandler);
+            } catch (e) {
+                return e;
+            }
         }
-    
+
         function $$$internal$$handleForeignThenable(promise, thenable, then) {
-           $$asap$$default(function(promise) {
-            var sealed = false;
-            var error = $$$internal$$tryThen(then, thenable, function(value) {
-              if (sealed) { return; }
-              sealed = true;
-              if (thenable !== value) {
-                $$$internal$$resolve(promise, value);
-              } else {
-                $$$internal$$fulfill(promise, value);
-              }
-            }, function(reason) {
-              if (sealed) { return; }
-              sealed = true;
-    
-              $$$internal$$reject(promise, reason);
-            }, 'Settle: ' + (promise._label || ' unknown promise'));
-    
-            if (!sealed && error) {
-              sealed = true;
-              $$$internal$$reject(promise, error);
-            }
-          }, promise);
+            $$asap$$default(function(promise) {
+                var sealed = false;
+                var error = $$$internal$$tryThen(then, thenable, function(value) {
+                    if (sealed) {
+                        return;
+                    }
+                    sealed = true;
+                    if (thenable !== value) {
+                        $$$internal$$resolve(promise, value);
+                    } else {
+                        $$$internal$$fulfill(promise, value);
+                    }
+                }, function(reason) {
+                    if (sealed) {
+                        return;
+                    }
+                    sealed = true;
+
+                    $$$internal$$reject(promise, reason);
+                }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+                if (!sealed && error) {
+                    sealed = true;
+                    $$$internal$$reject(promise, error);
+                }
+            }, promise);
         }
-    
+
         function $$$internal$$handleOwnThenable(promise, thenable) {
-          if (thenable._state === $$$internal$$FULFILLED) {
-            $$$internal$$fulfill(promise, thenable._result);
-          } else if (promise._state === $$$internal$$REJECTED) {
-            $$$internal$$reject(promise, thenable._result);
-          } else {
-            $$$internal$$subscribe(thenable, undefined, function(value) {
-              $$$internal$$resolve(promise, value);
-            }, function(reason) {
-              $$$internal$$reject(promise, reason);
-            });
-          }
+            if (thenable._state === $$$internal$$FULFILLED) {
+                $$$internal$$fulfill(promise, thenable._result);
+            } else if (promise._state === $$$internal$$REJECTED) {
+                $$$internal$$reject(promise, thenable._result);
+            } else {
+                $$$internal$$subscribe(thenable, undefined, function(value) {
+                    $$$internal$$resolve(promise, value);
+                }, function(reason) {
+                    $$$internal$$reject(promise, reason);
+                });
+            }
         }
-    
+
         function $$$internal$$handleMaybeThenable(promise, maybeThenable) {
-          if (maybeThenable.constructor === promise.constructor) {
-            $$$internal$$handleOwnThenable(promise, maybeThenable);
-          } else {
-            var then = $$$internal$$getThen(maybeThenable);
-    
-            if (then === $$$internal$$GET_THEN_ERROR) {
-              $$$internal$$reject(promise, $$$internal$$GET_THEN_ERROR.error);
-            } else if (then === undefined) {
-              $$$internal$$fulfill(promise, maybeThenable);
-            } else if ($$utils$$isFunction(then)) {
-              $$$internal$$handleForeignThenable(promise, maybeThenable, then);
+            if (maybeThenable.constructor === promise.constructor) {
+                $$$internal$$handleOwnThenable(promise, maybeThenable);
             } else {
-              $$$internal$$fulfill(promise, maybeThenable);
+                var then = $$$internal$$getThen(maybeThenable);
+
+                if (then === $$$internal$$GET_THEN_ERROR) {
+                    $$$internal$$reject(promise, $$$internal$$GET_THEN_ERROR.error);
+                } else if (then === undefined) {
+                    $$$internal$$fulfill(promise, maybeThenable);
+                } else if ($$utils$$isFunction(then)) {
+                    $$$internal$$handleForeignThenable(promise, maybeThenable, then);
+                } else {
+                    $$$internal$$fulfill(promise, maybeThenable);
+                }
             }
-          }
         }
-    
+
         function $$$internal$$resolve(promise, value) {
-          if (promise === value) {
-            $$$internal$$reject(promise, $$$internal$$selfFullfillment());
-          } else if ($$utils$$objectOrFunction(value)) {
-            $$$internal$$handleMaybeThenable(promise, value);
-          } else {
-            $$$internal$$fulfill(promise, value);
-          }
-        }
-    
-        function $$$internal$$publishRejection(promise) {
-          if (promise._onerror) {
-            promise._onerror(promise._result);
-          }
-    
-          $$$internal$$publish(promise);
-        }
-    
-        function $$$internal$$fulfill(promise, value) {
-          if (promise._state !== $$$internal$$PENDING) { return; }
-    
-          promise._result = value;
-          promise._state = $$$internal$$FULFILLED;
-    
-          if (promise._subscribers.length === 0) {
-          } else {
-            $$asap$$default($$$internal$$publish, promise);
-          }
-        }
-    
-        function $$$internal$$reject(promise, reason) {
-          if (promise._state !== $$$internal$$PENDING) { return; }
-          promise._state = $$$internal$$REJECTED;
-          promise._result = reason;
-    
-          $$asap$$default($$$internal$$publishRejection, promise);
-        }
-    
-        function $$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
-          var subscribers = parent._subscribers;
-          var length = subscribers.length;
-    
-          parent._onerror = null;
-    
-          subscribers[length] = child;
-          subscribers[length + $$$internal$$FULFILLED] = onFulfillment;
-          subscribers[length + $$$internal$$REJECTED]  = onRejection;
-    
-          if (length === 0 && parent._state) {
-            $$asap$$default($$$internal$$publish, parent);
-          }
-        }
-    
-        function $$$internal$$publish(promise) {
-          var subscribers = promise._subscribers;
-          var settled = promise._state;
-    
-          if (subscribers.length === 0) { return; }
-    
-          var child, callback, detail = promise._result;
-    
-          for (var i = 0; i < subscribers.length; i += 3) {
-            child = subscribers[i];
-            callback = subscribers[i + settled];
-    
-            if (child) {
-              $$$internal$$invokeCallback(settled, child, callback, detail);
-            } else {
-              callback(detail);
-            }
-          }
-    
-          promise._subscribers.length = 0;
-        }
-    
-        function $$$internal$$ErrorObject() {
-          this.error = null;
-        }
-    
-        var $$$internal$$TRY_CATCH_ERROR = new $$$internal$$ErrorObject();
-    
-        function $$$internal$$tryCatch(callback, detail) {
-          try {
-            return callback(detail);
-          } catch(e) {
-            $$$internal$$TRY_CATCH_ERROR.error = e;
-            return $$$internal$$TRY_CATCH_ERROR;
-          }
-        }
-    
-        function $$$internal$$invokeCallback(settled, promise, callback, detail) {
-          var hasCallback = $$utils$$isFunction(callback),
-              value, error, succeeded, failed;
-    
-          if (hasCallback) {
-            value = $$$internal$$tryCatch(callback, detail);
-    
-            if (value === $$$internal$$TRY_CATCH_ERROR) {
-              failed = true;
-              error = value.error;
-              value = null;
-            } else {
-              succeeded = true;
-            }
-    
             if (promise === value) {
-              $$$internal$$reject(promise, $$$internal$$cannotReturnOwn());
-              return;
+                $$$internal$$reject(promise, $$$internal$$selfFullfillment());
+            } else if ($$utils$$objectOrFunction(value)) {
+                $$$internal$$handleMaybeThenable(promise, value);
+            } else {
+                $$$internal$$fulfill(promise, value);
             }
-    
-          } else {
-            value = detail;
-            succeeded = true;
-          }
-    
-          if (promise._state !== $$$internal$$PENDING) {
-            // noop
-          } else if (hasCallback && succeeded) {
-            $$$internal$$resolve(promise, value);
-          } else if (failed) {
-            $$$internal$$reject(promise, error);
-          } else if (settled === $$$internal$$FULFILLED) {
-            $$$internal$$fulfill(promise, value);
-          } else if (settled === $$$internal$$REJECTED) {
-            $$$internal$$reject(promise, value);
-          }
         }
-    
+
+        function $$$internal$$publishRejection(promise) {
+            if (promise._onerror) {
+                promise._onerror(promise._result);
+            }
+
+            $$$internal$$publish(promise);
+        }
+
+        function $$$internal$$fulfill(promise, value) {
+            if (promise._state !== $$$internal$$PENDING) {
+                return;
+            }
+
+            promise._result = value;
+            promise._state = $$$internal$$FULFILLED;
+
+            if (promise._subscribers.length === 0) {} else {
+                $$asap$$default($$$internal$$publish, promise);
+            }
+        }
+
+        function $$$internal$$reject(promise, reason) {
+            if (promise._state !== $$$internal$$PENDING) {
+                return;
+            }
+            promise._state = $$$internal$$REJECTED;
+            promise._result = reason;
+
+            $$asap$$default($$$internal$$publishRejection, promise);
+        }
+
+        function $$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
+            var subscribers = parent._subscribers;
+            var length = subscribers.length;
+
+            parent._onerror = null;
+
+            subscribers[length] = child;
+            subscribers[length + $$$internal$$FULFILLED] = onFulfillment;
+            subscribers[length + $$$internal$$REJECTED] = onRejection;
+
+            if (length === 0 && parent._state) {
+                $$asap$$default($$$internal$$publish, parent);
+            }
+        }
+
+        function $$$internal$$publish(promise) {
+            var subscribers = promise._subscribers;
+            var settled = promise._state;
+
+            if (subscribers.length === 0) {
+                return;
+            }
+
+            var child, callback, detail = promise._result;
+
+            for (var i = 0; i < subscribers.length; i += 3) {
+                child = subscribers[i];
+                callback = subscribers[i + settled];
+
+                if (child) {
+                    $$$internal$$invokeCallback(settled, child, callback, detail);
+                } else {
+                    callback(detail);
+                }
+            }
+
+            promise._subscribers.length = 0;
+        }
+
+        function $$$internal$$ErrorObject() {
+            this.error = null;
+        }
+
+        var $$$internal$$TRY_CATCH_ERROR = new $$$internal$$ErrorObject();
+
+        function $$$internal$$tryCatch(callback, detail) {
+            try {
+                return callback(detail);
+            } catch (e) {
+                $$$internal$$TRY_CATCH_ERROR.error = e;
+                return $$$internal$$TRY_CATCH_ERROR;
+            }
+        }
+
+        function $$$internal$$invokeCallback(settled, promise, callback, detail) {
+            var hasCallback = $$utils$$isFunction(callback),
+                value, error, succeeded, failed;
+
+            if (hasCallback) {
+                value = $$$internal$$tryCatch(callback, detail);
+
+                if (value === $$$internal$$TRY_CATCH_ERROR) {
+                    failed = true;
+                    error = value.error;
+                    value = null;
+                } else {
+                    succeeded = true;
+                }
+
+                if (promise === value) {
+                    $$$internal$$reject(promise, $$$internal$$cannotReturnOwn());
+                    return;
+                }
+
+            } else {
+                value = detail;
+                succeeded = true;
+            }
+
+            if (promise._state !== $$$internal$$PENDING) {
+                // noop
+            } else if (hasCallback && succeeded) {
+                $$$internal$$resolve(promise, value);
+            } else if (failed) {
+                $$$internal$$reject(promise, error);
+            } else if (settled === $$$internal$$FULFILLED) {
+                $$$internal$$fulfill(promise, value);
+            } else if (settled === $$$internal$$REJECTED) {
+                $$$internal$$reject(promise, value);
+            }
+        }
+
         function $$$internal$$initializePromise(promise, resolver) {
-          try {
-            resolver(function resolvePromise(value){
-              $$$internal$$resolve(promise, value);
-            }, function rejectPromise(reason) {
-              $$$internal$$reject(promise, reason);
-            });
-          } catch(e) {
-            $$$internal$$reject(promise, e);
-          }
+            try {
+                resolver(function resolvePromise(value) {
+                    $$$internal$$resolve(promise, value);
+                }, function rejectPromise(reason) {
+                    $$$internal$$reject(promise, reason);
+                });
+            } catch (e) {
+                $$$internal$$reject(promise, e);
+            }
         }
-    
+
         function $$$enumerator$$makeSettledResult(state, position, value) {
-          if (state === $$$internal$$FULFILLED) {
-            return {
-              state: 'fulfilled',
-              value: value
-            };
-          } else {
-            return {
-              state: 'rejected',
-              reason: value
-            };
-          }
+            if (state === $$$internal$$FULFILLED) {
+                return {
+                    state: 'fulfilled',
+                    value: value
+                };
+            } else {
+                return {
+                    state: 'rejected',
+                    reason: value
+                };
+            }
         }
-    
+
         function $$$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
-          this._instanceConstructor = Constructor;
-          this.promise = new Constructor($$$internal$$noop, label);
-          this._abortOnReject = abortOnReject;
-    
-          if (this._validateInput(input)) {
-            this._input     = input;
-            this.length     = input.length;
-            this._remaining = input.length;
-    
-            this._init();
-    
-            if (this.length === 0) {
-              $$$internal$$fulfill(this.promise, this._result);
+            this._instanceConstructor = Constructor;
+            this.promise = new Constructor($$$internal$$noop, label);
+            this._abortOnReject = abortOnReject;
+
+            if (this._validateInput(input)) {
+                this._input = input;
+                this.length = input.length;
+                this._remaining = input.length;
+
+                this._init();
+
+                if (this.length === 0) {
+                    $$$internal$$fulfill(this.promise, this._result);
+                } else {
+                    this.length = this.length || 0;
+                    this._enumerate();
+                    if (this._remaining === 0) {
+                        $$$internal$$fulfill(this.promise, this._result);
+                    }
+                }
             } else {
-              this.length = this.length || 0;
-              this._enumerate();
-              if (this._remaining === 0) {
-                $$$internal$$fulfill(this.promise, this._result);
-              }
+                $$$internal$$reject(this.promise, this._validationError());
             }
-          } else {
-            $$$internal$$reject(this.promise, this._validationError());
-          }
         }
-    
+
         $$$enumerator$$Enumerator.prototype._validateInput = function(input) {
-          return $$utils$$isArray(input);
+            return $$utils$$isArray(input);
         };
-    
+
         $$$enumerator$$Enumerator.prototype._validationError = function() {
-          return new Error('Array Methods must be provided an Array');
+            return new Error('Array Methods must be provided an Array');
         };
-    
+
         $$$enumerator$$Enumerator.prototype._init = function() {
-          this._result = new Array(this.length);
+            this._result = new Array(this.length);
         };
-    
+
         var $$$enumerator$$default = $$$enumerator$$Enumerator;
-    
+
         $$$enumerator$$Enumerator.prototype._enumerate = function() {
-          var length  = this.length;
-          var promise = this.promise;
-          var input   = this._input;
-    
-          for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
-            this._eachEntry(input[i], i);
-          }
+            var length = this.length;
+            var promise = this.promise;
+            var input = this._input;
+
+            for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+                this._eachEntry(input[i], i);
+            }
         };
-    
+
         $$$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-          var c = this._instanceConstructor;
-          if ($$utils$$isMaybeThenable(entry)) {
-            if (entry.constructor === c && entry._state !== $$$internal$$PENDING) {
-              entry._onerror = null;
-              this._settledAt(entry._state, i, entry._result);
+            var c = this._instanceConstructor;
+            if ($$utils$$isMaybeThenable(entry)) {
+                if (entry.constructor === c && entry._state !== $$$internal$$PENDING) {
+                    entry._onerror = null;
+                    this._settledAt(entry._state, i, entry._result);
+                } else {
+                    this._willSettleAt(c.resolve(entry), i);
+                }
             } else {
-              this._willSettleAt(c.resolve(entry), i);
+                this._remaining--;
+                this._result[i] = this._makeResult($$$internal$$FULFILLED, i, entry);
             }
-          } else {
-            this._remaining--;
-            this._result[i] = this._makeResult($$$internal$$FULFILLED, i, entry);
-          }
         };
-    
+
         $$$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-          var promise = this.promise;
-    
-          if (promise._state === $$$internal$$PENDING) {
-            this._remaining--;
-    
-            if (this._abortOnReject && state === $$$internal$$REJECTED) {
-              $$$internal$$reject(promise, value);
-            } else {
-              this._result[i] = this._makeResult(state, i, value);
+            var promise = this.promise;
+
+            if (promise._state === $$$internal$$PENDING) {
+                this._remaining--;
+
+                if (this._abortOnReject && state === $$$internal$$REJECTED) {
+                    $$$internal$$reject(promise, value);
+                } else {
+                    this._result[i] = this._makeResult(state, i, value);
+                }
             }
-          }
-    
-          if (this._remaining === 0) {
-            $$$internal$$fulfill(promise, this._result);
-          }
+
+            if (this._remaining === 0) {
+                $$$internal$$fulfill(promise, this._result);
+            }
         };
-    
+
         $$$enumerator$$Enumerator.prototype._makeResult = function(state, i, value) {
-          return value;
+            return value;
         };
-    
+
         $$$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
-          var enumerator = this;
-    
-          $$$internal$$subscribe(promise, undefined, function(value) {
-            enumerator._settledAt($$$internal$$FULFILLED, i, value);
-          }, function(reason) {
-            enumerator._settledAt($$$internal$$REJECTED, i, reason);
-          });
+            var enumerator = this;
+
+            $$$internal$$subscribe(promise, undefined, function(value) {
+                enumerator._settledAt($$$internal$$FULFILLED, i, value);
+            }, function(reason) {
+                enumerator._settledAt($$$internal$$REJECTED, i, reason);
+            });
         };
-    
+
         var $$promise$all$$default = function all(entries, label) {
-          return new $$$enumerator$$default(this, entries, true /* abort on reject */, label).promise;
+            return new $$$enumerator$$default(this, entries, true /* abort on reject */ , label).promise;
         };
-    
+
         var $$promise$race$$default = function race(entries, label) {
-          /*jshint validthis:true */
-          var Constructor = this;
-    
-          var promise = new Constructor($$$internal$$noop, label);
-    
-          if (!$$utils$$isArray(entries)) {
-            $$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
+            /*jshint validthis:true */
+            var Constructor = this;
+
+            var promise = new Constructor($$$internal$$noop, label);
+
+            if (!$$utils$$isArray(entries)) {
+                $$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
+                return promise;
+            }
+
+            var length = entries.length;
+
+            function onFulfillment(value) {
+                $$$internal$$resolve(promise, value);
+            }
+
+            function onRejection(reason) {
+                $$$internal$$reject(promise, reason);
+            }
+
+            for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+                $$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+            }
+
             return promise;
-          }
-    
-          var length = entries.length;
-    
-          function onFulfillment(value) {
-            $$$internal$$resolve(promise, value);
-          }
-    
-          function onRejection(reason) {
-            $$$internal$$reject(promise, reason);
-          }
-    
-          for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
-            $$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
-          }
-    
-          return promise;
         };
-    
+
         var $$promise$resolve$$default = function resolve(object, label) {
-          /*jshint validthis:true */
-          var Constructor = this;
-    
-          if (object && typeof object === 'object' && object.constructor === Constructor) {
-            return object;
-          }
-    
-          var promise = new Constructor($$$internal$$noop, label);
-          $$$internal$$resolve(promise, object);
-          return promise;
+            /*jshint validthis:true */
+            var Constructor = this;
+
+            if (object && typeof object === 'object' && object.constructor === Constructor) {
+                return object;
+            }
+
+            var promise = new Constructor($$$internal$$noop, label);
+            $$$internal$$resolve(promise, object);
+            return promise;
         };
-    
+
         var $$promise$reject$$default = function reject(reason, label) {
-          /*jshint validthis:true */
-          var Constructor = this;
-          var promise = new Constructor($$$internal$$noop, label);
-          $$$internal$$reject(promise, reason);
-          return promise;
+            /*jshint validthis:true */
+            var Constructor = this;
+            var promise = new Constructor($$$internal$$noop, label);
+            $$$internal$$reject(promise, reason);
+            return promise;
         };
-    
+
         var $$es6$promise$promise$$counter = 0;
-    
+
         function $$es6$promise$promise$$needsResolver() {
-          throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+            throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
         }
-    
+
         function $$es6$promise$promise$$needsNew() {
-          throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+            throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
         }
-    
+
         var $$es6$promise$promise$$default = $$es6$promise$promise$$Promise;
-    
+
         /**
           Promise objects represent the eventual result of an asynchronous operation. The
           primary way of interacting with a promise is through its `then` method, which
@@ -656,33 +670,33 @@
           @constructor
         */
         function $$es6$promise$promise$$Promise(resolver) {
-          this._id = $$es6$promise$promise$$counter++;
-          this._state = undefined;
-          this._result = undefined;
-          this._subscribers = [];
-    
-          if ($$$internal$$noop !== resolver) {
-            if (!$$utils$$isFunction(resolver)) {
-              $$es6$promise$promise$$needsResolver();
+            this._id = $$es6$promise$promise$$counter++;
+            this._state = undefined;
+            this._result = undefined;
+            this._subscribers = [];
+
+            if ($$$internal$$noop !== resolver) {
+                if (!$$utils$$isFunction(resolver)) {
+                    $$es6$promise$promise$$needsResolver();
+                }
+
+                if (!(this instanceof $$es6$promise$promise$$Promise)) {
+                    $$es6$promise$promise$$needsNew();
+                }
+
+                $$$internal$$initializePromise(this, resolver);
             }
-    
-            if (!(this instanceof $$es6$promise$promise$$Promise)) {
-              $$es6$promise$promise$$needsNew();
-            }
-    
-            $$$internal$$initializePromise(this, resolver);
-          }
         }
-    
+
         $$es6$promise$promise$$Promise.all = $$promise$all$$default;
         $$es6$promise$promise$$Promise.race = $$promise$race$$default;
         $$es6$promise$promise$$Promise.resolve = $$promise$resolve$$default;
         $$es6$promise$promise$$Promise.reject = $$promise$reject$$default;
-    
+
         $$es6$promise$promise$$Promise.prototype = {
-          constructor: $$es6$promise$promise$$Promise,
-    
-        /**
+            constructor: $$es6$promise$promise$$Promise,
+
+            /**
           The primary way of interacting with a promise is through its `then` method,
           which registers callbacks to receive either a promise's eventual value or the
           reason why the promise cannot be fulfilled.
@@ -875,30 +889,30 @@
           Useful for tooling.
           @return {Promise}
         */
-          then: function(onFulfillment, onRejection) {
-            var parent = this;
-            var state = parent._state;
-    
-            if (state === $$$internal$$FULFILLED && !onFulfillment || state === $$$internal$$REJECTED && !onRejection) {
-              return this;
-            }
-    
-            var child = new this.constructor($$$internal$$noop);
-            var result = parent._result;
-    
-            if (state) {
-              var callback = arguments[state - 1];
-              $$asap$$default(function(){
-                $$$internal$$invokeCallback(state, child, callback, result);
-              });
-            } else {
-              $$$internal$$subscribe(parent, child, onFulfillment, onRejection);
-            }
-    
-            return child;
-          },
-    
-        /**
+            then: function(onFulfillment, onRejection) {
+                var parent = this;
+                var state = parent._state;
+
+                if (state === $$$internal$$FULFILLED && !onFulfillment || state === $$$internal$$REJECTED && !onRejection) {
+                    return this;
+                }
+
+                var child = new this.constructor($$$internal$$noop);
+                var result = parent._result;
+
+                if (state) {
+                    var callback = arguments[state - 1];
+                    $$asap$$default(function() {
+                        $$$internal$$invokeCallback(state, child, callback, result);
+                    });
+                } else {
+                    $$$internal$$subscribe(parent, child, onFulfillment, onRejection);
+                }
+
+                return child;
+            },
+
+            /**
           `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
           as the catch block of a try/catch statement.
     
@@ -925,55 +939,59 @@
           Useful for tooling.
           @return {Promise}
         */
-          'catch': function(onRejection) {
-            return this.then(null, onRejection);
-          }
+            'catch': function(onRejection) {
+                return this.then(null, onRejection);
+            }
         };
-    
+
         var $$es6$promise$polyfill$$default = function polyfill() {
-          var local;
-    
-          if (typeof global !== 'undefined') {
-            local = global;
-          } else if (typeof window !== 'undefined' && window.document) {
-            local = window;
-          } else {
-            local = self;
-          }
-    
-          var es6PromiseSupport =
-            "Promise" in local &&
-            // Some of these methods are missing from
-            // Firefox/Chrome experimental implementations
-            "resolve" in local.Promise &&
-            "reject" in local.Promise &&
-            "all" in local.Promise &&
-            "race" in local.Promise &&
-            // Older version of the spec had a resolver object
-            // as the arg rather than a function
-            (function() {
-              var resolve;
-              new local.Promise(function(r) { resolve = r; });
-              return $$utils$$isFunction(resolve);
-            }());
-    
-          if (!es6PromiseSupport) {
-            local.Promise = $$es6$promise$promise$$default;
-          }
+            var local;
+
+            if (typeof global !== 'undefined') {
+                local = global;
+            } else if (typeof window !== 'undefined' && window.document) {
+                local = window;
+            } else {
+                local = self;
+            }
+
+            var es6PromiseSupport =
+                "Promise" in local &&
+                // Some of these methods are missing from
+                // Firefox/Chrome experimental implementations
+                "resolve" in local.Promise &&
+                "reject" in local.Promise &&
+                "all" in local.Promise &&
+                "race" in local.Promise &&
+                // Older version of the spec had a resolver object
+                // as the arg rather than a function
+                (function() {
+                    var resolve;
+                    new local.Promise(function(r) {
+                        resolve = r;
+                    });
+                    return $$utils$$isFunction(resolve);
+                }());
+
+            if (!es6PromiseSupport) {
+                local.Promise = $$es6$promise$promise$$default;
+            }
         };
-    
+
         var es6$promise$umd$$ES6Promise = {
-          'Promise': $$es6$promise$promise$$default,
-          'polyfill': $$es6$promise$polyfill$$default
+            'Promise': $$es6$promise$promise$$default,
+            'polyfill': $$es6$promise$polyfill$$default
         };
-    
+
         /* global define:true module:true window: true */
         if (typeof define === 'function' && define['amd']) {
-          define(function() { return es6$promise$umd$$ES6Promise; });
+            define(function() {
+                return es6$promise$umd$$ES6Promise;
+            });
         } else if (typeof module !== 'undefined' && module['exports']) {
-          module['exports'] = es6$promise$umd$$ES6Promise;
+            module['exports'] = es6$promise$umd$$ES6Promise;
         } else if (typeof this !== 'undefined') {
-          this['ES6Promise'] = es6$promise$umd$$ES6Promise;
+            this['ES6Promise'] = es6$promise$umd$$ES6Promise;
         }
     }).call(this);
 
@@ -982,21 +1000,21 @@
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     (function() {
-    
+
         function CorbelDriver(config) {
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
-    
+
             // create isntance modules with injected driver
             this.iam = corbel.Iam.create(this);
             this.resources = corbel.Resources.create(this);
             this.services = corbel.Services.create(this);
             this.session = corbel.Session.create(this);
         }
-    
+
         corbel.CorbelDriver = CorbelDriver;
-    
+
         /**
          * Instanciates new corbel driver
          * @param {Object} config
@@ -1012,15 +1030,16 @@
          */
         corbel.getDriver = function(config) {
             config = config || {};
-    
+
             return new CorbelDriver(config);
         };
-    
-    
+
+
     })();
-    
+
+
     (function() {
-    
+
         /**
          * A module to some library corbel.utils.
          * @exports validate
@@ -1028,7 +1047,7 @@
          * @memberof app
          */
         var utils = corbel.utils = {};
-    
+
         /**
          * Extend a given object with all the properties in passed-in object(s).
          * @param  {Object}  obj
@@ -1042,10 +1061,10 @@
                     }
                 }
             });
-    
+
             return obj;
         };
-    
+
         /**
          * Set up the prototype chain, for subclasses. Uses a hash of prototype properties and class properties to be extended.
          * @param  {Object} Prototype object properties
@@ -1055,8 +1074,8 @@
         utils.inherit = function(prototypeProperties, staticProperties) {
             var parent = this,
                 child;
-    
-    
+
+
             if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
                 child = prototypeProperties.constructor;
             } else {
@@ -1064,42 +1083,42 @@
                     return parent.apply(this, arguments);
                 };
             }
-    
+
             utils.extend(child, parent, staticProperties);
-    
+
             var Surrogate = function() {
                 this.constructor = child;
             };
-    
+
             Surrogate.prototype = parent.prototype;
             child.prototype = new Surrogate; // jshint ignore:line
-    
+
             if (prototypeProperties) {
                 utils.extend(child.prototype, prototypeProperties);
             }
-    
+
             child.__super__ = parent.prototype;
-    
+
             return child;
-    
+
         };
-    
-    
+
+
         /**
          * Generate a uniq random GUID
          */
         utils.guid = function() {
-    
+
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
                     .substring(1);
             }
-    
+
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                 s4() + '-' + s4() + s4() + s4();
         };
-    
+
         /**
          * Reload browser
          */
@@ -1108,7 +1127,7 @@
                 window.location.reload();
             }
         };
-    
+
         /**
          * Serialize a plain object to query string
          * @param  {Object} obj Plain object to serialize
@@ -1123,8 +1142,8 @@
             }
             return str.join('&');
         };
-    
-    
+
+
         utils.toURLEncoded = function(obj) {
             var str = [];
             for (var p in obj) {
@@ -1134,7 +1153,7 @@
             }
             return str.join('&');
         };
-    
+
         /**
          * Translate this full exampe query to a Silkroad Compliant QueryString
          * @param {Object} params
@@ -1169,19 +1188,19 @@
          */
         utils.serializeParams = function(params) {
             var result = '';
-    
+
             if (params === undefined || params === null) {
                 return result;
             }
-    
+
             if (!(params instanceof Object)) {
                 throw new Error('expected params to be an Object type, but got ' + typeof params);
             }
-    
+
             if (params.aggregation) {
                 result = 'api:aggregation=' + JSON.stringify(params.aggregation);
             }
-    
+
             if (params.query) {
                 params.queryDomain = params.queryDomain || 'api';
                 result += result ? '&' : '';
@@ -1192,39 +1211,40 @@
                     result += JSON.stringify(params.query);
                 }
             }
-    
+
             if (params.search) {
                 result += result ? '&' : '';
                 result += 'api:search=' + params.search;
             }
-    
+
             if (params.sort) {
                 result += result ? '&' : '';
                 result += 'api:sort=' + JSON.stringify(params.sort);
             }
-    
-            if (params.page) {
-                if (params.page.page) {
+
+            if (params.pagination) {
+                if (params.pagination.page) {
                     result += result ? '&' : '';
-                    result += 'api:page=' + params.page.page;
+                    result += 'api:page=' + params.pagination.page;
                 }
-    
-                if (params.page.size) {
+
+                if (params.pagination.size) {
                     result += result ? '&' : '';
-                    result += 'api:pageSize=' + params.page.size;
+                    result += 'api:pageSize=' + params.pagination.size;
                 }
             }
-    
+
             return result;
         };
-    
+
         return utils;
-    
+
     })();
+
     (function() {
-    
-    
-    
+
+
+
         /**
          * A module to make values validation.
          * @exports validate
@@ -1232,7 +1252,7 @@
          * @memberof app
          */
         corbel.validate = {};
-    
+
         /**
          * Checks if some value is not undefined
          * @param  {Mixed}  value
@@ -1242,13 +1262,13 @@
          */
         corbel.validate.isDefined = function(value, message) {
             var isUndefined = value === undefined;
-    
+
             if (isUndefined && message) {
                 throw new Error(message);
             }
             return !isUndefined;
         };
-    
+
         /**
          * Checks if some value is defined and throw error
          * @param  {Mixed}  value
@@ -1256,16 +1276,16 @@
          * @throws {Error} If return value is false and message are defined
          * @return {Boolean}
          */
-    
+
         corbel.validate.failIfIsDefined = function(value, message) {
             var isDefined = value !== undefined;
-    
+
             if (isDefined && message) {
                 throw new Error(message);
             }
             return !isDefined;
         };
-    
+
         /**
          * Checks whenever value are null or not
          * @param  {Mixed}  value
@@ -1275,13 +1295,13 @@
          */
         corbel.validate.isNotNull = function(value, message) {
             var isNull = value === null;
-    
+
             if (isNull && message) {
                 throw new Error(message);
             }
             return !isNull;
         };
-    
+
         /**
          * Checks whenever a value is not null and not undefined
          * @param  {Mixed}  value
@@ -1292,7 +1312,7 @@
         corbel.validate.isValue = function(value, message) {
             return this.isDefined(value, message) && this.isNotNull(value, message);
         };
-    
+
         /**
          * Checks if a variable is a type of object
          * @param  {object}  test object
@@ -1301,7 +1321,7 @@
         corbel.validate.isObject = function(obj) {
             return typeof obj === 'object';
         };
-    
+
         /**
          * Checks whenever a value is greater than other
          * @param  {Mixed}  value
@@ -1312,13 +1332,13 @@
          */
         corbel.validate.isGreaterThan = function(value, greaterThan, message) {
             var gt = this.isValue(value) && value > greaterThan;
-    
+
             if (!gt && message) {
                 throw new Error(message);
             }
             return gt;
         };
-    
+
         /**
          * Checks whenever a value is greater or equal than other
          * @param  {Mixed}  value
@@ -1329,28 +1349,30 @@
          */
         corbel.validate.isGreaterThanOrEqual = function(value, isGreaterThanOrEqual, message) {
             var gte = this.isValue(value) && value >= isGreaterThanOrEqual;
-    
+
             if (!gte && message) {
                 throw new Error(message);
             }
             return gte;
         };
-    
+
     })();
+
     (function() {
-    
-    
+
+
         corbel.Object = function() {
             return this;
         };
-    
+
         corbel.Object.inherit = corbel.utils.inherit;
-    
+
         return corbel.Object;
-    
+
     })();
+
     (function() {
-    
+
         /* jshint camelcase:false */
         corbel.cryptography = (function() {
             /*
@@ -1362,18 +1384,18 @@
              * See http://pajhome.org.uk/crypt/md5 for details.
              * Also http://anmar.eu.org/projects/jssha2/
              */
-    
+
             /*
              * Configurable variables. You may need to tweak these to be compatible with
              * the server-side, but the defaults work in most cases.
              */
             var hexcase = 0; /* hex output format. 0 - lowercase; 1 - uppercase        */
             var b64pad = ''; /* base-64 pad character. "=" for strict RFC compliance   */
-    
+
             function b64_hmac_sha256(k, d) {
                 return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));
             }
-    
+
             /*
              * Calculate the HMAC-sha256 of a key and some data (raw strings)
              */
@@ -1382,18 +1404,18 @@
                 if (bkey.length > 16) {
                     bkey = binb_sha256(bkey, key.length * 8);
                 }
-    
+
                 var ipad = Array(16),
                     opad = Array(16);
                 for (var i = 0; i < 16; i++) {
                     ipad[i] = bkey[i] ^ 0x36363636;
                     opad[i] = bkey[i] ^ 0x5C5C5C5C;
                 }
-    
+
                 var hash = binb_sha256(ipad.concat(rstr2binb(data)), 512 + data.length * 8);
                 return binb2rstr(binb_sha256(opad.concat(hash), 512 + 256));
             }
-    
+
             /*
              * Convert a raw string to a base-64 string
              */
@@ -1415,7 +1437,7 @@
                 }
                 return output;
             }
-    
+
             /*
              * Encode a string as utf-8.
              * For efficiency, this assumes the input is valid utf-16.
@@ -1424,7 +1446,7 @@
                 var output = '';
                 var i = -1;
                 var x, y;
-    
+
                 while (++i < input.length) {
                     /* Decode utf-16 surrogate pairs */
                     x = input.charCodeAt(i);
@@ -1433,7 +1455,7 @@
                         x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF);
                         i++;
                     }
-    
+
                     /* Encode output as utf-8 */
                     if (x <= 0x7F)
                         output += String.fromCharCode(x);
@@ -1452,7 +1474,7 @@
                 }
                 return output;
             }
-    
+
             /*
              * Convert a raw string to an array of big-endian words
              * Characters >255 have their high-byte silently ignored.
@@ -1465,7 +1487,7 @@
                     output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (24 - i % 32);
                 return output;
             }
-    
+
             /*
              * Convert an array of big-endian words to a string
              */
@@ -1475,42 +1497,42 @@
                     output += String.fromCharCode((input[i >> 5] >>> (24 - i % 32)) & 0xFF);
                 return output;
             }
-    
+
             /*
              * Main sha256 function, with its support functions
              */
             function sha256_S(X, n) {
                 return (X >>> n) | (X << (32 - n));
             }
-    
+
             function sha256_R(X, n) {
                 return (X >>> n);
             }
-    
+
             function sha256_Ch(x, y, z) {
                 return ((x & y) ^ ((~x) & z));
             }
-    
+
             function sha256_Maj(x, y, z) {
                 return ((x & y) ^ (x & z) ^ (y & z));
             }
-    
+
             function sha256_Sigma0256(x) {
                 return (sha256_S(x, 2) ^ sha256_S(x, 13) ^ sha256_S(x, 22));
             }
-    
+
             function sha256_Sigma1256(x) {
                 return (sha256_S(x, 6) ^ sha256_S(x, 11) ^ sha256_S(x, 25));
             }
-    
+
             function sha256_Gamma0256(x) {
                 return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ sha256_R(x, 3));
             }
-    
+
             function sha256_Gamma1256(x) {
                 return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ sha256_R(x, 10));
             }
-    
+
             var sha256_K = new Array(
                 1116352408, 1899447441, -1245643825, -373957723, 961987163, 1508970993, -1841331548, -1424204075, -670586216, 310598401, 607225278, 1426881987,
                 1925078388, -2132889090, -1680079193, -1046744716, -459576895, -272742522,
@@ -1520,18 +1542,18 @@
                 430227734, 506948616, 659060556, 883997877, 958139571, 1322822218,
                 1537002063, 1747873779, 1955562222, 2024104815, -2067236844, -1933114872, -1866530822, -1538233109, -1090935817, -965641998
             );
-    
+
             function binb_sha256(m, l) {
                 var HASH = new Array(1779033703, -1150833019, 1013904242, -1521486534,
                     1359893119, -1694144372, 528734635, 1541459225);
                 var W = new Array(64);
                 var a, b, c, d, e, f, g, h;
                 var i, j, T1, T2;
-    
+
                 /* append padding */
                 m[l >> 5] |= 0x80 << (24 - l % 32);
                 m[((l + 64 >> 9) << 4) + 15] = l;
-    
+
                 for (i = 0; i < m.length; i += 16) {
                     a = HASH[0];
                     b = HASH[1];
@@ -1541,12 +1563,12 @@
                     f = HASH[5];
                     g = HASH[6];
                     h = HASH[7];
-    
+
                     for (j = 0; j < 64; j++) {
                         if (j < 16) W[j] = m[j + i];
                         else W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]),
                             sha256_Gamma0256(W[j - 15])), W[j - 16]);
-    
+
                         T1 = safe_add(safe_add(safe_add(safe_add(h, sha256_Sigma1256(e)), sha256_Ch(e, f, g)),
                             sha256_K[j]), W[j]);
                         T2 = safe_add(sha256_Sigma0256(a), sha256_Maj(a, b, c));
@@ -1559,7 +1581,7 @@
                         b = a;
                         a = safe_add(T1, T2);
                     }
-    
+
                     HASH[0] = safe_add(a, HASH[0]);
                     HASH[1] = safe_add(b, HASH[1]);
                     HASH[2] = safe_add(c, HASH[2]);
@@ -1571,13 +1593,13 @@
                 }
                 return HASH;
             }
-    
+
             function safe_add(x, y) {
                 var lsw = (x & 0xFFFF) + (y & 0xFFFF);
                 var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
                 return (msw << 16) | (lsw & 0xFFFF);
             }
-    
+
             /*! base64x-1.1.3 (c) 2012-2014 Kenji Urushima | kjur.github.com/jsjws/license
              */
             /*
@@ -1596,7 +1618,7 @@
              * DEPENDS ON:
              *   - base64.js - Tom Wu's Base64 library
              */
-    
+
             /**
              * Base64URL and supplementary functions for Tom Wu's base64.js library.<br/>
              * This class is just provide information about global functions
@@ -1622,7 +1644,7 @@
              * @see <a href="http://kjur.github.com/jsrsasigns/">'jwrsasign'(RSA Sign JavaScript Library) home page http://kjur.github.com/jsrsasign/</a>
              */
             function Base64x() {}
-    
+
             // ==== base64 / base64url ================================
             /**
              * convert a Base64 encoded string to a Base64URL encoded string.<br/>
@@ -1636,9 +1658,9 @@
                 s = s.replace(/\//g, '_');
                 return s;
             }
-    
+
             var utf8tob64u, b64utoutf8;
-    
+
             return {
                 rstr2b64: rstr2b64,
                 str2rstr_utf8: str2rstr_utf8,
@@ -1646,11 +1668,12 @@
                 b64tob64u: b64tob64u
             }
         })();
-    
+
     })();
-    
+
+
     (function() {
-    
+
         /**
          * A module to manage session data.
          * @exports session
@@ -1665,28 +1688,28 @@
                 if (typeof localStorage === 'undefined' || localStorage === null && /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
                     var LocalStorage = require('node-localstorage').LocalStorage,
                         fs = require('fs');
-    
+
                     if (fs.existsSync(corbel.Session.SESSION_PATH_DIR) === false) {
                         fs.mkdirSync(corbel.Session.SESSION_PATH_DIR);
                     }
-    
+
                     if (fs.existsSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid) === false) {
                         fs.mkdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
                     }
-    
+
                     this.localStorage = new LocalStorage(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-    
+
                     process.on('exit', function() {
                         // if (this.isPersistent() === false) {
                         this.destroy();
                         this.removeDir();
                         // }
                     }.bind(this));
-    
+
                 } else {
                     this.localStorage = localStorage;
                 }
-    
+
                 //Set sessionStorage in node-js enviroment
                 if (typeof sessionStorage === 'undefined' || sessionStorage === null) {
                     this.sessionStorage = this.localStorage;
@@ -1713,10 +1736,10 @@
                         $(this.STATUS_SELECTOR).removeClass(status).addClass('not-' + status);
                     }
                 }
-    
+
                 return this;
             },
-    
+
             /**
              * Removes a specific status from STATUS_SELECTOR
              * @param  {String} status
@@ -1728,28 +1751,28 @@
                     $(this.STATUS_SELECTOR).removeClass(status).removeClass('not-' + status);
                 }
             },
-    
+
             /**
              * Gets a specific session value
              * @param  {String} key
              * @return {String|Number|Boolean}
              */
             get: function(key) {
-    
+
                 key = key || 'session';
-    
+
                 var storage = this.localStorage;
                 if (!this.isPersistent()) {
                     storage = this.sessionStorage;
                 }
-    
+
                 try {
                     return JSON.parse(storage.getItem(key));
                 } catch (e) {
                     return storage.getItem(key);
                 }
             },
-    
+
             /**
              * Adds a key-value in the user session
              * @param {String} key
@@ -1758,11 +1781,11 @@
              */
             add: function(key, value, forcePersistent) {
                 var storage = this.sessionStorage;
-    
+
                 if (this.isPersistent() || forcePersistent) {
                     storage = localStorage;
                 }
-    
+
                 if (corbel.validate.isObject(value)) {
                     value = JSON.stringify(value);
                 }
@@ -1772,23 +1795,23 @@
                     storage.setItem(key, value);
                 }
             },
-    
+
             /**
              * Checks active sessions and updates the app status
              * @return {Boolean}
              */
             gatekeeper: function() {
                 var exist = this.exist();
-    
+
                 if (exist) {
                     this.setStatus('logged', true);
                 } else {
                     this.setStatus('logged', false);
                 }
-    
+
                 return exist;
             },
-    
+
             /**
              * Checks when a session exists
              * @return {Boolean}
@@ -1798,7 +1821,7 @@
                 // Setted at user.login()
                 return this.get('loggedTime') ? true : false;
             },
-    
+
             /**
              * Creates a user session data
              * @param  {Object} args
@@ -1813,9 +1836,9 @@
                 corbel.validate.isValue(args.expiresAt, 'Missing expiresAt');
                 corbel.validate.isValue(args.user, 'Missing user');
                 corbel.validate.isValue(args.oauthService || args.loginBasic, 'Missing oauthService and loginBasic');
-    
+
                 this.setPersistent(args.persistent);
-    
+
                 this.add('accessToken', args.accessToken);
                 this.add('refreshToken', args.refreshToken);
                 this.add('expiresAt', args.expiresAt);
@@ -1823,10 +1846,10 @@
                 this.add('loginBasic', args.loginBasic);
                 this.add('loggedTime', new Date().getTime());
                 this.add('user', args.user);
-    
+
                 this.setStatus('logged', true);
             },
-    
+
             /**
              * Proxy call for session.add(key, undefined)
              * @since 1.6.0
@@ -1835,7 +1858,7 @@
             remove: function(key) {
                 this.add(key);
             },
-    
+
             removeDir: function() {
                 if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
                     var fs = require('fs');
@@ -1844,7 +1867,7 @@
                     } catch (ex) {}
                 }
             },
-    
+
             /**
              * Checks if the current session is persistent or not
              * @return {Boolean}
@@ -1852,7 +1875,7 @@
             isPersistent: function() {
                 return (this.localStorage.persistent ? true : false);
             },
-    
+
             /**
              * Creates a user session with
              * @param {Boolean} persistent
@@ -1864,7 +1887,7 @@
                     this.localStorage.removeItem('persistent');
                 }
             },
-    
+
             /**
              * Move a session value to a persistent value (if exists)
              * @param  {String} name
@@ -1876,23 +1899,23 @@
                     this.sessionStorage.removeItem(name);
                 }
             },
-    
+
             /**
              * Clears all user storage and remove storage dir for nodejs /*
              */
             destroy: function() {
                 this.localStorage.clear();
                 if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-    
+
                 } else {
                     this.sessionStorage.clear();
                 }
-    
+
                 this.setStatus('logged', false);
             }
         }, {
             SESSION_PATH_DIR: './storage',
-    
+
             /**
              * Static factory method for session object
              * @param  {corbel.Driver} corbel-js driver
@@ -1902,27 +1925,27 @@
                 return new corbel.Session(driver);
             }
         });
-    
+
         return corbel.Session;
-    
+
     })();
 
     //----------corbel modules----------------
 
     (function() {
-    
+
         function Config(config) {
             config = config || {};
             // config default values
             this.config = {};
-    
+
             corbel.utils.extend(this.config, config);
         }
-    
+
         corbel.Config = Config;
-    
+
         corbel.Config.isNode = typeof module !== 'undefined' && module.exports;
-    
+
         /**
          * Client type
          * @type {String}
@@ -1930,7 +1953,7 @@
          */
         corbel.Config.clientType = corbel.Config.isNode ? 'NODE' : 'WEB';
         corbel.Config.wwwRoot = !corbel.Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
-    
+
         /**
          * Returns all application config params
          * @return {Object}
@@ -1938,7 +1961,7 @@
         corbel.Config.create = function(config) {
             return new corbel.Config(config);
         };
-    
+
         /**
          * Returns all application config params
          * @return {Object}
@@ -1946,7 +1969,7 @@
         corbel.Config.prototype.getConfig = function() {
             return this.config;
         };
-    
+
         /**
          * Overrides current config with params object config
          * @param {Object} config An object with params to set as new config
@@ -1955,7 +1978,7 @@
             this.config = corbel.utils.extend(this.config, config);
             return this;
         };
-    
+
         /**
          * Gets a specific config param
          * @param  {String} field config param name
@@ -1970,10 +1993,10 @@
                     return defaultValue;
                 }
             }
-    
+
             return this.config[field];
         };
-    
+
         /**
          * Sets a new value for specific config param
          * @param {String} field Config param name
@@ -1982,13 +2005,13 @@
         corbel.Config.prototype.set = function(field, value) {
             this.config[field] = value;
         };
-    
+
     })();
-    
+
     (function() {
-    
-    
-    
+
+
+
         /**
          * Request object available for brwoser and node environment
          * @type {Object}
@@ -1999,7 +2022,7 @@
              * @namespace
              */
             method: {
-    
+
                 /**
                  * GET constant
                  * @constant
@@ -2045,7 +2068,7 @@
                 HEAD: 'HEAD'
             }
         };
-    
+
         request.serializeHandlers = {
             json: function(data) {
                 if (typeof data !== 'string') {
@@ -2058,17 +2081,17 @@
                 return corbel.utils.toURLEncoded(data);
             }
         };
-    
-        request.serialize = function (data, contentType) {
+
+        request.serialize = function(data, contentType) {
             var serialized;
             Object.keys(request.serializeHandlers).forEach(function(type) {
                 if (contentType.indexOf(type) !== -1) {
-                    serialized =  request.serializeHandlers[type](data);
+                    serialized = request.serializeHandlers[type](data);
                 }
             });
             return serialized;
         };
-    
+
         request.parseHandlers = {
             json: function(data) {
                 data = data || '{}';
@@ -2087,7 +2110,7 @@
             },
             // @todo: xml
         };
-    
+
         /**
          * Process the server response data to the specified object/array/blob/byteArray/text
          * @param  {Mixed} data                             The server response
@@ -2104,7 +2127,7 @@
             });
             return parsed;
         };
-    
+
         /**
          * Public method to make ajax request
          * @param  {Object} options                                     Object options for ajax request
@@ -2120,11 +2143,11 @@
          */
         request.send = function(options) {
             options = options || {};
-    
+
             if (!options.url) {
                 throw new Error('undefined:url');
             }
-    
+
             var params = {
                 method: options.method || request.method.GET,
                 url: options.url,
@@ -2134,36 +2157,36 @@
                 //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
                 dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
             };
-    
+
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
-    
+
             var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
             if (dataMethods.indexOf(params.method) !== -1) {
                 params.data = request.serialize(options.data, params.headers['content-type']);
             }
-    
+
             // add responseType to the request (blob || arraybuffer || text)
             // httpReq.responseType = responseType;
-    
+
             var promise = new Promise(function(resolve, reject) {
-    
+
                 var resolver = {
                     resolve: resolve,
                     reject: reject
                 };
-    
+
                 if (typeof module !== 'undefined' && module.exports) { //nodejs
                     nodeAjax.call(this, params, resolver);
                 } else if (typeof window !== 'undefined') { //browser
                     browserAjax.call(this, params, resolver);
                 }
             }.bind(this));
-    
-    
+
+
             return promise;
         };
-    
+
         var xhrSuccessStatus = {
             // file protocol always yields status code 0, assume 200
             0: 200,
@@ -2171,7 +2194,7 @@
             // #1450: sometimes IE returns 1223 when it should be 204
             1223: 204
         };
-    
+
         /**
          * Process server response
          * @param  {[Response object]} response
@@ -2180,63 +2203,63 @@
          * @param  {[Function]} callbackError
          */
         var processResponse = function(response, resolver, callbackSuccess, callbackError) {
-    
+
             //xhr = xhr.target || xhr || {};
             var statusCode = xhrSuccessStatus[response.status] || response.status,
                 statusType = Number(response.status.toString()[0]),
                 promiseResponse;
-    
+
             if (statusType < 3) {
-    
+
                 var data = response.response;
                 if (response.response) {
                     data = request.parse(response.response, response.responseType, response.dataType);
                 }
-    
+
                 if (callbackSuccess) {
                     callbackSuccess.call(this, data, statusCode, response.responseObject);
                 }
-    
+
                 promiseResponse = {
                     data: data,
                     status: statusCode,
                 };
-    
+
                 promiseResponse[response.responseObjectType] = response.responseObject;
-    
+
                 resolver.resolve(promiseResponse);
-    
+
             } else if (statusType === 4) {
-    
+
                 if (callbackError) {
                     callbackError.call(this, response.error, statusCode, response.responseObject);
                 }
-    
+
                 promiseResponse = {
                     data: response.responseObject,
                     status: statusCode,
                     error: response.error
                 };
-    
+
                 promiseResponse[response.responseObjectType] = response.responseObject;
-    
+
                 resolver.reject(promiseResponse);
             }
-    
+
         };
-    
-    
+
+
         var nodeAjax = function(params, resolver) {
-    
+
             var request = require('request');
-    
+
             request({
                 method: params.method,
                 url: params.url,
                 headers: params.headers,
                 body: params.data || ''
             }, function(error, response, body) {
-    
+
                 processResponse.call(this, {
                     responseObject: response,
                     dataType: params.dataType,
@@ -2246,11 +2269,11 @@
                     responseObjectType: 'response',
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
-    
+
             }.bind(this));
-    
+
         };
-    
+
         /**
          * Check if an url should be process as a crossdomain resource.
          * @return {Boolean}
@@ -2262,27 +2285,27 @@
                 return false;
             }
         };
-    
+
         var browserAjax = function(params, resolver) {
-    
+
             var httpReq = new XMLHttpRequest();
-    
+
             if (request.isCrossDomain(params.url) && params.withCredentials) {
                 httpReq.withCredentials = true;
             }
-    
+
             httpReq.open(params.method, params.url, true);
-    
+
             /* add request headers */
             for (var header in params.headers) {
                 if (params.headers.hasOwnProperty(header)) {
                     httpReq.setRequestHeader(header, params.headers[header]);
                 }
             }
-    
+
             httpReq.onload = function(xhr) {
                 xhr = xhr.target || xhr; // only for mock testing purpose
-    
+
                 processResponse.call(this, {
                     responseObject: xhr,
                     dataType: xhr.dataType,
@@ -2292,14 +2315,14 @@
                     responseObjectType: 'xhr',
                     error: xhr.error
                 }, resolver, params.callbackSuccess, params.callbackError);
-    
+
                 //delete callbacks
             }.bind(this);
-    
+
             //response fail ()
             httpReq.onerror = function(xhr) {
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
-    
+
                 processResponse.call(this, {
                     responseObject: xhr,
                     dataType: xhr.dataType,
@@ -2309,18 +2332,18 @@
                     responseObjectType: 'xhr',
                     error: xhr.error
                 }, resolver, params.callbackSuccess, params.callbackError);
-    
+
             }.bind(this);
-    
+
             httpReq.send(params.data);
         };
-    
+
         return request;
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * A module to make iam requests.
          * @exports Services
@@ -2341,28 +2364,28 @@
              * @param  {Object} args    The request arguments.
              */
             request: function(args) {
-    
+
                 var params = this._buildParams(args);
                 return corbel.request.send(params).then(function(response) {
-    
+
                     // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, 0);
-    
+
                     return Promise.resolve(response);
-    
+
                 }).catch(function(response) {
-    
+
                     // Force update
                     if (response.status === 403 &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
-    
+
                         var retries = 0; //this.driver.session.get(corbel.Services._FORCE_UPDATE_STATUS) || 0;
                         if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
                             retries++;
                             // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, retries);
-    
+
                             corbel.utils.reload(); //TODO nodejs
                         } else {
-    
+
                             // Send an error to the caller
                             return Promise.reject(response);
                         }
@@ -2370,7 +2393,7 @@
                         // Any other error fail to the caller
                         return Promise.reject(response);
                     }
-    
+
                 }.bind(this));
             },
             /**
@@ -2382,30 +2405,30 @@
              * @return {Object}
              */
             _buildParams: function(args) {
-    
+
                 // Default values
                 args = args || {};
-    
+
                 args.dataType = args.dataType || 'json';
                 args.contentType = args.contentType || 'application/json; charset=utf-8';
                 args.dataFilter = args.dataFilter || corbel.Services.addEmptyJson;
-    
+
                 // Construct url with query string
                 var url = args.url;
-    
+
                 if (!url) {
                     throw new Error('You must define an url');
                 }
-    
+
                 if (args.query) {
                     url += '?' + args.query;
                 }
-    
+
                 var headers = args.headers || {};
-    
+
                 // @todo: support to oauth token and custom handlers
                 args.accessToken = args.accessToken || this.driver.config.get('iamToken', {}).accessToken;
-    
+
                 // Use access access token if exists
                 if (args.accessToken) {
                     headers.Authorization = 'Bearer ' + args.accessToken;
@@ -2413,13 +2436,13 @@
                 if (args.noRedirect) {
                     headers['No-Redirect'] = true;
                 }
-    
+
                 headers.Accept = 'application/json';
                 if (args.Accept) {
                     headers.Accept = args.Accept;
                     args.dataType = undefined; // Accept & dataType are incompatibles
                 }
-    
+
                 var params = {
                     url: url,
                     dataType: args.dataType,
@@ -2429,23 +2452,23 @@
                     data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
                     dataFilter: args.dataFilter
                 };
-    
+
                 // For binary requests like 'blob' or 'arraybuffer', set correct dataType
                 params.dataType = args.binaryType || params.dataType;
-    
+
                 // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
                 // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
                 //     params.processData = false;
                 // }
-    
+
                 // console.log('services._buildParams (params)', params);
                 // if (args.data) {
                 //      console.log('services._buildParams (data)', args.data);
                 // }
-    
+
                 return params;
             },
-    
+
         }, { //Static props
             _FORCE_UPDATE_TEXT: 'unsupported_version',
             _FORCE_UPDATE_MAX_RETRIES: 3,
@@ -2460,7 +2483,7 @@
              */
             getLocationId: function(responseObject) {
                 var location;
-    
+
                 if (responseObject.xhr) {
                     location = arguments[0].xhr.getResponseHeader('location');
                 } else if (responseObject.response.headers.location) {
@@ -2475,21 +2498,21 @@
                 return response;
             }
         });
-    
-    
+
+
         return corbel.Services;
-    
+
     })();
     /* jshint camelcase:false */
     (function() {
-    
+
         var jwt = corbel.jwt = {
-    
+
             EXPIRATION: 3500,
             ALGORITHM: 'HS256',
             TYP: 'JWT',
             VERSION: '1.0.0',
-    
+
             /**
              * JWT-HmacSHA256 generator
              * http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
@@ -2501,9 +2524,9 @@
             generate: function(claims, secret, alg) {
                 claims = claims || {};
                 alg = alg || jwt.ALGORITHM;
-    
+
                 claims.exp = claims.exp || jwt._generateExp();
-    
+
                 if (!claims.iss) {
                     throw new Error('jwt:undefined:iss');
                 }
@@ -2513,7 +2536,7 @@
                 if (!claims.scope) {
                     throw new Error('jwt:undefined:scope');
                 }
-    
+
                 // Ensure claims specific order
                 var claimsKeys = [
                     'iss',
@@ -2524,26 +2547,26 @@
                     'version',
                     'refresh_token',
                     'request_domain',
-    
+
                     'basic_auth.username',
                     'basic_auth.password',
-    
+
                     'device_id'
                 ];
-    
+
                 var finalClaims = {};
                 claimsKeys.forEach(function(key) {
                     if (claims[key]) {
                         finalClaims[key] = claims[key];
                     }
                 });
-    
+
                 corbel.utils.extend(finalClaims, claims);
-    
+
                 if (Array.isArray(finalClaims.scope)) {
                     finalClaims.scope = finalClaims.scope.join(' ');
                 }
-    
+
                 var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
                         typ: jwt.TYP,
                         alg: alg
@@ -2551,14 +2574,14 @@
                     bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
                     segment = bAlg + '.' + bClaims,
                     assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
-    
+
                 return segment + '.' + assertion;
             },
-    
+
             _generateExp: function() {
                 return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION;
             },
-    
+
             decode: function(assertion) {
                 var serialize;
                 if (!root.atob) {
@@ -2570,38 +2593,38 @@
                 var decoded = assertion.split('.');
                 return [JSON.parse(serialize(decoded[0])), JSON.parse(serialize(decoded[1]))];
             }
-    
+
         };
-    
+
         return jwt;
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * A module to make iam requests.
          * @exports iam
          * @namespace
          * @memberof app.corbel
          */
-    
+
         var Iam = corbel.Iam = function(driver) {
             this.driver = driver;
         };
-    
+
         Iam.create = function(driver) {
             return new Iam(driver);
         };
-    
+
         Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
         Iam.AUD = 'http://iam.bqws.io';
         Iam.IAM_TOKEN = 'iamToken';
-    
+
         /**
          * COMMON MIXINS
          */
-    
+
         /**
          * Provate method to build a tring uri
          * @private
@@ -2615,11 +2638,11 @@
             }
             return this.driver.config.get('iamEndpoint') + uri;
         };
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * Creates a ClientBuilder for client managing requests.
          *
@@ -2633,7 +2656,7 @@
             client.driver = this.driver;
             return client;
         };
-    
+
         /**
          * A builder for client management requests.
          *
@@ -2644,13 +2667,13 @@
          * @memberOf iam
          */
         var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
-    
+
             constructor: function(domainId, clientId) {
                 this.domainId = domainId;
                 this.clientId = clientId;
                 this.uri = 'domain';
             },
-    
+
             /**
              * Adds a new client.
              *
@@ -2682,7 +2705,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Gets a client.
              *
@@ -2700,7 +2723,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * Updates a client.
              *
@@ -2727,7 +2750,7 @@
                     data: client
                 });
             },
-    
+
             /**
              * Removes a client.
              *
@@ -2745,16 +2768,16 @@
                     method: corbel.request.method.DELETE
                 });
             },
-    
+
             _buildUri: corbel.Iam._buildUri
-    
+
         });
-    
+
     })();
-    
+
     (function() {
-    
-    
+
+
         /**
          * Creates a DomainBuilder for domain managing requests.
          *
@@ -2767,7 +2790,7 @@
             domain.driver = this.driver;
             return domain;
         };
-    
+
         /**
          * A builder for domain management requests.
          *
@@ -2777,14 +2800,14 @@
          * @memberOf iam
          */
         var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
-    
+
             constructor: function(domainId) {
                 this.domainId = domainId;
                 this.uri = 'domain';
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
-    
+
             /**
              * Creates a new domain.
              *
@@ -2814,7 +2837,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Gets a domain.
              *
@@ -2830,7 +2853,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * Updates a domain.
              *
@@ -2856,7 +2879,7 @@
                     data: domain
                 });
             },
-    
+
             /**
              * Removes a domain.
              *
@@ -2875,11 +2898,11 @@
                 });
             }
         });
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * Creates a ScopeBuilder for scope managing requests.
          * @param {String} id Scope id.
@@ -2890,7 +2913,7 @@
             scope.driver = this.driver;
             return scope;
         };
-    
+
         /**
          * A builder for scope management requests.
          *
@@ -2900,14 +2923,14 @@
          * @memberOf iam
          */
         var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
-    
+
             constructor: function(id) {
                 this.id = id;
                 this.uri = 'scope';
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
-    
+
             /**
              * Creates a new scope.
              *
@@ -2933,7 +2956,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Gets a scope.
              *
@@ -2949,7 +2972,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * Removes a scope.
              *
@@ -2964,13 +2987,13 @@
                     method: corbel.request.method.DELETE
                 });
             }
-    
+
         });
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * Creates a TokenBuilder for token requests
          * @return {corbel.Iam.TokenBuilder}
@@ -2980,20 +3003,20 @@
             tokenBuilder.driver = this.driver;
             return tokenBuilder;
         };
-    
+
         /**
          * A builder for token requests
          * @class
          * @memberOf Iam
          */
         var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
-    
+
             constructor: function() {
                 this.uri = 'oauth/token';
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
-    
+
             /**
              * Build a JWT with default driver config
              * @param  {Object} params
@@ -3007,18 +3030,18 @@
             _getJwt: function(params) {
                 params = params || {};
                 params.claims = params.claims || {};
-    
+
                 if (params.jwt) {
                     return params.jwt;
                 }
-    
+
                 var secret = params.secret || this.driver.config.get('clientSecret');
                 params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
                 params.claims.aud = params.claims.aud || corbel.Iam.AUD;
                 params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
                 return corbel.jwt.generate(params.claims, secret);
             },
-    
+
             _doGetTokenRequest: function(uri, params, setCookie) {
                 var args = {
                     url: this._buildUri(uri),
@@ -3028,16 +3051,16 @@
                         'grant_type': corbel.Iam.GRANT_TYPE
                     }, params.oauth))
                 };
-    
+
                 if (setCookie) {
                     args.headers = {
                         RequestCookie: 'true'
                     };
                 }
-    
+
                 return corbel.request.send(args);
             },
-    
+
             _doPostTokenRequest: function(uri, params, setCookie) {
                 var args = {
                     url: this._buildUri(uri),
@@ -3048,7 +3071,7 @@
                     },
                     contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
                 };
-    
+
                 if (setCookie) {
                     args.headers = {
                         RequestCookie: 'true'
@@ -3056,7 +3079,7 @@
                 }
                 return corbel.request.send(args);
             },
-    
+
             /**
              * Creates a token to connect with iam
              * @method
@@ -3076,14 +3099,14 @@
                 }
                 // otherwise we use the traditional POST verb.
                 promise = this._doPostTokenRequest(this.uri, params, setCookie);
-    
+
                 var that = this;
                 return promise.then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
                     return response;
                 });
             },
-    
+
             /**
              * Refresh a token to connect with iam
              * @method
@@ -3106,13 +3129,13 @@
                 // we use the traditional POST verb to refresh access token.
                 return this._doPostTokenRequest(this.uri, params);
             }
-    
+
         });
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * Starts a username request
          * @return {corbel.Iam.UsernameBuilder}    The builder to create the request
@@ -3122,20 +3145,20 @@
             username.driver = this.driver;
             return username;
         };
-    
+
         /**
          * Builder for creating requests of users name
          * @class
          * @memberOf iam
          */
         var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
-    
+
             constructor: function() {
                 this.uri = 'username';
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
-    
+
             /**
              * Return availability endpoint.
              * @method
@@ -3159,11 +3182,11 @@
                 });
             }
         });
-    
+
     })();
-    
+
     (function() {
-    
+
         /**
          * Starts a user request
          * @param  {String} [id=undefined|id|'me'] Id of the user to perform the request
@@ -3176,11 +3199,11 @@
             } else {
                 builder = new UsersBuilder();
             }
-    
+
             builder.driver = this.driver;
             return builder;
         };
-    
+
         /**
          * getUser mixin for UserBuilder & UsersBuilder
          * @param  {String=GET|POST|PUT} method
@@ -3195,7 +3218,7 @@
                 method: corbel.request.method.GET
             });
         };
-    
+
         /**
          * Builder for a specific user requests
          * @class
@@ -3203,15 +3226,15 @@
          * @param {String} id The id of the user
          */
         var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
-    
+
             constructor: function(id) {
                 this.uri = 'user';
                 this.id = id;
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
             _getUser: corbel.Iam._getUser,
-    
+
             /**
              * Gets the user
              * @method
@@ -3222,7 +3245,7 @@
                 console.log('iamInterface.user.get');
                 return this._getUser(corbel.request.method.GET, this.uri, this.id);
             },
-    
+
             /**
              * Updates the user
              * @method
@@ -3238,7 +3261,7 @@
                     data: data
                 });
             },
-    
+
             /**
              * Deletes the user
              * @method
@@ -3252,7 +3275,7 @@
                     method: corbel.request.method.DELETE
                 });
             },
-    
+
             /**
              * Sign Out the logged user.
              * @example
@@ -3268,7 +3291,7 @@
                     method: corbel.request.method.PUT
                 });
             },
-    
+
             /**
              * disconnect the user, all his tokens are deleted
              * @method
@@ -3282,7 +3305,7 @@
                     method: corbel.request.method.PUT
                 });
             },
-    
+
             /**
              * Adds an identity (link to an oauth server or social network) to the user
              * @method
@@ -3301,7 +3324,7 @@
                     data: identity
                 });
             },
-    
+
             /**
              * Get user identities (links to oauth servers or social networks)
              * @method
@@ -3315,7 +3338,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * User device register
              * @method
@@ -3337,7 +3360,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Get device
              * @method
@@ -3352,7 +3375,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * Get all user devices
              * @method
@@ -3366,7 +3389,7 @@
                     method: corbel.request.method.GET
                 });
             },
-    
+
             /**
              * Delete user device
              * @method
@@ -3381,7 +3404,7 @@
                     method: corbel.request.method.DELETE
                 });
             },
-    
+
             /**
              * Get user profiles
              * @method
@@ -3395,23 +3418,23 @@
                     method: corbel.request.method.GET
                 });
             }
-    
+
         });
-    
-    
+
+
         /**
          * Builder for creating requests of users collection
          * @class
          * @memberOf iam
          */
         var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
-    
+
             constructor: function() {
                 this.uri = 'user';
             },
-    
+
             _buildUri: corbel.Iam._buildUri,
-    
+
             /**
              * Sends a reset password email to the email address recived.
              * @method
@@ -3431,7 +3454,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Creates a new user.
              * @method
@@ -3450,7 +3473,7 @@
                     return res;
                 });
             },
-    
+
             /**
              * Gets all users of the current domain
              * @method
@@ -3465,7 +3488,7 @@
                     query: params ? corbel.utils.serializeParams(params) : null
                 });
             },
-    
+
             getProfiles: function(params) {
                 console.log('iamInterface.users.getProfiles', params);
                 return this.request({
@@ -3474,17 +3497,286 @@
                     query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
                 });
             }
-    
+
         });
-    
+
     })();
-    
-    (function() {
+
+    var aggregationBuilder = (function() {
+
+        var aggregationBuilder = {};
+
         /**
-         * constant with diferents sort posibilities
-         * @namespace
+         * Adds a count operation to aggregation
+         * @param  {String} field Name of the field to aggregate or * to aggregate all
+         * @return {RequestParamsBuilder} RequestParamsBuilder
          */
-        corbel.Resources = {
+        aggregationBuilder.count = function(field) {
+            this.params.aggregation = this.params.aggregation || {};
+            this.params.aggregation.$count = field;
+            return this;
+        };
+
+        return aggregationBuilder;
+
+    })();
+    var queryBuilder = (function() {
+
+        var queryBuilder = {};
+
+        /**
+         * Adds an Equal criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.eq = function(field, value) {
+            this.addCriteria('$eq', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Greater Than criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.gt = function(field, value) {
+            this.addCriteria('$gt', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Greater Than Or Equal criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.gte = function(field, value) {
+            this.addCriteria('$gte', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Less Than criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.lt = function(field, value) {
+            this.addCriteria('$lt', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Less Than Or Equal criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.lte = function(field, value) {
+            this.addCriteria('$lte', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Not Equal criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.ne = function(field, value) {
+            this.addCriteria('$ne', field, value);
+            return this;
+        };
+
+        /**
+         * Adds a Like criteria to query
+         * @param  {String} field
+         * @param  {String | Number | Date} value
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.like = function(field, value) {
+            this.addCriteria('$like', field, value);
+            return this;
+        };
+
+        /**
+         * Adds an In criteria to query
+         * @param  {String} field
+         * @param  {String[]|Number[]|Date[]} values
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.in = function(field, values) {
+            this.addCriteria('$in', field, values);
+            return this;
+        };
+
+        /**
+         * Adds an All criteria to query
+         * @param  {String} field
+         * @param  {String[]|Number[]|Date[]} values
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.all = function(field, values) {
+            this.addCriteria('$all', field, values);
+            return this;
+        };
+
+        /**
+         * Adds an Element Match criteria to query
+         * @param  {String} field
+         * @param  {JSON} value Query for the matching
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        queryBuilder.elemMatch = function(field, query) {
+            this.addCriteria('$elem_match', field, query);
+            return this;
+        };
+
+        /**
+         * Sets an specific queryDomain, by default 'api'.
+         * @example
+         * var qb = new RequestParamsBuilder().setQueryDomain('api');
+         * // http://resources.endpoint?api:query={...}
+         *        this.addCriteria('$gte', field, value);
+         
+         * @example
+         * var qb = new RequestParamsBuilder().setQueryDomain('7digital');
+         * // http://resources.endpoint?7digital:query={...}
+         *
+         * @param {String} queryDomain query domain name, 'api' and '7digital' supported
+         */
+        queryBuilder.setQueryDomain = function(queryDomain) {
+            this.params.queryDomain = queryDomain;
+            return this;
+        };
+
+        queryBuilder.addCriteria = function(operator, field, value) {
+            var criteria = {};
+            criteria[operator] = {};
+            criteria[operator][field] = value;
+            this.params.query = this.params.query || [];
+            this.params.query.push(criteria);
+            return this;
+        };
+
+        return queryBuilder;
+
+    })();
+    var pageBuilder = (function() {
+
+        var pageBuilder = {};
+
+        /**
+         * Sets the page number of the page param
+         * @param  {int} page
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        pageBuilder.page = function(page) {
+            this.params.pagination = this.params.pagination || {};
+            this.params.pagination.page = page;
+            return this;
+        };
+
+        /**
+         * Sets the page size of the page param
+         * @param  {int} size
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        pageBuilder.pageSize = function(size) {
+            this.params.pagination = this.params.pagination || {};
+            this.params.pagination.size = size;
+            return this;
+        };
+
+        /**
+         * Sets the page number and page size of the page param
+         * @param  {int} size
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        pageBuilder.pageParam = function(page, size) {
+            this.params.pagination = this.params.pagination || {};
+            this.params.pagination.page = page;
+            this.params.pagination.size = size;
+            return this;
+        };
+
+        return pageBuilder;
+
+
+    })();
+    var sortBuilder = (function() {
+
+        var sortBuilder = {};
+
+        /**
+         * Sets ascending direction to sort param
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        sortBuilder.asc = function(field) {
+            this.params.sort[field] = corbel.Resources.sort.ASC;
+            return this;
+        };
+
+        /**
+         * Sets descending direction to sort param
+         * @return {RequestParamsBuilder} RequestParamsBuilder
+         */
+        sortBuilder.desc = function(field) {
+            this.params.sort = this.params.sort || {};
+            this.params.sort[field] = corbel.Resources.sort.DESC;
+            return this;
+        };
+
+        return sortBuilder;
+    })();
+    (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
+
+
+
+        /**
+         * A module to build Request Params
+         * @exports requestParamsBuilder
+         * @namespace
+         * @memberof app.silkroad
+         */
+        corbel.requestParamsBuilder = corbel.Object.inherit({
+            constructor: function() {
+                this.params = {};
+            },
+            /**
+             * Returns the JSON representation of the params
+             * @return {JSON} representation of the params
+             */
+            build: function() {
+                return this.params;
+            }
+        });
+
+
+        corbel.utils.extend(corbel.requestParamsBuilder.prototype, queryBuilder, sortBuilder, aggregationBuilder, pageBuilder);
+
+        return corbel.requestParamsBuilder;
+
+    })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
+    (function() {
+        corbel.Resources = corbel.Object.inherit({ //instance props
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+            collection: function(type) {
+                return new corbel.Resources.Collection(type, this.driver);
+            },
+
+            resource: function(type, id) {
+                return new corbel.Resources.Resource(type, id, this.driver);
+            },
+
+            relation: function(srcType, srcId, destType) {
+                return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
+            }
+        }, { //statics props
             sort: {
                 /**
                  * Ascending sort
@@ -3505,43 +3797,20 @@
              * constant for use to specify all resources wildcard
              * @namespace
              */
-            ALL: '_'
-        };
-    
-    
-        corbel.Resources.create = function(driver) {
-    
-            return new corbel._ResourcesBuilder(driver);
-    
-        };
-    
-        return corbel.Resources;
-    
-    })();
-    (function() {
-        corbel._ResourcesBuilder = corbel.Object.inherit({
-            constructor: function(driver) {
-                this.driver = driver;
-            },
-            collection: function(type) {
-                return new corbel.Resources.Collection(type, this.driver);
-            },
-    
-            resource: function(type, id) {
-                return new corbel.Resources.Resource(type, id, this.driver);
-            },
-    
-            relation: function(srcType, srcId, destType) {
-                return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
+            ALL: '_',
+            create: function(driver) {
+
+                return new corbel.Resources(driver);
+
             }
         });
-    
-        return corbel._ResourcesBuilder;
-    
+
+        return corbel.Resources;
+
     })();
     (function() {
         corbel.Resources.ResourceBase = corbel.Services.inherit({
-    
+
             /**
              * Helper function to build the request uri
              * @param  {String} srcType     Type of the resource
@@ -3563,112 +3832,138 @@
                 }
                 return uri;
             },
-    
+            request: function(args) {
+                var params = corbel.utils.extend(this.params, args);
+
+                this.params = {}; //reset instance params
+
+                args.query = corbel.utils.serializeParams(params);
+
+                corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
+            },
             getURL: function(params) {
                 return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
+            },
+            getDefaultOptions: function(options) {
+                options = options || {};
+
+                return options;
             }
-    
         });
-    
+
+        corbel.utils.extend(corbel.Resources.ResourceBase.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
+
         return corbel.Resources.ResourceBase;
-    
+
     })();
-    
-     (function() {
-         /**
-          * Relation
-          * @class
-          * @memberOf Resources
-          * @param  {String} srcType     The source resource type
-          * @param  {String} srcId       The source resource id
-          * @param  {String} destType    The destination resource type
-          */
-         corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
-             constructor: function(srcType, srcId, destType, driver) {
-                 this.type = srcType;
-                 this.srcId = srcId;
-                 this.destType = destType;
-                 this.driver = driver;
-             },
-             /**
-              * Gets the resources of a relation
-              * @method
-              * @memberOf resources.RelationBuilder
-              * @param  {String} dataType    Mime type of the expected resource
-              * @param  {String} destId         Relationed resource
-              * @param  {Object} params      Params of the silkroad request
-              * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
-              * @see {@link corbel.util.serializeParams} to see a example of the params
-              */
-             get: function(dataType, destId, params) {
-                 // console.log('resourceInterface.relation.get', params);
-                 return this.request({
-                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                     method: corbel.request.method.GET,
-                     query: params ? corbel.util.serializeParams(params) : null,
-                     Accept: dataType
-                 });
-             },
-             /**
-              * Adds a new relation between Resources
-              * @method
-              * @memberOf Resources.RelationBuilder
-              * @param  {String} destId          Relationed resource
-              * @param  {Object} relationData Additional data to be added to the relation (in json)
-              * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
-              * @example uri = '555'
-              */
-             add: function(destId, relationData) {
-                 // console.log('resourceInterface.relation.add', relationData);
-                 return this.request({
-                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                     contentType: 'application/json',
-                     data: relationData,
-                     method: corbel.request.method.PUT
-                 });
-             },
-             /**
-              * Adds a new relation between Resources
-              * @method
-              * @memberOf Resources.RelationBuilder
-              * @param  {Integer} pos          The new position
-              * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
-              */
-             move: function(destId, pos) {
-                 // console.log('resourceInterface.relation.move', pos);
-                 return this.request({
-                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                     contentType: 'application/json',
-                     data: {
-                         '_order': '$pos(' + pos + ')'
-                     },
-                     method: corbel.request.method.PUT
-                 });
-             },
-             /**
-              * Deletes a relation between Resources
-              * @method
-              * @memberOf Resources.RelationBuilder
-              * @param  {String} destId          Relationed resource
-              * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
-              * @example
-              * destId = 'music:Track/555'
-              */
-             delete: function(destId) {
-                 // console.log('resourceInterface.relation.delete', destId);
-                 return this.request({
-                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                     method: corbel.request.method.DELETE
-                 });
-             }
-         });
-    
-    
-         return corbel.Resources.Relation;
-    
-     })();
     (function() {
-    
+        /**
+         * Relation
+         * @class
+         * @memberOf Resources
+         * @param  {String} srcType     The source resource type
+         * @param  {String} srcId       The source resource id
+         * @param  {String} destType    The destination resource type
+         */
+        corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+            constructor: function(srcType, srcId, destType, driver, params) {
+                this.type = srcType;
+                this.srcId = srcId;
+                this.destType = destType;
+                this.driver = driver;
+                this.params = params || {};
+            },
+            /**
+             * Gets the resources of a relation
+             * @method
+             * @memberOf Resources.Relation
+             * @param  {String} dataType    Mime type of the expected resource
+             * @param  {String} destId         Relationed resource
+             * @param  {Object} params      Params of the silkroad request
+             * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
+             * @see {@link corbel.util.serializeParams} to see a example of the params
+             */
+            get: function(destId, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                    method: corbel.request.method.GET,
+                    Accept: options.dataType
+                });
+
+                return this.request(args);
+            },
+            /**
+             * Adds a new relation between Resources
+             * @method
+             * @memberOf Resources.Relation
+             * @param  {String} destId          Relationed resource
+             * @param  {Object} relationData Additional data to be added to the relation (in json)
+             * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @example uri = '555'
+             */
+            add: function(destId, relationData, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                    contentType: 'application/json',
+                    data: relationData,
+                    method: corbel.request.method.PUT
+                });
+
+                return this.request(args);
+            },
+            /**
+             * Adds a new relation between Resources
+             * @method
+             * @memberOf Resources.Relation
+             * @param  {Integer} pos          The new position
+             * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            move: function(destId, pos, options) {
+
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                    contentType: 'application/json',
+                    data: {
+                        '_order': '$pos(' + pos + ')'
+                    },
+                    method: corbel.request.method.PUT
+                });
+
+                return this.request(args);
+            },
+            /**
+             * Deletes a relation between Resources
+             * @method
+             * @memberOf Resources.Relation
+             * @param  {String} destId          Relationed resource
+             * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @example
+             * destId = 'music:Track/555'
+             */
+            delete: function(destId, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                    method: corbel.request.method.DELETE
+                });
+
+                return this.request(args);
+            }
+        });
+
+
+        return corbel.Resources.Relation;
+
+    })();
+    (function() {
+
         /**
          * Collection requests
          * @class
@@ -3677,57 +3972,61 @@
          * @param {CorbelDriver} corbel instance
          */
         corbel.Resources.Collection = corbel.Resources.ResourceBase.inherit({
-    
-            constructor: function(type, driver) {
+
+            constructor: function(type, driver, params) {
                 this.type = type;
                 this.driver = driver;
+                this.params = params || {};
             },
-    
+
             /**
              * Gets a collection of elements, filtered, paginated or sorted
              * @method
              * @memberOf Resources.CollectionBuilder
-             * @param  {String} dataType            Type of the request data
-             * @param  {Object} params              Params of the silkroad request
+             * @param  {Object} options             Get options for the request
              * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link SilkRoadError}
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
-            get: function(dataType, params) {
-                // console.log('resourceInterface.collection.get', params);
-                return this.request({
+            get: function(options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
                     method: corbel.request.method.GET,
-                    query: params ? corbel.utils.serializeParams(params) : null,
-                    Accept: dataType
+                    Accept: options.dataType
                 });
+
+                return this.request(args);
             },
-    
+
             /**
              * Adds a new element to a collection
              * @method
              * @memberOf Resources.CollectionBuilder
-             * @param  {String} dataType   Mime type of the added data
-             * @param  {Object} data       The element to be added
-             * @return {Promise}           ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
+             * @param  {[Object]} data      Data array added to the collection
+             * @param  {Object} options     Options object with dataType request option
+             * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
              */
-            add: function(dataType, data) {
-                return this.request({
+            add: function(data, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
                     method: corbel.request.method.POST,
-                    contentType: dataType,
-                    Accept: dataType,
+                    contentType: options.dataType,
+                    Accept: options.dataType,
                     data: data
-                }).then(function(res) {
+                });
+
+                return this.request(args).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
             }
-    
         });
-    
+
         return corbel.Resources.Collection;
-    
+
     })();
-    
     (function() {
         /**
          * Builder for resource requests
@@ -3737,78 +4036,88 @@
          * @param  {String} id      The resource id
          */
         corbel.Resources.Resource = corbel.Resources.ResourceBase.inherit({
-    
-            constructor: function(type, id, driver) {
+
+            constructor: function(type, id, driver, params) {
                 this.type = type;
                 this.id = id;
                 this.driver = driver;
+                this.params = params || {};
             },
-    
+
             /**
              * Gets a resource
              * @method
-             * @memberOf resources.ResourceBuilder
-             * @param  {String} [dataType="application/json"]                Mime type of the expected resource
-             * @param  {Object} [params]                Additional request parameters
-             * @param  {String} [params.binaryType]     XMLHttpRequest 2 responseType value ('blob'|'arraybuffer'|undefined)
+             * @memberOf resources.Resource
+             * @param  {Object} options
+             * @param  {String} [options.dataType]      Mime type of the expected resource
+             * @param  {Object} [options.params]        Additional request parameters
              * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link SilkRoadError}
              * @see {@link services.request} to see a example of the params
              */
-            get: function(dataType, params) {
-                // console.log('resourceInterface.resource.get', dataType);
-                var args = params || {};
-                args.url = this.buildUri(this.type, this.id);
-                args.method = corbel.request.method.GET;
-                args.contentType = dataType;
-                args.Accept = dataType;
+            get: function(options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.id),
+                    method: corbel.request.method.GET,
+                    contentType: options.dataType,
+                    Accept: options.dataType
+                });
+
                 return this.request(args);
             },
-    
+
             /**
              * Updates a resource
              * @method
-             * @memberOf resources.ResourceBuilder
+             * @memberOf resources.Resource
              * @param  {Object} data                    Data to be updated
-             * @param  {Object} [params]                Additional request parameters
-             * @param  {String} [params.binaryType]     XMLHttpRequest 2 content type value for the sending content ('blob'|'arraybuffer'|undefined)
-             * @param  {String} dataType                Mime tipe of the sent data
+             * @param  {Object} options
+             * @param  {String} [options.dataType]      Mime tipe of the sent data
+             * @param  {Object} [options.params]        Additional request parameters
              * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              * @see {@link services.request} to see a example of the params
              */
-            update: function(dataType, data, params) {
-                // console.log('resourceInterface.resource', data);
-                var args = params || {};
-                args.url = this.buildUri(this.type, this.id);
-                args.method = corbel.request.method.PUT;
-                args.data = data;
-                args.contentType = dataType;
-                args.Accept = dataType;
+            update: function(data, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.id),
+                    method: corbel.request.method.GET,
+                    data: data,
+                    contentType: options.dataType,
+                    Accept: options.dataType
+                });
+
                 return this.request(args);
             },
-    
+
             /**
              * Deletes a resource
              * @method
-             * @memberOf Resources.ResourceBuilder
-             * @param  {String} dataType    Mime tipe of the delete data
-             * @return {Promise}            ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @memberOf resources.Resource
+             * @param  {Object} options
+             * @param  {Object} [options.dataType]      Mime tipe of the delete data
+             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
-            delete: function(dataType) {
-                // console.log('resourceInterface.resource.delete');
-                return this.request({
+            delete: function(options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.DELETE,
-                    contentType: dataType,
-                    Accept: dataType
+                    contentType: options.dataType,
+                    Accept: options.dataType
                 });
+
+                return this.request(args);
             }
-    
+
         });
-    
+
         return corbel.Resources.Resource;
-    
+
     })();
-    
 
     return corbel;
 });
