@@ -13,31 +13,33 @@
         corbel.utils.extend(this.config, config);
     }
 
+    Config.URL_BASE_PLACEHOLDER = '{{module}}';
+
     corbel.Config = Config;
 
-    corbel.Config.isNode = typeof module !== 'undefined' && module.exports;
+    Config.isNode = typeof module !== 'undefined' && module.exports;
 
     /**
      * Client type
      * @type {String}
      * @default
      */
-    corbel.Config.clientType = corbel.Config.isNode ? 'NODE' : 'WEB';
-    corbel.Config.wwwRoot = !corbel.Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
+    Config.clientType = Config.isNode ? 'NODE' : 'WEB';
+    Config.wwwRoot = !Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
 
     /**
      * Returns all application config params
      * @return {Object}
      */
-    corbel.Config.create = function(config) {
-        return new corbel.Config(config);
+    Config.create = function(config) {
+        return new Config(config);
     };
 
     /**
      * Returns all application config params
      * @return {Object}
      */
-    corbel.Config.prototype.getConfig = function() {
+    Config.prototype.getConfig = function() {
         return this.config;
     };
 
@@ -45,7 +47,7 @@
      * Overrides current config with params object config
      * @param {Object} config An object with params to set as new config
      */
-    corbel.Config.prototype.setConfig = function(config) {
+    Config.prototype.setConfig = function(config) {
         this.config = corbel.utils.extend(this.config, config);
         return this;
     };
@@ -56,7 +58,7 @@
      * @param  {Mixed} defaultValue Default value if undefined
      * @return {Mixed}
      */
-    corbel.Config.prototype.get = function(field, defaultValue) {
+    Config.prototype.get = function(field, defaultValue) {
         if (this.config[field] === undefined) {
             if (defaultValue === undefined) {
                 throw new Error('config:undefined:' + field + '');
@@ -73,7 +75,7 @@
      * @param {String} field Config param name
      * @param {Mixed} value Config param value
      */
-    corbel.Config.prototype.set = function(field, value) {
+    Config.prototype.set = function(field, value) {
         this.config[field] = value;
     };
 

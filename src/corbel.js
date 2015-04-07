@@ -6,7 +6,6 @@
 
 //deps: [corbel.utils, corbel.Config, corbel.Iam, corbel.Resources, corbel.Services, Corbel.Session]
 
-
 //@endexclude
 
 (function() {
@@ -28,21 +27,20 @@
     /**
      * Instanciates new corbel driver
      * @param {Object} config
-     * @param {String} [config.urlBase]
+     * @param {String} config.urlBase
      * @param {String} [config.clientId]
      * @param {String} [config.clientSecret]
      * @param {String} [config.scopes]
-     * @param {String} [config.resourcesEndpoint]
-     * @param {String} [config.iamEndpoint]
-     * @param {String} [config.evciEndpoint]
-     * @param {String} [config.oauthEndpoint]
      * @return {CorbelDriver}
      */
     corbel.getDriver = function(config) {
         config = config || {};
 
+        if (!config.urlBase) {
+            throw new Error('error:undefined:urlbase');
+        }
+
         return new CorbelDriver(config);
     };
-
 
 })();

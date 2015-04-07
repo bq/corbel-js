@@ -29,18 +29,8 @@ var options = {
 	'clientSecret': 'clientSecret',
 
 	'urlBase': 'http://localhost:8080/{{module}}',
-    'resourcesEndpoint',
-    'iamEndpoint',
-    'evciEndpoint',
-    'oauthEndpoint',
 
-	'scopesApp': 'scopesApp',
-	'scopesUserLogin': 'scopesUserLogin',
-	'scopesUserCreate': 'scopesUserCreate',
-
-    'oauthClientId',
-    'oauthSecret',
-    'oauthService',
+	'scopes': 'scopes',
 
     'device_id'
 }

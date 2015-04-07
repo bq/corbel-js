@@ -1018,22 +1018,21 @@
         /**
          * Instanciates new corbel driver
          * @param {Object} config
-         * @param {String} [config.urlBase]
+         * @param {String} config.urlBase
          * @param {String} [config.clientId]
          * @param {String} [config.clientSecret]
          * @param {String} [config.scopes]
-         * @param {String} [config.resourcesEndpoint]
-         * @param {String} [config.iamEndpoint]
-         * @param {String} [config.evciEndpoint]
-         * @param {String} [config.oauthEndpoint]
          * @return {CorbelDriver}
          */
         corbel.getDriver = function(config) {
             config = config || {};
 
+            if (!config.urlBase) {
+                throw new Error('error:undefined:urlbase');
+            }
+
             return new CorbelDriver(config);
         };
-
 
     })();
 
@@ -1942,31 +1941,33 @@
             corbel.utils.extend(this.config, config);
         }
 
+        Config.URL_BASE_PLACEHOLDER = '{{module}}';
+
         corbel.Config = Config;
 
-        corbel.Config.isNode = typeof module !== 'undefined' && module.exports;
+        Config.isNode = typeof module !== 'undefined' && module.exports;
 
         /**
          * Client type
          * @type {String}
          * @default
          */
-        corbel.Config.clientType = corbel.Config.isNode ? 'NODE' : 'WEB';
-        corbel.Config.wwwRoot = !corbel.Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
+        Config.clientType = Config.isNode ? 'NODE' : 'WEB';
+        Config.wwwRoot = !Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
 
         /**
          * Returns all application config params
          * @return {Object}
          */
-        corbel.Config.create = function(config) {
-            return new corbel.Config(config);
+        Config.create = function(config) {
+            return new Config(config);
         };
 
         /**
          * Returns all application config params
          * @return {Object}
          */
-        corbel.Config.prototype.getConfig = function() {
+        Config.prototype.getConfig = function() {
             return this.config;
         };
 
@@ -1974,7 +1975,7 @@
          * Overrides current config with params object config
          * @param {Object} config An object with params to set as new config
          */
-        corbel.Config.prototype.setConfig = function(config) {
+        Config.prototype.setConfig = function(config) {
             this.config = corbel.utils.extend(this.config, config);
             return this;
         };
@@ -1985,7 +1986,7 @@
          * @param  {Mixed} defaultValue Default value if undefined
          * @return {Mixed}
          */
-        corbel.Config.prototype.get = function(field, defaultValue) {
+        Config.prototype.get = function(field, defaultValue) {
             if (this.config[field] === undefined) {
                 if (defaultValue === undefined) {
                     throw new Error('config:undefined:' + field + '');
@@ -2002,7 +2003,7 @@
          * @param {String} field Config param name
          * @param {Mixed} value Config param value
          */
-        corbel.Config.prototype.set = function(field, value) {
+        Config.prototype.set = function(field, value) {
             this.config[field] = value;
         };
 
@@ -2636,7 +2637,12 @@
             if (id) {
                 uri += '/' + id;
             }
-            return this.driver.config.get('iamEndpoint') + uri;
+
+            var urlBase = this.driver.config.get('iamEndpoint', null) ?
+                this.driver.config.get('iamEndpoint') :
+                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'iam');
+
+            return urlBase + uri;
         };
 
     })();
@@ -3753,10 +3759,12 @@
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
     (function() {
-        corbel.Resources = corbel.Object.inherit({ //instance props
+        corbel.Resources = corbel.Object.inherit({
+
             constructor: function(driver) {
                 this.driver = driver;
             },
+
             collection: function(type) {
                 return new corbel.Resources.Collection(type, this.driver);
             },
@@ -3768,8 +3776,11 @@
             relation: function(srcType, srcId, destType) {
                 return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
             }
-        }, { //statics props
+
+        }, {
+
             sort: {
+
                 /**
                  * Ascending sort
                  * @type {String}
@@ -3777,6 +3788,7 @@
                  * @default
                  */
                 ASC: 'asc',
+
                 /**
                  * Descending sort
                  * @type {String}
@@ -3784,22 +3796,25 @@
                  * @default
                  */
                 DESC: 'desc'
+
             },
+
             /**
              * constant for use to specify all resources wildcard
              * @namespace
              */
             ALL: '_',
+
             create: function(driver) {
-
                 return new corbel.Resources(driver);
-
             }
+
         });
 
         return corbel.Resources;
 
     })();
+
     (function() {
         corbel.Resources.ResourceBase = corbel.Services.inherit({
 
@@ -3812,7 +3827,13 @@
              * @return {String}             Uri to perform the request
              */
             buildUri: function(srcType, srcId, destType, destId) {
-                var uri = this.driver.config.get('resourcesEndpoint') + 'resource/' + srcType;
+
+                var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
+                    this.driver.config.get('resourcesEndpoint') :
+                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'resources');
+
+                var uri = urlBase + 'resource/' + srcType;
+
                 if (srcId) {
                     uri += '/' + srcId;
                     if (destType) {
@@ -3822,8 +3843,10 @@
                         }
                     }
                 }
+
                 return uri;
             },
+
             request: function(args) {
                 var params = corbel.utils.extend(this.params, args);
 
@@ -3833,14 +3856,17 @@
 
                 return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
             },
+
             getURL: function(params) {
                 return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
             },
+
             getDefaultOptions: function(options) {
                 options = options || {};
 
                 return options;
             }
+
         });
 
         corbel.utils.extend(corbel.Resources.ResourceBase.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
@@ -3848,6 +3874,7 @@
         return corbel.Resources.ResourceBase;
 
     })();
+
     (function() {
         /**
          * Relation
@@ -3858,6 +3885,7 @@
          * @param  {String} destType    The destination resource type
          */
         corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+
             constructor: function(srcType, srcId, destType, driver, params) {
                 this.type = srcType;
                 this.srcId = srcId;
@@ -3865,6 +3893,7 @@
                 this.driver = driver;
                 this.params = params || {};
             },
+
             /**
              * Gets the resources of a relation
              * @method
@@ -3886,6 +3915,7 @@
 
                 return this.request(args);
             },
+
             /**
              * Adds a new relation between Resources
              * @method
@@ -3907,6 +3937,7 @@
 
                 return this.request(args);
             },
+
             /**
              * Adds a new relation between Resources
              * @method
@@ -3929,6 +3960,7 @@
 
                 return this.request(args);
             },
+
             /**
              * Deletes a relation between Resources
              * @method
@@ -3948,12 +3980,13 @@
 
                 return this.request(args);
             }
-        });
 
+        });
 
         return corbel.Resources.Relation;
 
     })();
+
     (function() {
 
         /**
@@ -4014,11 +4047,13 @@
                     return corbel.Services.getLocationId(res);
                 });
             }
+
         });
 
         return corbel.Resources.Collection;
 
     })();
+
     (function() {
         /**
          * Builder for resource requests
