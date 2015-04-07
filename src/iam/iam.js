@@ -39,7 +39,12 @@
         if (id) {
             uri += '/' + id;
         }
-        return this.driver.config.get('iamEndpoint') + uri;
+
+        var urlBase = this.driver.config.get('iamEndpoint', null) ?
+            this.driver.config.get('iamEndpoint') :
+            this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'iam');
+
+        return urlBase + uri;
     };
 
 })();

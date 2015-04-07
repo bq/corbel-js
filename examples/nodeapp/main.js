@@ -2,25 +2,12 @@
 var corbel = require('../../dist/corbel.js');
 
 var CONFIG = {
-    urlBase: 'url',
-
     clientId: 'clientId',
     clientSecret: 'clientSecret',
 
     scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
-    oauthEndpoint: 'https://oauth.io/',
-    resourcesEndpoint: 'https://resources.io/',
-    iamEndpoint: 'https://iam.io/',
-    evciEndpoint: 'https://evci.io/',
-    ecEndpoint: 'https://ec.io/',
-    assetsEndpoint: 'https://assets.io/',
-    notificationsEndpoint: 'https://notifications.io/',
-    bqponEndpoint: 'https://bqpon.io/',
-    webfsEndpoint: 'https://webfs.io/',
-    schedulerEndpoint: 'https://scheduler.io/',
-    borrowEndpoint: 'https://borrow.io/',
-
+    urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
 };
 
 var cd = corbel.getDriver(CONFIG);

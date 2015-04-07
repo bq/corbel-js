@@ -63,6 +63,7 @@
                 return corbel.Services.getLocationId(res);
             });
         }
+
     });
 
     return corbel.Resources.Collection;
