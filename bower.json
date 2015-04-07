@@ -1,6 +1,6 @@
 {
     "name": "corbel-js",
-    "description": "corbel SDK compatiblecon browser y nodejs",
+    "description": "corbel SDK compatible with browser and nodejs",
     "version": "0.0.1",
     "main": "dist/corbel.js",
     "license": "Apache-2.0",
