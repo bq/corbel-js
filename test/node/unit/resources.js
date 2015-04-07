@@ -57,24 +57,11 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
     }];
 
 var CONFIG = {
-    urlBase: 'url',
-
     clientId: 'clientId',
     clientSecret: 'clientSecret',
+    scopes: 'scopes',
 
-    scopes: 'scopesApp',
-
-    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/',
-    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
-    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
-    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
-    ecEndpoint: 'https://ec-qa.bqws.io/v1.0/',
-    assetsEndpoint: 'https://assets-qa.bqws.io/v1.0/',
-    notificationsEndpoint: 'https://notifications-qa.bqws.io/v1.0/',
-    bqponEndpoint: 'https://bqpon-qa.bqws.io/v1.0/',
-    webfsEndpoint: 'https://webfs-qa.bqws.io/v1.0/',
-    schedulerEndpoint: 'https://scheduler-qa.bqws.io/v1.0/',
-    borrowEndpoint: 'https://borrow-qa.bqws.io/v1.0/'
+    urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
 };
 
 describe('corbel resources module', function() {
