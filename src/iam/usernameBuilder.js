@@ -20,7 +20,7 @@
      * @class
      * @memberOf iam
      */
-    var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
+    var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function() {
             this.uri = 'username';

@@ -38,7 +38,8 @@
 
     //  @include ../config.js
     //  @include ../request.js
-    //  @include ../services.js
+    //  @include ../services/base-services.js
+    //  @include ../services/services.js
     //  @include ../jwt.js
     //  @include ../iam/iam.js
     //  @include ../iam/clientBuilder.js
@@ -53,7 +54,7 @@
     //  @include ../request-params/sort-builder.js
     //  @include ../request-params/request-params-builder.js
     //  @include ../resources/resources.js
-    //  @include ../resources/resource-base.js
+    //  @include ../resources/base-resource.js
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js

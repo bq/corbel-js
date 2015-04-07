@@ -43,7 +43,7 @@
      * @memberOf iam
      * @param {String} id The id of the user
      */
-    var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
+    var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function(id) {
             this.uri = 'user';
@@ -245,7 +245,7 @@
      * @class
      * @memberOf iam
      */
-    var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
+    var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function() {
             this.uri = 'user';

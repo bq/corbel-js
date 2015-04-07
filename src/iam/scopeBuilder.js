@@ -24,7 +24,7 @@
      * @class
      * @memberOf iam
      */
-    var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
+    var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function(id) {
             this.id = id;

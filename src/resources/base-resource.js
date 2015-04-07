@@ -4,7 +4,7 @@
     /*globals corbel */
     //@endexclude
 
-    corbel.Resources.ResourceBase = corbel.Services.inherit({
+    corbel.Resources.BaseResource = corbel.Services.BaseServices.inherit({
 
         /**
          * Helper function to build the request uri
@@ -57,8 +57,8 @@
 
     });
 
-    corbel.utils.extend(corbel.Resources.ResourceBase.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
+    corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
 
-    return corbel.Resources.ResourceBase;
+    return corbel.Resources.BaseResource;
 
 })();

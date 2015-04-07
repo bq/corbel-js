@@ -12,7 +12,7 @@
      * @param {String} type The collection type
      * @param {CorbelDriver} corbel instance
      */
-    corbel.Resources.Collection = corbel.Resources.ResourceBase.inherit({
+    corbel.Resources.Collection = corbel.Resources.BaseResource.inherit({
 
         constructor: function(type, driver, params) {
             this.type = type;

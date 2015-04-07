@@ -3,20 +3,20 @@
 'use strict';
 
 /* global corbel */
+//jshint unused:false
 
 //deps: [corbel.Object, corbel.Session, corbel.request]
 
 //@endexclude
 
-(function() {
-
+var BaseServices = (function() {
     /**
-     * A module to make iam requests.
-     * @exports Services
+     * A base object to inherit from for make corbel-js requests with custom behavior.
+     * @exports corbel.ServicesBase
      * @namespace
      * @memberof corbel
      */
-    corbel.Services = corbel.Object.inherit({ //instance props
+    var BaseServices = corbel.Object.inherit({ //instance props
         constructor: function(driver) {
             this.driver = driver;
         },
@@ -133,39 +133,9 @@
             // }
 
             return params;
-        },
-
-    }, { //Static props
-        _FORCE_UPDATE_TEXT: 'unsupported_version',
-        _FORCE_UPDATE_MAX_RETRIES: 3,
-        _FORCE_UPDATE_STATUS: 'fu_r',
-        create: function(driver) {
-            return new corbel.Services(driver);
-        },
-        /**
-         * Extract a id from the location header of a requestXHR
-         * @param  {Promise} res response from a requestXHR
-         * @return {String}  id from the Location
-         */
-        getLocationId: function(responseObject) {
-            var location;
-
-            if (responseObject.xhr) {
-                location = arguments[0].xhr.getResponseHeader('location');
-            } else if (responseObject.response.headers.location) {
-                location = responseObject.response.headers.location;
-            }
-            return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
-        },
-        addEmptyJson: function(response, type) {
-            if (!response && type === 'json') {
-                response = '{}';
-            }
-            return response;
         }
     });
 
-
-    return corbel.Services;
+    return BaseServices;
 
 })();
