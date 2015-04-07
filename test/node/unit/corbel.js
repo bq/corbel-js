@@ -23,20 +23,25 @@ describe('in corbel module', function() {
 
     describe('when generating a new driver', function() {
 
+        it('urlBase is required', function() {
+            expect(function() {
+                corbel.getDriver({
+                    clientId: 'clientId',
+                    clientSecret: 'clientSecret',
+                    scopes: 'scopesApp'
+                });
+            }).to.throw('error:undefined:urlbase');
+        });
+
         describe('with all parametes', function() {
 
             it('it creates a CorbelDriver', function() {
                 expect(corbel.getDriver({
-                    urlBase: 'url',
-
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
                     scopes: 'scopesApp',
 
-                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
-                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
-                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
-                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/'
+                    urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
                 })).to.be.an.instanceof(corbel.CorbelDriver);
             });
 
@@ -48,16 +53,11 @@ describe('in corbel module', function() {
 
             beforeEach(function() {
                 corbelDriver = corbel.getDriver({
-                    urlBase: 'url',
-
                     clientId: 'clientId',
                     clientSecret: 'clientSecret',
                     scopes: 'scopesApp',
 
-                    resourcesEndpoint: 'https://resources-qa.bqws.io/v1.0/',
-                    iamEndpoint: 'https://iam-qa.bqws.io/v1.0/',
-                    evciEndpoint: 'https://evci-qa.bqws.io/v1.0/',
-                    oauthEndpoint: 'https://oauth-qa.bqws.io/v1.0/'
+                    urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
                 });
             });
 

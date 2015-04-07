@@ -4,7 +4,6 @@
      /*globals corbel */
      //@endexclude
 
-
      /**
       * Relation
       * @class
@@ -14,6 +13,7 @@
       * @param  {String} destType    The destination resource type
       */
      corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+
          constructor: function(srcType, srcId, destType, driver, params) {
              this.type = srcType;
              this.srcId = srcId;
@@ -21,6 +21,7 @@
              this.driver = driver;
              this.params = params || {};
          },
+
          /**
           * Gets the resources of a relation
           * @method
@@ -42,6 +43,7 @@
 
              return this.request(args);
          },
+
          /**
           * Adds a new relation between Resources
           * @method
@@ -63,6 +65,7 @@
 
              return this.request(args);
          },
+
          /**
           * Adds a new relation between Resources
           * @method
@@ -85,6 +88,7 @@
 
              return this.request(args);
          },
+
          /**
           * Deletes a relation between Resources
           * @method
@@ -104,8 +108,8 @@
 
              return this.request(args);
          }
-     });
 
+     });
 
      return corbel.Resources.Relation;
 
