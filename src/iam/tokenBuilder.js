@@ -20,7 +20,7 @@
      * @class
      * @memberOf Iam
      */
-    var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
+    var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function() {
             this.uri = 'oauth/token';

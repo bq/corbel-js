@@ -2343,15 +2343,14 @@
 
     })();
 
-    (function() {
-
+    var BaseServices = (function() {
         /**
-         * A module to make iam requests.
-         * @exports Services
+         * A base object to inherit from for make corbel-js requests with custom behavior.
+         * @exports corbel.ServicesBase
          * @namespace
          * @memberof corbel
          */
-        corbel.Services = corbel.Object.inherit({ //instance props
+        var BaseServices = corbel.Object.inherit({ //instance props
             constructor: function(driver) {
                 this.driver = driver;
             },
@@ -2468,9 +2467,21 @@
                 // }
 
                 return params;
-            },
+            }
+        });
 
-        }, { //Static props
+        return BaseServices;
+
+    })();
+    (function(BaseServices) {
+
+        /**
+         * A module to make iam requests.
+         * @exports Services
+         * @namespace
+         * @memberof corbel
+         */
+        corbel.Services = BaseServices.inherit({}, { //Static props
             _FORCE_UPDATE_TEXT: 'unsupported_version',
             _FORCE_UPDATE_MAX_RETRIES: 3,
             _FORCE_UPDATE_STATUS: 'fu_r',
@@ -2497,13 +2508,14 @@
                     response = '{}';
                 }
                 return response;
-            }
+            },
+            BaseServices: BaseServices
         });
 
 
         return corbel.Services;
 
-    })();
+    })(BaseServices);
     /* jshint camelcase:false */
     (function() {
 
@@ -2672,7 +2684,7 @@
          * @class
          * @memberOf iam
          */
-        var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
+        var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(domainId, clientId) {
                 this.domainId = domainId;
@@ -2780,7 +2792,6 @@
         });
 
     })();
-
     (function() {
 
 
@@ -2805,7 +2816,7 @@
          * @class
          * @memberOf iam
          */
-        var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
+        var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(domainId) {
                 this.domainId = domainId;
@@ -2906,7 +2917,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -2928,7 +2938,7 @@
          * @class
          * @memberOf iam
          */
-        var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
+        var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -2997,7 +3007,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -3015,7 +3024,7 @@
          * @class
          * @memberOf Iam
          */
-        var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
+        var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function() {
                 this.uri = 'oauth/token';
@@ -3139,7 +3148,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -3157,7 +3165,7 @@
          * @class
          * @memberOf iam
          */
-        var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
+        var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function() {
                 this.uri = 'username';
@@ -3190,7 +3198,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -3231,7 +3238,7 @@
          * @memberOf iam
          * @param {String} id The id of the user
          */
-        var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
+        var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(id) {
                 this.uri = 'user';
@@ -3433,7 +3440,7 @@
          * @class
          * @memberOf iam
          */
-        var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
+        var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function() {
                 this.uri = 'user';
@@ -3507,7 +3514,6 @@
         });
 
     })();
-
     var aggregationBuilder = (function() {
 
         var aggregationBuilder = {};
@@ -3814,9 +3820,8 @@
         return corbel.Resources;
 
     })();
-
     (function() {
-        corbel.Resources.ResourceBase = corbel.Services.inherit({
+        corbel.Resources.BaseResource = corbel.Services.BaseServices.inherit({
 
             /**
              * Helper function to build the request uri
@@ -3869,12 +3874,11 @@
 
         });
 
-        corbel.utils.extend(corbel.Resources.ResourceBase.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
+        corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
 
-        return corbel.Resources.ResourceBase;
+        return corbel.Resources.BaseResource;
 
     })();
-
     (function() {
         /**
          * Relation
@@ -3884,7 +3888,7 @@
          * @param  {String} srcId       The source resource id
          * @param  {String} destType    The destination resource type
          */
-        corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+        corbel.Resources.Relation = corbel.Resources.BaseResource.inherit({
 
             constructor: function(srcType, srcId, destType, driver, params) {
                 this.type = srcType;
@@ -3986,7 +3990,6 @@
         return corbel.Resources.Relation;
 
     })();
-
     (function() {
 
         /**
@@ -3996,7 +3999,7 @@
          * @param {String} type The collection type
          * @param {CorbelDriver} corbel instance
          */
-        corbel.Resources.Collection = corbel.Resources.ResourceBase.inherit({
+        corbel.Resources.Collection = corbel.Resources.BaseResource.inherit({
 
             constructor: function(type, driver, params) {
                 this.type = type;
@@ -4053,7 +4056,6 @@
         return corbel.Resources.Collection;
 
     })();
-
     (function() {
         /**
          * Builder for resource requests
@@ -4062,7 +4064,7 @@
          * @param  {String} type    The resource type
          * @param  {String} id      The resource id
          */
-        corbel.Resources.Resource = corbel.Resources.ResourceBase.inherit({
+        corbel.Resources.Resource = corbel.Resources.BaseResource.inherit({
 
             constructor: function(type, id, driver, params) {
                 this.type = type;

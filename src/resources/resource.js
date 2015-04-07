@@ -11,7 +11,7 @@
      * @param  {String} type    The resource type
      * @param  {String} id      The resource id
      */
-    corbel.Resources.Resource = corbel.Resources.ResourceBase.inherit({
+    corbel.Resources.Resource = corbel.Resources.BaseResource.inherit({
 
         constructor: function(type, id, driver, params) {
             this.type = type;

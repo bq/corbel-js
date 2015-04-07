@@ -12,7 +12,7 @@
       * @param  {String} srcId       The source resource id
       * @param  {String} destType    The destination resource type
       */
-     corbel.Resources.Relation = corbel.Resources.ResourceBase.inherit({
+     corbel.Resources.Relation = corbel.Resources.BaseResource.inherit({
 
          constructor: function(srcType, srcId, destType, driver, params) {
              this.type = srcType;

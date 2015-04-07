@@ -27,7 +27,7 @@
      * @class
      * @memberOf iam
      */
-    var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
+    var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.BaseServices.inherit({
 
         constructor: function(domainId) {
             this.domainId = domainId;
