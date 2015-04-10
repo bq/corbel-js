@@ -68,22 +68,21 @@ https://confluence.bq.com/pages/viewpage.action?title=SilkRoad+-+Resources+API&s
 Resources is exposed to corbelDriver instance and It has static methods and variables inside corbel namespace:
 
 *   Statics properties and methods in **corbel.Resources**:
-
-+   **create**: Factory **method** for instantiating a Resources object
-+   **sort**: Sort **constants object**
->   corbel.Resources.sort.ASC
->   corbel.Resources.sort.DESC
-+   **ALL**: **Constant** for use to specify all resources wildcard
->   corbel.Resources.ALL
+    +   **create**: Factory **method** for instantiating a Resources object
+    +   **sort**: Sort **constants object**
+    `corbel.Resources.sort.ASC`
+    `corbel.Resources.sort.DESC`
+    +   **ALL**: **Constant** for use to specify all resources wildcard
+    `corbel.Resources.ALL`
 
 *   Instance methods
 
 *   **collection**: Collection factory method **collection('collectionName')**
->   corbelDriver.resources.collection('collectionName')
+`corbelDriver.resources.collection('collectionName')`
 *   **resource**: Resource factory method **resource('resourceName',id)**
->    corbelDriver.resources.resource('resourceName',id)
+`corbelDriver.resources.resource('resourceName',id)`
 *   **relation**: Relation factory method **relation('sourceResourceName', sourceResourceId, 'destResourceName')**
->    corbelDriver.resources.relation('sourceResourceName', sourceResourceId, 'destResourceName')
+`corbelDriver.resources.relation('sourceResourceName', sourceResourceId, 'destResourceName')`
 
 
 #### Collection
@@ -99,12 +98,12 @@ A collection is a container of resources that share the same type. For instance:
 **Collection API**
 
 *   Factory method
->   corbelDriver.resources.collection('collectionName')
+`corbelDriver.resources.collection('collectionName')`
 
 *   **get**: Gets a collection of elements, filtered, paginated or sorted **(requestOptionsObject)**
->   corbelDriver.resources.collection('collectionName').get(requestOptionsObject)
+`corbelDriver.resources.collection('collectionName').get(requestOptionsObject)`
 *   **add**: Adds a new element to a collection **(objectData,requestOptionsObject)**
->   corbelDriver.resources.collection('collectionName').add(objectData,requestOptionsObject)
+`corbelDriver.resources.collection('collectionName').add(objectData,requestOptionsObject)`
 
 Examples: 
 
@@ -123,13 +122,13 @@ collection.add({//related data
 Following params can be passed both as request options object and as chainable methods:
 
 *   Pagination:
->   {pagination: {page: 1, pageSize: 5}}
+`{pagination: {page: 1, pageSize: 5}}`
 *   Aggregations:
->   {aggregation: {count: '*'}}
+`{aggregation: {count: '*'}}`
 *   Sort:
->   {sort: {title: corbel.Resources.order.sort}}
+`{sort: {title: corbel.Resources.order.sort}}`
 *   Querys:
->   {query: [{$like: {} }, {$:{} } ]}
+`{query: [{$like: {} }, {$:{} } ]}`
 
 
 Examples: 
@@ -165,16 +164,16 @@ collection.get({//request options
 **Relation API**
 
 *   Factory method
->   corbelDriver.resources.relation('resourceName', srcId, 'relationName')
+`corbelDriver.resources.relation('resourceName', srcId, 'relationName')`
 
 +   **get**: List elements of a resource's relation **(destId, requestOptionsObject)**
->   corbelDriver.resources.relation('resourceName',15,'relationName').get(destId, requestOptionsObject)
+`corbelDriver.resources.relation('resourceName',15,'relationName').get(destId, requestOptionsObject)`
 *   **add**: Add new relation **(destId, relationData, requestOptionsObject)**
->   corbelDriver.resources.relation('resourceName',15,'relationName').add(destId, relationData, requestOptionsObject)
+`corbelDriver.resources.relation('resourceName',15,'relationName').add(destId, relationData, requestOptionsObject)`
 *   **move**: Move a relation **(destId, pos, requestOptionsObject)**
->   corbelDriver.resources.relation('resourceName',15,'relatio nName').move(destId, pos, requestOptionsObject)
+`corbelDriver.resources.relation('resourceName',15,'relatio nName').move(destId, pos, requestOptionsObject)`
 *   **delete**: Delete a relation **(destId, requestOptionsObject)**
->   corbelDriver.resources.relation('resourceName',15,'relationName').delete(destId, requestOptionsObject)
+`corbelDriver.resources.relation('resourceName',15,'relationName').delete(destId, requestOptionsObject)`
 
 Examples: 
 
@@ -228,14 +227,14 @@ A resource is a single object in a collection. For instance
 **Resources API**
 
 *   Factory method
->   corbelDriver.resources.resource('resourceName', resourceId)
+`corbelDriver.resources.resource('resourceName', resourceId)`
 
 *   **get**: Get a resource representation **(requestOptionsObject)**
->   corbelDriver.resources.resource('resourceName',resourceId).get(requestOptionsObject)
+`corbelDriver.resources.resource('resourceName',resourceId).get(requestOptionsObject)`
 *   **update**: Update a resource **(resourceData, requestOptionsObject)**
->   corbelDriver.resources.resource('resourceName',resourceId).update(resourceData, requestOptionsObject)
+`corbelDriver.resources.resource('resourceName',resourceId).update(resourceData, requestOptionsObject)`
 *   **delete**: Delete a resource **(requestOptionsObject)**
->   corbelDriver.resources.resource('resourceName',resourceId).delete(requestOptionsObject)
+`corbelDriver.resources.resource('resourceName',resourceId).delete(requestOptionsObject)`
 
 Examples:
 
