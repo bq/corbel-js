@@ -3,3 +3,4 @@ examples/webserver/node_modules
 bower_components
 .tmp
 *.log
+storage

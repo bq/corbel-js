@@ -67,7 +67,7 @@
          },
 
          /**
-          * Adds a new relation between Resources
+          * Move a relation
           * @method
           * @memberOf Resources.Relation
           * @param  {Integer} pos          The new position
