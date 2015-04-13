@@ -25,12 +25,12 @@ var corbelDriver = corbel.getDriver(options);
 
 ```javascript
 var options = {
-	'clientId': 'clientId',
-	'clientSecret': 'clientSecret',
+    'clientId': 'clientId',
+    'clientSecret': 'clientSecret',
 
-	'urlBase': 'http://localhost:8080/{{module}}',
+    'urlBase': 'http://localhost:8080/{{module}}',
 
-	'scopes': 'scopes',
+    'scopes': 'scopes',
 
     'device_id'
 }
@@ -67,23 +67,40 @@ https://confluence.bq.com/pages/viewpage.action?title=SilkRoad+-+Resources+API&s
 
 Resources is exposed to corbelDriver instance and It has static methods and variables inside corbel namespace:
 
-*   Statics properties and methods in **corbel.Resources**:
-    +   **create**: Factory **method** for instantiating a Resources object
-    +   **sort**: Sort **constants object**
-    `corbel.Resources.sort.ASC`
-    `corbel.Resources.sort.DESC`
-    +   **ALL**: **Constant** for use to specify all resources wildcard
-    `corbel.Resources.ALL`
+* Statics properties and methods in **corbel.Resources**:
+  * **create**: Factory **method** for instantiating a Resources object
+  * **sort**: Sort **constants object**
+    
+    ```javascript
+    corbel.Resources.sort.ASC
+    corbel.Resources.sort.DESC
+    ```
 
-*   Instance methods
+  * **ALL**: **Constant** for use to specify all resources wildcard
+    
+    ```javascript
+    corbel.Resources.ALL
+    ```
 
-*   **collection**: Collection factory method **collection('collectionName')**
-`corbelDriver.resources.collection('collectionName')`
-*   **resource**: Resource factory method **resource('resourceName',id)**
-`corbelDriver.resources.resource('resourceName',id)`
-*   **relation**: Relation factory method **relation('sourceResourceName', sourceResourceId, 'destResourceName')**
-`corbelDriver.resources.relation('sourceResourceName', sourceResourceId, 'destResourceName')`
+* Instance methods
 
+* **collection**: Collection factory method **collection('collectionName')**
+
+  ```javascript
+  corbelDriver.resources.collection('collectionName')
+  ```
+
+* **resource**: Resource factory method **resource('resourceName',id)**
+  
+  ```javascript
+  corbelDriver.resources.resource('resourceName',id)
+  ```
+
+* **relation**: Relation factory method **relation('sourceResourceName', sourceResourceId, 'destResourceName')**
+
+  ```javascript
+  corbelDriver.resources.relation('sourceResourceName', sourceResourceId, 'destResourceName')
+  ```
 
 #### Collection
 
@@ -97,23 +114,34 @@ A collection is a container of resources that share the same type. For instance:
 
 **Collection API**
 
-*   Factory method
-`corbelDriver.resources.collection('collectionName')`
+* Factory method
 
-*   **get**: Gets a collection of elements, filtered, paginated or sorted **(requestOptionsObject)**
-`corbelDriver.resources.collection('collectionName').get(requestOptionsObject)`
-*   **add**: Adds a new element to a collection **(objectData,requestOptionsObject)**
-`corbelDriver.resources.collection('collectionName').add(objectData,requestOptionsObject)`
+  ```javascript
+  corbelDriver.resources.collection('collectionName')
+  ```
+
+* **get**: Gets a collection of elements, filtered, paginated or sorted **(requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.collection('collectionName').get(requestOptionsObject)
+  ```
+
+* **add**: Adds a new element to a collection **(objectData,requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.collection('collectionName').add(objectData,requestOptionsObject)
+  ```
 
 Examples: 
 
 ```javascript
-collection.add({//related data
+collection.add({
+    //related data
     name: 'New model name',
     lastName: 'New model last name'
-},{//request options
-}).then(function(idNewModel){
-});
+},{
+    //request options
+}).then(function(idNewModel){ });
 ```
 
 **Collection request params API**
@@ -121,30 +149,45 @@ collection.add({//related data
 
 Following params can be passed both as request options object and as chainable methods:
 
-*   Pagination:
-`{pagination: {page: 1, pageSize: 5}}`
-*   Aggregations:
-`{aggregation: {count: '*'}}`
-*   Sort:
-`{sort: {title: corbel.Resources.order.sort}}`
-*   Querys:
-`{query: [{$like: {} }, {$:{} } ]}`
+* Pagination:
 
+  ```
+  { pagination: { page: 1, pageSize: 5 } }
+  ```
+
+* Aggregations:
+
+  ```
+  { aggregation: { count: '*' } }
+  ```
+
+* Sort:
+  
+  ```
+  { sort: { title: corbel.Resources.order.sort } }
+  ```
+
+* Querys:
+
+  ```
+  { query: [{$like: {} }, {$:{} } ] }
+  ```
 
 Examples: 
 
 ```javascript
 var collection = corbelDriver.resources.collection('books:book');
 
-collection.get({//request options
+collection.get({
+    //request options
     query: [{
-        '$like': {
-            'name': 'Default name'
-        }
-}]).then(function(collectionData){
-});
+    '$like': {
+        'name': 'Default name'
+    }
+}]).then(function(collectionData){ });
 
-collection.get({//request options
+collection.get({
+    //request options
     dataType: 'application/json',
     pagination: {
         page: 1,
@@ -155,61 +198,72 @@ collection.get({//request options
             title: corbel.Resources.order.sort
         }
     }
-}]).then(function(collectionData){
-});
+}]).then(function(collectionData){ });
 ```
 
 #### Relations
 
 **Relation API**
 
-*   Factory method
-`corbelDriver.resources.relation('resourceName', srcId, 'relationName')`
+* Factory method
 
-+   **get**: List elements of a resource's relation **(destId, requestOptionsObject)**
-`corbelDriver.resources.relation('resourceName',15,'relationName').get(destId, requestOptionsObject)`
-*   **add**: Add new relation **(destId, relationData, requestOptionsObject)**
-`corbelDriver.resources.relation('resourceName',15,'relationName').add(destId, relationData, requestOptionsObject)`
-*   **move**: Move a relation **(destId, pos, requestOptionsObject)**
-`corbelDriver.resources.relation('resourceName',15,'relatio nName').move(destId, pos, requestOptionsObject)`
-*   **delete**: Delete a relation **(destId, requestOptionsObject)**
-`corbelDriver.resources.relation('resourceName',15,'relationName').delete(destId, requestOptionsObject)`
+  ```javascript
+  corbelDriver.resources.relation('resourceName', srcId, 'relationName')
+  ```
+
+* **get**: List elements of a resource's relation **(destId, requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.relation('resourceName',15,'relationName').get(destId, requestOptionsObject)
+  ```
+
+* **add**: Add new relation **(destId, relationData, requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.relation('resourceName',15,'relationName').add(destId, relationData, requestOptionsObject)
+  ```
+
+* **move**: Move a relation **(destId, pos, requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.relation('resourceName',15,'relatio nName').move(destId, pos, requestOptionsObject)
+  ```
+
+* **delete**: Delete a relation **(destId, requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.relation('resourceName',15,'relationName').delete(destId, requestOptionsObject)
+  ```
 
 Examples: 
 
 ```javascript
 var relation = corbelDriver.resources.relation('books:book','id1','id2');
 
-relation.get('destId',
-{//request options
-}).then(function(collectionData){
-});
+relation.get('destId', {
+    //request options
+}).then(function(collectionData){ });
 
-relation.add('15658',
-{//related data
+relation.add('15658', {
+    //related data
     name: 'New model name',
     lastName: 'New model last name'
-}, {//request options
+}, {
+    //request options
     query: [{
         $eq:{
             'name': 'Juanfran'
         }
     }]
-}).then(function(data){
+}).then(function(data){ });
 
-});
+relation.move('15658','pos', {
+    //request options
+}).then(function(){ });
 
-relation.move('15658','pos',
-{//request options
-}).then(function(){
-
-});
-
-relation.delete('15658',
-{//request options
-}).then(function(){
-
-});
+relation.delete('15658', {
+    //request options
+}).then(function(){ });
 ```
 
 
@@ -226,40 +280,52 @@ A resource is a single object in a collection. For instance
 
 **Resources API**
 
-*   Factory method
-`corbelDriver.resources.resource('resourceName', resourceId)`
+* Factory method
 
-*   **get**: Get a resource representation **(requestOptionsObject)**
-`corbelDriver.resources.resource('resourceName',resourceId).get(requestOptionsObject)`
-*   **update**: Update a resource **(resourceData, requestOptionsObject)**
-`corbelDriver.resources.resource('resourceName',resourceId).update(resourceData, requestOptionsObject)`
-*   **delete**: Delete a resource **(requestOptionsObject)**
-`corbelDriver.resources.resource('resourceName',resourceId).delete(requestOptionsObject)`
+  ```javascript
+  corbelDriver.resources.resource('resourceName', resourceId)
+  ```
+
+* **get**: Get a resource representation **(requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources
+    .resource('resourceName',resourceId)
+    .get(requestOptionsObject)
+  ```
+
+* **update**: Update a resource **(resourceData, requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.resource('resourceName',resourceId).update(resourceData, requestOptionsObject)
+  ```
+
+* **delete**: Delete a resource **(requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources.resource('resourceName',resourceId).delete(requestOptionsObject)
+  ```
 
 Examples:
 
 ```javascript
 var resource = corbelDriver.resources.resource('books:book', 15);
 
-resource.get(
-{//request options
-}).then(function(resourceData){
-});
+resource.get({
+    //request options
+}).then(function(resourceData){ });
 
-resource.update('resource',
-{//related data
+resource.update('resource', {
+    //related data
     name: 'Update model name',
     lastName: 'Update model last name'
-}, {//request options
-}).then(function(data){
+}, {
+  //request options
+}).then(function(data){ });
 
-});
-
-resource.delete('resourceId',
-{//request options
-}).then(function(){
-
-});
+resource.delete('resourceId', {
+    //request options
+}).then(function(){ });
 ```
 
 ### Chainable API
@@ -283,7 +349,8 @@ collection.like('name','default name').page(5).pageSize(7).get();
 
 //Collection doesn't have the defaults chainable params
 
-collection.get(); //this get request will not use any request params previously defined 
+//this get request will not use any request params previously defined 
+collection.get();
 
 ```
 
@@ -291,11 +358,20 @@ collection.get(); //this get request will not use any request params previously 
 ## Manage application session
 
 ```javascript
-corbelDriver.session.get('key'); //get value from local storage
-corbelDriver.session.add('key', value, isPersistent); //add value to the local storage
-corbelDriver.session.gatekeeper(); //return true if the session driver is active
-corbelDriver.session.destroy(); //clear the current session data
-corbelDriver.session.removeDir(); //in nodejs, remove the directory/files of the current session
+//get value from local storage
+corbelDriver.session.get('key');
+
+//add value to the local storage
+corbelDriver.session.add('key', value, isPersistent);
+
+//return true if the session driver is active
+corbelDriver.session.gatekeeper();
+
+//clear the current session data
+corbelDriver.session.destroy();
+
+//in nodejs, remove the directory/files of the current session
+corbelDriver.session.removeDir();
 ```
 
 ## library static methods
@@ -306,4 +382,3 @@ corbel.request.send(params);
 corbel.Resources
 // ... more
 ```
-
