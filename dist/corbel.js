@@ -1286,13 +1286,23 @@
                 headers: params.headers,
                 body: params.data || ''
             }, function(error, response, body) {
+                var responseType;
+                var status;
+
+                /*            if (error) {
+                              responseType = undefined;
+                              status = 0;
+                            } else {*/
+                responseType = response.responseType || response.headers['content-type'];
+                status = response.statusCode;
+                //}
 
                 processResponse.call(this, {
                     responseObject: response,
                     dataType: params.dataType,
-                    responseType: response.responseType || response.headers['content-type'],
+                    responseType: responseType,
                     response: body,
-                    status: response.statusCode,
+                    status: status,
                     responseObjectType: 'response',
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
@@ -2969,7 +2979,7 @@
             },
 
             /**
-             * Adds a new relation between Resources
+             * Move a relation
              * @method
              * @memberOf Resources.Relation
              * @param  {Integer} pos          The new position
