@@ -67,6 +67,7 @@
     "grunt-node-inspector": "^0.1.5",
     "grunt-open": "0.2.3",
     "grunt-preprocess": "^4.1.0",
+    "grunt-release": "^0.12.0",
     "grunt-requirejs": "^0.4.2",
     "grunt-usemin": "^3.0.0",
     "i": "^0.3.2",

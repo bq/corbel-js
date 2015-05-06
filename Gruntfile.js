@@ -275,6 +275,16 @@ module.exports = function(grunt) {
                 src: 'test/browser/test-suite.js',
                 dest: '.tmp/test/browser/test-suite.js'
             }
+        },
+        release: {
+            /* For more options: https://github.com/geddski/grunt-release#options */
+            options: {
+                additionalFiles: ['bower.json'],
+                indentation: '\t', //default: '  ' (two spaces)
+                commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
+                tagMessage: 'v<%= version %>', //default: 'Version <%= version %>',
+                tagName: 'v<%= version %>'
+            }
         }
     });
 
