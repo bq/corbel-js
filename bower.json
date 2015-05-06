@@ -1,41 +1,41 @@
 {
-    "name": "corbel-js",
-    "description": "corbel SDK compatible with browser and nodejs",
-    "version": "0.0.1",
-    "main": "dist/corbel.js",
-    "license": "Apache-2.0",
-    "keywords": [
-        "request",
-        "http",
-        "ajax",
-        "cors",
-        "corbel",
-        "nodejs"
-    ],
-    "authors": [
-        "Daniel García González <daniel.garcia@bq.com>",
-        "Anthanh Pham Trinh <@antaipt>"
-    ],
-    "homepage": "http://opensource.bq.com/corbel-js/",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/bq/corbel-js.git"
-    },
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "test",
-        "tests"
-    ],
-    "dependencies": {
-        "es6-promise": "~2.0.1"
-    },
-    "devDependencies": {
-        "mocha": "2.0.1",
-        "chai": "1.9.2",
-        "sinon": "~1.12.2",
-        "jquery": "~2.1.3",
-        "chai-as-promised": "~4.3.0"
-    }
+  "name": "corbel-js",
+  "description": "corbel SDK compatible with browser and nodejs",
+  "version": "0.0.2",
+  "main": "dist/corbel.js",
+  "license": "Apache-2.0",
+  "keywords": [
+    "request",
+    "http",
+    "ajax",
+    "cors",
+    "corbel",
+    "nodejs"
+  ],
+  "authors": [
+    "Daniel García González <daniel.garcia@bq.com>",
+    "Anthanh Pham Trinh <@antaipt>"
+  ],
+  "homepage": "http://opensource.bq.com/corbel-js/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bq/corbel-js.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "es6-promise": "~2.0.1"
+  },
+  "devDependencies": {
+    "mocha": "2.0.1",
+    "chai": "1.9.2",
+    "sinon": "~1.12.2",
+    "jquery": "~2.1.3",
+    "chai-as-promised": "~4.3.0"
+  }
 }
