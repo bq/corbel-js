@@ -24,6 +24,8 @@
 
     }, {
 
+        moduleName: 'resources',
+
         sort: {
 
             /**

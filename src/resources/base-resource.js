@@ -18,7 +18,7 @@
 
             var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
                 this.driver.config.get('resourcesEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'resources');
+                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName);
 
             var uri = urlBase + 'resource/' + srcType;
 
