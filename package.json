@@ -81,7 +81,7 @@
     "underscore": "^1.8.2"
   },
   "scripts": {
-    "prepublish": "grunt dist",
+    "prepublish": "bower install && grunt dist",
     "test": "node $(which grunt) test:node",
     "test:node:debug": "node-debug $(which grunt) test:node",
     "test:browser:debug": "node-debug $(which grunt) test:browser",
