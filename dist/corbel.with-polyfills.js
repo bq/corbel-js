@@ -2636,6 +2636,8 @@
             this.driver = driver;
         };
 
+        Iam.moduleName = 'iam';
+
         Iam.create = function(driver) {
             return new Iam(driver);
         };
@@ -2662,7 +2664,7 @@
 
             var urlBase = this.driver.config.get('iamEndpoint', null) ?
                 this.driver.config.get('iamEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'iam');
+                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName);
 
             return urlBase + uri;
         };
@@ -3795,6 +3797,8 @@
 
         }, {
 
+            moduleName: 'resources',
+
             sort: {
 
                 /**
@@ -3845,7 +3849,7 @@
 
                 var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
                     this.driver.config.get('resourcesEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, 'resources');
+                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName);
 
                 var uri = urlBase + 'resource/' + srcType;
 
