@@ -56,6 +56,8 @@
     //  @include ../request-params/page-builder.js
     //  @include ../request-params/sort-builder.js
     //  @include ../request-params/request-params-builder.js
+    //  @include ../assets/assets.js
+    //  @include ../assets/assets-builder.js
     //  @include ../resources/resources.js
     //  @include ../resources/base-resource.js
     //  @include ../resources/relation.js

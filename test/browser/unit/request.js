@@ -1,4 +1,5 @@
 'use strict';
+
 describe('corbel-js browser', function() {
 
     var sandbox;
