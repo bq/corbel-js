@@ -90,7 +90,13 @@
                 serialize = root.atob;
             }
             var decoded = assertion.split('.');
-            return [JSON.parse(serialize(decoded[0])), JSON.parse(serialize(decoded[1]))];
+            decoded[0] = JSON.parse(serialize(decoded[0]));
+            try {
+                decoded[1] = JSON.parse(serialize(decoded[1]));
+            } catch (e) {
+                decoded[1] = {};
+            }
+            return [decoded[0], decoded[1]];
         }
 
     };
