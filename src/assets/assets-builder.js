@@ -4,7 +4,7 @@
 //@endexclude
 
 (function() {
-    
+
     var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.BaseServices.inherit({
 
         /**

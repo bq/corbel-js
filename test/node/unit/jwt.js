@@ -62,15 +62,15 @@ describe('JWT module', function() {
         claims.scope = ['scope:example1', 'scope:example2'];
         assertion = corbel.jwt.generate(claims, secret);
         var jwtDecoded = corbel.jwt.decode(assertion);
-        expect(jwtDecoded.length).to.be.equal(2);
+        expect(jwtDecoded).to.be.an('object');
         
-        expect(jwtDecoded[0].typ).to.be.equal('JWT');
-        expect(jwtDecoded[0].alg).to.be.equal('HS256');
+        expect(jwtDecoded.typ).to.be.equal('JWT');
+        expect(jwtDecoded.alg).to.be.equal('HS256');
 
-        expect(jwtDecoded[1].iss).to.be.equal('clientId');
-        expect(jwtDecoded[1].aud).to.be.equal('http://iam.bqws.io');
-        expect(jwtDecoded[1].exp).to.be.equal(12345);
-        expect(jwtDecoded[1].scope).to.be.equal('scope:example1 scope:example2');
+        expect(jwtDecoded.iss).to.be.equal('clientId');
+        expect(jwtDecoded.aud).to.be.equal('http://iam.bqws.io');
+        expect(jwtDecoded.exp).to.be.equal(12345);
+        expect(jwtDecoded.scope).to.be.equal('scope:example1 scope:example2');
     });
 
     describe('when generating claims', function() {

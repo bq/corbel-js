@@ -90,13 +90,26 @@
                 serialize = root.atob;
             }
             var decoded = assertion.split('.');
-            decoded[0] = JSON.parse(serialize(decoded[0]));
+
+            try {
+                decoded[0] = JSON.parse(serialize(decoded[0]));
+            } catch (e) {
+                console.log('error:jwt:decode:0');
+                decoded[0] = {};
+            }
+
             try {
                 decoded[1] = JSON.parse(serialize(decoded[1]));
             } catch (e) {
+                console.log('error:jwt:decode:1');
                 decoded[1] = {};
             }
-            return [decoded[0], decoded[1]];
+
+            Object.keys(decoded[1]).forEach(function(key) {
+                decoded[0][key] = decoded[1][key];
+            });
+
+            return decoded[0];
         }
 
     };
