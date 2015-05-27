@@ -63,6 +63,8 @@
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js
+    //  @include ../evci/evci.js
+    //  @include ../evci/eventBuilder.js
 
     return corbel;
 });
