@@ -77,11 +77,11 @@
         }
     };
 
-    request.serialize = function (data, contentType) {
+    request.serialize = function(data, contentType) {
         var serialized;
         Object.keys(request.serializeHandlers).forEach(function(type) {
             if (contentType.indexOf(type) !== -1) {
-                serialized =  request.serializeHandlers[type](data);
+                serialized = request.serializeHandlers[type](data);
             }
         });
         return serialized;
@@ -129,7 +129,7 @@
      * @param  {String} options.url                                 The request url domain
      * @param  {String} options.method                              The method used for the request
      * @param  {Object} options.headers                             The request headers
-     * @param  {String} options.responseType                         The response type of the body
+     * @param  {String} options.responseType                        The response type of the body
      * @param  {String} options.contentType                         The content type of the body
      * @param  {Object || Uint8Array || blob} options.dataType          Optional data sent to the server
      * @param  {Function} options.success                           Callback function for success request response
@@ -171,10 +171,10 @@
                 reject: reject
             };
 
-            if (typeof module !== 'undefined' && module.exports) { //nodejs
-                nodeAjax.call(this, params, resolver);
-            } else if (typeof window !== 'undefined') { //browser
+            if (typeof window !== 'undefined') { //browser
                 browserAjax.call(this, params, resolver);
+            } else { //nodejs
+                nodeAjax.call(this, params, resolver);
             }
         }.bind(this));
 
@@ -258,11 +258,11 @@
             var status;
 
             if (error) {
-              responseType = undefined;
-              status = 0;
+                responseType = undefined;
+                status = 0;
             } else {
-              responseType = response.responseType || response.headers['content-type'];
-              status = response.statusCode;
+                responseType = response.responseType || response.headers['content-type'];
+                status = response.statusCode;
             }
 
             processResponse.call(this, {

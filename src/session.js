@@ -23,7 +23,7 @@
             this.driver = driver;
             this.status = '';
             //Set localStorage in node-js enviroment
-            if (typeof localStorage === 'undefined' || localStorage === null && /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+            if (typeof localStorage === 'undefined' || localStorage === null && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
                 var LocalStorage = require('node-localstorage').LocalStorage,
                     fs = require('fs');
 

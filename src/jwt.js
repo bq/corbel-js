@@ -83,7 +83,7 @@
 
         decode: function(assertion) {
             var serialize;
-            if (!root.atob) {
+            if (typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
                 // node environment
                 serialize = require('atob');
             } else {
