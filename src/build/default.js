@@ -63,6 +63,10 @@
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js
+    //  @include ../borrow/borrow.js
+    //  @include ../borrow/borrowBuilder.js
+    //  @include ../borrow/userBuilder.js
+    //  @include ../borrow/lenderBuilder.js
 
     return corbel;
 });
