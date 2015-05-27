@@ -73,6 +73,10 @@
     //  @include ../ec/productBuilder.js
     //  @include ../evci/evci.js
     //  @include ../evci/eventBuilder.js
+    //  @include ../borrow/borrow.js
+    //  @include ../borrow/borrowBuilder.js
+    //  @include ../borrow/userBuilder.js
+    //  @include ../borrow/lenderBuilder.js
 
     return corbel;
 });

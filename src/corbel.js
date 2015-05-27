@@ -4,7 +4,7 @@
 
 /* global corbel */
 
-//deps: [corbel.utils, corbel.Config, corbel.Iam, corbel.Resources, corbel.Services, Corbel.Session, corbel.Evci]
+//deps: [corbel.utils, corbel.Config, corbel.Iam, corbel.Resources, corbel.Services, corbel.Session, corbel.Oauth, corbel.Notifications, corbel.Ec, corbel.Evci, corbel.Borrow]
 
 //@endexclude
 
@@ -25,6 +25,7 @@
         this.notifications = corbel.Notifications.create(this);
         this.ec = corbel.Ec.create(this);
         this.evci = corbel.Evci.create(this);
+        this.borrow = corbel.Borrow.create(this);
     }
 
     corbel.CorbelDriver = CorbelDriver;
