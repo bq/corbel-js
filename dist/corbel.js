@@ -40,6 +40,7 @@
             this.assets = corbel.Assets.create(this);
             this.services = corbel.Services.create(this);
             this.session = corbel.Session.create(this);
+            this.borrow = corbel.Borrow.create(this);
         }
 
         corbel.CorbelDriver = CorbelDriver;
@@ -3318,6 +3319,621 @@
         return corbel.Resources.Resource;
 
     })();
+    (function() {
+
+        /**
+         * A module to make Borrow requests.
+         * @exports Borrow
+         * @namespace
+         * @memberof app.corbel
+         */
+
+        var Borrow = corbel.Borrow = function(driver) {
+            this.driver = driver;
+
+            var urlBase = this.driver.config.get('borrowEndpoint', null) ||
+                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Borrow.moduleName);
+
+            if (urlBase.slice(-1) === '/') {
+                urlBase = urlBase.substring(0, urlBase.length - 1);
+            }
+
+            Borrow.urlBase = urlBase;
+        };
+
+        Borrow.moduleName = 'borrow';
+
+        Borrow.create = function(driver) {
+            return new Borrow(driver);
+        };
+
+        /**
+         * COMMON MIXINS
+         */
+
+        /**
+         * Private method to build a string uri
+         * @private
+         * @param  {Object} arguments
+         * @return {String}
+         */
+        Borrow._buildUri = function() {
+            var uri = '';
+            Array.prototype.slice.call(arguments).forEach(function(argument) {
+                if (argument) {
+                    uri += '/' + argument;
+                }
+            });
+            return Borrow.urlBase + uri;
+        };
+    })();
+
+    (function() {
+
+        /**
+         * Create a BorrowBuilder for resource managing requests.
+         *
+         * @param {String}  id  The id of the borrow.
+         *
+         * @return {corbel.Borrow.BorrowBuilder}
+         */
+        corbel.Borrow.prototype.resource = function(id) {
+            var resource = new BorrowBuilder(id);
+            resource.driver = this.driver;
+            return resource;
+        };
+        /**
+         * A builder for borrowed management requests.
+         *
+         * @param {String}  id resource ID.
+         *
+         * @class
+         * @memberOf corbel.Borrow.BorrowBuilder
+         */
+        var BorrowBuilder = corbel.Borrow.BorrowBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(id) {
+                this.id = id;
+                this.uri = 'resource';
+            },
+            /**
+             * Adds the loanable resource.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {Object}   loanable resource                          The loanable resource data.
+             * @param {String}   loanableResource.resourceId                Identifier of resource
+             * @param {Object[]} loanableResource.licenses                  Licenses list
+             * @param {number}   loanableResource.licenses[].availableUses  Amount of uses that the resource is available
+             * @param {number}   loanableResource.licenses[].availableLoans Amount of concurrent loans are available for the resource
+             * @param {timestamp}loanableResource.licenses[].expire         Expire date
+             * @param {timestamp}loanableResource.licenses[].start          Start date
+             * @param {Object}   loanableResource.asset                     Asigned to the resource
+             * @param {String[]} loanableResource.asset.scopes              Scope list
+             * @param {String}   loanableResource.asset.name                Asset name
+             *
+             * @return {Promise} A promise with the id of the created loanable resources or fails
+             *                   with a {@link corbelError}.
+             */
+            add: function(loanableResource) {
+                console.log('borrowInterface.resource.add', loanableResource);
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.POST,
+                    data: loanableResource,
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Get a loanable resource.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise with loanable resource {Object} or fails with a {@link corbelError}.
+             */
+            get: function() {
+                console.log('borrowInterface.resource.get');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Delete a loanable resource.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            delete: function() {
+                console.log('borrowInterface.resource.delete');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Add license to loanable resource.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {Object} data   licenses data.
+             * @param {Object} license                 The license data.
+             * @param {String} license.resourceId      Identifier of resource
+             * @param {number} licensee.availableUses  Amount of uses that the resource is available
+             * @param {number} license.availableLoans  Amount of concurrent loans are available for the resource
+             * @param {timestamp} license.expire       Expire date
+             * @param {timestamp} licensee.start       Start date
+             * @param {String} license.asset           Asigned to the resource
+    
+             * @return {Promise} A promise with the id of the created a license or fails
+             *                   with a {@link corbelError}.
+             */
+            addLicense: function(license) {
+                console.log('borrowInterface.resource.addLicense', license);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'license'),
+                    method: corbel.request.method.POST,
+                    data: license,
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Apply loan.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {String} userId    user id.
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            applyFor: function(userId) {
+                console.log('borrowInterface.resource.applyFor', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/' + userId),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Apply loan for user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            applyForMe: function() {
+                console.log('borrowInterface.resource.applyForMe');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/me'),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Get lent.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {String} userId    user id.
+             *
+             * @return {Promise} A promise with user lents {Object} or fails with a {@link corbelError}.
+             */
+            getLentOf: function(userId) {
+                console.log('borrowInterface.resource.getLentOf', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/' + userId),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Get lent of user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             * @return {Promise} A promise with user logged lents {Object} or fails with a {@link corbelError}.
+             */
+            getMyLent: function() {
+                console.log('borrowInterface.resource.getMyLent');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/me'),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Return lent.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {String} userId    user id.
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            returnLoanOf: function(userId) {
+                console.log('borrowInterface.resource.returnLoanOf', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/' + userId),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Return loan of user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            returnMyLoan: function() {
+                console.log('borrowInterface.resource.returnMyLoan');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan/me'),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Renew loan.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param  {String} userId    The userId
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            renewFor: function(userId) {
+                console.log('borrowInterface.resource.renewFor', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'renewal/' + userId),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Renew loan for user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            renewForMe: function() {
+                console.log('borrowInterface.resource.renewForMe');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'renewal/me'),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Reserve a resource.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param  {String} userId    The userId
+             *
+             * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            reserveFor: function(userId) {
+                console.log('borrowInterface.resource.reserveFor', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Reserve a resource for user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            reserveForMe: function() {
+                console.log('borrowInterface.resource.reserveForMe');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'reservation/me'),
+                    method: corbel.request.method.PUT
+                });
+            },
+            /**
+             * Cancel reservation.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {String} userId    user id.
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            cancelReservationFor: function(userId) {
+                console.log('borrowInterface.resource.cancelReservationFor', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Cancel reservation for user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            cancelMyReservation: function() {
+                console.log('borrowInterface.resource.cancelMyReservation');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'reservation/me'),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * get the user borrowed history.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @param {String} userId    user id.
+             *
+             * @return {Promise} A promise with user borowed {Object} history or fails with a {@link corbelError}.
+             */
+            getHistoryOf: function(userId) {
+                console.log('borrowInterface.resource.getHistoryOf', userId);
+                return this.request({
+                    url: this._buildUri(this.uri, 'history/' + userId),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Get lent of user logged.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             * @return {Promise} A promise with user logged borrowed {Object} history or fails with a {@link corbelError}.
+             */
+            getMyHistory: function() {
+                console.log('borrowInterface.resource.getMyHistory');
+                return this.request({
+                    url: this._buildUri(this.uri, 'history/me'),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * get full resources borrowed history.
+             *
+             * @method
+             * @memberOf corbel.Borrow.BorrowBuilder
+             *
+             * @return {Promise} A promise with borowed full {Object} history or fails with a {@link corbelError}.
+             */
+            getFullHistory: function(params) {
+                console.log('borrowInterface.resource.getFullHistory');
+                return this.request({
+                    url: this._buildUri(this.uri, 'history/'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            _buildUri: corbel.Borrow._buildUri
+        });
+    })();
+
+    (function() {
+
+        /**
+         * Create a UserBuilder for user managing requests.
+         *
+         * @param {String}  id  The id of the user.
+         *
+         * @return {corbel.Borrow.UserBuilder}
+         */
+        corbel.Borrow.prototype.user = function(id) {
+            var user = new UserBuilder(id);
+            user.driver = this.driver;
+            return user;
+        };
+        /**
+         * A builder for borrowed management requests.
+         *
+         * @param {String}  id user ID.
+         *
+         * @class
+         * @memberOf corbel.Borrow.UserBuilder
+         */
+        var UserBuilder = corbel.Borrow.UserBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(id) {
+                this.id = id || 'me';
+                this.uri = 'user';
+            },
+            /**
+             * Get all reservations of a user.
+             *
+             * @method
+             * @memberOf corbel.Borrow.UserBuilder
+             *
+             * @return {Promise} A promise with all user reservations {Object} or fails with a {@link corbelError}.
+             */
+            getAllReservations: function() {
+                console.log('borrowInterface.user.getAllReservations', this.id);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'reservation'),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             *  Get all loans of a user.
+             *
+             * @method
+             * @memberOf corbel.Borrow.UserBuilder
+             *
+             * @return {Promise} A promise with all user loans {Object} or fails with a {@link corbelError}.
+             */
+            getAllLoans: function() {
+                console.log('borrowInterface.user.getAllLoans', this.id);
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, 'loan'),
+                    method: corbel.request.method.GET
+                });
+            },
+
+
+            _buildUri: corbel.Borrow._buildUri
+        });
+    })();
+
+    (function() {
+
+        /**
+         * Create a LenderBuilder for lender managing requests.
+         *
+         * @param {String}  id  The id of the lender.
+         *
+         * @return {corbel.Borrow.LenderBuilder}
+         */
+        corbel.Borrow.prototype.lender = function(id) {
+            var lender = new LenderBuilder(id);
+            lender.driver = this.driver;
+            return lender;
+        };
+        /**
+         * A builder for borrowed management requests.
+         *
+         * @param {String}  id lender ID.
+         *
+         * @class
+         * @memberOf corbel.Borrow.LenderBuilder
+         */
+        var LenderBuilder = corbel.Borrow.LenderBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(id) {
+                this.id = id;
+                this.uri = 'lender';
+            },
+            /**
+             * Create a new Lender
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             * @param {Object} lender                           The lender data
+             * @param {String} lender.id                        The lender name
+             * @param {String} lender.borrowPeriod              The borrow period
+             * @param {String} lender.freeReturnPeriod          Return without use
+             * @param {String} lender.reservationPeriod         Period to apply after wait on queue
+             * @param {String} lender.maxConcurrentLoansPerUser Number of loans at same time
+             * @param {String} lender.maxLoansPerUserInMonth    Limit number of loans per user
+             * @param {Object} lender.maxRenewalsPerResource    Number of times user can renew his loans
+             * @param {Object} lender.maxUsersInWaitingQueue    Waiting queue size
+             * @param {Object} lender.priority                  RENEW or RESERVE
+             * @return {Promise} A promise with the id of the created loanable resources or fails
+             *                   with a {@link corbelError}.
+             */
+            create: function(lender) {
+                console.log('borrowInterface.lender.create', lender);
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.POST,
+                    data: lender,
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Update a Lender.
+             *
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             *
+             * @param {Object} lender   The lender data.
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            update: function(lender) {
+                console.log('borrowInterface.lender.update');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.PUT,
+                    data: lender
+                });
+            },
+            /**
+             * Delete a Lender.
+             *
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             *
+             * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
+             */
+            delete: function() {
+                console.log('borrowInterface.lender.delete');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Get Lender.
+             *
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             *
+             * @return {Promise} A promise with lender {Object} or fails with a {@link corbelError}.
+             */
+            get: function() {
+                console.log('borrowInterface.lender.get');
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Get all Lenders.
+             *
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             *
+             * @return {Promise} A promise with all lenders {Object} or fails with a {@link corbelError}.
+             */
+            getAll: function(params) {
+                console.log('borrowInterface.lender.getAll');
+                return this.request({
+                    url: this._buildUri(this.uri, 'all'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+            /**
+             * Get all reservations by lender.
+             *
+             * @method
+             * @memberOf corbel.Borrow.LenderBuilder
+             *
+             * @return {Promise} A promise with all reservations {Object} by lender or fails with a {@link corbelError}.
+             */
+            getAllReservations: function(params) {
+                console.log('borrowInterface.lender.getAllReservations');
+                return this.request({
+                    url: this._buildUri(this.uri, 'reservation'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            _buildUri: corbel.Borrow._buildUri
+        });
+    })();
+
 
     return corbel;
 });
