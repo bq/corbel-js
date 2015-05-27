@@ -71,5 +71,8 @@
     //  @include ../notifications/notificationsBuilder.js
     //  @include ../ec/ec.js
     //  @include ../ec/productBuilder.js
+    //  @include ../evci/evci.js
+    //  @include ../evci/eventBuilder.js
+
     return corbel;
 });
