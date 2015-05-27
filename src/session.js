@@ -55,40 +55,6 @@
                 this.sessionStorage = sessionStorage;
             }
         },
-        /**
-         * Sets an application status to STATUS_SELECTOR
-         * @param {String} status Name of the status
-         * @param {Boolean} active true if active, false id disabled
-         */
-        setStatus: function(status, active) {
-            if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-                if (active) {
-                    this.status = status;
-                } else {
-                    this.status = 'not-' + status;
-                }
-            } else {
-                if (active) {
-                    $(this.STATUS_SELECTOR).removeClass('not-' + status).addClass(status);
-                } else {
-                    $(this.STATUS_SELECTOR).removeClass(status).addClass('not-' + status);
-                }
-            }
-
-            return this;
-        },
-
-        /**
-         * Removes a specific status from STATUS_SELECTOR
-         * @param  {String} status
-         */
-        removeStatus: function(status) {
-            if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-                this.status = '';
-            } else {
-                $(this.STATUS_SELECTOR).removeClass(status).removeClass('not-' + status);
-            }
-        },
 
         /**
          * Gets a specific session value
@@ -185,7 +151,6 @@
             this.add('loggedTime', new Date().getTime());
             this.add('user', args.user);
 
-            this.setStatus('logged', true);
         },
 
         /**
@@ -249,7 +214,6 @@
                 this.sessionStorage.clear();
             }
 
-            this.setStatus('logged', false);
         }
     }, {
         SESSION_PATH_DIR: './storage',

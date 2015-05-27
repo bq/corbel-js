@@ -38,6 +38,7 @@
             this.assets = corbel.Assets.create(this);
             this.services = corbel.Services.create(this);
             this.session = corbel.Session.create(this);
+            this.evci = corbel.Evci.create(this);
         }
 
         corbel.CorbelDriver = CorbelDriver;
@@ -743,40 +744,6 @@
                     this.sessionStorage = sessionStorage;
                 }
             },
-            /**
-             * Sets an application status to STATUS_SELECTOR
-             * @param {String} status Name of the status
-             * @param {Boolean} active true if active, false id disabled
-             */
-            setStatus: function(status, active) {
-                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-                    if (active) {
-                        this.status = status;
-                    } else {
-                        this.status = 'not-' + status;
-                    }
-                } else {
-                    if (active) {
-                        $(this.STATUS_SELECTOR).removeClass('not-' + status).addClass(status);
-                    } else {
-                        $(this.STATUS_SELECTOR).removeClass(status).addClass('not-' + status);
-                    }
-                }
-
-                return this;
-            },
-
-            /**
-             * Removes a specific status from STATUS_SELECTOR
-             * @param  {String} status
-             */
-            removeStatus: function(status) {
-                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-                    this.status = '';
-                } else {
-                    $(this.STATUS_SELECTOR).removeClass(status).removeClass('not-' + status);
-                }
-            },
 
             /**
              * Gets a specific session value
@@ -873,7 +840,6 @@
                 this.add('loggedTime', new Date().getTime());
                 this.add('user', args.user);
 
-                this.setStatus('logged', true);
             },
 
             /**
@@ -937,7 +903,6 @@
                     this.sessionStorage.clear();
                 }
 
-                this.setStatus('logged', false);
             }
         }, {
             SESSION_PATH_DIR: './storage',
@@ -1697,7 +1662,7 @@
          */
 
         /**
-         * Provate method to build a tring uri
+         * Private method to build a string uri
          * @private
          * @param  {String} uri
          * @param  {String|Number} id
@@ -3352,6 +3317,101 @@
 
         return corbel.Resources.Resource;
 
+    })();
+    (function() {
+        corbel.Evci = corbel.Object.inherit({
+
+            /**
+             * Create a new EventBuilder
+             * @param  {String} type String
+             * @return {Events}
+             */
+            constructor: function(driver) {
+                this.driver = driver;
+
+                return function(type) {
+                    var builder = new corbel.Evci.EventBuilder(type);
+                    builder.driver = driver;
+                    return builder;
+                };
+            },
+
+
+        }, {
+
+            moduleName: 'evci',
+
+            create: function(driver) {
+                return new corbel.Evci(driver);
+            }
+
+        });
+
+        return corbel.Evci;
+
+    })();
+
+
+    (function() {
+
+        var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.BaseServices.inherit({
+            /**
+             * Creates a new EventBuilder
+             * @param  {String} type
+             * @return {Events}
+             */
+            constructor: function(type) {
+                this.uri = 'event';
+                this.eventType = type;
+            },
+
+            /**
+             * Publish a new event.
+             *
+             * @method
+             * @memberOf corbel.Evci.EventBuilder
+             *
+             * @param {Object} eventData  The data of the event.
+             *
+             * @return {Promise} A promise with the id of the created scope or fails
+             *                   with a {@link corbelError}.
+             */
+            publish: function(eventData) {
+                console.log('evciInterface.publish', eventData);
+                return this.request({
+                    url: this._buildUri(this.uri, this.eventType),
+                    method: corbel.request.method.POST,
+                    data: eventData
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+
+            _buildUri: function(path, eventType) {
+                var uri = '',
+                    urlBase = this.driver.config.get('evciEndpoint', null) ?
+                    this.driver.config.get('evciEndpoint') :
+                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName);
+
+                uri = urlBase + path;
+                if (eventType) {
+                    uri += '/' + eventType;
+                }
+                return uri;
+            }
+
+        }, {
+
+            moduleName: 'evci',
+
+            create: function(driver) {
+                return new corbel.EventBuilder(driver);
+            }
+
+        });
+
+        return EventBuilder;
     })();
 
     return corbel;
