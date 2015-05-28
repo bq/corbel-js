@@ -23,6 +23,8 @@
 
     var corbel = {};
 
+    corbel.__env__ = typeof window === 'undefined' && typeof module !== 'undefined' && module.exports ? 'node' : 'browser';
+
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     (function() {
@@ -38,7 +40,6 @@
             this.assets = corbel.Assets.create(this);
             this.services = corbel.Services.create(this);
             this.session = corbel.Session.create(this);
-            this.evci = corbel.Evci.create(this);
         }
 
         corbel.CorbelDriver = CorbelDriver;
@@ -712,7 +713,7 @@
                 this.driver = driver;
                 this.status = '';
                 //Set localStorage in node-js enviroment
-                if (typeof localStorage === 'undefined' || localStorage === null && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+                if (corbel.__env__ === 'node') {
                     var LocalStorage = require('node-localstorage').LocalStorage,
                         fs = require('fs');
 
@@ -920,6 +921,7 @@
         return corbel.Session;
 
     })();
+
 
     //----------corbel modules----------------
 
@@ -1169,7 +1171,7 @@
                     reject: reject
                 };
 
-                if (typeof window !== 'undefined') { //browser
+                if (corbel.__env__ === 'browser') { //browser
                     browserAjax.call(this, params, resolver);
                 } else { //nodejs
                     nodeAjax.call(this, params, resolver);
@@ -1598,7 +1600,7 @@
 
             decode: function(assertion) {
                 var serialize;
-                if (typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+                if (corbel.__env__ === 'node') {
                     // node environment
                     serialize = require('atob');
                 } else {
@@ -3315,101 +3317,6 @@
 
         return corbel.Resources.Resource;
 
-    })();
-    (function() {
-        corbel.Evci = corbel.Object.inherit({
-
-            /**
-             * Create a new EventBuilder
-             * @param  {String} type String
-             * @return {Events}
-             */
-            constructor: function(driver) {
-                this.driver = driver;
-
-                return function(type) {
-                    var builder = new corbel.Evci.EventBuilder(type);
-                    builder.driver = driver;
-                    return builder;
-                };
-            },
-
-
-        }, {
-
-            moduleName: 'evci',
-
-            create: function(driver) {
-                return new corbel.Evci(driver);
-            }
-
-        });
-
-        return corbel.Evci;
-
-    })();
-
-
-    (function() {
-
-        var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.BaseServices.inherit({
-            /**
-             * Creates a new EventBuilder
-             * @param  {String} type
-             * @return {Events}
-             */
-            constructor: function(type) {
-                this.uri = 'event';
-                this.eventType = type;
-            },
-
-            /**
-             * Publish a new event.
-             *
-             * @method
-             * @memberOf corbel.Evci.EventBuilder
-             *
-             * @param {Object} eventData  The data of the event.
-             *
-             * @return {Promise} A promise with the id of the created scope or fails
-             *                   with a {@link corbelError}.
-             */
-            publish: function(eventData) {
-                console.log('evciInterface.publish', eventData);
-                return this.request({
-                    url: this._buildUri(this.uri, this.eventType),
-                    method: corbel.request.method.POST,
-                    data: eventData
-                }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
-                });
-            },
-
-            _buildUri: function(path, eventType) {
-                var uri = '',
-                    urlBase = this.driver.config.get('evciEndpoint', null) ?
-                    this.driver.config.get('evciEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName);
-
-                uri = urlBase + path;
-                if (eventType) {
-                    uri += '/' + eventType;
-                }
-                return uri;
-            }
-
-        }, {
-
-            moduleName: 'evci',
-
-            create: function(driver) {
-                return new corbel.EventBuilder(driver);
-            }
-
-        });
-
-        return EventBuilder;
     })();
 
     return corbel;
