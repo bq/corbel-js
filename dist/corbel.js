@@ -712,7 +712,7 @@
                 this.driver = driver;
                 this.status = '';
                 //Set localStorage in node-js enviroment
-                if (typeof localStorage === 'undefined' || localStorage === null && /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                if (typeof localStorage === 'undefined' || localStorage === null && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
                     var LocalStorage = require('node-localstorage').LocalStorage,
                         fs = require('fs');
 
@@ -1127,7 +1127,7 @@
          * @param  {String} options.url                                 The request url domain
          * @param  {String} options.method                              The method used for the request
          * @param  {Object} options.headers                             The request headers
-         * @param  {String} options.responseType                         The response type of the body
+         * @param  {String} options.responseType                        The response type of the body
          * @param  {String} options.contentType                         The content type of the body
          * @param  {Object || Uint8Array || blob} options.dataType          Optional data sent to the server
          * @param  {Function} options.success                           Callback function for success request response
@@ -1169,10 +1169,10 @@
                     reject: reject
                 };
 
-                if (typeof module !== 'undefined' && module.exports) { //nodejs
-                    nodeAjax.call(this, params, resolver);
-                } else if (typeof window !== 'undefined') { //browser
+                if (typeof window !== 'undefined') { //browser
                     browserAjax.call(this, params, resolver);
+                } else { //nodejs
+                    nodeAjax.call(this, params, resolver);
                 }
             }.bind(this));
 
@@ -1344,7 +1344,6 @@
         return request;
 
     })();
-
     var BaseServices = (function() {
         /**
          * A base object to inherit from for make corbel-js requests with custom behavior.
@@ -1599,7 +1598,7 @@
 
             decode: function(assertion) {
                 var serialize;
-                if (!root.atob) {
+                if (typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
                     // node environment
                     serialize = require('atob');
                 } else {
@@ -1633,7 +1632,6 @@
         return jwt;
 
     })();
-
     (function() {
 
         /**
