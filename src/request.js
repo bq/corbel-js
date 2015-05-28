@@ -171,10 +171,10 @@
                 reject: reject
             };
 
-            if (corbel.__env__ === 'browser') { //browser
-                browserAjax.call(this, params, resolver);
-            } else { //nodejs
+            if (corbel.Config.isNode) {
                 nodeAjax.call(this, params, resolver);
+            } else {
+                browserAjax.call(this, params, resolver);
             }
         }.bind(this));
 

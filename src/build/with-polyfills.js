@@ -20,8 +20,6 @@
 
     var corbel = {};
 
-    corbel.__env__ = typeof window === 'undefined' && typeof module !== 'undefined' && module.exports ? 'node' : 'browser';
-
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     //  @include ../corbel.js

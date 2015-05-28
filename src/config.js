@@ -17,7 +17,7 @@
 
     corbel.Config = Config;
 
-    Config.isNode = typeof module !== 'undefined' && module.exports;
+    Config.isNode = typeof window === 'undefined' && typeof module !== 'undefined' && module.exports;
 
     /**
      * Client type

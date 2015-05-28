@@ -23,7 +23,7 @@
             this.driver = driver;
             this.status = '';
             //Set localStorage in node-js enviroment
-            if (corbel.__env__ === 'node') {
+            if (corbel.Config.isNode) {
                 var LocalStorage = require('node-localstorage').LocalStorage,
                     fs = require('fs');
 
@@ -37,7 +37,7 @@
 
                 this.localStorage = new LocalStorage(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
 
-                process.on('exit', function() {
+                process.once('exit', function() {
                     // if (this.isPersistent() === false) {
                     this.destroy();
                     this.removeDir();
@@ -216,7 +216,7 @@
 
         }
     }, {
-        SESSION_PATH_DIR: './storage',
+        SESSION_PATH_DIR: './.storage',
 
         /**
          * Static factory method for session object
