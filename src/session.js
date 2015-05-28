@@ -40,7 +40,6 @@
                 process.once('exit', function() {
                     // if (this.isPersistent() === false) {
                     this.destroy();
-                    this.removeDir();
                     // }
                 }.bind(this));
 
@@ -155,20 +154,10 @@
 
         /**
          * Proxy call for session.add(key, undefined)
-         * @since 1.6.0
          * @param  {String} key
          */
         remove: function(key) {
             this.add(key);
-        },
-
-        removeDir: function() {
-            if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-                var fs = require('fs');
-                try {
-                    fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-                } catch (ex) {}
-            }
         },
 
         /**
@@ -208,8 +197,11 @@
          */
         destroy: function() {
             this.localStorage.clear();
-            if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-
+            if (corbel.Config.isNode) {
+                var fs = require('fs');
+                try {
+                    fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
+                } catch (ex) {}
             } else {
                 this.sessionStorage.clear();
             }
