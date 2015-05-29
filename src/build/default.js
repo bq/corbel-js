@@ -67,6 +67,8 @@
     //  @include ../oauth/authorizationBuilder.js
     //  @include ../oauth/tokenBuilder.js
     //  @include ../oauth/userBuilder.js
+    //  @include ../ec/ec.js
+    //  @include ../ec/productBuilder.js
 
     return corbel;
 });
