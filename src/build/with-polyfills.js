@@ -60,6 +60,10 @@
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js
+    //  @include ../oauth/oauth.js
+    //  @include ../oauth/authorizationBuilder.js
+    //  @include ../oauth/tokenBuilder.js
+    //  @include ../oauth/userBuilder.js
 
     return corbel;
 });
