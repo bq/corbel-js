@@ -5,8 +5,6 @@
 
 (function() {
 
-
-
     /**
      * Request object available for brwoser and node environment
      * @type {Object}
@@ -171,13 +169,12 @@
                 reject: reject
             };
 
-            if (corbel.Config.isNode) {
-                nodeAjax.call(this, params, resolver);
-            } else {
+            if (corbel.Config.isBrowser) { //browser
                 browserAjax.call(this, params, resolver);
+            } else { //nodejs
+                nodeAjax.call(this, params, resolver);
             }
         }.bind(this));
-
 
         return promise;
     };
@@ -242,7 +239,6 @@
         }
 
     };
-
 
     var nodeAjax = function(params, resolver) {
 

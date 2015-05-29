@@ -9,7 +9,7 @@
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var Promise = require('es6-promise').polyfill();
-        module.exports = factory(root);
+        module.exports = factory.call(root, root, process || undefined);
     } else if (root !== undefined) {
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
             root.ES6Promise.polyfill();
@@ -17,7 +17,7 @@
         root.corbel = factory(root);
     }
 
-})(this, function(root) {
+})(this, function(root, process) {
     'use strict';
     /* jshint unused: false */
 
