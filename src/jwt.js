@@ -83,7 +83,7 @@
 
         decode: function(assertion) {
             var serialize;
-            if (corbel.__env__ === 'node') {
+            if (corbel.Config.isNode) {
                 // node environment
                 serialize = require('atob');
             } else {

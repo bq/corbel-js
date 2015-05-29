@@ -9,7 +9,7 @@
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var Promise = require('es6-promise').polyfill();
-        module.exports = factory(root);
+        module.exports = factory.call(root, root, process || undefined);
     } else if (root !== undefined) {
         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
             root.ES6Promise.polyfill();
@@ -17,13 +17,11 @@
         root.corbel = factory(root);
     }
 
-})(this, function(root) {
+})(this, function(root, process) {
     'use strict';
     /* jshint unused: false */
 
     var corbel = {};
-
-    corbel.__env__ = typeof window === 'undefined' && typeof module !== 'undefined' && module.exports ? 'node' : 'browser';
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
@@ -713,7 +711,7 @@
                 this.driver = driver;
                 this.status = '';
                 //Set localStorage in node-js enviroment
-                if (corbel.__env__ === 'node') {
+                if (corbel.Config.isNode) {
                     var LocalStorage = require('node-localstorage').LocalStorage,
                         fs = require('fs');
 
@@ -853,7 +851,7 @@
             },
 
             removeDir: function() {
-                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
+                if (corbel.Config.isNode) {
                     var fs = require('fs');
                     try {
                         fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
@@ -922,90 +920,95 @@
 
     })();
 
-
     //----------corbel modules----------------
 
-    (function() {
+    function Config(config) {
+        config = config || {};
+        // config default values
+        this.config = {};
 
-        function Config(config) {
-            config = config || {};
-            // config default values
-            this.config = {};
+        corbel.utils.extend(this.config, config);
+    }
 
-            corbel.utils.extend(this.config, config);
+    Config.URL_BASE_PLACEHOLDER = '{{module}}';
+
+    corbel.Config = Config;
+
+    if (process && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
+    } else {
+        Config.__env__ = 'browser';
+    }
+
+    Config.isNode = Config.__env__ === 'node';
+
+    Config.isBrowser = Config.__env__ === 'browser';
+
+    /**
+     * Client type
+     * @type {String}
+     * @default
+     */
+    Config.clientType = Config.isNode ? 'NODE' : 'WEB';
+
+    if (Config.isNode) {
+        Config.wwwRoot = 'localhost';
+    } else {
+        Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
+    }
+
+    /**
+     * Returns all application config params
+     * @return {Object}
+     */
+    Config.create = function(config) {
+        return new Config(config);
+    };
+
+    /**
+     * Returns all application config params
+     * @return {Object}
+     */
+    Config.prototype.getConfig = function() {
+        return this.config;
+    };
+
+    /**
+     * Overrides current config with params object config
+     * @param {Object} config An object with params to set as new config
+     */
+    Config.prototype.setConfig = function(config) {
+        this.config = corbel.utils.extend(this.config, config);
+        return this;
+    };
+
+    /**
+     * Gets a specific config param
+     * @param  {String} field config param name
+     * @param  {Mixed} defaultValue Default value if undefined
+     * @return {Mixed}
+     */
+    Config.prototype.get = function(field, defaultValue) {
+        if (this.config[field] === undefined) {
+            if (defaultValue === undefined) {
+                throw new Error('config:undefined:' + field + '');
+            } else {
+                return defaultValue;
+            }
         }
 
-        Config.URL_BASE_PLACEHOLDER = '{{module}}';
+        return this.config[field];
+    };
 
-        corbel.Config = Config;
-
-        Config.isNode = typeof module !== 'undefined' && module.exports;
-
-        /**
-         * Client type
-         * @type {String}
-         * @default
-         */
-        Config.clientType = Config.isNode ? 'NODE' : 'WEB';
-        Config.wwwRoot = !Config.isNode ? root.location.protocol + '//' + root.location.host + root.location.pathname : 'localhost';
-
-        /**
-         * Returns all application config params
-         * @return {Object}
-         */
-        Config.create = function(config) {
-            return new Config(config);
-        };
-
-        /**
-         * Returns all application config params
-         * @return {Object}
-         */
-        Config.prototype.getConfig = function() {
-            return this.config;
-        };
-
-        /**
-         * Overrides current config with params object config
-         * @param {Object} config An object with params to set as new config
-         */
-        Config.prototype.setConfig = function(config) {
-            this.config = corbel.utils.extend(this.config, config);
-            return this;
-        };
-
-        /**
-         * Gets a specific config param
-         * @param  {String} field config param name
-         * @param  {Mixed} defaultValue Default value if undefined
-         * @return {Mixed}
-         */
-        Config.prototype.get = function(field, defaultValue) {
-            if (this.config[field] === undefined) {
-                if (defaultValue === undefined) {
-                    throw new Error('config:undefined:' + field + '');
-                } else {
-                    return defaultValue;
-                }
-            }
-
-            return this.config[field];
-        };
-
-        /**
-         * Sets a new value for specific config param
-         * @param {String} field Config param name
-         * @param {Mixed} value Config param value
-         */
-        Config.prototype.set = function(field, value) {
-            this.config[field] = value;
-        };
-
-    })();
-
+    /**
+     * Sets a new value for specific config param
+     * @param {String} field Config param name
+     * @param {Mixed} value Config param value
+     */
+    Config.prototype.set = function(field, value) {
+        this.config[field] = value;
+    };
     (function() {
-
-
 
         /**
          * Request object available for brwoser and node environment
@@ -1171,13 +1174,12 @@
                     reject: reject
                 };
 
-                if (corbel.__env__ === 'browser') { //browser
+                if (corbel.Config.isBrowser) { //browser
                     browserAjax.call(this, params, resolver);
                 } else { //nodejs
                     nodeAjax.call(this, params, resolver);
                 }
             }.bind(this));
-
 
             return promise;
         };
@@ -1242,7 +1244,6 @@
             }
 
         };
-
 
         var nodeAjax = function(params, resolver) {
 
@@ -1600,7 +1601,7 @@
 
             decode: function(assertion) {
                 var serialize;
-                if (corbel.__env__ === 'node') {
+                if (corbel.Config.isNode) {
                     // node environment
                     serialize = require('atob');
                 } else {
