@@ -23,6 +23,7 @@
         this.session = corbel.Session.create(this);
         this.oauth = corbel.Oauth.create(this);
         this.notifications = corbel.Notifications.create(this);
+        this.ec = corbel.Ec.create(this);
     }
 
     corbel.CorbelDriver = CorbelDriver;

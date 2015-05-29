@@ -66,6 +66,8 @@
     //  @include ../oauth/userBuilder.js
     //  @include ../notifications/notifications.js
     //  @include ../notifications/notificationsBuilder.js
+    //  @include ../ec/ec.js
+    //  @include ../ec/productBuilder.js
 
     return corbel;
 });
