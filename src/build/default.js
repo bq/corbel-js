@@ -67,6 +67,9 @@
     //  @include ../oauth/authorizationBuilder.js
     //  @include ../oauth/tokenBuilder.js
     //  @include ../oauth/userBuilder.js
-
+    //  @include ../notifications/notifications.js
+    //  @include ../notifications/notificationsBuilder.js
+    
+    
     return corbel;
 });
