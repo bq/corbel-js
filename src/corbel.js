@@ -21,6 +21,7 @@
         this.assets = corbel.Assets.create(this);
         this.services = corbel.Services.create(this);
         this.session = corbel.Session.create(this);
+        this.notifications = corbel.Notifications.create(this);
     }
 
     corbel.CorbelDriver = CorbelDriver;

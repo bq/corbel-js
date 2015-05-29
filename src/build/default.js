@@ -65,6 +65,9 @@
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js
-
+    //  @include ../notifications/notifications.js
+    //  @include ../notifications/notificationsBuilder.js
+    
+    
     return corbel;
 });
