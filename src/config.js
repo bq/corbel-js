@@ -17,7 +17,14 @@
 
     corbel.Config = Config;
 
-    Config.isNode = typeof module !== 'undefined' && module.exports;
+    if (process && typeof window === 'undefined') {
+        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
+    } else {
+        Config.__env__ = 'browser';
+    }
+
+    Config.isNode = Config.__env__ === 'node';
+    Config.isBrowser = Config.__env__ === 'browser';
 
     /**
      * Client type
