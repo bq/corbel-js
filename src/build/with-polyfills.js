@@ -62,6 +62,8 @@
     //  @include ../resources/relation.js
     //  @include ../resources/collection.js
     //  @include ../resources/resource.js
+    //  @include ../ec/ec.js
+    //  @include ../ec/productBuilder.js
 
     return corbel;
 });
