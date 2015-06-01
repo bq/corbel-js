@@ -38,6 +38,7 @@
             this.assets = corbel.Assets.create(this);
             this.services = corbel.Services.create(this);
             this.session = corbel.Session.create(this);
+            this.oauth = corbel.Oauth.create(this);
         }
 
         corbel.CorbelDriver = CorbelDriver;
@@ -3320,6 +3321,487 @@
         return corbel.Resources.Resource;
 
     })();
+    (function() {
+
+        /**
+         * A module to make Oauth requests.
+         * @exports Oauth
+         * @namespace
+         * @memberof app.corbel
+         */
+
+        var Oauth = corbel.Oauth = function(driver) {
+            this.driver = driver;
+        };
+
+        Oauth.moduleName = 'oauth';
+
+        Oauth.create = function(driver) {
+            return new Oauth(driver);
+        };
+        /**
+         * Private method to build a string uri
+         * @private
+         * @param  {String} uri
+         * @return {String}
+         */
+        Oauth._buildUri = function(uri) {
+
+            var urlBase = this.driver.config.get('oauthEndpoint', null) ?
+                this.driver.config.get('oauthEndpoint') :
+                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName);
+
+            return urlBase + uri;
+        };
+        /**
+         * Default encoding
+         * @type {String}
+         * @default application/x-www-form-urlencoded; charset=UTF-8
+         */
+        Oauth._URL_ENCODED = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+        Oauth._checkProp = function(dict, keys, excep) {
+            var error = excep ? excep : 'Error validating arguments';
+            if (!dict) {
+                throw new Error(error);
+            }
+            for (var i in keys) {
+                if (!(keys[i] in dict)) {
+                    throw new Error(error);
+                }
+            }
+        };
+
+        Oauth._validateResponseType = function(responseType) {
+            if (['code', 'token'].indexOf(responseType) < 0) {
+                throw new Error('Only "code" or "token" response type allowed');
+            }
+        };
+
+        Oauth._validateGrantType = function(grantType) {
+            if (grantType !== 'authorization_code') {
+                throw new Error('Only "authorization_code" grant type is allowed');
+            }
+        };
+
+        Oauth._trasformParams = function(clientParams) {
+
+            for (var key in clientParams) {
+                var keyWithUnderscores = this._toUnderscore(key);
+                if (key !== keyWithUnderscores) {
+                    clientParams[keyWithUnderscores] = clientParams[key];
+                    delete clientParams[key];
+                }
+            }
+            return clientParams;
+        };
+
+        Oauth._toUnderscore = function(string) {
+            return string.replace(/([A-Z])/g, function($1) {
+                return '_' + $1.toLowerCase();
+            });
+        };
+    })();
+
+    (function() {
+        /**
+         * Create a AuthorizationBuilder for resource managing requests.
+         *
+         * @param {Object} clientParams  Initial params
+         *
+         * @return {corbel.Oauth.AuthorizationBuilder}
+         */
+        corbel.Oauth.prototype.authorization = function(clientParams) {
+            console.log('oauthInterface.authorization', clientParams);
+
+            corbel.Oauth._checkProp(clientParams, ['responseType'], 'Invalid client parameters');
+            clientParams.responseType = clientParams.responseType.toLowerCase();
+            corbel.Oauth._validateResponseType(clientParams.responseType);
+            if (clientParams.responseType.toLowerCase() === 'code') {
+                corbel.Oauth._checkProp(clientParams, ['redirectUri'], 'Invalid client parameters');
+            }
+            clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
+            var params = {
+                contentType: corbel.Oauth._URL_ENCODED,
+                data: corbel.Oauth._trasformParams(clientParams),
+                // http://stackoverflow.com/questions/1557602/jquery-and-ajax-response-header
+                noRedirect: true
+            };
+            var authorization = new AuthorizationBuilder(params);
+            authorization.driver = this.driver;
+            return authorization;
+        };
+
+        /**
+         * A builder for authorization management requests.
+         *
+         * @param {Object} params  Initial params
+         *
+         * @class
+         * @memberOf corbel.Oauth.AuthorizationBuilder
+         */
+        var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(params) {
+                this.params = params;
+                this.uri = 'oauth';
+            },
+            /**
+             * Deprecated, use loginWithCookie instead
+             * @method
+             * @memberOf corbel.Oauth.AuthorizationBuilder
+             * @return {Promise} Q promise that resolves to a redirection to redirectUri or rejects with a 404 {@link CorbelError}
+             */
+            dialog: function() {
+                console.log('oauthInterface.authorization.dialog');
+                return this.loginWithCookie();
+            },
+            /**
+             * Does a login with stored cookie in oauth server
+             * @method
+             * @memberOf corbel.Oauth.AuthorizationBuilder
+             * @return {Promise} Q promise that resolves to a redirection to redirectUri or rejects with a 404 {@link CorbelError}
+             */
+            loginWithCookie: function() {
+                console.log('oauthInterface.authorization.dialog');
+                // make request, generate oauth cookie, then redirect manually
+                return this.request({
+                    url: this._buildUri(this.uri + '/authorize'),
+                    method: corbel.request.method.GET,
+                    dataType: 'text',
+                    withCredentials: true,
+                    data: this.params,
+                    query: this.params.data ? corbel.utils.serializeParams(this.params.data) : null
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Does a login in oauth server
+             * @method
+             * @memberOf corbel.Oauth.AuthorizationBuilder
+             * @param  {String} username The username of the user to log in
+             * @param  {String} password The password of the user
+             * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link SilkRoadError}
+             */
+            login: function(username, password, setCookie) {
+                console.log('oauthInterface.authorization.login', username + ':' + password);
+                this.params.username = username;
+                this.params.password = password;
+                this.params.setCookie = setCookie;
+                this.params.withCredentials = true;
+                // make request, generate oauth cookie, then redirect manually
+                return this.request({
+                    url: this._buildUri(this.uri + '/authorize'),
+                    method: corbel.request.method.POST,
+                    data: this.params
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Sign out from oauth server
+             * @method
+             * @memberOf corbel.Oauth.SignOutBuilder
+             * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link SilkRoadError}
+             */
+            signout: function() {
+                console.log('oauthInterface.authorization.signOut');
+                delete this.params.data;
+                return this.request({
+                    url: this._buildUri(this.uri + '/signout'),
+                    method: corbel.request.method.GET,
+                    withCredentials: true
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+
+            _buildUri: corbel.Oauth._buildUri
+        });
+    })();
+
+    (function() {
+        /**
+         * Create a TokenBuilder for token managing requests.
+         * Starts to build a token request
+         * @method
+         * @param  {Object} clientParams
+         * @param  {String} [clientParams.clientId=corbel.Config.get('oauthClientId')]    Client id
+         * @param  {String} [clientParams.clientSecret=corbel.Config.get('oauthSecret')]  Client secret
+         * @param  {String} clientParams.grantType                                        The grant type (only allowed 'authorization_code')
+         * @return {corbel.Oauth.TokenBuilder}
+         */
+        corbel.Oauth.prototype.token = function(clientParams) {
+            console.log('oauthInterface.token');
+
+            corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters');
+            corbel.Oauth._validateGrantType(clientParams.grantType);
+            clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
+            clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret');
+            var params = {
+                //method: corbel.request.method.POST,
+                //url: app.common.get('oauthEndpoint') + 'oauth/token',
+                contentType: corbel.Oauth._URL_ENCODED,
+                data: corbel.Oauth._trasformParams(clientParams)
+            };
+            var token = new TokenBuilder(params);
+            token.driver = this.driver;
+            return token;
+        };
+        /**
+         * A builder for a token management requests.
+         * @class
+         *
+         * @param {Object} params Initial params
+         * 
+         * @memberOf corbel.Oauth.TokenBuilder
+         */
+        var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(params) {
+                this.params = params;
+                this.uri = 'oauth/token';
+            },
+            /**
+             * Get an access token
+             * @method
+             * @memberOf corbel.Oauth.TokenBuilder
+             * 
+             * @param  {String} code The code to exchange for the token
+             * 
+             * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link SilkRoadError}
+             */
+            get: function(code) {
+                console.log('oauthInterface.token.get');
+                this.params.data.code = code;
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.POST,
+                    data: this.params
+                        //query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            _buildUri: corbel.Oauth._buildUri
+        });
+    })();
+
+    (function() {
+        /**
+         * Create a UserBuilder for user managing requests.
+         * Starts a user request
+         * @method
+         * @param  {Object} clientParams
+         * @param  {String} [clientParams.clientId=corbel.Config.get('oauthClientId')]    Client id
+         * @param  {String} [clientParams.clientSecret=corbel.Config.get('oauthSecret')]  Client secret
+         * @param  {String} clientParams.grantType                                        The grant type (only allowed 'authorization_code')
+         * @return {corbel.Oauth.UserBuilder}
+         */
+        corbel.Oauth.prototype.user = function(clientParams, accessToken) {
+            console.log('oauthInterface.user');
+
+            var params = {};
+
+            if (accessToken) {
+                params.accessToken = accessToken;
+                params.headers = {};
+                params.headers.Accept = 'application/json';
+            }
+
+            clientParams = clientParams || {};
+            var clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
+            var clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret');
+
+            var user = new UserBuilder(params, clientId, clientSecret);
+            user.driver = this.driver;
+            return user;
+        };
+        /**
+         * A builder for a user management requests.
+         * @class
+         * 
+         * @param {Object} params           Parameters for initializing the builder
+         * @param {String} [clientId]       Application client Id (required for creating user)
+         * @param {String} [clientSecret]   Application client secret (required for creating user)
+         *    
+         * @memberOf corbel.Oauth.UserBuilder
+         */
+        var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(params, clientId, clientSecret) {
+                this.params = params;
+                this.clientSecret = clientSecret;
+                this.clientId = clientId;
+                this.uri = 'oauth/user';
+            },
+            _buildUri: corbel.Oauth._buildUri,
+            /**
+             * Adds a new user to the oauth server.
+             *
+             * @method
+             * @memberOf corbel.Oauth.UserBuilder
+             *
+             * @param {Object} user    The user to be created
+             * @param {String} username The username of the user
+             * @param {String} email    The email of the user
+             * @param {String} password The password of the user
+             *
+             * @return {Promise} A promise with the id of the created user or fails
+             *                   with a {@link corbelError}.
+             */
+            create: function(user) {
+                console.log('oauthInterface.user.create', user);
+                var serialize;
+                if (corbel.Config.isNode) {
+                    serialize = require('btoa');
+                } else {
+                    serialize = btoa;
+                }
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.POST,
+                    headers: {
+                        Authorization: 'Basic ' + serialize(this.clientId + ':' + this.clientSecret)
+                    },
+                    dataType: 'text',
+                    data: user
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Gets the user or the logged user
+             * @method
+             * @memberOf corbel.Oauth.UserBuilder
+             * 
+             * @param  {Object} id      The user id/me 
+             *  
+             * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+             */
+            get: function(id) {
+                console.log('oauthInterface.user.get');
+                this.uri += '/' + id;
+                return this.request({
+                    url: this._buildUri(this.uri, this.uri),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Get profile of some user or the logged user
+             * @method
+             * @memberOf corbel.Oauth.UserBuilder
+             * @param  {Object} id      The user id/me 
+             * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
+             */
+            getProfile: function(id) {
+                console.log('oauthInterface.user.getProfile');
+                this.uri += '/' + id + '/profile';
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET
+                });
+            },
+            /**
+             * Updates the user or  the logged user
+             * @method
+             * @memberOf corbel.Oauth.UserBuilder
+             * 
+             * @param  {Object} id              The user id or me
+             * @param  {Object} modification    Json object with the modificacion of the user
+             * 
+             * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+             */
+            update: function(id, modification) {
+                console.log('oauthInterface.user.update', modification);
+                this.uri += '/' + id;
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.PUT,
+                    data: modification
+                });
+            },
+            /**
+             * Deletes the user or the logged user
+             * @memberOf corbel.Oauth.UserBuilder
+             * 
+             * @param  {Object} id        The user id or me
+             * 
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+             */
+            delete: function(id) {
+                console.log('oauthInterface.user.delete');
+                this.uri += '/' + id;
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.DELETE
+                });
+            },
+            /**
+             * Sends a reset password email to the email address recived.
+             * @method
+             * @memberOf corbel.Oauth.UsersBuilder
+             * @param  {String} userEmailToReset The email to send the message
+             * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            sendResetPasswordEmail: function(userEmailToReset) {
+                console.log('oauthInterface.user.SendResetPasswordEmail', userEmailToReset);
+                return this.request({
+                    url: this._buildUri(this.uri + '/resetPassword'),
+                    method: corbel.request.method.GET,
+                    query: 'email=' + userEmailToReset,
+                    headers: {
+                        Authorization: 'Basic ' + btoa(this.clientId + ':' + this.clientSecret)
+                    },
+                    noRetry: true
+                }).then(function(res) {
+                    res.data = corbel.Services.getLocationId(res);
+                    return res;
+                });
+            },
+            /**
+             * Sends a email to the logged user or user to validate his email address
+             * @method
+             * @memberOf corbel.Oauth.UsersBuilder
+             * 
+             * @param  {Object} id     The user id or me
+             * 
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            sendValidateEmail: function(id) {
+                console.log('oauthInterface.user.sendValidateEmail');
+                this.uri += '/' + id + '/validate';
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                    withAuth: true
+                });
+            },
+            /**
+             * Validates the email of a user or the logged user
+             * @method
+             * @memberOf corbel.Oauth.UsersBuilder
+             * 
+             * @param  {Object} id   The user id or me
+             * 
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            emailConfirmation: function(id) {
+                console.log('oauthInterface.user.emailConfirmation');
+                this.uri += '/' + id + '/emailConfirmation';
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.PUT,
+                    noRetry: true
+                });
+            }
+        });
+    })();
+
 
     return corbel;
 });
