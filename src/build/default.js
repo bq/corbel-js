@@ -77,6 +77,9 @@
     //  @include ../borrow/borrowBuilder.js
     //  @include ../borrow/userBuilder.js
     //  @include ../borrow/lenderBuilder.js
+    //  @include ../composr/composr.js
+    //  @include ../composr/phraseBuilder.js
+    //  @include ../composr/requestBuilder.js
 
     return corbel;
 });

@@ -1017,6 +1017,7 @@
             this.ec = corbel.Ec.create(this);
             this.evci = corbel.Evci.create(this);
             this.borrow = corbel.Borrow.create(this);
+            this.composr = corbel.CompoSR.create(this);
         }
 
         corbel.CorbelDriver = CorbelDriver;
@@ -5256,59 +5257,93 @@
          * @memberof app.corbel
          */
 
-        var Borrow = corbel.Borrow = function(driver) {
-            this.driver = driver;
-        };
+        corbel.Borrow = corbel.Object.inherit({
 
-        Borrow.moduleName = 'borrow';
+            constructor: function(driver) {
+                this.driver = driver;
+            },
 
-        Borrow.create = function(driver) {
-            return new Borrow(driver);
-        };
 
-        /**
-         * COMMON MIXINS
-         */
 
-        /**
-         * Private method to build a string uri
-         * @private
-         * @param  {Object} arguments
-         * @return {String}
-         */
-        Borrow._buildUri = function() {
-            var uri = '';
-            Array.prototype.slice.call(arguments).forEach(function(argument) {
-                if (argument) {
-                    uri += '/' + argument;
-                }
-            });
+            /**
+             * Create a BorrowBuilder for resource managing requests.
+             *
+             * @param {String}  id  The id of the borrow.
+             *
+             * @return {corbel.Borrow.BorrowBuilder}
+             */
+            resource: function(id) {
+                var resource = new corbel.Borrow.BorrowBuilder(id);
+                resource.driver = this.driver;
+                return resource;
+            },
 
-            var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Borrow.moduleName);
+            /**
+             * Create a LenderBuilder for lender managing requests.
+             *
+             * @param {String}  id  The id of the lender.
+             *
+             * @return {corbel.Borrow.LenderBuilder}
+             */
+            lender: function(id) {
+                var lender = new corbel.Borrow.LenderBuilder(id);
+                lender.driver = this.driver;
+                return lender;
+            },
 
-            if (urlBase.slice(-1) === '/') {
-                urlBase = urlBase.substring(0, urlBase.length - 1);
+            /**
+             * Create a UserBuilder for user managing requests.
+             *
+             * @param {String}  id  The id of the user.
+             *
+             * @return {corbel.Borrow.UserBuilder}
+             */
+            user: function(id) {
+                var user = new corbel.Borrow.UserBuilder(id);
+                user.driver = this.driver;
+                return user;
             }
 
-            return urlBase + uri;
-        };
+
+
+
+        }, {
+            moduleName: 'borrow',
+
+            create: function(driver) {
+                return new corbel.Borrow(driver);
+            },
+
+            _buildUri: function() {
+                var uri = '';
+                Array.prototype.slice.call(arguments).forEach(function(argument) {
+                    if (argument) {
+                        uri += '/' + argument;
+                    }
+                });
+
+                var urlBase = this.driver.config.get('borrowEndpoint', null) ||
+                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName);
+
+                if (urlBase.slice(-1) === '/') {
+                    urlBase = urlBase.substring(0, urlBase.length - 1);
+                }
+
+                return urlBase + uri;
+            }
+        });
+
+        return corbel.Borrow;
+
+
+
+
+
     })();
 
     (function() {
 
-        /**
-         * Create a BorrowBuilder for resource managing requests.
-         *
-         * @param {String}  id  The id of the borrow.
-         *
-         * @return {corbel.Borrow.BorrowBuilder}
-         */
-        corbel.Borrow.prototype.resource = function(id) {
-            var resource = new BorrowBuilder(id);
-            resource.driver = this.driver;
-            return resource;
-        };
+
         /**
          * A builder for borrowed management requests.
          *
@@ -5317,7 +5352,7 @@
          * @class
          * @memberOf corbel.Borrow.BorrowBuilder
          */
-        var BorrowBuilder = corbel.Borrow.BorrowBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.BorrowBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -5658,18 +5693,7 @@
 
     (function() {
 
-        /**
-         * Create a UserBuilder for user managing requests.
-         *
-         * @param {String}  id  The id of the user.
-         *
-         * @return {corbel.Borrow.UserBuilder}
-         */
-        corbel.Borrow.prototype.user = function(id) {
-            var user = new UserBuilder(id);
-            user.driver = this.driver;
-            return user;
-        };
+
         /**
          * A builder for borrowed management requests.
          *
@@ -5678,7 +5702,7 @@
          * @class
          * @memberOf corbel.Borrow.UserBuilder
          */
-        var UserBuilder = corbel.Borrow.UserBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.UserBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(id) {
                 this.id = id || 'me';
@@ -5722,18 +5746,7 @@
 
     (function() {
 
-        /**
-         * Create a LenderBuilder for lender managing requests.
-         *
-         * @param {String}  id  The id of the lender.
-         *
-         * @return {corbel.Borrow.LenderBuilder}
-         */
-        corbel.Borrow.prototype.lender = function(id) {
-            var lender = new LenderBuilder(id);
-            lender.driver = this.driver;
-            return lender;
-        };
+
         /**
          * A builder for borrowed management requests.
          *
@@ -5742,7 +5755,7 @@
          * @class
          * @memberOf corbel.Borrow.LenderBuilder
          */
-        var LenderBuilder = corbel.Borrow.LenderBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.LenderBuilder = corbel.Services.BaseServices.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -5861,6 +5874,219 @@
         });
     })();
 
+    (function() {
+
+        /**
+         * A module to make CompoSR requests.
+         * @exports CompoSR
+         * @namespace
+         * @memberof app.corbel
+         */
+
+        corbel.CompoSR = corbel.Object.inherit({
+
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+
+
+
+            /**
+             * Create a PhraseBuilder for phrase managing requests.
+             *
+             * @param {String}  id  The id of the phrase.
+             *
+             * @return {corbel.CompoSR.PhraseBuilder}
+             */
+            phrase: function(id) {
+                var phraseBuilder = new corbel.CompoSR.PhraseBuilder(id);
+                phraseBuilder.driver = this.driver;
+                return phraseBuilder;
+            },
+
+            /**
+             * Create a RequestBuilder for phrase requests.
+             *
+             * @param  {String} id      phrase id
+             * @param  {String} param1  path parameter
+             * @param  {String} param2  path parameter
+             * @param  {String} paramN  path parameter
+             *
+             * @return {corbel.CompoSR.RequestBuilder}
+             */
+            request: function() {
+                var requestBuilder = new corbel.CompoSR.RequestBuilder(Array.prototype.slice.call(arguments));
+                requestBuilder.driver = this.driver;
+                return requestBuilder;
+            }
+
+
+        }, {
+
+            moduleName: 'composr',
+
+            create: function(driver) {
+                return new corbel.CompoSR(driver);
+            },
+
+            _buildUri: function() {
+                var urlBase = this.driver.config.get('composrEndpoint', null) ||
+                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName);
+
+                if (urlBase.slice(-1) === '/') {
+                    urlBase = urlBase.substring(0, urlBase.length - 1);
+                }
+
+                var uri = '';
+                Array.prototype.slice.call(arguments).forEach(function(argument) {
+                    if (argument) {
+                        uri += '/' + argument;
+                    }
+                });
+                return urlBase + uri;
+            },
+
+        });
+
+        return corbel.CompoSR;
+
+    })();
+
+    (function() {
+
+
+        /**
+         * A builder for composr phrase crud.
+         *
+         * @param {String}  id phrase ID.
+         *
+         * @class
+         * @memberOf corbel.CompoSR.PhraseBuilder
+         */
+        corbel.CompoSR.PhraseBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(id) {
+                this.id = id;
+            },
+
+            put: function(body) {
+                console.log('composrInterface.phrase.add');
+                return this.request({
+                    url: this._buildUri('phrase', this.id),
+                    method: corbel.request.method.PUT,
+                    data: body
+                });
+            },
+
+            get: function() {
+                console.log('composrInterface.phrase.get');
+                return this.request({
+                    url: this._buildUri('phrase', this.id),
+                    method: corbel.request.method.GET,
+                });
+            },
+
+            getAll: function() {
+                console.log('composrInterface.phrase.getAll');
+                return this.request({
+                    url: this._buildUri('phrase'),
+                    method: corbel.request.method.GET,
+                });
+            },
+
+            delete: function() {
+                console.log('composrInterface.phrase.delete');
+                return this.request({
+                    url: this._buildUri('phrase', this.id),
+                    method: corbel.request.method.DELETE,
+                });
+            },
+
+            _buildUri: corbel.CompoSR._buildUri
+
+        });
+    })();
+
+    (function() {
+
+
+        /**
+         * A builder for composr requests.
+         *
+         *
+         * @class
+         * @memberOf corbel.CompoSR.RequestBuilder
+         */
+        corbel.CompoSR.RequestBuilder = corbel.Services.BaseServices.inherit({
+
+            constructor: function(pathsArray) {
+                this.path = this.buildPath(pathsArray);
+            },
+
+            post: function(body, queryParams) {
+                console.log('composrInterface.request.post');
+                return this.request({
+                    url: this._buildUri(this.path),
+                    method: corbel.request.method.POST,
+                    data: body,
+                    query: this.buildQueryPath(queryParams)
+                });
+            },
+
+            get: function(queryParams) {
+                console.log('composrInterface.request.get');
+                return this.request({
+                    url: this._buildUri(this.path),
+                    method: corbel.request.method.GET,
+                    query: this.buildQueryPath(queryParams)
+                });
+            },
+
+            put: function(body, queryParams) {
+                console.log('composrInterface.request.put');
+                return this.request({
+                    url: this._buildUri(this.path),
+                    method: corbel.request.method.PUT,
+                    data: body,
+                    query: this.buildQueryPath(queryParams)
+                });
+            },
+
+            delete: function(queryParams) {
+                console.log('composrInterface.request.delete');
+                return this.request({
+                    url: this._buildUri(this.path),
+                    method: corbel.request.method.DELETE,
+                    query: this.buildQueryPath(queryParams)
+                });
+            },
+
+            buildPath: function(pathArray) {
+                var path = '';
+                path += pathArray.shift();
+                pathArray.forEach(function(entryPath) {
+                    path += '/' + entryPath;
+                });
+                return path;
+            },
+
+            buildQueryPath: function(dict) {
+                var query = '';
+                if (dict) {
+                    var queries = [];
+                    Object.keys(dict).forEach(function(key) {
+                        queries.push(key + '=' + dict[key]);
+                    });
+                    if (queries.length > 0) {
+                        query = queries.join('&');
+                    }
+                }
+                return query;
+            },
+
+            _buildUri: corbel.CompoSR._buildUri
+        });
+    })();
 
 
     return corbel;
