@@ -114,15 +114,7 @@
      * @return {Boolean}
      */
     gatekeeper: function() {
-      var exist = this.exist();
-
-      if (exist) {
-        this.setStatus('logged', true);
-      } else {
-        this.setStatus('logged', false);
-      }
-
-      return exist;
+      return this.exist();
     },
 
     /**
@@ -163,12 +155,26 @@
     },
 
     /**
-     * Proxy call for session.add(key, undefined)
-     * @since 1.6.0
+     * Remove session item
      * @param  {String} key
      */
     remove: function(key) {
-      this.add(key);
+
+      if (this.sessionStorage === null) {
+        this.buildLocalStorage();
+      }
+
+      var storage = this.sessionStorage;
+
+      if (this.isPersistent()) {
+        storage = localStorage;
+      }
+
+
+      if (typeof key === 'string') {
+        storage.removeItem(key);
+      }
+
     },
 
     /**
