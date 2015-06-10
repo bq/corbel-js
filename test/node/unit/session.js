@@ -81,8 +81,17 @@ describe('In Session module', function() {
   });
 
   it('remove session param correctly', function() {
+    session.logged({
+      accessToken: 'token',
+      refreshToken: 'refreshToken',
+      expiresAt: 1,
+      oauthService: 'oauth',
+      user: 'user',
+      persistent: false
+    });
 
     session.add('customVar', true);
+    
     expect(session.get('customVar')).to.be.equal(true);
 
     var spy = sandbox.spy(session, 'add');
