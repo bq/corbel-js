@@ -6,80 +6,88 @@
 (function() {
 
 
-  /**
-   * A builder for composr requests.
-   *
-   *
-   * @class
-   * @memberOf corbel.CompoSR.RequestBuilder
-   */
-  corbel.CompoSR.RequestBuilder = corbel.Services.BaseServices.inherit({
+    /**
+     * A builder for composr requests.
+     *
+     *
+     * @class
+     * @memberOf corbel.CompoSR.RequestBuilder
+     */
+    corbel.CompoSR.RequestBuilder = corbel.Services.BaseServices.inherit({
 
-    constructor: function(pathsArray) {
-      this.path = this.buildPath(pathsArray);
-    },
+        constructor: function(pathsArray) {
+            this.path = this.buildPath(pathsArray);
+        },
 
-    post: function(body, queryParams) {
-      console.log('composrInterface.request.post');
-      return this.request({
-        url: this._buildUri(this.path),
-        method: corbel.request.method.POST,
-        data: body,
-        query: this.buildQueryPath(queryParams)
-      });
-    },
+        post: function(data, options) {
+            console.log('composrInterface.request.post');
+            this.options = options || {};
+            return this.request({
+                url: this._buildUri(this.path),
+                method: corbel.request.method.POST,
+                headers: this.options.headers,
+                data: data,
+                query: this.buildQueryPath(this.options.queryParams)
+            });
+        },
 
-    get: function(queryParams) {
-      console.log('composrInterface.request.get');
-      return this.request({
-        url: this._buildUri(this.path),
-        method: corbel.request.method.GET,
-        query: this.buildQueryPath(queryParams)
-      });
-    },
+        get: function(options) {
+            console.log('composrInterface.request.get');
+            this.options = options || {};
+            return this.request({
+                url: this._buildUri(this.path),
+                method: corbel.request.method.GET,
+                headers: this.options.headers,
+                query: this.buildQueryPath(this.options.queryParams)
+            });
+        },
 
-    put: function(body, queryParams) {
-      console.log('composrInterface.request.put');
-      return this.request({
-        url: this._buildUri(this.path),
-        method: corbel.request.method.PUT,
-        data: body,
-        query: this.buildQueryPath(queryParams)
-      });
-    },
+        put: function(data, options) {
+            console.log('composrInterface.request.put');
+            this.options = options || {};
+            return this.request({
+                url: this._buildUri(this.path),
+                method: corbel.request.method.PUT,
+                data: data,
+                headers: this.options.headers,
+                query: this.buildQueryPath(this.options.queryParams)
+            });
+        },
 
-    delete: function(queryParams) {
-      console.log('composrInterface.request.delete');
-      return this.request({
-        url: this._buildUri(this.path),
-        method: corbel.request.method.DELETE,
-        query: this.buildQueryPath(queryParams)
-      });
-    },
+        delete: function(options) {
+            console.log('composrInterface.request.delete');
+            this.options = options || {};
+            return this.request({
+                url: this._buildUri(this.path),
+                method: corbel.request.method.DELETE,
+                headers: this.options.headers,
+                query: this.buildQueryPath(this.options.queryParams)
+            });
+        },
 
-    buildPath : function(pathArray) {
-      var path = '';
-      path += pathArray.shift();
-      pathArray.forEach(function(entryPath) {
-        path += '/' + entryPath;
-      });
-      return path;
-    },
+        buildPath: function(pathArray) {
+            var path = '';
+            path += pathArray.shift();
+            pathArray.forEach(function(entryPath) {
+                path += '/' + entryPath;
+            });
+            return path;
+        },
 
-    buildQueryPath : function(dict) {
-      var query = '';
-      if (dict) {
-        var queries = [];
-        Object.keys(dict).forEach(function(key) {
-          queries.push(key + '=' + dict[key]);
-        });
-        if (queries.length > 0) {
-          query = queries.join('&');
-        }
-      }
-      return query;
-    },
+        buildQueryPath: function(dict) {
+            var query = '';
+            if (dict) {
+                var queries = [];
+                Object.keys(dict).forEach(function(key) {
+                    queries.push(key + '=' + dict[key]);
+                });
+                if (queries.length > 0) {
+                    query = queries.join('&');
+                }
+            }
+            return query;
+        },
 
-    _buildUri: corbel.CompoSR._buildUri
-  });
+        _buildUri: corbel.CompoSR._buildUri
+    });
 })();
