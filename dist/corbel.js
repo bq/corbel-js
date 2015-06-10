@@ -716,6 +716,10 @@
             constructor: function(driver) {
                 this.driver = driver;
                 this.status = '';
+                this.buildLocalStorage();
+            },
+
+            buildLocalStorage: function() {
                 //Set localStorage in node-js enviroment
                 if (corbel.Config.isNode) {
                     var LocalStorage = require('node-localstorage').LocalStorage,
@@ -734,7 +738,6 @@
                     process.once('exit', function() {
                         // if (this.isPersistent() === false) {
                         this.destroy();
-                        this.removeDir();
                         // }
                     }.bind(this));
 
@@ -750,12 +753,16 @@
                 }
             },
 
+
             /**
              * Gets a specific session value
              * @param  {String} key
              * @return {String|Number|Boolean}
              */
             get: function(key) {
+                if (this.localStorage === null) {
+                    this.buildLocalStorage();
+                }
 
                 key = key || 'session';
 
@@ -778,6 +785,10 @@
              * @param {Boolean} [forcePersistent] Force to save value in localStorage
              */
             add: function(key, value, forcePersistent) {
+                if (this.sessionStorage === null) {
+                    this.buildLocalStorage();
+                }
+
                 var storage = this.sessionStorage;
 
                 if (this.isPersistent() || forcePersistent) {
@@ -856,20 +867,14 @@
                 this.add(key);
             },
 
-            removeDir: function() {
-                if (corbel.Config.isNode) {
-                    var fs = require('fs');
-                    try {
-                        fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-                    } catch (ex) {}
-                }
-            },
-
             /**
              * Checks if the current session is persistent or not
              * @return {Boolean}
              */
             isPersistent: function() {
+                if (this.localStorage === null) {
+                    this.buildLocalStorage();
+                }
                 return (this.localStorage.persistent ? true : false);
             },
 
@@ -878,6 +883,9 @@
              * @param {Boolean} persistent
              */
             setPersistent: function(persistent) {
+                if (this.localStorage === null) {
+                    this.buildLocalStorage();
+                }
                 if (persistent) {
                     this.localStorage.setItem('persistent', persistent);
                 } else {
@@ -890,6 +898,9 @@
              * @param  {String} name
              */
             persist: function(name) {
+                if (this.sessionStorage === null) {
+                    this.buildLocalStorage();
+                }
                 var value = this.sessionStorage.getItem(name);
                 if (value) {
                     this.localStorage.setItem(name, value);
@@ -901,13 +912,18 @@
              * Clears all user storage and remove storage dir for nodejs /*
              */
             destroy: function() {
-                this.localStorage.clear();
-                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-
-                } else {
-                    this.sessionStorage.clear();
+                if (this.localStorage) {
+                    this.localStorage.clear();
+                    if (corbel.Config.isNode) {
+                        var fs = require('fs');
+                        try {
+                            fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
+                        } catch (ex) {}
+                    } else {
+                        this.sessionStorage.clear();
+                    }
+                    this.localStorage = null;
                 }
-
             }
         }, {
             SESSION_PATH_DIR: './.storage',
@@ -5049,40 +5065,44 @@
                 this.path = this.buildPath(pathsArray);
             },
 
-            post: function(body, queryParams) {
+            post: function(body, headers, queryParams) {
                 console.log('composrInterface.request.post');
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.POST,
+                    headers: headers,
                     data: body,
                     query: this.buildQueryPath(queryParams)
                 });
             },
 
-            get: function(queryParams) {
+            get: function(headers, queryParams) {
                 console.log('composrInterface.request.get');
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.GET,
+                    headers: headers,
                     query: this.buildQueryPath(queryParams)
                 });
             },
 
-            put: function(body, queryParams) {
+            put: function(body, headers, queryParams) {
                 console.log('composrInterface.request.put');
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.PUT,
                     data: body,
+                    headers: headers,
                     query: this.buildQueryPath(queryParams)
                 });
             },
 
-            delete: function(queryParams) {
+            delete: function(headers, queryParams) {
                 console.log('composrInterface.request.delete');
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.DELETE,
+                    headers: headers,
                     query: this.buildQueryPath(queryParams)
                 });
             },

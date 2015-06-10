@@ -19,40 +19,44 @@
       this.path = this.buildPath(pathsArray);
     },
 
-    post: function(body, queryParams) {
+    post: function(body, headers, queryParams) {
       console.log('composrInterface.request.post');
       return this.request({
         url: this._buildUri(this.path),
         method: corbel.request.method.POST,
+        headers: headers,
         data: body,
         query: this.buildQueryPath(queryParams)
       });
     },
 
-    get: function(queryParams) {
+    get: function(headers, queryParams) {
       console.log('composrInterface.request.get');
       return this.request({
         url: this._buildUri(this.path),
         method: corbel.request.method.GET,
+        headers: headers,
         query: this.buildQueryPath(queryParams)
       });
     },
 
-    put: function(body, queryParams) {
+    put: function(body, headers, queryParams) {
       console.log('composrInterface.request.put');
       return this.request({
         url: this._buildUri(this.path),
         method: corbel.request.method.PUT,
         data: body,
+        headers: headers,
         query: this.buildQueryPath(queryParams)
       });
     },
 
-    delete: function(queryParams) {
+    delete: function(headers, queryParams) {
       console.log('composrInterface.request.delete');
       return this.request({
         url: this._buildUri(this.path),
         method: corbel.request.method.DELETE,
+        headers: headers,
         query: this.buildQueryPath(queryParams)
       });
     },
