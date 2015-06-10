@@ -9,7 +9,6 @@ require('./unit/iam.js');
 require('./unit/resources.js');
 require('./unit/resources-request-params.js');
 require('./unit/assets.js');
-require('./unit/session.js');
 require('./unit/oauth.js');
 require('./unit/notifications.js');
 require('./unit/ec.js');

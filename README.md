@@ -389,26 +389,6 @@ collection.get();
 
 ```
 
-
-## Manage application session
-
-```javascript
-//get value from local storage
-corbelDriver.session.get('key');
-
-//add value to the local storage
-corbelDriver.session.add('key', value, isPersistent);
-
-//return true if the session driver is active
-corbelDriver.session.gatekeeper();
-
-//clear the current session data
-corbelDriver.session.destroy();
-
-//in nodejs, remove the directory/files of the current session
-corbelDriver.session.removeDir();
-```
-
 ## library static methods
 
 ```javascript

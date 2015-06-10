@@ -18,8 +18,6 @@
       this.driver = driver;
     },
 
-
-
     /**
      * Create a PhraseBuilder for phrase managing requests.
      *

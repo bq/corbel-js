@@ -34,20 +34,20 @@ var BaseServices = (function() {
             var params = this._buildParams(args);
             return corbel.request.send(params).then(function(response) {
 
-                // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, 0);
+                this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
 
                 return Promise.resolve(response);
 
-            }).catch(function(response) {
+            }.bind(this)).catch(function(response) {
 
                 // Force update
                 if (response.status === 403 &&
                     response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
 
-                    var retries = 0; //this.driver.session.get(corbel.Services._FORCE_UPDATE_STATUS) || 0;
+                    var retries = this.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
                         retries++;
-                        // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, retries);
+                        this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
 
                         corbel.utils.reload(); //TODO nodejs
                     } else {

@@ -20,7 +20,6 @@
         this.resources = corbel.Resources.create(this);
         this.assets = corbel.Assets.create(this);
         this.services = corbel.Services.create(this);
-        this.session = corbel.Session.create(this);
         this.oauth = corbel.Oauth.create(this);
         this.notifications = corbel.Notifications.create(this);
         this.ec = corbel.Ec.create(this);
