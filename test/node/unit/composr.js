@@ -31,6 +31,14 @@ describe('corbel compoSR module', function() {
     corbelDriver = corbel.getDriver(CONFIG);
     composr = corbelDriver.composr;
     corbelRequestStub = sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
+
+    this.payload = {
+      headers: '',
+      body: '',
+      data: '',
+      queryParams: '',
+    };
+
   });
 
   afterEach(function() {
@@ -45,43 +53,43 @@ describe('corbel compoSR module', function() {
       it('the client can do request to some phrase with POST method', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        var body = {
+        this.payload.body = {
           att: 1,
           att2: 'stringValue'
         };
 
-        composr.request('phrase/Id').post(body);
+        composr.request('phrase/Id').post(this.payload);
 
         var paramsReceived = corbel.request.send.firstCall.args[0];
         expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
         expect(paramsReceived.method).to.be.equal('POST');
-        expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+        expect(paramsReceived.data).to.be.equal(JSON.stringify(this.payload.body));
       });
 
       it('the client can do request to some phrase with POST method, path and query params', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        var body = {
+        this.payload.body = {
           att: 1,
           att2: 'stringValue'
         };
 
-        var query = {
+        this.payload.queryParams = {
           att: 1
         };
 
-        composr.request('phrase/Id','param1','param2').post(body, query);
+        composr.request('phrase/Id','param1','param2').post(this.payload);
 
         var paramsReceived = corbel.request.send.firstCall.args[0];
         expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1');
         expect(paramsReceived.method).to.be.equal('POST');
-        expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+        expect(paramsReceived.data).to.be.equal(JSON.stringify(this.payload.body));
       });
 
       it('the client can do request to some phrase with GET method', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        composr.request('phrase/Id?att=1&att2="stringValue"').get();
+        composr.request('phrase/Id?att=1&att2="stringValue"').get(this.payload);
 
         var paramsReceived = corbel.request.send.firstCall.args[0];
         expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id?att=1&att2="stringValue"');
@@ -91,23 +99,23 @@ describe('corbel compoSR module', function() {
       it('the client can do request to some phrase with PUT method', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        var body = {
+        this.payload.body = {
           att: 1,
           att2: 'stringValue'
         };
 
-        composr.request('phrase/Id').put(body);
+        composr.request('phrase/Id').put(this.payload);
 
         var paramsReceived = corbel.request.send.firstCall.args[0];
         expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
         expect(paramsReceived.method).to.be.equal('PUT');
-        expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+        expect(paramsReceived.data).to.be.equal(JSON.stringify(this.payload.body));
       });
 
       it('the client can do request to some phrase with DELETE method', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        composr.request('phrase/Id').delete();
+        composr.request('phrase/Id').delete(this.payload);
 
         var paramsReceived = corbel.request.send.firstCall.args[0];
         expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
