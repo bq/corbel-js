@@ -17,11 +17,17 @@ Config.URL_BASE_PLACEHOLDER = '{{module}}';
 
 corbel.Config = Config;
 
-if (process && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+var processExist = function(){
+  return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
+};
+
+
+if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined' ) {
     Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
 } else {
     Config.__env__ = 'browser';
 }
+
 
 Config.isNode = Config.__env__ === 'node';
 

@@ -3,17 +3,12 @@
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
-        define(['es6-pomise'], function(promise) {
-            promise.polyfill();
+        define([], function() {
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
-        var Promise = require('es6-promise').polyfill();
-        module.exports = factory.call(root, root, process || undefined);
+         module.exports = factory.call(root, root, process || undefined);
     } else if (root !== undefined) {
-        if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
-            root.ES6Promise.polyfill();
-        }
         root.corbel = factory(root);
     }
 

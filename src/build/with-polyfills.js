@@ -2,15 +2,21 @@
     'use strict';
     /* jshint unused: false */
 
-    if (typeof define === 'function' && define.amd) {
-        define([], function() {
+   if (typeof define === 'function' && define.amd) {
+        define(['es6-promise'], function(promise) {
+            promise.polyfill();
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(root);
+        var Promise = require('es6-promise').polyfill();
+        module.exports = factory.call(root);
     } else if (window !== undefined) {
+         if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
+            root.ES6Promise.polyfill();
+        }
         root.corbel = factory(root);
     }
+
 
 })(this, function(root) {
     'use strict';
