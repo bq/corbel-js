@@ -37,7 +37,8 @@
                 url: this.buildUri(this.type, this.id),
                 method: corbel.request.method.GET,
                 contentType: options.dataType,
-                Accept: options.dataType
+                Accept: options.dataType,
+                caller : 'Resource:get'
             });
 
             return this.request(args);
@@ -62,7 +63,8 @@
                 method: corbel.request.method.PUT,
                 data: data,
                 contentType: options.dataType,
-                Accept: options.dataType
+                Accept: options.dataType,
+                caller : 'Resource:update'
             });
 
             return this.request(args);
@@ -83,7 +85,8 @@
                 url: this.buildUri(this.type, this.id),
                 method: corbel.request.method.DELETE,
                 contentType: options.dataType,
-                Accept: options.dataType
+                Accept: options.dataType,
+                caller : 'Resource:delete'
             });
 
             return this.request(args);
