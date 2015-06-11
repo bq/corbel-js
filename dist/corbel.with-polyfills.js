@@ -3,14 +3,20 @@
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
-        define([], function() {
+        define(['es6-promise'], function(promise) {
+            promise.polyfill();
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(root);
+        var Promise = require('es6-promise').polyfill();
+        module.exports = factory.call(root);
     } else if (window !== undefined) {
+        if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
+            root.ES6Promise.polyfill();
+        }
         root.corbel = factory(root);
     }
+
 
 })(this, function(root) {
     'use strict';
@@ -1011,7 +1017,6 @@
             this.resources = corbel.Resources.create(this);
             this.assets = corbel.Assets.create(this);
             this.services = corbel.Services.create(this);
-            this.session = corbel.Session.create(this);
             this.oauth = corbel.Oauth.create(this);
             this.notifications = corbel.Notifications.create(this);
             this.ec = corbel.Ec.create(this);
@@ -1241,6 +1246,49 @@
             }
 
             return result;
+        };
+
+        utils.defaults = function(destiny, defaults) {
+            Object.keys(defaults).forEach(function(key) {
+                if (typeof(destiny[key]) === 'undefined') {
+                    destiny[key] = defaults[key];
+                }
+            });
+
+            return destiny;
+        };
+
+        utils.pick = function(object, keys) {
+            var destiny = {};
+
+            keys.forEach(function(key) {
+                destiny[key] = object[key];
+            });
+
+            return destiny;
+        };
+
+        utils.clone = function(obj) {
+            if (null === obj || 'object' !== typeof obj) {
+                return obj;
+            }
+            var copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) {
+                    copy[attr] = obj[attr];
+                }
+            }
+            return copy;
+        };
+
+        utils.isJSON = function(string) {
+            try {
+                JSON.parse(string);
+            } catch (e) {
+                return false;
+            }
+
+            return true;
         };
 
         return utils;
@@ -1678,229 +1726,6 @@
     })();
 
 
-    (function() {
-
-        /**
-         * A module to manage session data.
-         * @exports session
-         * @namespace
-         * @memberof corbel
-         */
-        corbel.Session = corbel.Object.inherit({
-            constructor: function(driver) {
-                this.driver = driver;
-                this.status = '';
-                //Set localStorage in node-js enviroment
-                if (corbel.Config.isNode) {
-                    var LocalStorage = require('node-localstorage').LocalStorage,
-                        fs = require('fs');
-
-                    if (fs.existsSync(corbel.Session.SESSION_PATH_DIR) === false) {
-                        fs.mkdirSync(corbel.Session.SESSION_PATH_DIR);
-                    }
-
-                    if (fs.existsSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid) === false) {
-                        fs.mkdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-                    }
-
-                    this.localStorage = new LocalStorage(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-
-                    process.once('exit', function() {
-                        // if (this.isPersistent() === false) {
-                        this.destroy();
-                        this.removeDir();
-                        // }
-                    }.bind(this));
-
-                } else {
-                    this.localStorage = localStorage;
-                }
-
-                //Set sessionStorage in node-js enviroment
-                if (typeof sessionStorage === 'undefined' || sessionStorage === null) {
-                    this.sessionStorage = this.localStorage;
-                } else {
-                    this.sessionStorage = sessionStorage;
-                }
-            },
-
-            /**
-             * Gets a specific session value
-             * @param  {String} key
-             * @return {String|Number|Boolean}
-             */
-            get: function(key) {
-
-                key = key || 'session';
-
-                var storage = this.localStorage;
-                if (!this.isPersistent()) {
-                    storage = this.sessionStorage;
-                }
-
-                try {
-                    return JSON.parse(storage.getItem(key));
-                } catch (e) {
-                    return storage.getItem(key);
-                }
-            },
-
-            /**
-             * Adds a key-value in the user session
-             * @param {String} key
-             * @param {String|Number|Boolean} value
-             * @param {Boolean} [forcePersistent] Force to save value in localStorage
-             */
-            add: function(key, value, forcePersistent) {
-                var storage = this.sessionStorage;
-
-                if (this.isPersistent() || forcePersistent) {
-                    storage = localStorage;
-                }
-
-                if (corbel.validate.isObject(value)) {
-                    value = JSON.stringify(value);
-                }
-                if (value === undefined) {
-                    storage.removeItem(key);
-                } else {
-                    storage.setItem(key, value);
-                }
-            },
-
-            /**
-             * Checks active sessions and updates the app status
-             * @return {Boolean}
-             */
-            gatekeeper: function() {
-                var exist = this.exist();
-
-                if (exist) {
-                    this.setStatus('logged', true);
-                } else {
-                    this.setStatus('logged', false);
-                }
-
-                return exist;
-            },
-
-            /**
-             * Checks when a session exists
-             * @return {Boolean}
-             */
-            exist: function() {
-                // TODO: Do it better, diff between anonymous and real user
-                // Setted at user.login()
-                return this.get('loggedTime') ? true : false;
-            },
-
-            /**
-             * Creates a user session data
-             * @param  {Object} args
-             * @param  {Boolean} args.persistent
-             * @param  {String} args.accessToken
-             * @param  {String} args.oauthService
-             * @param  {Object} args.user
-             */
-            logged: function(args) {
-                corbel.validate.isValue(args.accessToken, 'Missing accessToken');
-                corbel.validate.isValue(args.refreshToken, 'Missing refreshToken');
-                corbel.validate.isValue(args.expiresAt, 'Missing expiresAt');
-                corbel.validate.isValue(args.user, 'Missing user');
-                corbel.validate.isValue(args.oauthService || args.loginBasic, 'Missing oauthService and loginBasic');
-
-                this.setPersistent(args.persistent);
-
-                this.add('accessToken', args.accessToken);
-                this.add('refreshToken', args.refreshToken);
-                this.add('expiresAt', args.expiresAt);
-                this.add('oauthService', args.oauthService);
-                this.add('loginBasic', args.loginBasic);
-                this.add('loggedTime', new Date().getTime());
-                this.add('user', args.user);
-
-            },
-
-            /**
-             * Proxy call for session.add(key, undefined)
-             * @since 1.6.0
-             * @param  {String} key
-             */
-            remove: function(key) {
-                this.add(key);
-            },
-
-            removeDir: function() {
-                if (corbel.Config.isNode) {
-                    var fs = require('fs');
-                    try {
-                        fs.rmdirSync(corbel.Session.SESSION_PATH_DIR + '/' + this.driver.guid);
-                    } catch (ex) {}
-                }
-            },
-
-            /**
-             * Checks if the current session is persistent or not
-             * @return {Boolean}
-             */
-            isPersistent: function() {
-                return (this.localStorage.persistent ? true : false);
-            },
-
-            /**
-             * Creates a user session with
-             * @param {Boolean} persistent
-             */
-            setPersistent: function(persistent) {
-                if (persistent) {
-                    this.localStorage.setItem('persistent', persistent);
-                } else {
-                    this.localStorage.removeItem('persistent');
-                }
-            },
-
-            /**
-             * Move a session value to a persistent value (if exists)
-             * @param  {String} name
-             */
-            persist: function(name) {
-                var value = this.sessionStorage.getItem(name);
-                if (value) {
-                    this.localStorage.setItem(name, value);
-                    this.sessionStorage.removeItem(name);
-                }
-            },
-
-            /**
-             * Clears all user storage and remove storage dir for nodejs /*
-             */
-            destroy: function() {
-                this.localStorage.clear();
-                if ( /*corbel.enviroment === 'node'*/ typeof module !== 'undefined' && module.exports) {
-
-                } else {
-                    this.sessionStorage.clear();
-                }
-
-            }
-        }, {
-            SESSION_PATH_DIR: './.storage',
-
-            /**
-             * Static factory method for session object
-             * @param  {corbel.Driver} corbel-js driver
-             * @return {corbel.session}
-             */
-            create: function(driver) {
-                return new corbel.Session(driver);
-            }
-        });
-
-        return corbel.Session;
-
-    })();
-
-
     //----------corbel modules----------------
 
     function Config(config) {
@@ -1915,11 +1740,17 @@
 
     corbel.Config = Config;
 
-    if (process && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+    var processExist = function() {
+        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
+    };
+
+
+    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
         Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
     } else {
         Config.__env__ = 'browser';
     }
+
 
     Config.isNode = Config.__env__ === 'node';
 
@@ -1989,6 +1820,7 @@
     Config.prototype.set = function(field, value) {
         this.config[field] = value;
     };
+
     (function() {
 
         /**
@@ -2329,6 +2161,7 @@
 
     })();
     var BaseServices = (function() {
+
         /**
          * A base object to inherit from for make corbel-js requests with custom behavior.
          * @exports corbel.ServicesBase
@@ -2351,31 +2184,64 @@
             request: function(args) {
 
                 var params = this._buildParams(args);
+
+                var assignCaller = function(item) {
+                    if (corbel.utils.isJSON(item)) {
+                        try {
+                            var objectParsed = JSON.parse(item);
+                            objectParsed.caller = params.caller;
+                            item = JSON.stringify(objectParsed);
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+
+                    return item;
+                };
+
+                var assignResponseCallers = function(response) {
+                    // Any other error fail to the caller
+                    if (params.caller && response && response.data) {
+                        //Avoid read only states
+                        response.data = corbel.utils.clone(response.data);
+
+                        if (response.data.response) {
+                            response.data.response = assignCaller(response.data.response);
+                        }
+
+                        if (response.data.responseText) {
+                            response.data.responseText = assignCaller(response.data.responseText);
+                        }
+                    }
+                };
+
+
                 return corbel.request.send(params).then(function(response) {
 
-                    // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, 0);
+                    this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
 
                     return Promise.resolve(response);
 
-                }).catch(function(response) {
+                }.bind(this)).catch(function(response) {
 
                     // Force update
                     if (response.status === 403 &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
 
-                        var retries = 0; //this.driver.session.get(corbel.Services._FORCE_UPDATE_STATUS) || 0;
+                        var retries = this.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
                         if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
                             retries++;
-                            // this.driver.session.add(corbel.Services._FORCE_UPDATE_STATUS, retries);
+                            this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
 
                             corbel.utils.reload(); //TODO nodejs
                         } else {
 
                             // Send an error to the caller
+                            assignResponseCallers(response);
                             return Promise.reject(response);
                         }
                     } else {
-                        // Any other error fail to the caller
+                        assignResponseCallers(response);
                         return Promise.reject(response);
                     }
 
@@ -2392,54 +2258,45 @@
             _buildParams: function(args) {
 
                 // Default values
-                args = args || {};
+                var defaults = {
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    dataFilter: corbel.Services.addEmptyJson,
+                    accessToken: this.driver.config.get('iamToken', {}).accessToken, // @todo: support to oauth token and custom handlers
+                    headers: {
+                        Accept: 'application/json'
+                    },
+                    method: corbel.request.method.GET
+                };
+                var params = corbel.utils.defaults(args, defaults);
 
-                args.dataType = args.dataType || 'json';
-                args.contentType = args.contentType || 'application/json; charset=utf-8';
-                args.dataFilter = args.dataFilter || corbel.Services.addEmptyJson;
+                //Data
+                params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
 
-                // Construct url with query string
-                var url = args.url;
-
-                if (!url) {
+                if (!params.url) {
                     throw new Error('You must define an url');
                 }
 
-                if (args.query) {
-                    url += '?' + args.query;
+                if (params.query) {
+                    params.url += '?' + params.query;
                 }
-
-                var headers = args.headers || {};
-
-                // @todo: support to oauth token and custom handlers
-                args.accessToken = args.accessToken || this.driver.config.get('iamToken', {}).accessToken;
 
                 // Use access access token if exists
-                if (args.accessToken) {
-                    headers.Authorization = 'Bearer ' + args.accessToken;
-                }
-                if (args.noRedirect) {
-                    headers['No-Redirect'] = true;
+                if (params.accessToken) {
+                    params.headers.Authorization = 'Bearer ' + params.accessToken;
                 }
 
-                headers.Accept = 'application/json';
-                if (args.Accept) {
-                    headers.Accept = args.Accept;
-                    args.dataType = undefined; // Accept & dataType are incompatibles
+                if (params.noRedirect) {
+                    params.headers['No-Redirect'] = true;
                 }
 
-                var params = {
-                    url: url,
-                    dataType: args.dataType,
-                    contentType: args.contentType,
-                    method: args.method || corbel.request.method.GET,
-                    headers: headers,
-                    data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
-                    dataFilter: args.dataFilter
-                };
+                if (params.Accept) {
+                    params.headers.Accept = params.Accept;
+                    params.dataType = undefined; // Accept & dataType are incompatibles
+                }
 
                 // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-                params.dataType = args.binaryType || params.dataType;
+                params.dataType = params.binaryType || params.dataType;
 
                 // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
                 // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
@@ -2451,13 +2308,14 @@
                 //      console.log('services._buildParams (data)', args.data);
                 // }
 
-                return params;
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'caller']);
             }
         });
 
         return BaseServices;
 
     })();
+
     (function(BaseServices) {
 
         /**
@@ -2466,13 +2324,16 @@
          * @namespace
          * @memberof corbel
          */
-        corbel.Services = BaseServices.inherit({}, { //Static props
+        corbel.Services = BaseServices.inherit({}, { //Static attrs
+
             _FORCE_UPDATE_TEXT: 'unsupported_version',
             _FORCE_UPDATE_MAX_RETRIES: 3,
             _FORCE_UPDATE_STATUS: 'fu_r',
+
             create: function(driver) {
                 return new corbel.Services(driver);
             },
+
             /**
              * Extract a id from the location header of a requestXHR
              * @param  {Promise} res response from a requestXHR
@@ -2488,12 +2349,14 @@
                 }
                 return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
             },
+
             addEmptyJson: function(response, type) {
                 if (!response && type === 'json') {
                     response = '{}';
                 }
                 return response;
             },
+
             BaseServices: BaseServices
         });
 
@@ -2501,6 +2364,7 @@
         return corbel.Services;
 
     })(BaseServices);
+
     /* jshint camelcase:false */
     (function() {
 
@@ -4032,6 +3896,7 @@
         return corbel.Resources.BaseResource;
 
     })();
+
     (function() {
         /**
          * Relation
@@ -4243,7 +4108,8 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.GET,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:get'
                 });
 
                 return this.request(args);
@@ -4268,7 +4134,8 @@
                     method: corbel.request.method.PUT,
                     data: data,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:update'
                 });
 
                 return this.request(args);
@@ -4289,7 +4156,8 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.DELETE,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:delete'
                 });
 
                 return this.request(args);
@@ -4300,6 +4168,7 @@
         return corbel.Resources.Resource;
 
     })();
+
     (function() {
 
         /**
@@ -5888,8 +5757,6 @@
             constructor: function(driver) {
                 this.driver = driver;
             },
-
-
 
             /**
              * Create a PhraseBuilder for phrase managing requests.
