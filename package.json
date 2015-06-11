@@ -32,6 +32,7 @@
     "atob": "^1.1.2",
     "btoa": "^1.1.2",
     "es6-promise": "^2.0.1",
+    "lodash": "^3.9.3",
     "node-localstorage": "^0.5.0",
     "request": "^2.53.0"
   },
