@@ -3,17 +3,12 @@
     /* jshint unused: false */
 
     if (typeof define === 'function' && define.amd) {
-        define(['es6-pomise'], function(promise) {
-            promise.polyfill();
+        define([], function() {
             return factory(root);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
-        var Promise = require('es6-promise').polyfill();
         module.exports = factory.call(root, root, process || undefined);
     } else if (root !== undefined) {
-        if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
-            root.ES6Promise.polyfill();
-        }
         root.corbel = factory(root);
     }
 
@@ -266,6 +261,49 @@
             }
 
             return result;
+        };
+
+        utils.defaults = function(destiny, defaults) {
+            Object.keys(defaults).forEach(function(key) {
+                if (typeof(destiny[key]) === 'undefined') {
+                    destiny[key] = defaults[key];
+                }
+            });
+
+            return destiny;
+        };
+
+        utils.pick = function(object, keys) {
+            var destiny = {};
+
+            keys.forEach(function(key) {
+                destiny[key] = object[key];
+            });
+
+            return destiny;
+        };
+
+        utils.clone = function(obj) {
+            if (null === obj || 'object' !== typeof obj) {
+                return obj;
+            }
+            var copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) {
+                    copy[attr] = obj[attr];
+                }
+            }
+            return copy;
+        };
+
+        utils.isJSON = function(string) {
+            try {
+                JSON.parse(string);
+            } catch (e) {
+                return false;
+            }
+
+            return true;
         };
 
         return utils;
@@ -717,11 +755,17 @@
 
     corbel.Config = Config;
 
-    if (process && typeof window === 'undefined' && typeof module !== 'undefined' && module.exports) {
+    var processExist = function() {
+        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
+    };
+
+
+    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
         Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
     } else {
         Config.__env__ = 'browser';
     }
+
 
     Config.isNode = Config.__env__ === 'node';
 
@@ -791,6 +835,7 @@
     Config.prototype.set = function(field, value) {
         this.config[field] = value;
     };
+
     (function() {
 
         /**
@@ -1131,6 +1176,7 @@
 
     })();
     var BaseServices = (function() {
+
         /**
          * A base object to inherit from for make corbel-js requests with custom behavior.
          * @exports corbel.ServicesBase
@@ -1153,6 +1199,38 @@
             request: function(args) {
 
                 var params = this._buildParams(args);
+
+                var assignCaller = function(item) {
+                    if (corbel.utils.isJSON(item)) {
+                        try {
+                            var objectParsed = JSON.parse(item);
+                            objectParsed.caller = params.caller;
+                            item = JSON.stringify(objectParsed);
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+
+                    return item;
+                };
+
+                var assignResponseCallers = function(response) {
+                    // Any other error fail to the caller
+                    if (params.caller && response && response.data) {
+                        //Avoid read only states
+                        response.data = corbel.utils.clone(response.data);
+
+                        if (response.data.response) {
+                            response.data.response = assignCaller(response.data.response);
+                        }
+
+                        if (response.data.responseText) {
+                            response.data.responseText = assignCaller(response.data.responseText);
+                        }
+                    }
+                };
+
+
                 return corbel.request.send(params).then(function(response) {
 
                     this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
@@ -1174,10 +1252,11 @@
                         } else {
 
                             // Send an error to the caller
+                            assignResponseCallers(response);
                             return Promise.reject(response);
                         }
                     } else {
-                        // Any other error fail to the caller
+                        assignResponseCallers(response);
                         return Promise.reject(response);
                     }
 
@@ -1194,54 +1273,45 @@
             _buildParams: function(args) {
 
                 // Default values
-                args = args || {};
+                var defaults = {
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    dataFilter: corbel.Services.addEmptyJson,
+                    accessToken: this.driver.config.get('iamToken', {}).accessToken, // @todo: support to oauth token and custom handlers
+                    headers: {
+                        Accept: 'application/json'
+                    },
+                    method: corbel.request.method.GET
+                };
+                var params = corbel.utils.defaults(args, defaults);
 
-                args.dataType = args.dataType || 'json';
-                args.contentType = args.contentType || 'application/json; charset=utf-8';
-                args.dataFilter = args.dataFilter || corbel.Services.addEmptyJson;
+                //Data
+                params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
 
-                // Construct url with query string
-                var url = args.url;
-
-                if (!url) {
+                if (!params.url) {
                     throw new Error('You must define an url');
                 }
 
-                if (args.query) {
-                    url += '?' + args.query;
+                if (params.query) {
+                    params.url += '?' + params.query;
                 }
-
-                var headers = args.headers || {};
-
-                // @todo: support to oauth token and custom handlers
-                args.accessToken = args.accessToken || this.driver.config.get('iamToken', {}).accessToken;
 
                 // Use access access token if exists
-                if (args.accessToken) {
-                    headers.Authorization = 'Bearer ' + args.accessToken;
-                }
-                if (args.noRedirect) {
-                    headers['No-Redirect'] = true;
+                if (params.accessToken) {
+                    params.headers.Authorization = 'Bearer ' + params.accessToken;
                 }
 
-                headers.Accept = 'application/json';
-                if (args.Accept) {
-                    headers.Accept = args.Accept;
-                    args.dataType = undefined; // Accept & dataType are incompatibles
+                if (params.noRedirect) {
+                    params.headers['No-Redirect'] = true;
                 }
 
-                var params = {
-                    url: url,
-                    dataType: args.dataType,
-                    contentType: args.contentType,
-                    method: args.method || corbel.request.method.GET,
-                    headers: headers,
-                    data: (args.contentType.indexOf('json') !== -1 && typeof args.data === 'object' ? JSON.stringify(args.data) : args.data),
-                    dataFilter: args.dataFilter
-                };
+                if (params.Accept) {
+                    params.headers.Accept = params.Accept;
+                    params.dataType = undefined; // Accept & dataType are incompatibles
+                }
 
                 // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-                params.dataType = args.binaryType || params.dataType;
+                params.dataType = params.binaryType || params.dataType;
 
                 // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
                 // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
@@ -1253,13 +1323,14 @@
                 //      console.log('services._buildParams (data)', args.data);
                 // }
 
-                return params;
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'caller']);
             }
         });
 
         return BaseServices;
 
     })();
+
     (function(BaseServices) {
 
         /**
@@ -2840,6 +2911,7 @@
         return corbel.Resources.BaseResource;
 
     })();
+
     (function() {
         /**
          * Relation
@@ -3051,7 +3123,8 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.GET,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:get'
                 });
 
                 return this.request(args);
@@ -3076,7 +3149,8 @@
                     method: corbel.request.method.PUT,
                     data: data,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:update'
                 });
 
                 return this.request(args);
@@ -3097,7 +3171,8 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.DELETE,
                     contentType: options.dataType,
-                    Accept: options.dataType
+                    Accept: options.dataType,
+                    caller: 'Resource:delete'
                 });
 
                 return this.request(args);
@@ -3108,6 +3183,7 @@
         return corbel.Resources.Resource;
 
     })();
+
     (function() {
 
         /**

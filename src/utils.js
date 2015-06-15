@@ -202,6 +202,49 @@
         return result;
     };
 
+    utils.defaults = function (destiny, defaults){
+      Object.keys(defaults).forEach(function(key){
+        if(typeof(destiny[key]) === 'undefined'){
+          destiny[key] = defaults[key];
+        }
+      });
+
+      return destiny;
+    };
+
+    utils.pick = function (object, keys){
+      var destiny = {};
+
+      keys.forEach(function(key){
+        destiny[key] = object[key];
+      });
+
+      return destiny;
+    };
+
+    utils.clone = function (obj) {
+      if (null === obj || 'object' !== typeof obj) {
+        return obj;
+      }
+      var copy = {};
+      for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) {
+          copy[attr] = obj[attr];
+        }
+      }
+      return copy;
+    };
+
+    utils.isJSON = function (string){
+      try {
+        JSON.parse(string);
+      } catch (e) {
+        return false;
+      }
+
+      return true;
+    };
+
     return utils;
 
 })();
