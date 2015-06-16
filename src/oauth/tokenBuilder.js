@@ -50,7 +50,7 @@
          * 
          * @param  {String} code The code to exchange for the token
          * 
-         * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link SilkRoadError}
+         * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
          */
         get: function(code) {
             console.log('oauthInterface.token.get');

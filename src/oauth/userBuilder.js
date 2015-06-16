@@ -154,7 +154,7 @@
          * @method
          * @memberOf corbel.Oauth.UsersBuilder
          * @param  {String} userEmailToReset The email to send the message
-         * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          */
         sendResetPasswordEmail: function(userEmailToReset) {
             console.log('oauthInterface.user.SendResetPasswordEmail', userEmailToReset);
@@ -178,7 +178,7 @@
          * 
          * @param  {Object} id     The user id or me
          * 
-         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          */
         sendValidateEmail: function(id) {
             console.log('oauthInterface.user.sendValidateEmail');
@@ -196,7 +196,7 @@
          * 
          * @param  {Object} id   The user id or me
          * 
-         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          */
         emailConfirmation: function(id) {
             console.log('oauthInterface.user.emailConfirmation');

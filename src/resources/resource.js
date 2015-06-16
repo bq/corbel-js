@@ -27,7 +27,7 @@
          * @param  {Object} options
          * @param  {String} [options.dataType]      Mime type of the expected resource
          * @param  {Object} [options.params]        Additional request parameters
-         * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link SilkRoadError}
+         * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link CorbelError}
          * @see {@link services.request} to see a example of the params
          */
         get: function(options) {
@@ -52,7 +52,7 @@
          * @param  {Object} options
          * @param  {String} [options.dataType]      Mime tipe of the sent data
          * @param  {Object} [options.params]        Additional request parameters
-         * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          * @see {@link services.request} to see a example of the params
          */
         update: function(data, options) {
@@ -76,7 +76,7 @@
          * @memberOf resources.Resource
          * @param  {Object} options
          * @param  {Object} [options.dataType]      Mime tipe of the delete data
-         * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          */
         delete: function(options) {
             options = this.getDefaultOptions(options);

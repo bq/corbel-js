@@ -1,7 +1,6 @@
 (function() {
     //@exclude
     'use strict';
-    /*globals corbel */
     //@endexclude
 
     corbel.Resources.BaseResource = corbel.Services.BaseServices.inherit({

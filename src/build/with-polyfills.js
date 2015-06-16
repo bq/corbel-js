@@ -24,6 +24,11 @@
 
     //  @include ../../bower_components/es6-promise/promise.js
 
+    /**
+     * corbel namespace
+     * @exports corbel
+     * @namespace
+     */
     var corbel = {};
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------

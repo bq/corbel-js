@@ -1,15 +1,14 @@
 //@exclude
 'use strict';
-/* globals corbel */
 //@endexclude
 
 (function() {
 
     /**
-     * A module to some library corbel.utils.
-     * @exports validate
+     * A module to some library corbel.utils
+     * @exports utils
      * @namespace
-     * @memberof app
+     * @memberof corbel
      */
     var utils = corbel.utils = {};
 

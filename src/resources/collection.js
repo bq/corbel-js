@@ -24,8 +24,8 @@
          * Gets a collection of elements, filtered, paginated or sorted
          * @method
          * @memberOf Resources.CollectionBuilder
-         * @param  {Object} options             Get options for the request
-         * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link SilkRoadError}
+         * @param  {object} options             Get options for the request
+         * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link CorbelError}
          * @see {@link corbel.util.serializeParams} to see a example of the params
          */
         get: function(options) {
@@ -44,9 +44,9 @@
          * Adds a new element to a collection
          * @method
          * @memberOf Resources.CollectionBuilder
-         * @param  {[Object]} data      Data array added to the collection
-         * @param  {Object} options     Options object with dataType request option
-         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
+         * @param  {object} data      Data array added to the collection
+         * @param  {object} options     Options object with dataType request option
+         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
          */
         add: function(data, options) {
             options = this.getDefaultOptions(options);

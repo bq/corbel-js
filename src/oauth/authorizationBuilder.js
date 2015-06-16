@@ -74,7 +74,7 @@
          * @memberOf corbel.Oauth.AuthorizationBuilder
          * @param  {String} username The username of the user to log in
          * @param  {String} password The password of the user
-         * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link SilkRoadError}
+         * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
          */
         login: function(username, password, setCookie) {
             console.log('oauthInterface.authorization.login', username + ':' + password);
@@ -96,7 +96,7 @@
          * Sign out from oauth server
          * @method
          * @memberOf corbel.Oauth.SignOutBuilder
-         * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link SilkRoadError}
+         * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link CorbelError}
          */
         signout: function() {
             console.log('oauthInterface.authorization.signOut');

@@ -16,6 +16,11 @@
     'use strict';
     /* jshint unused: false */
 
+    /**
+     * corbel namespace
+     * @exports corbel
+     * @namespace
+     */
     var corbel = {};
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------

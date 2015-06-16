@@ -7,7 +7,7 @@
 
     /**
      * Starts a user request
-     * @param  {String} [id=undefined|id|'me'] Id of the user to perform the request
+     * @param  {string} [id=undefined|id|'me'] Id of the user to perform the request
      * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
      */
     corbel.Iam.prototype.user = function(id) {
@@ -24,9 +24,8 @@
 
     /**
      * getUser mixin for UserBuilder & UsersBuilder
-     * @param  {String=GET|POST|PUT} method
-     * @param  {String} uri
-     * @param  {String} id
+     * @param  {string} uri
+     * @param  {string} id
      * @param  {Bolean} postfix
      * @return {Promise}
      */
@@ -41,7 +40,7 @@
      * Builder for a specific user requests
      * @class
      * @memberOf iam
-     * @param {String} id The id of the user
+     * @param {string} id The id of the user
      */
     var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.BaseServices.inherit({
 
@@ -129,8 +128,8 @@
          * @method
          * @memberOf corbel.Iam.UserBuilder
          * @param {Object} identity     The data of the identity
-         * @param {String} oauthId      The oauth ID of the user
-         * @param {String} oauthService The oauth service to connect (facebook, twitter, google, corbel)
+         * @param {string} oauthId      The oauth ID of the user
+         * @param {string} oauthService The oauth service to connect (facebook, twitter, google, corbel)
          * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
          */
         addIdentity: function(identity) {
@@ -183,7 +182,7 @@
          * Get device
          * @method
          * @memberOf corbel.Iam.UserBuilder
-         * @param  {String}  deviceId    The device id
+         * @param  {string}  deviceId    The device id
          * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
          */
         getDevice: function(deviceId) {
@@ -212,7 +211,7 @@
          * Delete user device
          * @method
          * @memberOf corbel.Iam.UserBuilder
-         * @param  {String}  deviceId    The device id
+         * @param  {string}  deviceId    The device id
          * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
          */
         deleteDevice: function(deviceId) {
@@ -257,7 +256,7 @@
          * Sends a reset password email to the email address recived.
          * @method
          * @memberOf oauth.UsersBuilder
-         * @param  {String} userEmailToReset The email to send the message
+         * @param  {string} userEmailToReset The email to send the message
          * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
          */
         sendResetPasswordEmail: function(userEmailToReset) {

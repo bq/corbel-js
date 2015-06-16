@@ -29,7 +29,7 @@
           * @param  {String} dataType    Mime type of the expected resource
           * @param  {String} destId         Relationed resource
           * @param  {Object} params      Params of the silkroad request
-          * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
+          * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link CorbelError}
           * @see {@link corbel.util.serializeParams} to see a example of the params
           */
          get: function(destId, options) {
@@ -50,7 +50,7 @@
           * @memberOf Resources.Relation
           * @param  {String} destId          Relationed resource
           * @param  {Object} relationData Additional data to be added to the relation (in json)
-          * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+          * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
           * @example uri = '555'
           */
          add: function(destId, relationData, options) {
@@ -71,7 +71,7 @@
           * @method
           * @memberOf Resources.Relation
           * @param  {Integer} pos          The new position
-          * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+          * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
           */
          move: function(destId, pos, options) {
 
@@ -94,7 +94,7 @@
           * @method
           * @memberOf Resources.Relation
           * @param  {String} destId          Relationed resource
-          * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+          * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
           * @example
           * destId = 'music:Track/555'
           */

@@ -79,7 +79,9 @@
     "node-inspector": "^0.8.3",
     "sinon": "^1.13.0",
     "travis-cov": "^0.2.5",
-    "underscore": "^1.8.2"
+    "underscore": "^1.8.2",
+    "jaguarjs-jsdoc": "0.0.1",
+    "jsdoc": "3.2.2"
   },
   "scripts": {
     "prepublish": "bower install && grunt dist && git add dist/*",

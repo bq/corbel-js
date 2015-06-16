@@ -1,15 +1,16 @@
 //@exclude
-
 'use strict';
-
 /* global corbel */
-
-//deps: [corbel.utils, corbel.Config, corbel.Iam, corbel.Resources, corbel.Services, corbel.Session, corbel.Oauth, corbel.Notifications, corbel.Ec, corbel.Evci, corbel.Borrow, corbel.CompoSR]
-
 //@endexclude
 
 (function() {
 
+    /**
+     * @namespace
+     * @memberOf corbel
+     * @param {object} config
+     * @return {CorbelDriver}
+     */
     function CorbelDriver(config) {
         // create instance config
         this.guid = corbel.utils.guid();
@@ -32,12 +33,13 @@
 
     /**
      * Instanciates new corbel driver
-     * @param {Object} config
-     * @param {String} config.urlBase
-     * @param {String} [config.clientId]
-     * @param {String} [config.clientSecret]
-     * @param {String} [config.scopes]
-     * @return {CorbelDriver}
+     * @memberOf corbel
+     * @param {object} config
+     * @param {string} config.urlBase
+     * @param {string} [config.clientId]
+     * @param {string} [config.clientSecret]
+     * @param {string} [config.scopes]
+     * @return {corbel.CorbelDriver}
      */
     corbel.getDriver = function(config) {
         config = config || {};
