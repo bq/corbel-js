@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -20,7 +19,7 @@
      * @class
      * @memberOf Iam
      */
-    var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.BaseServices.inherit({
+    var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
 
         constructor: function() {
             this.uri = 'oauth/token';
@@ -114,6 +113,12 @@
             var that = this;
             return promise.then(function(response) {
                 that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                if (params.jwt) {
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
+                }
+                if (params.claims && params.claims.scope) {
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                }
                 return response;
             });
         },
@@ -137,8 +142,12 @@
                     'refresh_token': refreshToken
                 }
             };
+            var that = this;
             // we use the traditional POST verb to refresh access token.
-            return this._doPostTokenRequest(this.uri, params);
+            return this._doPostTokenRequest(this.uri, params).then(function(response) {
+                that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                return response;
+            });
         }
 
     });

@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -25,6 +24,7 @@
     Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
     Iam.AUD = 'http://iam.bqws.io';
     Iam.IAM_TOKEN = 'iamToken';
+    Iam.IAM_TOKEN_SCOPES = 'iamScopes';
 
     /**
      * COMMON MIXINS

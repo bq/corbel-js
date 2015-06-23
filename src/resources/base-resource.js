@@ -3,7 +3,7 @@
     'use strict';
     //@endexclude
 
-    corbel.Resources.BaseResource = corbel.Services.BaseServices.inherit({
+    corbel.Resources.BaseResource = corbel.Services.inherit({
 
         /**
          * Helper function to build the request uri

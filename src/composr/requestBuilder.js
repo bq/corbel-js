@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -13,7 +12,7 @@
      * @class
      * @memberOf corbel.CompoSR.RequestBuilder
      */
-    corbel.CompoSR.RequestBuilder = corbel.Services.BaseServices.inherit({
+    corbel.CompoSR.RequestBuilder = corbel.Services.inherit({
 
         constructor: function(pathsArray) {
             this.path = this.buildPath(pathsArray);

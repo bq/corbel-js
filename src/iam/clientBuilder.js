@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -28,7 +27,7 @@
      * @class
      * @memberOf iam
      */
-    var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.BaseServices.inherit({
+    var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
 
         constructor: function(domainId, clientId) {
             this.domainId = domainId;

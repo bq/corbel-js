@@ -47,7 +47,7 @@ describe('in corbel module', function() {
 
         });
 
-        describe('with a CorbelDriverer instance', function() {
+        describe('with a CorbelDriver instance', function() {
 
             var corbelDriver;
 
@@ -65,7 +65,6 @@ describe('in corbel module', function() {
                 expect(corbelDriver).to.have.ownProperty('config');
                 expect(corbelDriver.config).to.be.an.instanceof(corbel.Config);
                 expect(corbelDriver.iam).to.be.an.instanceof(corbel.Iam);
-                expect(corbelDriver.services).to.be.an.instanceof(corbel.Services);
                 expect(corbel).to.have.ownProperty('Iam');
             });
 

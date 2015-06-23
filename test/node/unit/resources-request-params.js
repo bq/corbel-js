@@ -85,7 +85,7 @@ describe('corbel resources request-params module', function() {
         beforeEach(function() {
             collection = resources.collection('resource:entities');
             resource = resources.collection('resource:entities');
-            serviceSpy = sandbox.stub(corbel.Services.BaseServices.prototype, '_buildParams');
+            serviceSpy = sandbox.stub(corbel.Services.prototype, '_buildParams');
         });
 
         it('supports aggregations', function() {
@@ -228,7 +228,7 @@ describe('corbel resources request-params module', function() {
 
         beforeEach(function() {
             relation = resources.relation('resource:entities', '25', '26');
-            serviceSpy = sandbox.stub(corbel.Services.BaseServices.prototype, '_buildParams');
+            serviceSpy = sandbox.stub(corbel.Services.prototype, '_buildParams');
         });
 
         it('supports aggregations', function() {
@@ -307,7 +307,7 @@ describe('corbel resources request-params module', function() {
 
         beforeEach(function() {
             resource = resources.resource('resource:entities', '25', '26');
-            serviceSpy = sandbox.stub(corbel.Services.BaseServices.prototype, '_buildParams');
+            serviceSpy = sandbox.stub(corbel.Services.prototype, '_buildParams');
         });
 
         it('supports querys', function() {

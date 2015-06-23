@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -42,7 +41,7 @@
      * @memberOf iam
      * @param {string} id The id of the user
      */
-    var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.BaseServices.inherit({
+    var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
 
         constructor: function(id) {
             this.uri = 'user';
@@ -244,7 +243,7 @@
      * @class
      * @memberOf iam
      */
-    var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.BaseServices.inherit({
+    var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
 
         constructor: function() {
             this.uri = 'user';
