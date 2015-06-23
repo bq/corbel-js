@@ -62,6 +62,26 @@
             return this.request(args).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });
+        },
+
+         /**
+         * Delete a collection
+         * @method
+         * @memberOf Resources.CollectionBuilder
+         * @param  {object} options     Options object with dataType request option
+         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
+         */
+        delete: function(options) {
+            options = this.getDefaultOptions(options);
+
+            var args = corbel.utils.extend(options, {
+                url: this.buildUri(this.type),
+                method: corbel.request.method.DELETE,
+                contentType: options.dataType,
+                Accept: options.dataType
+            });
+
+            return this.request(args);
         }
 
     });
