@@ -354,7 +354,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', [
     'test:browser',
-    'test:node'
+    'mochaTest:ci'
   ]);
 
   grunt.registerTask('test:browser', [
