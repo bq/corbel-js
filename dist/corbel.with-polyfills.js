@@ -27,84 +27,95 @@
      * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
      * @license   Licensed under MIT license
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-     * @version   2.0.0
+     * @version   2.2.0
      */
 
     (function() {
         "use strict";
 
-        function $$utils$$objectOrFunction(x) {
+        function lib$es6$promise$utils$$objectOrFunction(x) {
             return typeof x === 'function' || (typeof x === 'object' && x !== null);
         }
 
-        function $$utils$$isFunction(x) {
+        function lib$es6$promise$utils$$isFunction(x) {
             return typeof x === 'function';
         }
 
-        function $$utils$$isMaybeThenable(x) {
+        function lib$es6$promise$utils$$isMaybeThenable(x) {
             return typeof x === 'object' && x !== null;
         }
 
-        var $$utils$$_isArray;
-
+        var lib$es6$promise$utils$$_isArray;
         if (!Array.isArray) {
-            $$utils$$_isArray = function(x) {
+            lib$es6$promise$utils$$_isArray = function(x) {
                 return Object.prototype.toString.call(x) === '[object Array]';
             };
         } else {
-            $$utils$$_isArray = Array.isArray;
+            lib$es6$promise$utils$$_isArray = Array.isArray;
         }
 
-        var $$utils$$isArray = $$utils$$_isArray;
-        var $$utils$$now = Date.now || function() {
-            return new Date().getTime();
-        };
+        var lib$es6$promise$utils$$isArray = lib$es6$promise$utils$$_isArray;
+        var lib$es6$promise$asap$$len = 0;
+        var lib$es6$promise$asap$$toString = {}.toString;
+        var lib$es6$promise$asap$$vertxNext;
+        var lib$es6$promise$asap$$customSchedulerFn;
 
-        function $$utils$$F() {}
-
-        var $$utils$$o_create = (Object.create || function(o) {
-            if (arguments.length > 1) {
-                throw new Error('Second argument not supported');
-            }
-            if (typeof o !== 'object') {
-                throw new TypeError('Argument must be an object');
-            }
-            $$utils$$F.prototype = o;
-            return new $$utils$$F();
-        });
-
-        var $$asap$$len = 0;
-
-        var $$asap$$default = function asap(callback, arg) {
-            $$asap$$queue[$$asap$$len] = callback;
-            $$asap$$queue[$$asap$$len + 1] = arg;
-            $$asap$$len += 2;
-            if ($$asap$$len === 2) {
-                // If len is 1, that means that we need to schedule an async flush.
+        function lib$es6$promise$asap$$asap(callback, arg) {
+            lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
+            lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
+            lib$es6$promise$asap$$len += 2;
+            if (lib$es6$promise$asap$$len === 2) {
+                // If len is 2, that means that we need to schedule an async flush.
                 // If additional callbacks are queued before the queue is flushed, they
                 // will be processed by this flush that we are scheduling.
-                $$asap$$scheduleFlush();
+                if (lib$es6$promise$asap$$customSchedulerFn) {
+                    lib$es6$promise$asap$$customSchedulerFn(lib$es6$promise$asap$$flush);
+                } else {
+                    lib$es6$promise$asap$$scheduleFlush();
+                }
             }
-        };
+        }
 
-        var $$asap$$browserGlobal = (typeof window !== 'undefined') ? window : {};
-        var $$asap$$BrowserMutationObserver = $$asap$$browserGlobal.MutationObserver || $$asap$$browserGlobal.WebKitMutationObserver;
+        var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
+
+        function lib$es6$promise$asap$$setScheduler(scheduleFn) {
+            lib$es6$promise$asap$$customSchedulerFn = scheduleFn;
+        }
+
+        var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
+        var lib$es6$promise$asap$$browserGlobal = lib$es6$promise$asap$$browserWindow || {};
+        var lib$es6$promise$asap$$BrowserMutationObserver = lib$es6$promise$asap$$browserGlobal.MutationObserver || lib$es6$promise$asap$$browserGlobal.WebKitMutationObserver;
+        var lib$es6$promise$asap$$isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
         // test for web worker but not in IE10
-        var $$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
+        var lib$es6$promise$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
             typeof importScripts !== 'undefined' &&
             typeof MessageChannel !== 'undefined';
 
         // node
-        function $$asap$$useNextTick() {
+        function lib$es6$promise$asap$$useNextTick() {
+            var nextTick = process.nextTick;
+            // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+            // setImmediate should be used instead instead
+            var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
+            if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
+                nextTick = setImmediate;
+            }
             return function() {
-                process.nextTick($$asap$$flush);
+                nextTick(lib$es6$promise$asap$$flush);
             };
         }
 
-        function $$asap$$useMutationObserver() {
+        // vertx
+        function lib$es6$promise$asap$$useVertxTimer() {
+            return function() {
+                lib$es6$promise$asap$$vertxNext(lib$es6$promise$asap$$flush);
+            };
+        }
+
+        function lib$es6$promise$asap$$useMutationObserver() {
             var iterations = 0;
-            var observer = new $$asap$$BrowserMutationObserver($$asap$$flush);
+            var observer = new lib$es6$promise$asap$$BrowserMutationObserver(lib$es6$promise$asap$$flush);
             var node = document.createTextNode('');
             observer.observe(node, {
                 characterData: true
@@ -116,73 +127,87 @@
         }
 
         // web worker
-        function $$asap$$useMessageChannel() {
+        function lib$es6$promise$asap$$useMessageChannel() {
             var channel = new MessageChannel();
-            channel.port1.onmessage = $$asap$$flush;
+            channel.port1.onmessage = lib$es6$promise$asap$$flush;
             return function() {
                 channel.port2.postMessage(0);
             };
         }
 
-        function $$asap$$useSetTimeout() {
+        function lib$es6$promise$asap$$useSetTimeout() {
             return function() {
-                setTimeout($$asap$$flush, 1);
+                setTimeout(lib$es6$promise$asap$$flush, 1);
             };
         }
 
-        var $$asap$$queue = new Array(1000);
+        var lib$es6$promise$asap$$queue = new Array(1000);
 
-        function $$asap$$flush() {
-            for (var i = 0; i < $$asap$$len; i += 2) {
-                var callback = $$asap$$queue[i];
-                var arg = $$asap$$queue[i + 1];
+        function lib$es6$promise$asap$$flush() {
+            for (var i = 0; i < lib$es6$promise$asap$$len; i += 2) {
+                var callback = lib$es6$promise$asap$$queue[i];
+                var arg = lib$es6$promise$asap$$queue[i + 1];
 
                 callback(arg);
 
-                $$asap$$queue[i] = undefined;
-                $$asap$$queue[i + 1] = undefined;
+                lib$es6$promise$asap$$queue[i] = undefined;
+                lib$es6$promise$asap$$queue[i + 1] = undefined;
             }
 
-            $$asap$$len = 0;
+            lib$es6$promise$asap$$len = 0;
         }
 
-        var $$asap$$scheduleFlush;
+        function lib$es6$promise$asap$$attemptVertex() {
+            try {
+                var r = require;
+                var vertx = r('vertx');
+                lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
+                return lib$es6$promise$asap$$useVertxTimer();
+            } catch (e) {
+                return lib$es6$promise$asap$$useSetTimeout();
+            }
+        }
 
+        var lib$es6$promise$asap$$scheduleFlush;
         // Decide what async method to use to triggering processing of queued callbacks:
-        if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
-            $$asap$$scheduleFlush = $$asap$$useNextTick();
-        } else if ($$asap$$BrowserMutationObserver) {
-            $$asap$$scheduleFlush = $$asap$$useMutationObserver();
-        } else if ($$asap$$isWorker) {
-            $$asap$$scheduleFlush = $$asap$$useMessageChannel();
+        if (lib$es6$promise$asap$$isNode) {
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useNextTick();
+        } else if (lib$es6$promise$asap$$BrowserMutationObserver) {
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMutationObserver();
+        } else if (lib$es6$promise$asap$$isWorker) {
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
+        } else if (lib$es6$promise$asap$$browserWindow === undefined && typeof require === 'function') {
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
         } else {
-            $$asap$$scheduleFlush = $$asap$$useSetTimeout();
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
         }
 
-        function $$$internal$$noop() {}
-        var $$$internal$$PENDING = void 0;
-        var $$$internal$$FULFILLED = 1;
-        var $$$internal$$REJECTED = 2;
-        var $$$internal$$GET_THEN_ERROR = new $$$internal$$ErrorObject();
+        function lib$es6$promise$$internal$$noop() {}
 
-        function $$$internal$$selfFullfillment() {
+        var lib$es6$promise$$internal$$PENDING = void 0;
+        var lib$es6$promise$$internal$$FULFILLED = 1;
+        var lib$es6$promise$$internal$$REJECTED = 2;
+
+        var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
+
+        function lib$es6$promise$$internal$$selfFullfillment() {
             return new TypeError("You cannot resolve a promise with itself");
         }
 
-        function $$$internal$$cannotReturnOwn() {
-            return new TypeError('A promises callback cannot return that same promise.')
+        function lib$es6$promise$$internal$$cannotReturnOwn() {
+            return new TypeError('A promises callback cannot return that same promise.');
         }
 
-        function $$$internal$$getThen(promise) {
+        function lib$es6$promise$$internal$$getThen(promise) {
             try {
                 return promise.then;
             } catch (error) {
-                $$$internal$$GET_THEN_ERROR.error = error;
-                return $$$internal$$GET_THEN_ERROR;
+                lib$es6$promise$$internal$$GET_THEN_ERROR.error = error;
+                return lib$es6$promise$$internal$$GET_THEN_ERROR;
             }
         }
 
-        function $$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+        function lib$es6$promise$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
             try {
                 then.call(value, fulfillmentHandler, rejectionHandler);
             } catch (e) {
@@ -190,18 +215,18 @@
             }
         }
 
-        function $$$internal$$handleForeignThenable(promise, thenable, then) {
-            $$asap$$default(function(promise) {
+        function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
+            lib$es6$promise$asap$$default(function(promise) {
                 var sealed = false;
-                var error = $$$internal$$tryThen(then, thenable, function(value) {
+                var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
                     if (sealed) {
                         return;
                     }
                     sealed = true;
                     if (thenable !== value) {
-                        $$$internal$$resolve(promise, value);
+                        lib$es6$promise$$internal$$resolve(promise, value);
                     } else {
-                        $$$internal$$fulfill(promise, value);
+                        lib$es6$promise$$internal$$fulfill(promise, value);
                     }
                 }, function(reason) {
                     if (sealed) {
@@ -209,105 +234,105 @@
                     }
                     sealed = true;
 
-                    $$$internal$$reject(promise, reason);
+                    lib$es6$promise$$internal$$reject(promise, reason);
                 }, 'Settle: ' + (promise._label || ' unknown promise'));
 
                 if (!sealed && error) {
                     sealed = true;
-                    $$$internal$$reject(promise, error);
+                    lib$es6$promise$$internal$$reject(promise, error);
                 }
             }, promise);
         }
 
-        function $$$internal$$handleOwnThenable(promise, thenable) {
-            if (thenable._state === $$$internal$$FULFILLED) {
-                $$$internal$$fulfill(promise, thenable._result);
-            } else if (promise._state === $$$internal$$REJECTED) {
-                $$$internal$$reject(promise, thenable._result);
+        function lib$es6$promise$$internal$$handleOwnThenable(promise, thenable) {
+            if (thenable._state === lib$es6$promise$$internal$$FULFILLED) {
+                lib$es6$promise$$internal$$fulfill(promise, thenable._result);
+            } else if (thenable._state === lib$es6$promise$$internal$$REJECTED) {
+                lib$es6$promise$$internal$$reject(promise, thenable._result);
             } else {
-                $$$internal$$subscribe(thenable, undefined, function(value) {
-                    $$$internal$$resolve(promise, value);
+                lib$es6$promise$$internal$$subscribe(thenable, undefined, function(value) {
+                    lib$es6$promise$$internal$$resolve(promise, value);
                 }, function(reason) {
-                    $$$internal$$reject(promise, reason);
+                    lib$es6$promise$$internal$$reject(promise, reason);
                 });
             }
         }
 
-        function $$$internal$$handleMaybeThenable(promise, maybeThenable) {
+        function lib$es6$promise$$internal$$handleMaybeThenable(promise, maybeThenable) {
             if (maybeThenable.constructor === promise.constructor) {
-                $$$internal$$handleOwnThenable(promise, maybeThenable);
+                lib$es6$promise$$internal$$handleOwnThenable(promise, maybeThenable);
             } else {
-                var then = $$$internal$$getThen(maybeThenable);
+                var then = lib$es6$promise$$internal$$getThen(maybeThenable);
 
-                if (then === $$$internal$$GET_THEN_ERROR) {
-                    $$$internal$$reject(promise, $$$internal$$GET_THEN_ERROR.error);
+                if (then === lib$es6$promise$$internal$$GET_THEN_ERROR) {
+                    lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$GET_THEN_ERROR.error);
                 } else if (then === undefined) {
-                    $$$internal$$fulfill(promise, maybeThenable);
-                } else if ($$utils$$isFunction(then)) {
-                    $$$internal$$handleForeignThenable(promise, maybeThenable, then);
+                    lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
+                } else if (lib$es6$promise$utils$$isFunction(then)) {
+                    lib$es6$promise$$internal$$handleForeignThenable(promise, maybeThenable, then);
                 } else {
-                    $$$internal$$fulfill(promise, maybeThenable);
+                    lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
                 }
             }
         }
 
-        function $$$internal$$resolve(promise, value) {
+        function lib$es6$promise$$internal$$resolve(promise, value) {
             if (promise === value) {
-                $$$internal$$reject(promise, $$$internal$$selfFullfillment());
-            } else if ($$utils$$objectOrFunction(value)) {
-                $$$internal$$handleMaybeThenable(promise, value);
+                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
+            } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
+                lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
             } else {
-                $$$internal$$fulfill(promise, value);
+                lib$es6$promise$$internal$$fulfill(promise, value);
             }
         }
 
-        function $$$internal$$publishRejection(promise) {
+        function lib$es6$promise$$internal$$publishRejection(promise) {
             if (promise._onerror) {
                 promise._onerror(promise._result);
             }
 
-            $$$internal$$publish(promise);
+            lib$es6$promise$$internal$$publish(promise);
         }
 
-        function $$$internal$$fulfill(promise, value) {
-            if (promise._state !== $$$internal$$PENDING) {
+        function lib$es6$promise$$internal$$fulfill(promise, value) {
+            if (promise._state !== lib$es6$promise$$internal$$PENDING) {
                 return;
             }
 
             promise._result = value;
-            promise._state = $$$internal$$FULFILLED;
+            promise._state = lib$es6$promise$$internal$$FULFILLED;
 
-            if (promise._subscribers.length === 0) {} else {
-                $$asap$$default($$$internal$$publish, promise);
+            if (promise._subscribers.length !== 0) {
+                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
             }
         }
 
-        function $$$internal$$reject(promise, reason) {
-            if (promise._state !== $$$internal$$PENDING) {
+        function lib$es6$promise$$internal$$reject(promise, reason) {
+            if (promise._state !== lib$es6$promise$$internal$$PENDING) {
                 return;
             }
-            promise._state = $$$internal$$REJECTED;
+            promise._state = lib$es6$promise$$internal$$REJECTED;
             promise._result = reason;
 
-            $$asap$$default($$$internal$$publishRejection, promise);
+            lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
         }
 
-        function $$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
+        function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
             var subscribers = parent._subscribers;
             var length = subscribers.length;
 
             parent._onerror = null;
 
             subscribers[length] = child;
-            subscribers[length + $$$internal$$FULFILLED] = onFulfillment;
-            subscribers[length + $$$internal$$REJECTED] = onRejection;
+            subscribers[length + lib$es6$promise$$internal$$FULFILLED] = onFulfillment;
+            subscribers[length + lib$es6$promise$$internal$$REJECTED] = onRejection;
 
             if (length === 0 && parent._state) {
-                $$asap$$default($$$internal$$publish, parent);
+                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
             }
         }
 
-        function $$$internal$$publish(promise) {
+        function lib$es6$promise$$internal$$publish(promise) {
             var subscribers = promise._subscribers;
             var settled = promise._state;
 
@@ -322,7 +347,7 @@
                 callback = subscribers[i + settled];
 
                 if (child) {
-                    $$$internal$$invokeCallback(settled, child, callback, detail);
+                    lib$es6$promise$$internal$$invokeCallback(settled, child, callback, detail);
                 } else {
                     callback(detail);
                 }
@@ -331,29 +356,29 @@
             promise._subscribers.length = 0;
         }
 
-        function $$$internal$$ErrorObject() {
+        function lib$es6$promise$$internal$$ErrorObject() {
             this.error = null;
         }
 
-        var $$$internal$$TRY_CATCH_ERROR = new $$$internal$$ErrorObject();
+        var lib$es6$promise$$internal$$TRY_CATCH_ERROR = new lib$es6$promise$$internal$$ErrorObject();
 
-        function $$$internal$$tryCatch(callback, detail) {
+        function lib$es6$promise$$internal$$tryCatch(callback, detail) {
             try {
                 return callback(detail);
             } catch (e) {
-                $$$internal$$TRY_CATCH_ERROR.error = e;
-                return $$$internal$$TRY_CATCH_ERROR;
+                lib$es6$promise$$internal$$TRY_CATCH_ERROR.error = e;
+                return lib$es6$promise$$internal$$TRY_CATCH_ERROR;
             }
         }
 
-        function $$$internal$$invokeCallback(settled, promise, callback, detail) {
-            var hasCallback = $$utils$$isFunction(callback),
+        function lib$es6$promise$$internal$$invokeCallback(settled, promise, callback, detail) {
+            var hasCallback = lib$es6$promise$utils$$isFunction(callback),
                 value, error, succeeded, failed;
 
             if (hasCallback) {
-                value = $$$internal$$tryCatch(callback, detail);
+                value = lib$es6$promise$$internal$$tryCatch(callback, detail);
 
-                if (value === $$$internal$$TRY_CATCH_ERROR) {
+                if (value === lib$es6$promise$$internal$$TRY_CATCH_ERROR) {
                     failed = true;
                     error = value.error;
                     value = null;
@@ -362,7 +387,7 @@
                 }
 
                 if (promise === value) {
-                    $$$internal$$reject(promise, $$$internal$$cannotReturnOwn());
+                    lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$cannotReturnOwn());
                     return;
                 }
 
@@ -371,175 +396,165 @@
                 succeeded = true;
             }
 
-            if (promise._state !== $$$internal$$PENDING) {
+            if (promise._state !== lib$es6$promise$$internal$$PENDING) {
                 // noop
             } else if (hasCallback && succeeded) {
-                $$$internal$$resolve(promise, value);
+                lib$es6$promise$$internal$$resolve(promise, value);
             } else if (failed) {
-                $$$internal$$reject(promise, error);
-            } else if (settled === $$$internal$$FULFILLED) {
-                $$$internal$$fulfill(promise, value);
-            } else if (settled === $$$internal$$REJECTED) {
-                $$$internal$$reject(promise, value);
+                lib$es6$promise$$internal$$reject(promise, error);
+            } else if (settled === lib$es6$promise$$internal$$FULFILLED) {
+                lib$es6$promise$$internal$$fulfill(promise, value);
+            } else if (settled === lib$es6$promise$$internal$$REJECTED) {
+                lib$es6$promise$$internal$$reject(promise, value);
             }
         }
 
-        function $$$internal$$initializePromise(promise, resolver) {
+        function lib$es6$promise$$internal$$initializePromise(promise, resolver) {
             try {
                 resolver(function resolvePromise(value) {
-                    $$$internal$$resolve(promise, value);
+                    lib$es6$promise$$internal$$resolve(promise, value);
                 }, function rejectPromise(reason) {
-                    $$$internal$$reject(promise, reason);
+                    lib$es6$promise$$internal$$reject(promise, reason);
                 });
             } catch (e) {
-                $$$internal$$reject(promise, e);
+                lib$es6$promise$$internal$$reject(promise, e);
             }
         }
 
-        function $$$enumerator$$makeSettledResult(state, position, value) {
-            if (state === $$$internal$$FULFILLED) {
-                return {
-                    state: 'fulfilled',
-                    value: value
-                };
-            } else {
-                return {
-                    state: 'rejected',
-                    reason: value
-                };
-            }
-        }
+        function lib$es6$promise$enumerator$$Enumerator(Constructor, input) {
+            var enumerator = this;
 
-        function $$$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
-            this._instanceConstructor = Constructor;
-            this.promise = new Constructor($$$internal$$noop, label);
-            this._abortOnReject = abortOnReject;
+            enumerator._instanceConstructor = Constructor;
+            enumerator.promise = new Constructor(lib$es6$promise$$internal$$noop);
 
-            if (this._validateInput(input)) {
-                this._input = input;
-                this.length = input.length;
-                this._remaining = input.length;
+            if (enumerator._validateInput(input)) {
+                enumerator._input = input;
+                enumerator.length = input.length;
+                enumerator._remaining = input.length;
 
-                this._init();
+                enumerator._init();
 
-                if (this.length === 0) {
-                    $$$internal$$fulfill(this.promise, this._result);
+                if (enumerator.length === 0) {
+                    lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
                 } else {
-                    this.length = this.length || 0;
-                    this._enumerate();
-                    if (this._remaining === 0) {
-                        $$$internal$$fulfill(this.promise, this._result);
+                    enumerator.length = enumerator.length || 0;
+                    enumerator._enumerate();
+                    if (enumerator._remaining === 0) {
+                        lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
                     }
                 }
             } else {
-                $$$internal$$reject(this.promise, this._validationError());
+                lib$es6$promise$$internal$$reject(enumerator.promise, enumerator._validationError());
             }
         }
 
-        $$$enumerator$$Enumerator.prototype._validateInput = function(input) {
-            return $$utils$$isArray(input);
+        lib$es6$promise$enumerator$$Enumerator.prototype._validateInput = function(input) {
+            return lib$es6$promise$utils$$isArray(input);
         };
 
-        $$$enumerator$$Enumerator.prototype._validationError = function() {
+        lib$es6$promise$enumerator$$Enumerator.prototype._validationError = function() {
             return new Error('Array Methods must be provided an Array');
         };
 
-        $$$enumerator$$Enumerator.prototype._init = function() {
+        lib$es6$promise$enumerator$$Enumerator.prototype._init = function() {
             this._result = new Array(this.length);
         };
 
-        var $$$enumerator$$default = $$$enumerator$$Enumerator;
+        var lib$es6$promise$enumerator$$default = lib$es6$promise$enumerator$$Enumerator;
 
-        $$$enumerator$$Enumerator.prototype._enumerate = function() {
-            var length = this.length;
-            var promise = this.promise;
-            var input = this._input;
-
-            for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
-                this._eachEntry(input[i], i);
-            }
-        };
-
-        $$$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-            var c = this._instanceConstructor;
-            if ($$utils$$isMaybeThenable(entry)) {
-                if (entry.constructor === c && entry._state !== $$$internal$$PENDING) {
-                    entry._onerror = null;
-                    this._settledAt(entry._state, i, entry._result);
-                } else {
-                    this._willSettleAt(c.resolve(entry), i);
-                }
-            } else {
-                this._remaining--;
-                this._result[i] = this._makeResult($$$internal$$FULFILLED, i, entry);
-            }
-        };
-
-        $$$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-            var promise = this.promise;
-
-            if (promise._state === $$$internal$$PENDING) {
-                this._remaining--;
-
-                if (this._abortOnReject && state === $$$internal$$REJECTED) {
-                    $$$internal$$reject(promise, value);
-                } else {
-                    this._result[i] = this._makeResult(state, i, value);
-                }
-            }
-
-            if (this._remaining === 0) {
-                $$$internal$$fulfill(promise, this._result);
-            }
-        };
-
-        $$$enumerator$$Enumerator.prototype._makeResult = function(state, i, value) {
-            return value;
-        };
-
-        $$$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+        lib$es6$promise$enumerator$$Enumerator.prototype._enumerate = function() {
             var enumerator = this;
 
-            $$$internal$$subscribe(promise, undefined, function(value) {
-                enumerator._settledAt($$$internal$$FULFILLED, i, value);
+            var length = enumerator.length;
+            var promise = enumerator.promise;
+            var input = enumerator._input;
+
+            for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
+                enumerator._eachEntry(input[i], i);
+            }
+        };
+
+        lib$es6$promise$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
+            var enumerator = this;
+            var c = enumerator._instanceConstructor;
+
+            if (lib$es6$promise$utils$$isMaybeThenable(entry)) {
+                if (entry.constructor === c && entry._state !== lib$es6$promise$$internal$$PENDING) {
+                    entry._onerror = null;
+                    enumerator._settledAt(entry._state, i, entry._result);
+                } else {
+                    enumerator._willSettleAt(c.resolve(entry), i);
+                }
+            } else {
+                enumerator._remaining--;
+                enumerator._result[i] = entry;
+            }
+        };
+
+        lib$es6$promise$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
+            var enumerator = this;
+            var promise = enumerator.promise;
+
+            if (promise._state === lib$es6$promise$$internal$$PENDING) {
+                enumerator._remaining--;
+
+                if (state === lib$es6$promise$$internal$$REJECTED) {
+                    lib$es6$promise$$internal$$reject(promise, value);
+                } else {
+                    enumerator._result[i] = value;
+                }
+            }
+
+            if (enumerator._remaining === 0) {
+                lib$es6$promise$$internal$$fulfill(promise, enumerator._result);
+            }
+        };
+
+        lib$es6$promise$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+            var enumerator = this;
+
+            lib$es6$promise$$internal$$subscribe(promise, undefined, function(value) {
+                enumerator._settledAt(lib$es6$promise$$internal$$FULFILLED, i, value);
             }, function(reason) {
-                enumerator._settledAt($$$internal$$REJECTED, i, reason);
+                enumerator._settledAt(lib$es6$promise$$internal$$REJECTED, i, reason);
             });
         };
 
-        var $$promise$all$$default = function all(entries, label) {
-            return new $$$enumerator$$default(this, entries, true /* abort on reject */ , label).promise;
-        };
+        function lib$es6$promise$promise$all$$all(entries) {
+            return new lib$es6$promise$enumerator$$default(this, entries).promise;
+        }
+        var lib$es6$promise$promise$all$$default = lib$es6$promise$promise$all$$all;
 
-        var $$promise$race$$default = function race(entries, label) {
+        function lib$es6$promise$promise$race$$race(entries) {
             /*jshint validthis:true */
             var Constructor = this;
 
-            var promise = new Constructor($$$internal$$noop, label);
+            var promise = new Constructor(lib$es6$promise$$internal$$noop);
 
-            if (!$$utils$$isArray(entries)) {
-                $$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
+            if (!lib$es6$promise$utils$$isArray(entries)) {
+                lib$es6$promise$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
                 return promise;
             }
 
             var length = entries.length;
 
             function onFulfillment(value) {
-                $$$internal$$resolve(promise, value);
+                lib$es6$promise$$internal$$resolve(promise, value);
             }
 
             function onRejection(reason) {
-                $$$internal$$reject(promise, reason);
+                lib$es6$promise$$internal$$reject(promise, reason);
             }
 
-            for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
-                $$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+            for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
+                lib$es6$promise$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
             }
 
             return promise;
-        };
+        }
+        var lib$es6$promise$promise$race$$default = lib$es6$promise$promise$race$$race;
 
-        var $$promise$resolve$$default = function resolve(object, label) {
+        function lib$es6$promise$promise$resolve$$resolve(object) {
             /*jshint validthis:true */
             var Constructor = this;
 
@@ -547,466 +562,475 @@
                 return object;
             }
 
-            var promise = new Constructor($$$internal$$noop, label);
-            $$$internal$$resolve(promise, object);
+            var promise = new Constructor(lib$es6$promise$$internal$$noop);
+            lib$es6$promise$$internal$$resolve(promise, object);
             return promise;
-        };
+        }
+        var lib$es6$promise$promise$resolve$$default = lib$es6$promise$promise$resolve$$resolve;
 
-        var $$promise$reject$$default = function reject(reason, label) {
+        function lib$es6$promise$promise$reject$$reject(reason) {
             /*jshint validthis:true */
             var Constructor = this;
-            var promise = new Constructor($$$internal$$noop, label);
-            $$$internal$$reject(promise, reason);
+            var promise = new Constructor(lib$es6$promise$$internal$$noop);
+            lib$es6$promise$$internal$$reject(promise, reason);
             return promise;
-        };
+        }
+        var lib$es6$promise$promise$reject$$default = lib$es6$promise$promise$reject$$reject;
 
-        var $$es6$promise$promise$$counter = 0;
+        var lib$es6$promise$promise$$counter = 0;
 
-        function $$es6$promise$promise$$needsResolver() {
+        function lib$es6$promise$promise$$needsResolver() {
             throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
         }
 
-        function $$es6$promise$promise$$needsNew() {
+        function lib$es6$promise$promise$$needsNew() {
             throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
         }
 
-        var $$es6$promise$promise$$default = $$es6$promise$promise$$Promise;
-
+        var lib$es6$promise$promise$$default = lib$es6$promise$promise$$Promise;
         /**
-          Promise objects represent the eventual result of an asynchronous operation. The
-          primary way of interacting with a promise is through its `then` method, which
-          registers callbacks to receive either a promise’s eventual value or the reason
-          why the promise cannot be fulfilled.
-    
-          Terminology
-          -----------
-    
-          - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-          - `thenable` is an object or function that defines a `then` method.
-          - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-          - `exception` is a value that is thrown using the throw statement.
-          - `reason` is a value that indicates why a promise was rejected.
-          - `settled` the final resting state of a promise, fulfilled or rejected.
-    
-          A promise can be in one of three states: pending, fulfilled, or rejected.
-    
-          Promises that are fulfilled have a fulfillment value and are in the fulfilled
-          state.  Promises that are rejected have a rejection reason and are in the
-          rejected state.  A fulfillment value is never a thenable.
-    
-          Promises can also be said to *resolve* a value.  If this value is also a
-          promise, then the original promise's settled state will match the value's
-          settled state.  So a promise that *resolves* a promise that rejects will
-          itself reject, and a promise that *resolves* a promise that fulfills will
-          itself fulfill.
-    
-    
-          Basic Usage:
-          ------------
-    
-          ```js
-          var promise = new Promise(function(resolve, reject) {
-            // on success
-            resolve(value);
-    
-            // on failure
-            reject(reason);
-          });
-    
-          promise.then(function(value) {
-            // on fulfillment
-          }, function(reason) {
-            // on rejection
-          });
-          ```
-    
-          Advanced Usage:
-          ---------------
-    
-          Promises shine when abstracting away asynchronous interactions such as
-          `XMLHttpRequest`s.
-    
-          ```js
-          function getJSON(url) {
-            return new Promise(function(resolve, reject){
-              var xhr = new XMLHttpRequest();
-    
-              xhr.open('GET', url);
-              xhr.onreadystatechange = handler;
-              xhr.responseType = 'json';
-              xhr.setRequestHeader('Accept', 'application/json');
-              xhr.send();
-    
-              function handler() {
-                if (this.readyState === this.DONE) {
-                  if (this.status === 200) {
-                    resolve(this.response);
-                  } else {
-                    reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-                  }
+        Promise objects represent the eventual result of an asynchronous operation. The
+        primary way of interacting with a promise is through its `then` method, which
+        registers callbacks to receive either a promise’s eventual value or the reason
+        why the promise cannot be fulfilled.
+  
+        Terminology
+        -----------
+  
+        - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+        - `thenable` is an object or function that defines a `then` method.
+        - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+        - `exception` is a value that is thrown using the throw statement.
+        - `reason` is a value that indicates why a promise was rejected.
+        - `settled` the final resting state of a promise, fulfilled or rejected.
+  
+        A promise can be in one of three states: pending, fulfilled, or rejected.
+  
+        Promises that are fulfilled have a fulfillment value and are in the fulfilled
+        state.  Promises that are rejected have a rejection reason and are in the
+        rejected state.  A fulfillment value is never a thenable.
+  
+        Promises can also be said to *resolve* a value.  If this value is also a
+        promise, then the original promise's settled state will match the value's
+        settled state.  So a promise that *resolves* a promise that rejects will
+        itself reject, and a promise that *resolves* a promise that fulfills will
+        itself fulfill.
+  
+  
+        Basic Usage:
+        ------------
+  
+        ```js
+        var promise = new Promise(function(resolve, reject) {
+          // on success
+          resolve(value);
+  
+          // on failure
+          reject(reason);
+        });
+  
+        promise.then(function(value) {
+          // on fulfillment
+        }, function(reason) {
+          // on rejection
+        });
+        ```
+  
+        Advanced Usage:
+        ---------------
+  
+        Promises shine when abstracting away asynchronous interactions such as
+        `XMLHttpRequest`s.
+  
+        ```js
+        function getJSON(url) {
+          return new Promise(function(resolve, reject){
+            var xhr = new XMLHttpRequest();
+  
+            xhr.open('GET', url);
+            xhr.onreadystatechange = handler;
+            xhr.responseType = 'json';
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.send();
+  
+            function handler() {
+              if (this.readyState === this.DONE) {
+                if (this.status === 200) {
+                  resolve(this.response);
+                } else {
+                  reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
                 }
-              };
-            });
-          }
-    
-          getJSON('/posts.json').then(function(json) {
-            // on fulfillment
-          }, function(reason) {
-            // on rejection
+              }
+            };
           });
-          ```
-    
-          Unlike callbacks, promises are great composable primitives.
-    
-          ```js
-          Promise.all([
-            getJSON('/posts'),
-            getJSON('/comments')
-          ]).then(function(values){
-            values[0] // => postsJSON
-            values[1] // => commentsJSON
-    
-            return values;
-          });
-          ```
-    
-          @class Promise
-          @param {function} resolver
-          Useful for tooling.
-          @constructor
-        */
-        function $$es6$promise$promise$$Promise(resolver) {
-            this._id = $$es6$promise$promise$$counter++;
+        }
+  
+        getJSON('/posts.json').then(function(json) {
+          // on fulfillment
+        }, function(reason) {
+          // on rejection
+        });
+        ```
+  
+        Unlike callbacks, promises are great composable primitives.
+  
+        ```js
+        Promise.all([
+          getJSON('/posts'),
+          getJSON('/comments')
+        ]).then(function(values){
+          values[0] // => postsJSON
+          values[1] // => commentsJSON
+  
+          return values;
+        });
+        ```
+  
+        @class Promise
+        @param {function} resolver
+        Useful for tooling.
+        @constructor
+      */
+        function lib$es6$promise$promise$$Promise(resolver) {
+            this._id = lib$es6$promise$promise$$counter++;
             this._state = undefined;
             this._result = undefined;
             this._subscribers = [];
 
-            if ($$$internal$$noop !== resolver) {
-                if (!$$utils$$isFunction(resolver)) {
-                    $$es6$promise$promise$$needsResolver();
+            if (lib$es6$promise$$internal$$noop !== resolver) {
+                if (!lib$es6$promise$utils$$isFunction(resolver)) {
+                    lib$es6$promise$promise$$needsResolver();
                 }
 
-                if (!(this instanceof $$es6$promise$promise$$Promise)) {
-                    $$es6$promise$promise$$needsNew();
+                if (!(this instanceof lib$es6$promise$promise$$Promise)) {
+                    lib$es6$promise$promise$$needsNew();
                 }
 
-                $$$internal$$initializePromise(this, resolver);
+                lib$es6$promise$$internal$$initializePromise(this, resolver);
             }
         }
 
-        $$es6$promise$promise$$Promise.all = $$promise$all$$default;
-        $$es6$promise$promise$$Promise.race = $$promise$race$$default;
-        $$es6$promise$promise$$Promise.resolve = $$promise$resolve$$default;
-        $$es6$promise$promise$$Promise.reject = $$promise$reject$$default;
+        lib$es6$promise$promise$$Promise.all = lib$es6$promise$promise$all$$default;
+        lib$es6$promise$promise$$Promise.race = lib$es6$promise$promise$race$$default;
+        lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
+        lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
+        lib$es6$promise$promise$$Promise._setScheduler = lib$es6$promise$asap$$setScheduler;
+        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$default;
 
-        $$es6$promise$promise$$Promise.prototype = {
-            constructor: $$es6$promise$promise$$Promise,
+        lib$es6$promise$promise$$Promise.prototype = {
+            constructor: lib$es6$promise$promise$$Promise,
 
             /**
-          The primary way of interacting with a promise is through its `then` method,
-          which registers callbacks to receive either a promise's eventual value or the
-          reason why the promise cannot be fulfilled.
-    
-          ```js
-          findUser().then(function(user){
-            // user is available
-          }, function(reason){
-            // user is unavailable, and you are given the reason why
-          });
-          ```
-    
-          Chaining
-          --------
-    
-          The return value of `then` is itself a promise.  This second, 'downstream'
-          promise is resolved with the return value of the first promise's fulfillment
-          or rejection handler, or rejected if the handler throws an exception.
-    
-          ```js
-          findUser().then(function (user) {
-            return user.name;
-          }, function (reason) {
-            return 'default name';
-          }).then(function (userName) {
-            // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-            // will be `'default name'`
-          });
-    
-          findUser().then(function (user) {
-            throw new Error('Found user, but still unhappy');
-          }, function (reason) {
-            throw new Error('`findUser` rejected and we're unhappy');
-          }).then(function (value) {
-            // never reached
-          }, function (reason) {
-            // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-            // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-          });
-          ```
-          If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-    
-          ```js
-          findUser().then(function (user) {
-            throw new PedagogicalException('Upstream error');
-          }).then(function (value) {
-            // never reached
-          }).then(function (value) {
-            // never reached
-          }, function (reason) {
-            // The `PedgagocialException` is propagated all the way down to here
-          });
-          ```
-    
-          Assimilation
-          ------------
-    
-          Sometimes the value you want to propagate to a downstream promise can only be
-          retrieved asynchronously. This can be achieved by returning a promise in the
-          fulfillment or rejection handler. The downstream promise will then be pending
-          until the returned promise is settled. This is called *assimilation*.
-    
-          ```js
-          findUser().then(function (user) {
-            return findCommentsByAuthor(user);
-          }).then(function (comments) {
-            // The user's comments are now available
-          });
-          ```
-    
-          If the assimliated promise rejects, then the downstream promise will also reject.
-    
-          ```js
-          findUser().then(function (user) {
-            return findCommentsByAuthor(user);
-          }).then(function (comments) {
-            // If `findCommentsByAuthor` fulfills, we'll have the value here
-          }, function (reason) {
-            // If `findCommentsByAuthor` rejects, we'll have the reason here
-          });
-          ```
-    
-          Simple Example
-          --------------
-    
-          Synchronous Example
-    
-          ```javascript
-          var result;
-    
-          try {
-            result = findResult();
-            // success
-          } catch(reason) {
+        The primary way of interacting with a promise is through its `then` method,
+        which registers callbacks to receive either a promise's eventual value or the
+        reason why the promise cannot be fulfilled.
+  
+        ```js
+        findUser().then(function(user){
+          // user is available
+        }, function(reason){
+          // user is unavailable, and you are given the reason why
+        });
+        ```
+  
+        Chaining
+        --------
+  
+        The return value of `then` is itself a promise.  This second, 'downstream'
+        promise is resolved with the return value of the first promise's fulfillment
+        or rejection handler, or rejected if the handler throws an exception.
+  
+        ```js
+        findUser().then(function (user) {
+          return user.name;
+        }, function (reason) {
+          return 'default name';
+        }).then(function (userName) {
+          // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+          // will be `'default name'`
+        });
+  
+        findUser().then(function (user) {
+          throw new Error('Found user, but still unhappy');
+        }, function (reason) {
+          throw new Error('`findUser` rejected and we're unhappy');
+        }).then(function (value) {
+          // never reached
+        }, function (reason) {
+          // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+          // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+        });
+        ```
+        If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+  
+        ```js
+        findUser().then(function (user) {
+          throw new PedagogicalException('Upstream error');
+        }).then(function (value) {
+          // never reached
+        }).then(function (value) {
+          // never reached
+        }, function (reason) {
+          // The `PedgagocialException` is propagated all the way down to here
+        });
+        ```
+  
+        Assimilation
+        ------------
+  
+        Sometimes the value you want to propagate to a downstream promise can only be
+        retrieved asynchronously. This can be achieved by returning a promise in the
+        fulfillment or rejection handler. The downstream promise will then be pending
+        until the returned promise is settled. This is called *assimilation*.
+  
+        ```js
+        findUser().then(function (user) {
+          return findCommentsByAuthor(user);
+        }).then(function (comments) {
+          // The user's comments are now available
+        });
+        ```
+  
+        If the assimliated promise rejects, then the downstream promise will also reject.
+  
+        ```js
+        findUser().then(function (user) {
+          return findCommentsByAuthor(user);
+        }).then(function (comments) {
+          // If `findCommentsByAuthor` fulfills, we'll have the value here
+        }, function (reason) {
+          // If `findCommentsByAuthor` rejects, we'll have the reason here
+        });
+        ```
+  
+        Simple Example
+        --------------
+  
+        Synchronous Example
+  
+        ```javascript
+        var result;
+  
+        try {
+          result = findResult();
+          // success
+        } catch(reason) {
+          // failure
+        }
+        ```
+  
+        Errback Example
+  
+        ```js
+        findResult(function(result, err){
+          if (err) {
             // failure
-          }
-          ```
-    
-          Errback Example
-    
-          ```js
-          findResult(function(result, err){
-            if (err) {
-              // failure
-            } else {
-              // success
-            }
-          });
-          ```
-    
-          Promise Example;
-    
-          ```javascript
-          findResult().then(function(result){
+          } else {
             // success
-          }, function(reason){
+          }
+        });
+        ```
+  
+        Promise Example;
+  
+        ```javascript
+        findResult().then(function(result){
+          // success
+        }, function(reason){
+          // failure
+        });
+        ```
+  
+        Advanced Example
+        --------------
+  
+        Synchronous Example
+  
+        ```javascript
+        var author, books;
+  
+        try {
+          author = findAuthor();
+          books  = findBooksByAuthor(author);
+          // success
+        } catch(reason) {
+          // failure
+        }
+        ```
+  
+        Errback Example
+  
+        ```js
+  
+        function foundBooks(books) {
+  
+        }
+  
+        function failure(reason) {
+  
+        }
+  
+        findAuthor(function(author, err){
+          if (err) {
+            failure(err);
             // failure
-          });
-          ```
-    
-          Advanced Example
-          --------------
-    
-          Synchronous Example
-    
-          ```javascript
-          var author, books;
-    
-          try {
-            author = findAuthor();
-            books  = findBooksByAuthor(author);
-            // success
-          } catch(reason) {
-            // failure
-          }
-          ```
-    
-          Errback Example
-    
-          ```js
-    
-          function foundBooks(books) {
-    
-          }
-    
-          function failure(reason) {
-    
-          }
-    
-          findAuthor(function(author, err){
-            if (err) {
-              failure(err);
-              // failure
-            } else {
-              try {
-                findBoooksByAuthor(author, function(books, err) {
-                  if (err) {
-                    failure(err);
-                  } else {
-                    try {
-                      foundBooks(books);
-                    } catch(reason) {
-                      failure(reason);
-                    }
+          } else {
+            try {
+              findBoooksByAuthor(author, function(books, err) {
+                if (err) {
+                  failure(err);
+                } else {
+                  try {
+                    foundBooks(books);
+                  } catch(reason) {
+                    failure(reason);
                   }
-                });
-              } catch(error) {
-                failure(err);
-              }
-              // success
+                }
+              });
+            } catch(error) {
+              failure(err);
             }
-          });
-          ```
-    
-          Promise Example;
-    
-          ```javascript
-          findAuthor().
-            then(findBooksByAuthor).
-            then(function(books){
-              // found books
-          }).catch(function(reason){
-            // something went wrong
-          });
-          ```
-    
-          @method then
-          @param {Function} onFulfilled
-          @param {Function} onRejected
-          Useful for tooling.
-          @return {Promise}
-        */
+            // success
+          }
+        });
+        ```
+  
+        Promise Example;
+  
+        ```javascript
+        findAuthor().
+          then(findBooksByAuthor).
+          then(function(books){
+            // found books
+        }).catch(function(reason){
+          // something went wrong
+        });
+        ```
+  
+        @method then
+        @param {Function} onFulfilled
+        @param {Function} onRejected
+        Useful for tooling.
+        @return {Promise}
+      */
             then: function(onFulfillment, onRejection) {
                 var parent = this;
                 var state = parent._state;
 
-                if (state === $$$internal$$FULFILLED && !onFulfillment || state === $$$internal$$REJECTED && !onRejection) {
+                if (state === lib$es6$promise$$internal$$FULFILLED && !onFulfillment || state === lib$es6$promise$$internal$$REJECTED && !onRejection) {
                     return this;
                 }
 
-                var child = new this.constructor($$$internal$$noop);
+                var child = new this.constructor(lib$es6$promise$$internal$$noop);
                 var result = parent._result;
 
                 if (state) {
                     var callback = arguments[state - 1];
-                    $$asap$$default(function() {
-                        $$$internal$$invokeCallback(state, child, callback, result);
+                    lib$es6$promise$asap$$default(function() {
+                        lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
                     });
                 } else {
-                    $$$internal$$subscribe(parent, child, onFulfillment, onRejection);
+                    lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection);
                 }
 
                 return child;
             },
 
             /**
-          `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-          as the catch block of a try/catch statement.
-    
-          ```js
-          function findAuthor(){
-            throw new Error('couldn't find that author');
-          }
-    
-          // synchronous
-          try {
-            findAuthor();
-          } catch(reason) {
-            // something went wrong
-          }
-    
-          // async with promises
-          findAuthor().catch(function(reason){
-            // something went wrong
-          });
-          ```
-    
-          @method catch
-          @param {Function} onRejection
-          Useful for tooling.
-          @return {Promise}
-        */
+        `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+        as the catch block of a try/catch statement.
+  
+        ```js
+        function findAuthor(){
+          throw new Error('couldn't find that author');
+        }
+  
+        // synchronous
+        try {
+          findAuthor();
+        } catch(reason) {
+          // something went wrong
+        }
+  
+        // async with promises
+        findAuthor().catch(function(reason){
+          // something went wrong
+        });
+        ```
+  
+        @method catch
+        @param {Function} onRejection
+        Useful for tooling.
+        @return {Promise}
+      */
             'catch': function(onRejection) {
                 return this.then(null, onRejection);
             }
         };
 
-        var $$es6$promise$polyfill$$default = function polyfill() {
+        function lib$es6$promise$polyfill$$polyfill() {
             var local;
 
             if (typeof global !== 'undefined') {
                 local = global;
-            } else if (typeof window !== 'undefined' && window.document) {
-                local = window;
-            } else {
+            } else if (typeof self !== 'undefined') {
                 local = self;
+            } else {
+                try {
+                    local = Function('return this')();
+                } catch (e) {
+                    throw new Error('polyfill failed because global object is unavailable in this environment');
+                }
             }
 
-            var es6PromiseSupport =
-                "Promise" in local &&
-                // Some of these methods are missing from
-                // Firefox/Chrome experimental implementations
-                "resolve" in local.Promise &&
-                "reject" in local.Promise &&
-                "all" in local.Promise &&
-                "race" in local.Promise &&
-                // Older version of the spec had a resolver object
-                // as the arg rather than a function
-                (function() {
-                    var resolve;
-                    new local.Promise(function(r) {
-                        resolve = r;
-                    });
-                    return $$utils$$isFunction(resolve);
-                }());
+            var P = local.Promise;
 
-            if (!es6PromiseSupport) {
-                local.Promise = $$es6$promise$promise$$default;
+            if (P && Object.prototype.toString.call(P.resolve()) === '[object Promise]' && !P.cast) {
+                return;
             }
-        };
 
-        var es6$promise$umd$$ES6Promise = {
-            'Promise': $$es6$promise$promise$$default,
-            'polyfill': $$es6$promise$polyfill$$default
+            local.Promise = lib$es6$promise$promise$$default;
+        }
+        var lib$es6$promise$polyfill$$default = lib$es6$promise$polyfill$$polyfill;
+
+        var lib$es6$promise$umd$$ES6Promise = {
+            'Promise': lib$es6$promise$promise$$default,
+            'polyfill': lib$es6$promise$polyfill$$default
         };
 
         /* global define:true module:true window: true */
         if (typeof define === 'function' && define['amd']) {
             define(function() {
-                return es6$promise$umd$$ES6Promise;
+                return lib$es6$promise$umd$$ES6Promise;
             });
         } else if (typeof module !== 'undefined' && module['exports']) {
-            module['exports'] = es6$promise$umd$$ES6Promise;
+            module['exports'] = lib$es6$promise$umd$$ES6Promise;
         } else if (typeof this !== 'undefined') {
-            this['ES6Promise'] = es6$promise$umd$$ES6Promise;
+            this['ES6Promise'] = lib$es6$promise$umd$$ES6Promise;
         }
+
+        lib$es6$promise$polyfill$$default();
     }).call(this);
 
+
+
+    /**
+     * corbel namespace
+     * @exports corbel
+     * @namespace
+     */
     var corbel = {};
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
     (function() {
 
+        /**
+         * @namespace
+         * @memberOf corbel
+         * @param {object} config
+         * @return {CorbelDriver}
+         */
         function CorbelDriver(config) {
             // create instance config
             this.guid = corbel.utils.guid();
@@ -1016,7 +1040,6 @@
             this.iam = corbel.Iam.create(this);
             this.resources = corbel.Resources.create(this);
             this.assets = corbel.Assets.create(this);
-            this.services = corbel.Services.create(this);
             this.oauth = corbel.Oauth.create(this);
             this.notifications = corbel.Notifications.create(this);
             this.ec = corbel.Ec.create(this);
@@ -1029,12 +1052,13 @@
 
         /**
          * Instanciates new corbel driver
-         * @param {Object} config
-         * @param {String} config.urlBase
-         * @param {String} [config.clientId]
-         * @param {String} [config.clientSecret]
-         * @param {String} [config.scopes]
-         * @return {CorbelDriver}
+         * @memberOf corbel
+         * @param {object} config
+         * @param {string} config.urlBase
+         * @param {string} [config.clientId]
+         * @param {string} [config.clientSecret]
+         * @param {string} [config.scopes]
+         * @return {corbel.CorbelDriver}
          */
         corbel.getDriver = function(config) {
             config = config || {};
@@ -1052,10 +1076,10 @@
     (function() {
 
         /**
-         * A module to some library corbel.utils.
-         * @exports validate
+         * A module to some library corbel.utils
+         * @exports utils
          * @namespace
-         * @memberof app
+         * @memberof corbel
          */
         var utils = corbel.utils = {};
 
@@ -1414,11 +1438,23 @@
 
     (function() {
 
-
+        /**
+         * Base object with
+         * @class
+         * @exports Object
+         * @namespace
+         * @memberof corbel
+         */
         corbel.Object = function() {
             return this;
         };
 
+        /**
+         * Gets my user assets
+         * @memberof corbel.Object
+         * @see corbel.utils.inherit
+         * @return {Object}
+         */
         corbel.Object.inherit = corbel.utils.inherit;
 
         return corbel.Object;
@@ -1726,645 +1762,6 @@
     })();
 
 
-    //----------corbel modules----------------
-
-    function Config(config) {
-        config = config || {};
-        // config default values
-        this.config = {};
-
-        corbel.utils.extend(this.config, config);
-    }
-
-    Config.URL_BASE_PLACEHOLDER = '{{module}}';
-
-    corbel.Config = Config;
-
-    var processExist = function() {
-        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
-    };
-
-
-    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
-        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
-    } else {
-        Config.__env__ = 'browser';
-    }
-
-
-    Config.isNode = Config.__env__ === 'node';
-
-    Config.isBrowser = Config.__env__ === 'browser';
-
-    /**
-     * Client type
-     * @type {String}
-     * @default
-     */
-    Config.clientType = Config.isNode ? 'NODE' : 'WEB';
-
-    if (Config.isNode) {
-        Config.wwwRoot = 'localhost';
-    } else {
-        Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
-    }
-
-    /**
-     * Returns all application config params
-     * @return {Object}
-     */
-    Config.create = function(config) {
-        return new Config(config);
-    };
-
-    /**
-     * Returns all application config params
-     * @return {Object}
-     */
-    Config.prototype.getConfig = function() {
-        return this.config;
-    };
-
-    /**
-     * Overrides current config with params object config
-     * @param {Object} config An object with params to set as new config
-     */
-    Config.prototype.setConfig = function(config) {
-        this.config = corbel.utils.extend(this.config, config);
-        return this;
-    };
-
-    /**
-     * Gets a specific config param
-     * @param  {String} field config param name
-     * @param  {Mixed} defaultValue Default value if undefined
-     * @return {Mixed}
-     */
-    Config.prototype.get = function(field, defaultValue) {
-        if (this.config[field] === undefined) {
-            if (defaultValue === undefined) {
-                throw new Error('config:undefined:' + field + '');
-            } else {
-                return defaultValue;
-            }
-        }
-
-        return this.config[field];
-    };
-
-    /**
-     * Sets a new value for specific config param
-     * @param {String} field Config param name
-     * @param {Mixed} value Config param value
-     */
-    Config.prototype.set = function(field, value) {
-        this.config[field] = value;
-    };
-
-    (function() {
-
-        /**
-         * Request object available for brwoser and node environment
-         * @type {Object}
-         */
-        var request = corbel.request = {
-            /**
-             * method constants
-             * @namespace
-             */
-            method: {
-
-                /**
-                 * GET constant
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                GET: 'GET',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                POST: 'POST',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                PUT: 'PUT',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                DELETE: 'DELETE',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                OPTIONS: 'OPTIONS',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                PATCH: 'PATCH',
-                /**
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
-                HEAD: 'HEAD'
-            }
-        };
-
-        request.serializeHandlers = {
-            json: function(data) {
-                if (typeof data !== 'string') {
-                    return JSON.stringify(data);
-                } else {
-                    return data;
-                }
-            },
-            'form-urlencoded': function(data) {
-                return corbel.utils.toURLEncoded(data);
-            }
-        };
-
-        request.serialize = function(data, contentType) {
-            var serialized;
-            Object.keys(request.serializeHandlers).forEach(function(type) {
-                if (contentType.indexOf(type) !== -1) {
-                    serialized = request.serializeHandlers[type](data);
-                }
-            });
-            return serialized;
-        };
-
-        request.parseHandlers = {
-            json: function(data) {
-                data = data || '{}';
-                if (typeof data === 'string') {
-                    data = JSON.parse(data);
-                }
-                return data;
-            },
-            arraybuffer: function(data) {
-                return new Uint8Array(data);
-            },
-            blob: function(data, dataType) {
-                return new Blob([data], {
-                    type: dataType
-                });
-            },
-            // @todo: xml
-        };
-
-        /**
-         * Process the server response data to the specified object/array/blob/byteArray/text
-         * @param  {Mixed} data                             The server response
-         * @param  {String} type='array'|'blob'|'json'      The class of the server response
-         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
-         * @return {Mixed}                                  Processed data
-         */
-        request.parse = function(data, responseType, dataType) {
-            var parsed;
-            Object.keys(request.parseHandlers).forEach(function(type) {
-                if (responseType.indexOf(type) !== -1) {
-                    parsed = request.parseHandlers[type](data, dataType);
-                }
-            });
-            return parsed;
-        };
-
-        /**
-         * Public method to make ajax request
-         * @param  {Object} options                                     Object options for ajax request
-         * @param  {String} options.url                                 The request url domain
-         * @param  {String} options.method                              The method used for the request
-         * @param  {Object} options.headers                             The request headers
-         * @param  {String} options.responseType                        The response type of the body
-         * @param  {String} options.contentType                         The content type of the body
-         * @param  {Object || Uint8Array || blob} options.dataType          Optional data sent to the server
-         * @param  {Function} options.success                           Callback function for success request response
-         * @param  {Function} options.error                             Callback function for handle error in the request
-         * @return {ES6 Promise}                                        Promise about the request status and response
-         */
-        request.send = function(options) {
-            options = options || {};
-
-            if (!options.url) {
-                throw new Error('undefined:url');
-            }
-
-            var params = {
-                method: options.method || request.method.GET,
-                url: options.url,
-                headers: typeof options.headers === 'object' ? options.headers : {},
-                callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
-                callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-                //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-                dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
-            };
-
-            // default content-type
-            params.headers['content-type'] = options.contentType || 'application/json';
-
-            var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
-            if (dataMethods.indexOf(params.method) !== -1) {
-                params.data = request.serialize(options.data, params.headers['content-type']);
-            }
-
-            // add responseType to the request (blob || arraybuffer || text)
-            // httpReq.responseType = responseType;
-
-            var promise = new Promise(function(resolve, reject) {
-
-                var resolver = {
-                    resolve: resolve,
-                    reject: reject
-                };
-
-                if (corbel.Config.isBrowser) { //browser
-                    browserAjax.call(this, params, resolver);
-                } else { //nodejs
-                    nodeAjax.call(this, params, resolver);
-                }
-            }.bind(this));
-
-            return promise;
-        };
-
-        var xhrSuccessStatus = {
-            // file protocol always yields status code 0, assume 200
-            0: 200,
-            // Support: IE9
-            // #1450: sometimes IE returns 1223 when it should be 204
-            1223: 204
-        };
-
-        /**
-         * Process server response
-         * @param  {[Response object]} response
-         * @param  {[Object]} resolver
-         * @param  {[Function]} callbackSuccess
-         * @param  {[Function]} callbackError
-         */
-        var processResponse = function(response, resolver, callbackSuccess, callbackError) {
-
-            //xhr = xhr.target || xhr || {};
-            var statusCode = xhrSuccessStatus[response.status] || response.status,
-                statusType = Number(response.status.toString()[0]),
-                promiseResponse;
-
-            if (statusType < 3) {
-
-                var data = response.response;
-                if (response.response) {
-                    data = request.parse(response.response, response.responseType, response.dataType);
-                }
-
-                if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject);
-                }
-
-                promiseResponse = {
-                    data: data,
-                    status: statusCode,
-                };
-
-                promiseResponse[response.responseObjectType] = response.responseObject;
-
-                resolver.resolve(promiseResponse);
-
-            } else if (statusType === 4) {
-
-                if (callbackError) {
-                    callbackError.call(this, response.error, statusCode, response.responseObject);
-                }
-
-                promiseResponse = {
-                    data: response.responseObject,
-                    status: statusCode,
-                    error: response.error
-                };
-
-                promiseResponse[response.responseObjectType] = response.responseObject;
-
-                resolver.reject(promiseResponse);
-            }
-
-        };
-
-        var nodeAjax = function(params, resolver) {
-
-            var request = require('request');
-
-            request({
-                method: params.method,
-                url: params.url,
-                headers: params.headers,
-                body: params.data || ''
-            }, function(error, response, body) {
-                var responseType;
-                var status;
-
-                if (error) {
-                    responseType = undefined;
-                    status = 0;
-                } else {
-                    responseType = response.responseType || response.headers['content-type'];
-                    status = response.statusCode;
-                }
-
-                processResponse.call(this, {
-                    responseObject: response,
-                    dataType: params.dataType,
-                    responseType: responseType,
-                    response: body,
-                    status: status,
-                    responseObjectType: 'response',
-                    error: error
-                }, resolver, params.callbackSuccess, params.callbackError);
-
-            }.bind(this));
-
-        };
-
-        /**
-         * Check if an url should be process as a crossdomain resource.
-         * @return {Boolean}
-         */
-        request.isCrossDomain = function(url) {
-            if (url && url.indexOf('http') !== -1) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-
-        var browserAjax = function(params, resolver) {
-
-            var httpReq = new XMLHttpRequest();
-
-            if (request.isCrossDomain(params.url) && params.withCredentials) {
-                httpReq.withCredentials = true;
-            }
-
-            httpReq.open(params.method, params.url, true);
-
-            /* add request headers */
-            for (var header in params.headers) {
-                if (params.headers.hasOwnProperty(header)) {
-                    httpReq.setRequestHeader(header, params.headers[header]);
-                }
-            }
-
-            httpReq.onload = function(xhr) {
-                xhr = xhr.target || xhr; // only for mock testing purpose
-
-                processResponse.call(this, {
-                    responseObject: xhr,
-                    dataType: xhr.dataType,
-                    responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
-                    response: xhr.response || xhr.responseText,
-                    status: xhr.status,
-                    responseObjectType: 'xhr',
-                    error: xhr.error
-                }, resolver, params.callbackSuccess, params.callbackError);
-
-                //delete callbacks
-            }.bind(this);
-
-            //response fail ()
-            httpReq.onerror = function(xhr) {
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-                processResponse.call(this, {
-                    responseObject: xhr,
-                    dataType: xhr.dataType,
-                    responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
-                    response: xhr.response || xhr.responseText,
-                    status: xhr.status,
-                    responseObjectType: 'xhr',
-                    error: xhr.error
-                }, resolver, params.callbackSuccess, params.callbackError);
-
-            }.bind(this);
-
-            httpReq.send(params.data);
-        };
-
-        return request;
-
-    })();
-    var BaseServices = (function() {
-
-        /**
-         * A base object to inherit from for make corbel-js requests with custom behavior.
-         * @exports corbel.ServicesBase
-         * @namespace
-         * @memberof corbel
-         */
-        var BaseServices = corbel.Object.inherit({ //instance props
-            constructor: function(driver) {
-                this.driver = driver;
-            },
-            /**
-             * Execute the actual ajax request.
-             * Retries request with refresh token when credentials are needed.
-             * Refreshes the client when a force update is detected.
-             * Returns a server error (403 - unsupported_version) when force update max retries are reached
-             *
-             * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
-             * @param  {Object} args    The request arguments.
-             */
-            request: function(args) {
-
-                var params = this._buildParams(args);
-
-                var assignCaller = function(item) {
-                    if (corbel.utils.isJSON(item)) {
-                        try {
-                            var objectParsed = JSON.parse(item);
-                            objectParsed.caller = params.caller;
-                            item = JSON.stringify(objectParsed);
-                        } catch (e) {
-                            console.error(e);
-                        }
-                    }
-
-                    return item;
-                };
-
-                var assignResponseCallers = function(response) {
-                    // Any other error fail to the caller
-                    if (params.caller && response && response.data) {
-                        //Avoid read only states
-                        response.data = corbel.utils.clone(response.data);
-
-                        if (response.data.response) {
-                            response.data.response = assignCaller(response.data.response);
-                        }
-
-                        if (response.data.responseText) {
-                            response.data.responseText = assignCaller(response.data.responseText);
-                        }
-                    }
-                };
-
-
-                return corbel.request.send(params).then(function(response) {
-
-                    this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
-
-                    return Promise.resolve(response);
-
-                }.bind(this)).catch(function(response) {
-
-                    // Force update
-                    if (response.status === 403 &&
-                        response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
-
-                        var retries = this.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
-                        if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
-                            retries++;
-                            this.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
-
-                            corbel.utils.reload(); //TODO nodejs
-                        } else {
-
-                            // Send an error to the caller
-                            assignResponseCallers(response);
-                            return Promise.reject(response);
-                        }
-                    } else {
-                        assignResponseCallers(response);
-                        return Promise.reject(response);
-                    }
-
-                }.bind(this));
-            },
-            /**
-             * Returns a valid corbel.request parameters with default values,
-             * CORS detection and authorization params if needed.
-             * By default, all request are json (dataType/contentType)
-             * with object serialization support
-             * @param  {Object} args
-             * @return {Object}
-             */
-            _buildParams: function(args) {
-
-                // Default values
-                var defaults = {
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    dataFilter: corbel.Services.addEmptyJson,
-                    accessToken: this.driver.config.get('iamToken', {}).accessToken, // @todo: support to oauth token and custom handlers
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                    method: corbel.request.method.GET
-                };
-                var params = corbel.utils.defaults(args, defaults);
-
-                //Data
-                params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
-
-                if (!params.url) {
-                    throw new Error('You must define an url');
-                }
-
-                if (params.query) {
-                    params.url += '?' + params.query;
-                }
-
-                // Use access access token if exists
-                if (params.accessToken) {
-                    params.headers.Authorization = 'Bearer ' + params.accessToken;
-                }
-
-                if (params.noRedirect) {
-                    params.headers['No-Redirect'] = true;
-                }
-
-                if (params.Accept) {
-                    params.headers.Accept = params.Accept;
-                    params.dataType = undefined; // Accept & dataType are incompatibles
-                }
-
-                // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-                params.dataType = params.binaryType || params.dataType;
-
-                // Prevent JQuery to proceess 'blob' || 'arraybuffer' data
-                // if ((params.dataType === 'blob' || params.dataType === 'arraybuffer') && (params.method === 'PUT' || params.method === 'POST')) {
-                //     params.processData = false;
-                // }
-
-                // console.log('services._buildParams (params)', params);
-                // if (args.data) {
-                //      console.log('services._buildParams (data)', args.data);
-                // }
-
-                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'caller']);
-            }
-        });
-
-        return BaseServices;
-
-    })();
-
-    (function(BaseServices) {
-
-        /**
-         * A module to make iam requests.
-         * @exports Services
-         * @namespace
-         * @memberof corbel
-         */
-        corbel.Services = BaseServices.inherit({}, { //Static attrs
-
-            _FORCE_UPDATE_TEXT: 'unsupported_version',
-            _FORCE_UPDATE_MAX_RETRIES: 3,
-            _FORCE_UPDATE_STATUS: 'fu_r',
-
-            create: function(driver) {
-                return new corbel.Services(driver);
-            },
-
-            /**
-             * Extract a id from the location header of a requestXHR
-             * @param  {Promise} res response from a requestXHR
-             * @return {String}  id from the Location
-             */
-            getLocationId: function(responseObject) {
-                var location;
-
-                if (responseObject.xhr) {
-                    location = arguments[0].xhr.getResponseHeader('location');
-                } else if (responseObject.response.headers.location) {
-                    location = responseObject.response.headers.location;
-                }
-                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
-            },
-
-            addEmptyJson: function(response, type) {
-                if (!response && type === 'json') {
-                    response = '{}';
-                }
-                return response;
-            },
-
-            BaseServices: BaseServices
-        });
-
-
-        return corbel.Services;
-
-    })(BaseServices);
-
     /* jshint camelcase:false */
     (function() {
 
@@ -2480,6 +1877,758 @@
         return jwt;
 
     })();
+
+    (function() {
+
+        /**
+         * Request object available for brwoser and node environment
+         * @exports request
+         * @namespace
+         * @memberof corbel
+         */
+        var request = corbel.request = {
+            /**
+             * method constants
+             * @namespace
+             */
+            method: {
+
+                /**
+                 * GET constant
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                GET: 'GET',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                POST: 'POST',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                PUT: 'PUT',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                DELETE: 'DELETE',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                OPTIONS: 'OPTIONS',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                PATCH: 'PATCH',
+                /**
+                 * @constant
+                 * @type {string}
+                 * @default
+                 */
+                HEAD: 'HEAD'
+            }
+        };
+
+        /**
+         * Serialize handlers
+         * @namespace
+         */
+        request.serializeHandlers = {
+            /**
+             * JSON serialize handler
+             * @param  {object} data
+             * @return {string}
+             */
+            json: function(data) {
+                if (typeof data !== 'string') {
+                    return JSON.stringify(data);
+                } else {
+                    return data;
+                }
+            },
+            /**
+             * Form serialize handler
+             * @param  {object} data
+             * @return {string}
+             */
+            'form-urlencoded': function(data) {
+                return corbel.utils.toURLEncoded(data);
+            }
+        };
+
+        /**
+         * Serialize hada with according contentType handler
+         * @param  {mixed} data
+         * @param  {string} contentType
+         * @return {string}
+         */
+        request.serialize = function(data, contentType) {
+            var serialized;
+            Object.keys(request.serializeHandlers).forEach(function(type) {
+                if (contentType.indexOf(type) !== -1) {
+                    serialized = request.serializeHandlers[type](data);
+                }
+            });
+            return serialized;
+        };
+
+        /**
+         * Parse handlers
+         * @namespace
+         */
+        request.parseHandlers = {
+            /**
+             * JSON parse handler
+             * @param  {string} data
+             * @return {mixed}
+             */
+            json: function(data) {
+                data = data || '{}';
+                if (typeof data === 'string') {
+                    data = JSON.parse(data);
+                }
+                return data;
+            },
+            /**
+             * Arraybuffer parse handler
+             * @param  {arraybuffer} data
+             * @return {mixed}
+             */
+            arraybuffer: function(data) {
+                return new Uint8Array(data);
+            },
+            /**
+             * blob parse handler
+             * @param  {blob} data
+             * @return {mixed}
+             */
+            blob: function(data, dataType) {
+                return new Blob([data], {
+                    type: dataType
+                });
+            },
+            // @todo: xml
+        };
+
+        /**
+         * Process the server response data to the specified object/array/blob/byteArray/text
+         * @param  {mixed} data                             The server response
+         * @param  {string} type='array'|'blob'|'json'      The class of the server response
+         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+         * @return {mixed}                                  Processed data
+         */
+        request.parse = function(data, responseType, dataType) {
+            var parsed;
+            Object.keys(request.parseHandlers).forEach(function(type) {
+                if (responseType.indexOf(type) !== -1) {
+                    parsed = request.parseHandlers[type](data, dataType);
+                }
+            });
+            return parsed;
+        };
+
+        /**
+         * Public method to make ajax request
+         * @param  {object} options                                     Object options for ajax request
+         * @param  {string} options.url                                 The request url domain
+         * @param  {string} options.method                              The method used for the request
+         * @param  {object} options.headers                             The request headers
+         * @param  {string} options.responseType                        The response type of the body
+         * @param  {string} options.contentType                         The content type of the body
+         * @param  {object | uint8array | blob} options.dataType        Optional data sent to the server
+         * @param  {function} options.success                           Callback function for success request response
+         * @param  {function} options.error                             Callback function for handle error in the request
+         * @return {Promise}                                        Promise about the request status and response
+         */
+        request.send = function(options) {
+            options = options || {};
+
+            if (!options.url) {
+                throw new Error('undefined:url');
+            }
+
+            var params = {
+                method: options.method || request.method.GET,
+                url: options.url,
+                headers: typeof options.headers === 'object' ? options.headers : {},
+                callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
+                callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
+                //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
+                dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
+            };
+
+            // default content-type
+            params.headers['content-type'] = options.contentType || 'application/json';
+
+            var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
+            if (dataMethods.indexOf(params.method) !== -1) {
+                params.data = request.serialize(options.data, params.headers['content-type']);
+            }
+
+            // add responseType to the request (blob || arraybuffer || text)
+            // httpReq.responseType = responseType;
+
+            var promise = new Promise(function(resolve, reject) {
+
+                var resolver = {
+                    resolve: resolve,
+                    reject: reject
+                };
+
+                if (corbel.Config.isBrowser) { //browser
+                    browserAjax.call(this, params, resolver);
+                } else { //nodejs
+                    nodeAjax.call(this, params, resolver);
+                }
+            }.bind(this));
+
+            return promise;
+        };
+
+        var xhrSuccessStatus = {
+            // file protocol always yields status code 0, assume 200
+            0: 200,
+            // Support: IE9
+            // #1450: sometimes IE returns 1223 when it should be 204
+            1223: 204
+        };
+
+        /**
+         * Process server response
+         * @param  {object} response
+         * @param  {object} resolver
+         * @param  {function} callbackSuccess
+         * @param  {function} callbackError
+         */
+        var processResponse = function(response, resolver, callbackSuccess, callbackError) {
+
+            //xhr = xhr.target || xhr || {};
+            var statusCode = xhrSuccessStatus[response.status] || response.status,
+                statusType = Number(response.status.toString()[0]),
+                promiseResponse;
+
+            if (statusType < 3) {
+
+                var data = response.response;
+                if (response.response) {
+                    data = request.parse(response.response, response.responseType, response.dataType);
+                }
+
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, statusCode, response.responseObject);
+                }
+
+                promiseResponse = {
+                    data: data,
+                    status: statusCode,
+                };
+
+                promiseResponse[response.responseObjectType] = response.responseObject;
+
+                resolver.resolve(promiseResponse);
+
+            } else if (statusType === 4) {
+
+                if (callbackError) {
+                    callbackError.call(this, response.error, statusCode, response.responseObject);
+                }
+
+                promiseResponse = {
+                    data: response.responseObject,
+                    status: statusCode,
+                    error: response.error
+                };
+
+                promiseResponse[response.responseObjectType] = response.responseObject;
+
+                resolver.reject(promiseResponse);
+            }
+
+        };
+
+        var nodeAjax = function(params, resolver) {
+
+            var request = require('request');
+
+            request({
+                method: params.method,
+                url: params.url,
+                headers: params.headers,
+                body: params.data || ''
+            }, function(error, response, body) {
+                var responseType;
+                var status;
+
+                if (error) {
+                    responseType = undefined;
+                    status = 0;
+                } else {
+                    responseType = response.responseType || response.headers['content-type'];
+                    status = response.statusCode;
+                }
+
+                processResponse.call(this, {
+                    responseObject: response,
+                    dataType: params.dataType,
+                    responseType: responseType,
+                    response: body,
+                    status: status,
+                    responseObjectType: 'response',
+                    error: error
+                }, resolver, params.callbackSuccess, params.callbackError);
+
+            }.bind(this));
+
+        };
+
+        /**
+         * Check if an url should be process as a crossdomain resource.
+         * @param {string} url
+         * @return {Boolean}
+         */
+        request.isCrossDomain = function(url) {
+            if (url && url.indexOf('http') !== -1) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        var browserAjax = function(params, resolver) {
+
+            var httpReq = new XMLHttpRequest();
+
+            if (request.isCrossDomain(params.url) && params.withCredentials) {
+                httpReq.withCredentials = true;
+            }
+
+            httpReq.open(params.method, params.url, true);
+
+            /* add request headers */
+            for (var header in params.headers) {
+                if (params.headers.hasOwnProperty(header)) {
+                    httpReq.setRequestHeader(header, params.headers[header]);
+                }
+            }
+
+            httpReq.onload = function(xhr) {
+                xhr = xhr.target || xhr; // only for mock testing purpose
+
+                processResponse.call(this, {
+                    responseObject: xhr,
+                    dataType: xhr.dataType,
+                    responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
+                    response: xhr.response || xhr.responseText,
+                    status: xhr.status,
+                    responseObjectType: 'xhr',
+                    error: xhr.error
+                }, resolver, params.callbackSuccess, params.callbackError);
+
+                //delete callbacks
+            }.bind(this);
+
+            //response fail ()
+            httpReq.onerror = function(xhr) {
+                xhr = xhr.target || xhr; // only for fake sinon response xhr
+
+                processResponse.call(this, {
+                    responseObject: xhr,
+                    dataType: xhr.dataType,
+                    responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
+                    response: xhr.response || xhr.responseText,
+                    status: xhr.status,
+                    responseObjectType: 'xhr',
+                    error: xhr.error
+                }, resolver, params.callbackSuccess, params.callbackError);
+
+            }.bind(this);
+
+            httpReq.send(params.data);
+        };
+
+        return request;
+
+    })();
+
+
+    (function() {
+
+        /**
+         * A base object to inherit from for make corbel-js requests with custom behavior.
+         * @exports Services
+         * @namespace
+         * @extends corbel.Object
+         * @memberof corbel
+         */
+        var Services = corbel.Services = corbel.Object.inherit({ //instance props
+
+            /**
+             * Creates a new Services
+             * @memberof corbel.Services.prototype
+             * @param  {string}                         id String with the asset id or `all` key
+             * @return {corbel.Services}
+             */
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+
+            /**
+             * Execute the actual ajax request.
+             * Retries request with refresh token when credentials are needed.
+             * Refreshes the client when a force update is detected.
+             * Returns a server error (corbel.Services._FORCE_UPDATE_STATUS_CODE - unsupported_version) when force update max retries are reached
+             *
+             * @memberof corbel.Services.prototype
+             * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
+             * @param  {object} args    The request arguments.
+             */
+            request: function(args) {
+
+                var params = this._buildParams(args);
+
+                var that = this;
+                return this._doRequest(params).catch(function(response) {
+                    var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+                    if (response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE && tokenObject.refreshToken) {
+                        return that._refreshHandler().then(function() {
+                            return that._doRequest(that._buildParams(args));
+                        }).catch(function() {
+                            return Promise.reject(response);
+                        });
+                    } else {
+                        console.log('corbeljs:services:no_refresh', response.status, !!tokenObject);
+                        return Promise.reject(response);
+                    }
+                });
+
+            },
+
+            /**
+             * Internal request method.
+             * Has force update behavior
+             * @param  {object} params
+             * @return {Promise}
+             */
+            _doRequest: function(params) {
+                var that = this;
+                return corbel.request.send(params).then(function(response) {
+
+                    that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
+
+                    return Promise.resolve(response);
+
+                }).catch(function(response) {
+
+                    // Force update
+                    if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
+                        response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
+
+                        var retries = that.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
+                        if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
+                            retries++;
+                            that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
+
+                            corbel.utils.reload(); //TODO nodejs
+                            // in node return rejected promise
+                            return Promise.reject(response);
+                        } else {
+                            return Promise.reject(response);
+                        }
+                    } else {
+                        return Promise.reject(response);
+                    }
+
+                });
+            },
+
+            /**
+             * Default token refresh handler
+             * @return {Promise}
+             */
+            _refreshHandler: function() {
+                console.log('corbeljs:services:refresh');
+                return this.driver.iam.token().refresh(this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
+            },
+
+            /**
+             * Add Authorization header with default tokenObject
+             * @param {object} params request builded params
+             */
+            _addAuthorization: function(params) {
+                // @todo: support to oauth token and custom handlers
+                var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
+
+                // Use access access token if exists
+                if (accessToken) {
+                    params.headers.Authorization = 'Bearer ' + accessToken;
+                }
+                return params;
+            },
+
+            /**
+             * Returns a valid corbel.request parameters with default values
+             * and authorization params if needed.
+             * By default, all request are json (dataType/contentType)
+             * with object serialization support
+             * 
+             * @memberof corbel.Services.prototype
+             * @param  {object} args
+             * @return {object}
+             */
+            _buildParams: function(args) {
+
+                // Default values
+                var defaults = {
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    dataFilter: corbel.Services.addEmptyJson,
+                    headers: {
+                        Accept: 'application/json'
+                    },
+                    method: corbel.request.method.GET
+                };
+                var params = corbel.utils.defaults(args, defaults);
+
+                //Data
+                params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
+
+                if (!params.url) {
+                    throw new Error('You must define an url');
+                }
+
+                if (params.query) {
+                    params.url += '?' + params.query;
+                }
+
+                if (params.noRedirect) {
+                    params.headers['No-Redirect'] = true;
+                }
+
+                if (params.Accept) {
+                    params.headers.Accept = params.Accept;
+                    params.dataType = undefined; // Accept & dataType are incompatibles
+                }
+
+                // For binary requests like 'blob' or 'arraybuffer', set correct dataType
+                params.dataType = params.binaryType || params.dataType;
+
+                params = this._addAuthorization(params);
+
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter']);
+            },
+
+            /**
+             * @memberof corbel.Services.prototype
+             * @return {string}
+             */
+            _buildUri: function() {
+
+                var uri = '';
+                if (this.urlBase.slice(-1) !== '/') {
+                    uri += '/';
+                }
+
+                Array.prototype.slice.call(arguments).forEach(function(argument) {
+                    if (argument) {
+                        uri += argument + '/';
+                    }
+                });
+
+                // remove last '/'
+                uri = uri.slice(0, -1);
+
+                return this.urlBase + uri;
+            }
+
+        }, {
+
+            /**
+             * _FORCE_UPDATE_TEXT constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {string}
+             * @default
+             */
+            _FORCE_UPDATE_TEXT: 'unsupported_version',
+
+            /**
+             * _FORCE_UPDATE_MAX_RETRIES constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {number}
+             * @default
+             */
+            _FORCE_UPDATE_MAX_RETRIES: 3,
+
+            /**
+             * _FORCE_UPDATE_STATUS constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {string}
+             * @default
+             */
+            _FORCE_UPDATE_STATUS: 'fu_r',
+
+            /**
+             * _FORCE_UPDATE_STATUS_CODE constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {number}
+             * @default
+             */
+            _FORCE_UPDATE_STATUS_CODE: 403,
+
+            /**
+             * _UNAUTHORIZED_STATUS_CODE constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {number}
+             * @default
+             */
+            _UNAUTHORIZED_STATUS_CODE: 401,
+
+            /**
+             * Extract a id from the location header of a requestXHR
+             * @memberof corbel.Services
+             * @param  {Promise} res response from a requestXHR
+             * @return {String}  id from the Location
+             */
+            getLocationId: function(responseObject) {
+                responseObject = responseObject || {};
+                var location;
+
+                if (responseObject.xhr) {
+                    location = responseObject.xhr.getResponseHeader('location');
+                } else if (responseObject.response && responseObject.response.headers.location) {
+                    location = responseObject.response.headers.location;
+                }
+                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+            },
+
+            /**
+             * @memberof corbel.Services
+             * @param {mixed} response
+             * @param {string} type
+             * @return {midex}
+             */
+            addEmptyJson: function(response, type) {
+                if (!response && type === 'json') {
+                    response = '{}';
+                }
+                return response;
+            }
+        });
+
+        return Services;
+
+    })();
+
+
+    //----------corbel modules----------------
+
+    function Config(config) {
+        config = config || {};
+        // config default values
+        this.config = {};
+
+        corbel.utils.extend(this.config, config);
+    }
+
+    Config.URL_BASE_PLACEHOLDER = '{{module}}';
+
+    corbel.Config = Config;
+
+    var processExist = function() {
+        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
+    };
+
+
+    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
+        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
+    } else {
+        Config.__env__ = 'browser';
+    }
+
+
+    Config.isNode = Config.__env__ === 'node';
+
+    Config.isBrowser = Config.__env__ === 'browser';
+
+    /**
+     * Client type
+     * @type {String}
+     * @default
+     */
+    Config.clientType = Config.isNode ? 'NODE' : 'WEB';
+
+    if (Config.isNode) {
+        Config.wwwRoot = 'localhost';
+    } else {
+        Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
+    }
+
+    /**
+     * Returns all application config params
+     * @return {Object}
+     */
+    Config.create = function(config) {
+        return new Config(config);
+    };
+
+    /**
+     * Returns all application config params
+     * @return {Object}
+     */
+    Config.prototype.getConfig = function() {
+        return this.config;
+    };
+
+    /**
+     * Overrides current config with params object config
+     * @param {Object} config An object with params to set as new config
+     */
+    Config.prototype.setConfig = function(config) {
+        this.config = corbel.utils.extend(this.config, config);
+        return this;
+    };
+
+    /**
+     * Gets a specific config param
+     * @param  {String} field config param name
+     * @param  {Mixed} defaultValue Default value if undefined
+     * @return {Mixed}
+     */
+    Config.prototype.get = function(field, defaultValue) {
+        if (this.config[field] === undefined) {
+            if (defaultValue === undefined) {
+                throw new Error('config:undefined:' + field + '');
+            } else {
+                return defaultValue;
+            }
+        }
+
+        return this.config[field];
+    };
+
+    /**
+     * Sets a new value for specific config param
+     * @param {String} field Config param name
+     * @param {Mixed} value Config param value
+     */
+    Config.prototype.set = function(field, value) {
+        this.config[field] = value;
+    };
+
     (function() {
 
         /**
@@ -2502,6 +2651,7 @@
         Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
         Iam.AUD = 'http://iam.bqws.io';
         Iam.IAM_TOKEN = 'iamToken';
+        Iam.IAM_TOKEN_SCOPES = 'iamScopes';
 
         /**
          * COMMON MIXINS
@@ -2553,7 +2703,7 @@
          * @class
          * @memberOf iam
          */
-        var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.BaseServices.inherit({
+        var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
 
             constructor: function(domainId, clientId) {
                 this.domainId = domainId;
@@ -2663,7 +2813,6 @@
     })();
     (function() {
 
-
         /**
          * Creates a DomainBuilder for domain managing requests.
          *
@@ -2685,7 +2834,7 @@
          * @class
          * @memberOf iam
          */
-        var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.BaseServices.inherit({
+        var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
 
             constructor: function(domainId) {
                 this.domainId = domainId;
@@ -2807,7 +2956,7 @@
          * @class
          * @memberOf iam
          */
-        var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.BaseServices.inherit({
+        var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -2893,7 +3042,7 @@
          * @class
          * @memberOf Iam
          */
-        var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.BaseServices.inherit({
+        var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
 
             constructor: function() {
                 this.uri = 'oauth/token';
@@ -2987,6 +3136,12 @@
                 var that = this;
                 return promise.then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                    if (params.jwt) {
+                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
+                    }
+                    if (params.claims && params.claims.scope) {
+                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                    }
                     return response;
                 });
             },
@@ -3010,8 +3165,12 @@
                         'refresh_token': refreshToken
                     }
                 };
+                var that = this;
                 // we use the traditional POST verb to refresh access token.
-                return this._doPostTokenRequest(this.uri, params);
+                return this._doPostTokenRequest(this.uri, params).then(function(response) {
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                    return response;
+                });
             }
 
         });
@@ -3034,7 +3193,7 @@
          * @class
          * @memberOf iam
          */
-        var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.BaseServices.inherit({
+        var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
 
             constructor: function() {
                 this.uri = 'username';
@@ -3071,7 +3230,7 @@
 
         /**
          * Starts a user request
-         * @param  {String} [id=undefined|id|'me'] Id of the user to perform the request
+         * @param  {string} [id=undefined|id|'me'] Id of the user to perform the request
          * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.user = function(id) {
@@ -3088,9 +3247,8 @@
 
         /**
          * getUser mixin for UserBuilder & UsersBuilder
-         * @param  {String=GET|POST|PUT} method
-         * @param  {String} uri
-         * @param  {String} id
+         * @param  {string} uri
+         * @param  {string} id
          * @param  {Bolean} postfix
          * @return {Promise}
          */
@@ -3105,9 +3263,9 @@
          * Builder for a specific user requests
          * @class
          * @memberOf iam
-         * @param {String} id The id of the user
+         * @param {string} id The id of the user
          */
-        var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.BaseServices.inherit({
+        var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.uri = 'user';
@@ -3193,8 +3351,8 @@
              * @method
              * @memberOf corbel.Iam.UserBuilder
              * @param {Object} identity     The data of the identity
-             * @param {String} oauthId      The oauth ID of the user
-             * @param {String} oauthService The oauth service to connect (facebook, twitter, google, corbel)
+             * @param {string} oauthId      The oauth ID of the user
+             * @param {string} oauthService The oauth service to connect (facebook, twitter, google, corbel)
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             addIdentity: function(identity) {
@@ -3247,7 +3405,7 @@
              * Get device
              * @method
              * @memberOf corbel.Iam.UserBuilder
-             * @param  {String}  deviceId    The device id
+             * @param  {string}  deviceId    The device id
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
             getDevice: function(deviceId) {
@@ -3276,7 +3434,7 @@
              * Delete user device
              * @method
              * @memberOf corbel.Iam.UserBuilder
-             * @param  {String}  deviceId    The device id
+             * @param  {string}  deviceId    The device id
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
             deleteDevice: function(deviceId) {
@@ -3309,7 +3467,7 @@
          * @class
          * @memberOf iam
          */
-        var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.BaseServices.inherit({
+        var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
 
             constructor: function() {
                 this.uri = 'user';
@@ -3321,7 +3479,7 @@
              * Sends a reset password email to the email address recived.
              * @method
              * @memberOf oauth.UsersBuilder
-             * @param  {String} userEmailToReset The email to send the message
+             * @param  {string} userEmailToReset The email to send the message
              * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             sendResetPasswordEmail: function(userEmailToReset) {
@@ -3384,12 +3542,20 @@
 
     })();
     (function() {
+        /**
+         * An assets API factory
+         * @exports corbel.Assets
+         * @namespace
+         * @extends corbel.Object
+         * @memberof corbel
+         */
         corbel.Assets = corbel.Object.inherit({
 
             /**
              * Creates a new AssetsBuilder
-             * @param  {String} id String with the asset id or 'all' key
-             * @return {Assets}
+             * @memberof corbel.Assets.prototype
+             * @param  {string} id String with the asset id or `all` key
+             * @return {corbel.Assets.AssetsBuilder}
              */
             constructor: function(driver) {
                 this.driver = driver;
@@ -3404,8 +3570,21 @@
 
         }, {
 
+            /**
+             * moduleName constant
+             * @constant
+             * @memberof corbel.Assets
+             * @type {string}
+             * @default
+             */
             moduleName: 'assets',
 
+            /**
+             * AssetsBuilder factory
+             * @memberof corbel.Assets
+             * @param  {corbel} corbel instance driver
+             * @return {corbel.Assets.AssetsBuilder}
+             */
             create: function(driver) {
                 return new corbel.Assets(driver);
             }
@@ -3418,12 +3597,20 @@
 
     (function() {
 
-        var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.BaseServices.inherit({
+        /**
+         * Module for organize user assets
+         * @exports AssetsBuilder
+         * @namespace
+         * @extends corbel.Services
+         * @memberof corbel.Assets
+         */
+        var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.inherit({
 
             /**
              * Creates a new AssetsBuilder
-             * @param  {String} id String with the asset id or 'all' key
-             * @return {Assets}
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @param  {string}                         id string with the asset id or `all` key
+             * @return {corbel.Assets.AssetsBuilder}
              */
             constructor: function(id) {
                 this.uri = 'asset';
@@ -3432,10 +3619,9 @@
 
             /**
              * Gets my user assets
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @param  {Object} [params]      Params of the silkroad request
-             * @return {Promise}              Promise that resolves to a Asset {Object} or rejects with a {@link SilkRoadError}
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @param  {object} [params]      Params of a {@link corbel.request}
+             * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
              */
             get: function(params) {
                 return this.request({
@@ -3447,9 +3633,8 @@
 
             /**
              * Delete asset
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @return {Promise}        Promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function() {
                 return this.request({
@@ -3460,15 +3645,14 @@
 
             /**
              * Creates a new asset
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @param {Object} data                Contains the data of the new asset
-             * @param {String} userId The user id
-             * @param {String} name The asset name
-             * @param {Date} expire Expire date
-             * @param {Boolean} active If asset is active
-             * @param {Array} scopes Scopes of the asset
-             * @return {Promise}                    Promise that resolves in the new asset id or rejects with a {@link SilkRoadError}
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @param {object}  data            Contains the data of the new asset
+             * @param {string}  data.userId     The user id
+             * @param {string}  data.name       The asset name
+             * @param {date}    data.expire     Expire date
+             * @param {boolean} data.active     If asset is active
+             * @param {array}   data.scopes     Scopes of the asset
+             * @return {Promise}                Promise that resolves in the new asset id or rejects with a {@link CorbelError}
              */
             create: function(data) {
                 return this.request({
@@ -3483,9 +3667,8 @@
 
             /**
              * Generates a JWT that contains the scopes of the actual user's assets and redirects to iam to upgrade user's token
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link SilkRoadError}
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link CorbelError}
              */
             access: function(params) {
                 var args = params || {};
@@ -3517,10 +3700,23 @@
 
         }, {
 
+            /**
+             * GET constant
+             * @constant
+             * @memberof corbel.Assets.AssetsBuilder
+             * @type {string}
+             * @default
+             */
             moduleName: 'assets',
 
+            /**
+             * Factory
+             * @memberof corbel.Assets.AssetsBuilder
+             * @type {string}
+             * @default
+             */
             create: function(driver) {
-                return new corbel.AssetsBuilder(driver);
+                return new corbel.Assets.AssetsBuilder(driver);
             }
 
         });
@@ -3838,7 +4034,7 @@
 
     })();
     (function() {
-        corbel.Resources.BaseResource = corbel.Services.BaseServices.inherit({
+        corbel.Resources.BaseResource = corbel.Services.inherit({
 
             /**
              * Helper function to build the request uri
@@ -3923,7 +4119,7 @@
              * @param  {String} dataType    Mime type of the expected resource
              * @param  {String} destId         Relationed resource
              * @param  {Object} params      Params of the silkroad request
-             * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link SilkRoadError}
+             * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link CorbelError}
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             get: function(destId, options) {
@@ -3944,7 +4140,7 @@
              * @memberOf Resources.Relation
              * @param  {String} destId          Relationed resource
              * @param  {Object} relationData Additional data to be added to the relation (in json)
-             * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              * @example uri = '555'
              */
             add: function(destId, relationData, options) {
@@ -3965,7 +4161,7 @@
              * @method
              * @memberOf Resources.Relation
              * @param  {Integer} pos          The new position
-             * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             move: function(destId, pos, options) {
 
@@ -3988,7 +4184,7 @@
              * @method
              * @memberOf Resources.Relation
              * @param  {String} destId          Relationed resource
-             * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}                ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              * @example
              * destId = 'music:Track/555'
              */
@@ -4029,8 +4225,8 @@
              * Gets a collection of elements, filtered, paginated or sorted
              * @method
              * @memberOf Resources.CollectionBuilder
-             * @param  {Object} options             Get options for the request
-             * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link SilkRoadError}
+             * @param  {object} options             Get options for the request
+             * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link CorbelError}
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             get: function(options) {
@@ -4049,9 +4245,9 @@
              * Adds a new element to a collection
              * @method
              * @memberOf Resources.CollectionBuilder
-             * @param  {[Object]} data      Data array added to the collection
-             * @param  {Object} options     Options object with dataType request option
-             * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link SilkRoadError}
+             * @param  {object} data      Data array added to the collection
+             * @param  {object} options     Options object with dataType request option
+             * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
              */
             add: function(data, options) {
                 options = this.getDefaultOptions(options);
@@ -4067,6 +4263,26 @@
                 return this.request(args).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
+            },
+
+            /**
+             * Delete a collection
+             * @method
+             * @memberOf Resources.CollectionBuilder
+             * @param  {object} options     Options object with dataType request option
+             * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
+             */
+            delete: function(options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type),
+                    method: corbel.request.method.DELETE,
+                    contentType: options.dataType,
+                    Accept: options.dataType
+                });
+
+                return this.request(args);
             }
 
         });
@@ -4098,7 +4314,7 @@
              * @param  {Object} options
              * @param  {String} [options.dataType]      Mime type of the expected resource
              * @param  {Object} [options.params]        Additional request parameters
-             * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link SilkRoadError}
+             * @return {Promise}                        ES6 promise that resolves to a Resource {Object} or rejects with a {@link CorbelError}
              * @see {@link services.request} to see a example of the params
              */
             get: function(options) {
@@ -4108,8 +4324,7 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.GET,
                     contentType: options.dataType,
-                    Accept: options.dataType,
-                    caller: 'Resource:get'
+                    Accept: options.dataType
                 });
 
                 return this.request(args);
@@ -4123,7 +4338,7 @@
              * @param  {Object} options
              * @param  {String} [options.dataType]      Mime tipe of the sent data
              * @param  {Object} [options.params]        Additional request parameters
-             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              * @see {@link services.request} to see a example of the params
              */
             update: function(data, options) {
@@ -4134,8 +4349,7 @@
                     method: corbel.request.method.PUT,
                     data: data,
                     contentType: options.dataType,
-                    Accept: options.dataType,
-                    caller: 'Resource:update'
+                    Accept: options.dataType
                 });
 
                 return this.request(args);
@@ -4147,7 +4361,7 @@
              * @memberOf resources.Resource
              * @param  {Object} options
              * @param  {Object} [options.dataType]      Mime tipe of the delete data
-             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function(options) {
                 options = this.getDefaultOptions(options);
@@ -4156,8 +4370,7 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.DELETE,
                     contentType: options.dataType,
-                    Accept: options.dataType,
-                    caller: 'Resource:delete'
+                    Accept: options.dataType
                 });
 
                 return this.request(args);
@@ -4288,7 +4501,7 @@
          * @class
          * @memberOf corbel.Oauth.AuthorizationBuilder
          */
-        var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.BaseServices.inherit({
+        var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.inherit({
 
             constructor: function(params) {
                 this.params = params;
@@ -4322,7 +4535,7 @@
              * @memberOf corbel.Oauth.AuthorizationBuilder
              * @param  {String} username The username of the user to log in
              * @param  {String} password The password of the user
-             * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link SilkRoadError}
+             * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
              */
             login: function(username, password, setCookie) {
                 console.log('oauthInterface.authorization.login', username + ':' + password);
@@ -4344,7 +4557,7 @@
              * Sign out from oauth server
              * @method
              * @memberOf corbel.Oauth.SignOutBuilder
-             * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link SilkRoadError}
+             * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link CorbelError}
              */
             signout: function() {
                 console.log('oauthInterface.authorization.signOut');
@@ -4397,7 +4610,7 @@
          * 
          * @memberOf corbel.Oauth.TokenBuilder
          */
-        var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.BaseServices.inherit({
+        var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
 
             constructor: function(params) {
                 this.params = params;
@@ -4410,7 +4623,7 @@
              * 
              * @param  {String} code The code to exchange for the token
              * 
-             * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link SilkRoadError}
+             * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
                 console.log('oauthInterface.token.get');
@@ -4466,7 +4679,7 @@
          *    
          * @memberOf corbel.Oauth.UserBuilder
          */
-        var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.BaseServices.inherit({
+        var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
 
             constructor: function(params, clientId, clientSecret) {
                 this.params = params;
@@ -4577,7 +4790,7 @@
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
              * @param  {String} userEmailToReset The email to send the message
-             * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendResetPasswordEmail: function(userEmailToReset) {
                 console.log('oauthInterface.user.SendResetPasswordEmail', userEmailToReset);
@@ -4601,7 +4814,7 @@
              * 
              * @param  {Object} id     The user id or me
              * 
-             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
                 console.log('oauthInterface.user.sendValidateEmail');
@@ -4619,7 +4832,7 @@
              * 
              * @param  {Object} id   The user id or me
              * 
-             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
                 console.log('oauthInterface.user.emailConfirmation');
@@ -4676,7 +4889,7 @@
 
     (function() {
 
-        var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.BaseServices.inherit({
+        var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.inherit({
 
             /**
              * Creates a new NotificationsBuilder
@@ -4843,19 +5056,19 @@
                 COMPLETED: 'COMPLETED',
 
                 /**
-                 * FAILED constant
-                 * @constant
-                 * @type {String}
-                 * @default
-                 
-                FAILED: 'FAILED',
-    
-                /**
-                 * IN_PAYMENT constant
-                 * @constant
-                 * @type {String}
-                 * @default
-                 */
+               * FAILED constant
+               * @constant
+               * @type {String}
+               * @default
+               
+              FAILED: 'FAILED',
+  
+              /**
+               * IN_PAYMENT constant
+               * @constant
+               * @type {String}
+               * @default
+               */
                 IN_PAYMENT: 'IN_PAYMENT',
 
                 /**
@@ -4926,7 +5139,7 @@
          * @class
          * @memberOf corbel.Ec.ProductBuilder
          */
-        var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.BaseServices.inherit({
+        var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 if (id) {
@@ -5054,7 +5267,7 @@
     })();
     (function() {
 
-        var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.BaseServices.inherit({
+        var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.inherit({
             /**
              * Creates a new EventBuilder
              * @param  {String} type
@@ -5221,7 +5434,7 @@
          * @class
          * @memberOf corbel.Borrow.BorrowBuilder
          */
-        corbel.Borrow.BorrowBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.BorrowBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -5289,23 +5502,23 @@
                 });
             },
             /**
-             * Add license to loanable resource.
-             *
-             * @method
-             * @memberOf corbel.Borrow.BorrowBuilder
-             *
-             * @param {Object} data   licenses data.
-             * @param {Object} license                 The license data.
-             * @param {String} license.resourceId      Identifier of resource
-             * @param {number} licensee.availableUses  Amount of uses that the resource is available
-             * @param {number} license.availableLoans  Amount of concurrent loans are available for the resource
-             * @param {timestamp} license.expire       Expire date
-             * @param {timestamp} licensee.start       Start date
-             * @param {String} license.asset           Asigned to the resource
-    
-             * @return {Promise} A promise with the id of the created a license or fails
-             *                   with a {@link corbelError}.
-             */
+           * Add license to loanable resource.
+           *
+           * @method
+           * @memberOf corbel.Borrow.BorrowBuilder
+           *
+           * @param {Object} data   licenses data.
+           * @param {Object} license                 The license data.
+           * @param {String} license.resourceId      Identifier of resource
+           * @param {number} licensee.availableUses  Amount of uses that the resource is available
+           * @param {number} license.availableLoans  Amount of concurrent loans are available for the resource
+           * @param {timestamp} license.expire       Expire date
+           * @param {timestamp} licensee.start       Start date
+           * @param {String} license.asset           Asigned to the resource
+  
+           * @return {Promise} A promise with the id of the created a license or fails
+           *                   with a {@link corbelError}.
+           */
             addLicense: function(license) {
                 console.log('borrowInterface.resource.addLicense', license);
                 return this.request({
@@ -5571,7 +5784,7 @@
          * @class
          * @memberOf corbel.Borrow.UserBuilder
          */
-        corbel.Borrow.UserBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.UserBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.id = id || 'me';
@@ -5624,7 +5837,7 @@
          * @class
          * @memberOf corbel.Borrow.LenderBuilder
          */
-        corbel.Borrow.LenderBuilder = corbel.Services.BaseServices.inherit({
+        corbel.Borrow.LenderBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -5830,7 +6043,7 @@
          * @class
          * @memberOf corbel.CompoSR.PhraseBuilder
          */
-        corbel.CompoSR.PhraseBuilder = corbel.Services.BaseServices.inherit({
+        corbel.CompoSR.PhraseBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.id = id;
@@ -5884,7 +6097,7 @@
          * @class
          * @memberOf corbel.CompoSR.RequestBuilder
          */
-        corbel.CompoSR.RequestBuilder = corbel.Services.BaseServices.inherit({
+        corbel.CompoSR.RequestBuilder = corbel.Services.inherit({
 
             constructor: function(pathsArray) {
                 this.path = this.buildPath(pathsArray);
