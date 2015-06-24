@@ -1,11 +1,10 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
 
-    var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.BaseServices.inherit({
+    var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.inherit({
 
         /**
          * Creates a new NotificationsBuilder

@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -20,7 +19,6 @@
         this.iam = corbel.Iam.create(this);
         this.resources = corbel.Resources.create(this);
         this.assets = corbel.Assets.create(this);
-        this.services = corbel.Services.create(this);
         this.oauth = corbel.Oauth.create(this);
         this.notifications = corbel.Notifications.create(this);
         this.ec = corbel.Ec.create(this);

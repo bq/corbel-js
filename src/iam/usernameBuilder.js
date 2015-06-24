@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -20,7 +19,7 @@
      * @class
      * @memberOf iam
      */
-    var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.BaseServices.inherit({
+    var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
 
         constructor: function() {
             this.uri = 'username';

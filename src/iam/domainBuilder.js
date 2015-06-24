@@ -1,10 +1,8 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
-
 
     /**
      * Creates a DomainBuilder for domain managing requests.
@@ -27,7 +25,7 @@
      * @class
      * @memberOf iam
      */
-    var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.BaseServices.inherit({
+    var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
 
         constructor: function(domainId) {
             this.domainId = domainId;

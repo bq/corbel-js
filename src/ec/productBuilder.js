@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -25,7 +24,7 @@
      * @class
      * @memberOf corbel.Ec.ProductBuilder
      */
-    var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.BaseServices.inherit({
+    var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.inherit({
 
         constructor: function(id) {
             if (id) {

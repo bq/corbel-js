@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -40,7 +39,7 @@
      * @class
      * @memberOf corbel.Oauth.AuthorizationBuilder
      */
-    var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.BaseServices.inherit({
+    var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.inherit({
 
         constructor: function(params) {
             this.params = params;

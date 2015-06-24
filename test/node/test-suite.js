@@ -10,6 +10,7 @@ require('./unit/jwt.js');
 require('./unit/iam.js');
 require('./unit/resources.js');
 require('./unit/resources-request-params.js');
+require('./unit/services.js');
 require('./unit/assets.js');
 require('./unit/oauth.js');
 require('./unit/notifications.js');

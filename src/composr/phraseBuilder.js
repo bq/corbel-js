@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -14,7 +13,7 @@
    * @class
    * @memberOf corbel.CompoSR.PhraseBuilder
    */
-  corbel.CompoSR.PhraseBuilder = corbel.Services.BaseServices.inherit({
+  corbel.CompoSR.PhraseBuilder = corbel.Services.inherit({
 
     constructor: function(id) {
       this.id = id;

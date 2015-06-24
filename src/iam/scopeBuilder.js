@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -24,7 +23,7 @@
      * @class
      * @memberOf iam
      */
-    var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.BaseServices.inherit({
+    var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
 
         constructor: function(id) {
             this.id = id;

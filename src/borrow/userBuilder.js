@@ -1,6 +1,5 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
@@ -14,7 +13,7 @@
      * @class
      * @memberOf corbel.Borrow.UserBuilder
      */
-    corbel.Borrow.UserBuilder = corbel.Services.BaseServices.inherit({
+    corbel.Borrow.UserBuilder = corbel.Services.inherit({
 
         constructor: function(id) {
             this.id = id || 'me';

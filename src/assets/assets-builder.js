@@ -8,10 +8,10 @@
    * Module for organize user assets
    * @exports AssetsBuilder
    * @namespace
-   * @extends corbel.BaseServices
+   * @extends corbel.Services
    * @memberof corbel.Assets
    */
-  var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.BaseServices.inherit({
+  var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.inherit({
 
     /**
      * Creates a new AssetsBuilder

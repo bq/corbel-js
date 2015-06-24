@@ -1,11 +1,10 @@
 //@exclude
 'use strict';
-/* global corbel */
 //@endexclude
 
 (function() {
 
-    var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.BaseServices.inherit({
+    var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.inherit({
         /**
          * Creates a new EventBuilder
          * @param  {String} type
