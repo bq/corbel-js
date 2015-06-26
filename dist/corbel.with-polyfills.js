@@ -1249,7 +1249,7 @@
 
             if (params.search) {
                 result += result ? '&' : '';
-                result += 'api:search=' + params.search;
+                result += 'api:search=' + JSON.stringify(params.search);
             }
 
             if (params.sort) {
@@ -1318,6 +1318,7 @@
         return utils;
 
     })();
+
 
     (function() {
 

@@ -11,7 +11,7 @@ var corbel = require('../../../dist/corbel.js'),
 var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
     DEFAULT_QUERY_OBJECT_STRING = '[{"$eq":{"field3":true}},{"$eq":{"field4":true}},{"$gt":{"field5":"value"}},{"$gte":{"field5":"value"}},{"$lt":{"field5":"value"}},{"$lte":{"field5":"value"}},{"$ne":{"field5":"value"}},{"$in":{"field2":["pepe","juan"]}},{"$all":{"field5":["pepe","juan"]}},{"$like":{"field5":"value"}}]',
 
-    URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search=test&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
+    URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
 
 
     DEFAULT_QUERY_OBJECT = [{
@@ -122,7 +122,9 @@ describe('corbel resources module', function() {
     it('generate resource query correctly', function() {
         var requestParams = {
             query: DEFAULT_QUERY_OBJECT,
-            search: 'test',
+            search: {
+              text: 'test'
+            },
             pagination: {
                 page: 1,
                 size: 5
@@ -138,7 +140,9 @@ describe('corbel resources module', function() {
     it('generate resource query correctly with custom query string', function() {
         var requestParams = {
             query: 'customQueryString',
-            search: 'test',
+            search: {
+              text: 'test'
+            },
             pagination: {
                 page: 1,
                 size: 5
