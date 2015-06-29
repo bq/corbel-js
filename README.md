@@ -28,7 +28,7 @@ A SDK for corbel compatible with browsers and node.
 * node
 
   ```bash
-  npm install corbel-js
+  npm install corbel-js --save
   ```
 
 ### Instance a new driver
