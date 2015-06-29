@@ -15,6 +15,22 @@ A SDK for corbel compatible with browsers and node.
 
 ## Quickstart
 
+### Installation
+
+* browser
+
+  ```bash
+  bower install corbel-js --save
+  # for environments without promises support
+  bower install es6-promise --save
+  ```
+
+* node
+
+  ```bash
+  npm install corbel-js
+  ```
+
 ### Instance a new driver
 
 ```javascript

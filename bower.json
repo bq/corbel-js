@@ -28,9 +28,7 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "es6-promise": "~2.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "2.0.1",
     "chai": "1.9.2",
