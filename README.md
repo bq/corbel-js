@@ -182,7 +182,7 @@ Following params can be passed both as request options object and as chainable m
 * Aggregations:
 
   ```
-  { aggregation: { count: '*' } }
+  { aggregation: { $count: '*' } }
   ```
 
 * Sort:
@@ -315,7 +315,7 @@ A resource is a single object in a collection. For instance
 
 **Resources API**
 
-* Factory method
+* Factory method 
 
   ```javascript
   corbelDriver.resources
@@ -368,6 +368,78 @@ resource.delete('resourceId', {
     //request options
 }).then(function(){ });
 ```
+
+####Assets
+
+Assets are dynamic groups of scopes that a user can have for a certain period of time. 
+
+This is an example of an asset: 
+
+```json
+{
+   _id: "0b2dff5c39934c210d80056a94eb27bc6c6d6378",
+   userId: "fooid",
+   name: "assettest13",
+   productId: "producttest13",
+   expire: ISODate("2025-01-01T00:01:00Z"),
+   active: true,
+   scopes: [
+       "ec:purchase:user"
+   ]
+}
+```
+
+Imagine assets as a group of items that extend the user permissions. For example, a user buys a digital good, then an asset is created with the permission for accessing that digital book.
+
+When you login a user, you may want to load the assets of the user (by default they are not loaded because we try to mantain each service isolated).
+For doing that, you can access `corbel` assets with `corbelDriver` this way:
+
+```javascript
+var corbelDriver = corbel.getDriver({
+    iamToken : {
+      'accessToken' : 'USERACCESSTOKEN'
+    },
+    baseUrl : 'CORBELURL'
+  });
+
+//Enable the user permissions for that accessToken
+corbelDriver.assets().access();
+```
+
+You can also request all the user assets if you want, for example, listing al the goods that a user has purchased:
+
+```javascript
+corbelDriver.assets().get();
+```
+
+**Assets API**
+
+* Factory method
+
+  ```javascript
+  corbelDriver.assets()
+  ```
+
+* **get**: Get all the assets **(requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.assets()
+    .get(requestOptionsObject)
+  ```
+
+* **create**: Create an asset **(assetData)**
+
+  ```javascript
+  corbelDriver.assets()
+    .create(assetdata)
+  ```
+
+* **delete**: Delete an asset **(assetId)**
+
+  ```javascript
+   corbelDriver.assets(assetId).delete();
+  ```
+
 
 ### Chainable API
 
