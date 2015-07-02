@@ -114,6 +114,19 @@ describe('In Assets module we can', function() {
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
+    it('get aggregated count', function() {
+        corbelRequestStub.returns(Promise.resolve('OK'));
+        var params = {
+            aggregation : { '$count' : '*'}
+        };
+
+        corbelDriver.assets('all').get(params);
+
+        var callRequestParam = corbelRequestStub.getCall(0).args[0];
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation={\"$count\":\"*\"}');
+        expect(callRequestParam.method).to.be.equal('GET');
+    });
+
     it('delete one asset', function() {
         corbelRequestStub.returns(Promise.resolve());
         var assetId = 1;

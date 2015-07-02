@@ -31,11 +31,17 @@
      * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
      */
     get: function(params) {
-      return this.request({
-        url: this._buildUri(this.uri, this.id),
-        method: corbel.request.method.GET,
-        query: params ? corbel.utils.serializeParams(params) : null
+      
+      var options = params ? params : {};
+
+      var args = corbel.utils.extend(options, {
+          url: this._buildUri(this.uri, this.id),
+          method: corbel.request.method.GET,
+          query: params ? corbel.utils.serializeParams(params) : null
       });
+
+      return this.request(args);
+     
     },
 
     /**
