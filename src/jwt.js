@@ -95,15 +95,22 @@
                 decoded[0] = JSON.parse(serialize(decoded[0]));
             } catch (e) {
                 console.log('error:jwt:decode:0');
-                decoded[0] = {};
+                decoded[0] = false;
             }
 
             try {
                 decoded[1] = JSON.parse(serialize(decoded[1]));
             } catch (e) {
                 console.log('error:jwt:decode:1');
-                decoded[1] = {};
+                decoded[1] = false;
             }
+
+            if (!decoded[0] && !decoded[1]) {
+                throw new Error('corbel:jwt:decode:invalid_assertion');
+            }
+
+            decoded[0] = decoded[0] || {};
+            decoded[1] = decoded[1] || {};
 
             Object.keys(decoded[1]).forEach(function(key) {
                 decoded[0][key] = decoded[1][key];
