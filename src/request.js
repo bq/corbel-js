@@ -87,14 +87,56 @@
      */
     'form-urlencoded': function(data) {
       return corbel.utils.toURLEncoded(data);
-    }
+    },
+    /**
+     * dataURI serialize handler
+     * @param  {object} data
+     * @return {string}
+     */
+    'dataURI': function(data) {
+      if (corbel.Config.isNode) {
+        //var buffer = new Buffer(data.split('base64,')[1], 'base64');
+      } else {
+        return corbel.utils.dataURItoBlob(data);
+      }
+      // if browser transform to blob
+      // if node transform to stream
+      return corbel.utils.toURLEncoded(data);
+    },
+    /**
+     * blob serialize handler
+     * 'blob' type do not require serialization for browser, expode in node
+     * @param  {object} data
+     * @return {string}
+     */
+    'blob': function(data) {
+      if (corbel.Config.isNode) {
+        throw new Error('error:request:unsupported:data_type');
+      }
+      return data;
+    },
+    /**
+     * stream serialize handler
+     * 'stream' type do not require serialization for ndoe, expode in browser
+     * @param  {object} data
+     * @return {string}
+     */
+    'stream': function(data) {
+        if (corbel.Config.isBrowser) {
+          throw new Error('error:request:unsupported:data_type');
+        }
+        return data;
+      }
+      // @todo: 'url' support
+      // 'url' type convert in stream in node, explode in browser
   };
 
   /**
    * Serialize hada with according contentType handler
+   * returns data if no handler available
    * @param  {mixed} data
    * @param  {string} contentType
-   * @return {string}
+   * @return {Mixed}
    */
   request.serialize = function(data, contentType) {
     var serialized;
@@ -103,6 +145,7 @@
         serialized = request.serializeHandlers[type](data);
       }
     });
+    serialized = serialized || data;
     return serialized;
   };
 
@@ -122,26 +165,9 @@
         data = JSON.parse(data);
       }
       return data;
-    },
-    /**
-     * Arraybuffer parse handler
-     * @param  {arraybuffer} data
-     * @return {mixed}
-     */
-    arraybuffer: function(data) {
-      return new Uint8Array(data);
-    },
-    /**
-     * blob parse handler
-     * @param  {blob} data
-     * @return {mixed}
-     */
-    blob: function(data, dataType) {
-      return new Blob([data], {
-        type: dataType
-      });
-    },
-    // @todo: xml
+    }
+      // 'blob' type do not require any process
+      // @todo: xml
   };
 
   /**
@@ -158,6 +184,7 @@
         parsed = request.parseHandlers[type](data, dataType);
       }
     });
+    parsed = parsed || data;
     return parsed;
   };
 
@@ -167,7 +194,7 @@
    * @param  {string} options.url                                 The request url domain
    * @param  {string} options.method                              The method used for the request
    * @param  {object} options.headers                             The request headers
-   * @param  {string} options.responseType                        The response type of the body
+   * @param  {string} options.responseType                        The response type of the body: `blob` | `undefined`
    * @param  {string} options.contentType                         The content type of the body
    * @param  {object | uint8array | blob} options.dataType        Optional data sent to the server
    * @param  {function} options.success                           Callback function for success request response
@@ -187,8 +214,7 @@
       headers: typeof options.headers === 'object' ? options.headers : {},
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-      //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-      dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
+      responseType: options.responseType
     };
 
     // default content-type
@@ -199,9 +225,6 @@
       params.data = request.serialize(options.data, params.headers['content-type']);
     }
 
-    // add responseType to the request (blob || arraybuffer || text)
-    // httpReq.responseType = responseType;
-
     var promise = new Promise(function(resolve, reject) {
 
       var resolver = {
@@ -209,10 +232,12 @@
         reject: reject
       };
 
-      if (corbel.Config.isBrowser) { //browser
-        browserAjax.call(this, params, resolver);
-      } else { //nodejs
-        nodeAjax.call(this, params, resolver);
+      if (corbel.Config.isBrowser) {
+        //browser
+        request._browserAjax.call(this, params, resolver);
+      } else {
+        //nodejs
+        request._nodeAjax.call(this, params, resolver);
       }
     }.bind(this));
 
@@ -280,7 +305,7 @@
 
   };
 
-  var nodeAjax = function(params, resolver) {
+  request._nodeAjax = function(params, resolver) {
 
     var request = require('request');
 
@@ -328,7 +353,7 @@
     }
   };
 
-  var browserAjax = function(params, resolver) {
+  request._browserAjax = function(params, resolver) {
 
     var httpReq = new XMLHttpRequest();
 
@@ -344,6 +369,9 @@
         httpReq.setRequestHeader(header, params.headers[header]);
       }
     }
+
+    // 'blob' support
+    httpReq.responseType = params.responseType || httpReq.responseType;
 
     httpReq.onload = function(xhr) {
       xhr = xhr.target || xhr; // only for mock testing purpose

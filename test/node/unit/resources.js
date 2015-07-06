@@ -1,5 +1,3 @@
-/* global describe, it, afterEach, beforeEach, before, after */
-
 /*jshint newcap: false */
 'use strict';
 
@@ -180,7 +178,7 @@ describe('corbel resources module', function() {
         });
         var callRequestParam = corbel.request.send.firstCall.args[0];
         expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
-        expect(callRequestParam.method).to.be.equal('PUT');
+        expect(callRequestParam.method).to.be.equal('POST');
     });
 
     it('update a resource', function() {

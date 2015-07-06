@@ -1,5 +1,3 @@
-/* global describe, it, afterEach, beforeEach, before, after */
-
 /*jshint newcap: false */
 'use strict';
 

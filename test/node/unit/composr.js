@@ -63,7 +63,7 @@ describe('corbel compoSR module', function() {
                 var paramsReceived = corbel.request.send.firstCall.args[0];
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
                 expect(paramsReceived.method).to.be.equal('POST');
-                expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
             });
 
             it('the client can do request to some phrase with POST method, path and query params', function() {
@@ -83,7 +83,7 @@ describe('corbel compoSR module', function() {
                 var paramsReceived = corbel.request.send.firstCall.args[0];
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1');
                 expect(paramsReceived.method).to.be.equal('POST');
-                expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
             });
 
             it('the client can do request to some phrase with GET method', function() {
@@ -109,7 +109,7 @@ describe('corbel compoSR module', function() {
                 var paramsReceived = corbel.request.send.firstCall.args[0];
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
                 expect(paramsReceived.method).to.be.equal('PUT');
-                expect(paramsReceived.data).to.be.equal(JSON.stringify(body));
+                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
             });
 
             it('the client can do request to some phrase with DELETE method', function() {
@@ -141,7 +141,7 @@ describe('corbel compoSR module', function() {
                 var paramsReceived = corbel.request.send.firstCall.args[0];
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase');
                 expect(paramsReceived.method).to.be.equal('PUT');
-                expect(paramsReceived.data).to.be.equal(JSON.stringify(phrase));
+                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(phrase));
             });
 
             it('its possible get phrases', function() {

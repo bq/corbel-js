@@ -139,9 +139,6 @@
       };
       var params = corbel.utils.defaults(args, defaults);
 
-      //Data
-      params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
-
       if (!params.url) {
         throw new Error('You must define an url');
       }
@@ -159,12 +156,19 @@
         params.dataType = undefined; // Accept & dataType are incompatibles
       }
 
-      // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-      params.dataType = params.binaryType || params.dataType;
+      // set correct accept & contentType in case of blob
+      // @todo: remove contentType+accept same-type constraint
+      if (params.dataType === 'blob') {
+        if (corbel.Config.isBrowser) {
+          params.headers.Accept = params.data.type;
+          params.contentType = params.data.type;
+          params.dataType = undefined; // Accept & dataType are incompatibles
+        }
+      }
 
       params = this._addAuthorization(params);
 
-      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter']);
+      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType']);
     },
 
     /**

@@ -41,7 +41,8 @@
 
             args.query = corbel.utils.serializeParams(params);
 
-            return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
+            //call service request implementation
+            return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1)));
         },
 
         getURL: function(params) {
@@ -56,7 +57,8 @@
 
     });
 
-    corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
+    // extend for inherit requestParamsBuilder methods extensible for all Resources object
+    corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype);
 
     return corbel.Resources.BaseResource;
 

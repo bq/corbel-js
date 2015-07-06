@@ -263,7 +263,7 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user');
             expect(callRequestParam.method).to.be.equal('POST');
-            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
+            expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
         });
 
         it('Get all users', function() {
@@ -300,7 +300,7 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId');
             expect(callRequestParam.method).to.be.equal('PUT');
-            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
+            expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
         });
 
         it('Update user me', function() {
@@ -313,11 +313,10 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me');
             expect(callRequestParam.method).to.be.equal('PUT');
-            expect(callRequestParam.data).to.be.equal('{"username":"username"}');
+            expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
         });
 
         it('Delete user', function() {
-
             corbelDriver.iam.user('userId').delete();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
@@ -380,8 +379,8 @@ describe('corbel IAM module', function() {
                 var callRequestParam = corbel.request.send.firstCall.args[0];
                 expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/identity');
                 expect(callRequestParam.method).to.be.equal('POST');
-                expect(JSON.parse(callRequestParam.data).oAuthService).to.be.equal('silkroad');
-                expect(JSON.parse(callRequestParam.data).oAuthId).to.be.equal('12435');
+                expect(callRequestParam.data.oAuthService).to.be.equal('silkroad');
+                expect(callRequestParam.data.oAuthId).to.be.equal('12435');
             });
 
             it('without passing an identity object', function() {
