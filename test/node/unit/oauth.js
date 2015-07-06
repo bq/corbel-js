@@ -48,7 +48,7 @@ describe('In OAUTH module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'authorize');
             expect(callRequestParam.method).to.be.equal('POST');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response.noRedirect).to.be.equal(true);
             expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
             expect(response.data).to.have.a.property('client_id', 'testClient');
@@ -70,7 +70,7 @@ describe('In OAUTH module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'authorize');
             expect(callRequestParam.method).to.be.equal('GET');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
             expect(response.data).to.have.a.property('client_id', 'testClient');
             expect(response.data).to.have.a.property('response_type', 'code');
@@ -136,7 +136,7 @@ describe('In OAUTH module', function() {
 
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'token');
             expect(callRequestParam.method).to.be.equal('POST');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
             expect(response.data).to.have.a.property('client_id', 'testClient');
             expect(response.data).to.have.a.property('client_secret', 'testClientSecret');
@@ -183,7 +183,7 @@ describe('In OAUTH module', function() {
 
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'user');
             expect(callRequestParam.method).to.be.equal('POST');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response).to.have.a.property('user', 'user');
             expect(callRequestParam.headers.Authorization).to.be.equal('Basic dGVzdENsaWVudDp0ZXN0Q2xpZW50U2VjcmV0');
         });
@@ -238,7 +238,7 @@ describe('In OAUTH module', function() {
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'user/me');
             expect(callRequestParam.method).to.be.equal('PUT');
             //expect(callRequestParam.accessToken).to.be.equal('testToken');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response).to.have.a.property('fieldUpdate', 'update');
         });
 
@@ -252,7 +252,7 @@ describe('In OAUTH module', function() {
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'user/userId');
             expect(callRequestParam.method).to.be.equal('PUT');
             //expect(callRequestParam.accessToken).to.be.equal('testToken');
-            var response = JSON.parse(callRequestParam.data);
+            var response = callRequestParam.data;
             expect(response).to.have.a.property('fieldUpdate', 'update');
         });
 
