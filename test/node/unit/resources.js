@@ -153,6 +153,28 @@ describe('corbel resources module', function() {
         expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace(DEFAULT_QUERY_OBJECT_STRING, 'customQueryString'));
     });
 
+    it('generate resource multi query (OR)', function() {
+        var requestParams = {
+            queries: [{
+                query: DEFAULT_QUERY_OBJECT
+            },{
+                query: DEFAULT_QUERY_OBJECT
+            }],
+            search: {
+              text: 'test'
+            },
+            pagination: {
+                page: 1,
+                size: 5
+            },
+            sort: {
+                field1: corbel.Resources.sort.ASC
+            }
+        };
+
+        expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/resource:entity?api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:search={\"text\":\"test\"}&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
+    });
+
     it('gets all resources in a collection correctly', function() {
         resources.collection('books:Book').get();
 

@@ -128,7 +128,8 @@
    * @param {Number} params.page.size
    * @param {Object} params.sort
    * @return {String}
-   * @example var params = {
+   * @example
+   * var params = {
    *     query: [
    *         { '$eq': {field: 'value'} },
    *         { '$eq': {field2: 'value2'} },
@@ -143,6 +144,37 @@
    *         { '$all': {field: ['value1', 'value2']} }
    *     ],
    *     queryDomain: 'api',  // 'api', '7digital' supported
+   *     queries: [{
+   *        query: [
+   *           { '$eq': {field: 'value'} },
+   *           { '$eq': {field2: 'value2'} },
+   *           { '$gt': {field: 'value'} },
+   *           { '$gte': {field: 'value'} },
+   *           { '$lt': {field: 'value'} },
+   *           { '$lte': {field: 'value'} },
+   *           { '$ne': {field: 'value'} },
+   *           { '$eq': {field: 'value'} },
+   *           { '$like': {field: 'value'} },
+   *           { '$in': {field: ['value1', 'value2']} },
+   *           { '$all': {field: ['value1', 'value2']} }
+   *       ],
+   *       queryDomain: 'api',  // 'api', '7digital' supported
+   *     },{
+   *        query: [
+   *           { '$eq': {field: 'value'} },
+   *           { '$eq': {field2: 'value2'} },
+   *           { '$gt': {field: 'value'} },
+   *           { '$gte': {field: 'value'} },
+   *           { '$lt': {field: 'value'} },
+   *           { '$lte': {field: 'value'} },
+   *           { '$ne': {field: 'value'} },
+   *           { '$eq': {field: 'value'} },
+   *           { '$like': {field: 'value'} },
+   *           { '$in': {field: ['value1', 'value2']} },
+   *           { '$all': {field: ['value1', 'value2']} }
+   *       ],
+   *       queryDomain: 'api',  // 'api', '7digital' supported
+   *     }]
    *     page: { page: 0, size: 10 },
    *     sort: {field: 'asc'},
    *     aggregation: {
@@ -165,15 +197,30 @@
       result = 'api:aggregation=' + JSON.stringify(params.aggregation);
     }
 
+    function queryObjectToString(qry) {
+      var result = '';
+      qry.queryDomain = qry.queryDomain || 'api';
+      result += qry.queryDomain + ':query=';
+      if (typeof qry.query === 'string') {
+        result += qry.query;
+      } else {
+        result += JSON.stringify(qry.query);
+      }
+
+      return result;
+    }
+
     if (params.query) {
       params.queryDomain = params.queryDomain || 'api';
       result += result ? '&' : '';
-      result += params.queryDomain + ':query=';
-      if (typeof params.query === 'string') {
-        result += params.query;
-      } else {
-        result += JSON.stringify(params.query);
-      }
+      result += queryObjectToString(params);
+    }
+
+    if (params.queries) {
+      params.queries.forEach(function(query) {
+        result += result ? '&' : '';
+        result += queryObjectToString(query);   
+      });
     }
 
     if (params.search) {
