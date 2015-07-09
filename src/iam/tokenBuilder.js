@@ -116,8 +116,12 @@
                 if (params.jwt) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
                 }
-                if (params.claims && params.claims.scope) {
-                    that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                if (params.claims) {
+                    if (params.claims.scope) {
+                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                    } else {
+                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, this.driver.config.get('scopes'));
+                    }
                 }
                 return response;
             });
