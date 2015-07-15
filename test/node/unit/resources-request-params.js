@@ -137,6 +137,25 @@ describe('corbel resources request-params module', function() {
 
         });
 
+        it('supports querys with accents', function() {
+            collection.get({
+                query: [{
+                    '$like': {
+                        name: 'test-nàmé'
+                    }
+                }]
+            });
+            
+            expect(serviceSpy.firstCall.args[0].query).to.be.equal(corbel.utils.serializeParams({
+                query: [{
+                    '$like': {
+                        name: 'test-nàmé'
+                    }
+                }]
+            }));
+
+        });
+
         it('support all chain request params methods', function() {
             collection.page(1)
                 .pageParam(5, 10)
