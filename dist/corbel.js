@@ -201,7 +201,8 @@
          * @param {Number} params.page.size
          * @param {Object} params.sort
          * @return {String}
-         * @example var params = {
+         * @example
+         * var params = {
          *     query: [
          *         { '$eq': {field: 'value'} },
          *         { '$eq': {field2: 'value2'} },
@@ -216,6 +217,37 @@
          *         { '$all': {field: ['value1', 'value2']} }
          *     ],
          *     queryDomain: 'api',  // 'api', '7digital' supported
+         *     queries: [{
+         *        query: [
+         *           { '$eq': {field: 'value'} },
+         *           { '$eq': {field2: 'value2'} },
+         *           { '$gt': {field: 'value'} },
+         *           { '$gte': {field: 'value'} },
+         *           { '$lt': {field: 'value'} },
+         *           { '$lte': {field: 'value'} },
+         *           { '$ne': {field: 'value'} },
+         *           { '$eq': {field: 'value'} },
+         *           { '$like': {field: 'value'} },
+         *           { '$in': {field: ['value1', 'value2']} },
+         *           { '$all': {field: ['value1', 'value2']} }
+         *       ],
+         *       queryDomain: 'api',  // 'api', '7digital' supported
+         *     },{
+         *        query: [
+         *           { '$eq': {field: 'value'} },
+         *           { '$eq': {field2: 'value2'} },
+         *           { '$gt': {field: 'value'} },
+         *           { '$gte': {field: 'value'} },
+         *           { '$lt': {field: 'value'} },
+         *           { '$lte': {field: 'value'} },
+         *           { '$ne': {field: 'value'} },
+         *           { '$eq': {field: 'value'} },
+         *           { '$like': {field: 'value'} },
+         *           { '$in': {field: ['value1', 'value2']} },
+         *           { '$all': {field: ['value1', 'value2']} }
+         *       ],
+         *       queryDomain: 'api',  // 'api', '7digital' supported
+         *     }]
          *     page: { page: 0, size: 10 },
          *     sort: {field: 'asc'},
          *     aggregation: {
@@ -238,15 +270,30 @@
                 result = 'api:aggregation=' + JSON.stringify(params.aggregation);
             }
 
+            function queryObjectToString(qry) {
+                var result = '';
+                qry.queryDomain = qry.queryDomain || 'api';
+                result += qry.queryDomain + ':query=';
+                if (typeof qry.query === 'string') {
+                    result += qry.query;
+                } else {
+                    result += JSON.stringify(qry.query);
+                }
+
+                return result;
+            }
+
             if (params.query) {
                 params.queryDomain = params.queryDomain || 'api';
                 result += result ? '&' : '';
-                result += params.queryDomain + ':query=';
-                if (typeof params.query === 'string') {
-                    result += params.query;
-                } else {
-                    result += JSON.stringify(params.query);
-                }
+                result += queryObjectToString(params);
+            }
+
+            if (params.queries) {
+                params.queries.forEach(function(query) {
+                    result += result ? '&' : '';
+                    result += queryObjectToString(query);
+                });
             }
 
             if (params.search) {
@@ -315,6 +362,67 @@
             }
 
             return true;
+        };
+
+        /**
+         * Convert data URI to Blob.
+         * Only works in browser
+         * @param  {string} dataURI
+         * @return {Blob}
+         */
+        utils.dataURItoBlob = function(dataURI) {
+
+            var serialize;
+            if (corbel.Config.isNode) {
+                console.log('NODE');
+                // node environment
+                serialize = require('atob');
+            } else {
+                console.log('BROWSER');
+                serialize = root.atob;
+            }
+
+            /*
+             * phantom hack.
+             * https://github.com/ariya/phantomjs/issues/11013
+             * https://developers.google.com/web/updates/2012/06/Don-t-Build-Blobs-Construct-Them
+             * https://code.google.com/p/phantomjs/issues/detail?id=1013
+             * Phrantom has ton Blob() constructor support, 
+             * use BlobBuilder instead.    
+             */
+            var BlobBuilder;
+            var BlobConstructor;
+            if (corbel.Config.isBrowser) {
+                BlobBuilder = window.BlobBuilder = window.BlobBuilder ||
+                    window.WebKitBlobBuilder ||
+                    window.MozBlobBuilder ||
+                    window.MSBlobBuilder;
+                BlobConstructor = window.Blob;
+            }
+
+            // convert base64 to raw binary data held in a string
+            var byteString = serialize(dataURI.split(',')[1]);
+
+            // separate out the mime component
+            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+            // write the bytes of the string to an ArrayBuffer
+            var arrayBuffer = new ArrayBuffer(byteString.length);
+            var _ia = new Uint8Array(arrayBuffer);
+            for (var i = 0; i < byteString.length; i++) {
+                _ia[i] = byteString.charCodeAt(i);
+            }
+            var blob;
+            if (BlobBuilder) {
+                blob = new BlobBuilder();
+                blob.append(arrayBuffer);
+                blob = blob.getBlob(mimeString);
+            } else {
+                blob = new BlobConstructor([_ia], {
+                    type: mimeString
+                });
+            }
+            return blob;
         };
 
         return utils;
@@ -858,15 +966,22 @@
                     decoded[0] = JSON.parse(serialize(decoded[0]));
                 } catch (e) {
                     console.log('error:jwt:decode:0');
-                    decoded[0] = {};
+                    decoded[0] = false;
                 }
 
                 try {
                     decoded[1] = JSON.parse(serialize(decoded[1]));
                 } catch (e) {
                     console.log('error:jwt:decode:1');
-                    decoded[1] = {};
+                    decoded[1] = false;
                 }
+
+                if (!decoded[0] && !decoded[1]) {
+                    throw new Error('corbel:jwt:decode:invalid_assertion');
+                }
+
+                decoded[0] = decoded[0] || {};
+                decoded[1] = decoded[1] || {};
 
                 Object.keys(decoded[1]).forEach(function(key) {
                     decoded[0][key] = decoded[1][key];
@@ -966,14 +1081,56 @@
              */
             'form-urlencoded': function(data) {
                 return corbel.utils.toURLEncoded(data);
-            }
+            },
+            /**
+             * dataURI serialize handler
+             * @param  {object} data
+             * @return {string}
+             */
+            'dataURI': function(data) {
+                if (corbel.Config.isNode) {
+                    //var buffer = new Buffer(data.split('base64,')[1], 'base64');
+                } else {
+                    return corbel.utils.dataURItoBlob(data);
+                }
+                // if browser transform to blob
+                // if node transform to stream
+                return corbel.utils.toURLEncoded(data);
+            },
+            /**
+             * blob serialize handler
+             * 'blob' type do not require serialization for browser, expode in node
+             * @param  {object} data
+             * @return {string}
+             */
+            'blob': function(data) {
+                if (corbel.Config.isNode) {
+                    throw new Error('error:request:unsupported:data_type');
+                }
+                return data;
+            },
+            /**
+             * stream serialize handler
+             * 'stream' type do not require serialization for ndoe, expode in browser
+             * @param  {object} data
+             * @return {string}
+             */
+            'stream': function(data) {
+                    if (corbel.Config.isBrowser) {
+                        throw new Error('error:request:unsupported:data_type');
+                    }
+                    return data;
+                }
+                // @todo: 'url' support
+                // 'url' type convert in stream in node, explode in browser
         };
 
         /**
          * Serialize hada with according contentType handler
+         * returns data if no handler available
          * @param  {mixed} data
          * @param  {string} contentType
-         * @return {string}
+         * @return {Mixed}
          */
         request.serialize = function(data, contentType) {
             var serialized;
@@ -982,6 +1139,7 @@
                     serialized = request.serializeHandlers[type](data);
                 }
             });
+            serialized = serialized || data;
             return serialized;
         };
 
@@ -996,31 +1154,14 @@
              * @return {mixed}
              */
             json: function(data) {
-                data = data || '{}';
-                if (typeof data === 'string') {
-                    data = JSON.parse(data);
+                    data = data || '{}';
+                    if (typeof data === 'string') {
+                        data = JSON.parse(data);
+                    }
+                    return data;
                 }
-                return data;
-            },
-            /**
-             * Arraybuffer parse handler
-             * @param  {arraybuffer} data
-             * @return {mixed}
-             */
-            arraybuffer: function(data) {
-                return new Uint8Array(data);
-            },
-            /**
-             * blob parse handler
-             * @param  {blob} data
-             * @return {mixed}
-             */
-            blob: function(data, dataType) {
-                return new Blob([data], {
-                    type: dataType
-                });
-            },
-            // @todo: xml
+                // 'blob' type do not require any process
+                // @todo: xml
         };
 
         /**
@@ -1037,6 +1178,7 @@
                     parsed = request.parseHandlers[type](data, dataType);
                 }
             });
+            parsed = parsed || data;
             return parsed;
         };
 
@@ -1046,7 +1188,7 @@
          * @param  {string} options.url                                 The request url domain
          * @param  {string} options.method                              The method used for the request
          * @param  {object} options.headers                             The request headers
-         * @param  {string} options.responseType                        The response type of the body
+         * @param  {string} options.responseType                        The response type of the body: `blob` | `undefined`
          * @param  {string} options.contentType                         The content type of the body
          * @param  {object | uint8array | blob} options.dataType        Optional data sent to the server
          * @param  {function} options.success                           Callback function for success request response
@@ -1066,8 +1208,7 @@
                 headers: typeof options.headers === 'object' ? options.headers : {},
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-                //responseType: options.responseType === 'arraybuffer' || options.responseType === 'text' || options.responseType === 'blob' ? options.responseType : 'json',
-                dataType: options.responseType === 'blob' ? options.dataType || 'image/jpg' : undefined
+                responseType: options.responseType
             };
 
             // default content-type
@@ -1078,9 +1219,6 @@
                 params.data = request.serialize(options.data, params.headers['content-type']);
             }
 
-            // add responseType to the request (blob || arraybuffer || text)
-            // httpReq.responseType = responseType;
-
             var promise = new Promise(function(resolve, reject) {
 
                 var resolver = {
@@ -1088,10 +1226,12 @@
                     reject: reject
                 };
 
-                if (corbel.Config.isBrowser) { //browser
-                    browserAjax.call(this, params, resolver);
-                } else { //nodejs
-                    nodeAjax.call(this, params, resolver);
+                if (corbel.Config.isBrowser) {
+                    //browser
+                    request._browserAjax.call(this, params, resolver);
+                } else {
+                    //nodejs
+                    request._nodeAjax.call(this, params, resolver);
                 }
             }.bind(this));
 
@@ -1159,7 +1299,7 @@
 
         };
 
-        var nodeAjax = function(params, resolver) {
+        request._nodeAjax = function(params, resolver) {
 
             var request = require('request');
 
@@ -1207,7 +1347,7 @@
             }
         };
 
-        var browserAjax = function(params, resolver) {
+        request._browserAjax = function(params, resolver) {
 
             var httpReq = new XMLHttpRequest();
 
@@ -1223,6 +1363,9 @@
                     httpReq.setRequestHeader(header, params.headers[header]);
                 }
             }
+
+            // 'blob' support
+            httpReq.responseType = params.responseType || httpReq.responseType;
 
             httpReq.onload = function(xhr) {
                 xhr = xhr.target || xhr; // only for mock testing purpose
@@ -1402,9 +1545,6 @@
                 };
                 var params = corbel.utils.defaults(args, defaults);
 
-                //Data
-                params.data = (params.contentType.indexOf('json') !== -1 && typeof params.data === 'object' ? JSON.stringify(params.data) : params.data);
-
                 if (!params.url) {
                     throw new Error('You must define an url');
                 }
@@ -1422,12 +1562,19 @@
                     params.dataType = undefined; // Accept & dataType are incompatibles
                 }
 
-                // For binary requests like 'blob' or 'arraybuffer', set correct dataType
-                params.dataType = params.binaryType || params.dataType;
+                // set correct accept & contentType in case of blob
+                // @todo: remove contentType+accept same-type constraint
+                if (params.dataType === 'blob') {
+                    if (corbel.Config.isBrowser) {
+                        params.headers.Accept = params.data.type;
+                        params.contentType = params.data.type;
+                        params.dataType = undefined; // Accept & dataType are incompatibles
+                    }
+                }
 
                 params = this._addAuthorization(params);
 
-                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter']);
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType']);
             },
 
             /**
@@ -2142,8 +2289,12 @@
                     if (params.jwt) {
                         that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
                     }
-                    if (params.claims && params.claims.scope) {
-                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                    if (params.claims) {
+                        if (params.claims.scope) {
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                        } else {
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, this.driver.config.get('scopes'));
+                        }
                     }
                     return response;
                 });
@@ -3081,7 +3232,8 @@
 
                 args.query = corbel.utils.serializeParams(params);
 
-                return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1))); //call service request implementation
+                //call service request implementation
+                return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1)));
             },
 
             getURL: function(params) {
@@ -3096,7 +3248,8 @@
 
         });
 
-        corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype); // extend for inherit requestParamsBuilder methods extensible for all Resources object
+        // extend for inherit requestParamsBuilder methods extensible for all Resources object
+        corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype);
 
         return corbel.Resources.BaseResource;
 
@@ -3263,7 +3416,7 @@
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
-                    method: corbel.request.method.PUT,
+                    method: corbel.request.method.POST,
                     contentType: options.dataType,
                     Accept: options.dataType,
                     data: data
@@ -3357,8 +3510,7 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.PUT,
                     data: data,
-                    contentType: options.dataType,
-                    Accept: options.dataType
+                    contentType: options.dataType
                 });
 
                 return this.request(args);
