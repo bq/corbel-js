@@ -25,6 +25,7 @@
     }, {
 
         moduleName: 'resources',
+        defaultPort: 8080,
 
         sort: {
 

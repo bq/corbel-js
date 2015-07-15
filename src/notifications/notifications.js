@@ -25,6 +25,7 @@
     }, {
 
         moduleName: 'notifications',
+        defaultPort: 8094,
 
         create: function(driver) {
             return new corbel.Notifications(driver);

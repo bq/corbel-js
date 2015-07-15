@@ -41,6 +41,15 @@
     moduleName: 'assets',
 
     /**
+    * defaultPort constant
+    * @constant
+    * @memberof corbel.Assets
+    * @type {Number}
+    * @default
+    */
+    defaultPort: 8092,
+
+    /**
      * AssetsBuilder factory
      * @memberof corbel.Assets
      * @param  {corbel} corbel instance driver

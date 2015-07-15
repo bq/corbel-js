@@ -1695,6 +1695,7 @@
     }
 
     Config.URL_BASE_PLACEHOLDER = '{{module}}';
+    Config.URL_BASE_PORT_PLACEHOLDER = '{{modulePort}}';
 
     corbel.Config = Config;
 
@@ -1793,6 +1794,7 @@
         };
 
         Iam.moduleName = 'iam';
+        Iam.defaultPort = 8082;
 
         Iam.create = function(driver) {
             return new Iam(driver);
@@ -1821,9 +1823,15 @@
 
             var urlBase = this.driver.config.get('iamEndpoint', null) ?
                 this.driver.config.get('iamEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName);
+                this.driver.config.get('urlBase')
+                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
+                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Iam._buildPort(this.driver.config));
 
             return urlBase + uri;
+        };
+
+        Iam._buildPort = function(config) {
+            return config.get('iamPort', null) || corbel.Iam.defaultPort;
         };
 
     })();
@@ -2984,6 +2992,15 @@
             moduleName: 'assets',
 
             /**
+             * defaultPort constant
+             * @constant
+             * @memberof corbel.Assets
+             * @type {Number}
+             * @default
+             */
+            defaultPort: 8092,
+
+            /**
              * AssetsBuilder factory
              * @memberof corbel.Assets
              * @param  {corbel} corbel instance driver
@@ -3099,13 +3116,19 @@
                 var uri = '',
                     urlBase = this.driver.config.get('assetsEndpoint', null) ?
                     this.driver.config.get('assetsEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
                     uri += '/' + id;
                 }
                 return uri;
+            },
+
+            _buildPort: function(config) {
+                return config.get('assetsPort', null) || corbel.Assets.defaultPort;
             }
 
         }, {
@@ -3157,6 +3180,7 @@
         }, {
 
             moduleName: 'resources',
+            defaultPort: 8080,
 
             sort: {
 
@@ -3193,6 +3217,7 @@
         return corbel.Resources;
 
     })();
+
     (function() {
         corbel.Resources.BaseResource = corbel.Services.inherit({
 
@@ -3208,7 +3233,9 @@
 
                 var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
                     this.driver.config.get('resourcesEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 var uri = urlBase + 'resource/' + srcType;
 
@@ -3223,6 +3250,10 @@
                 }
 
                 return uri;
+            },
+
+            _buildPort: function(config) {
+                return config.get('resourcesPort', null) || corbel.Resources.defaultPort;
             },
 
             request: function(args) {
@@ -3557,6 +3588,7 @@
         };
 
         Oauth.moduleName = 'oauth';
+        Oauth.defaultPort = 8084;
 
         Oauth.create = function(driver) {
             return new Oauth(driver);
@@ -3571,10 +3603,17 @@
 
             var urlBase = this.driver.config.get('oauthEndpoint', null) ?
                 this.driver.config.get('oauthEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName);
+                this.driver.config.get('urlBase')
+                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
+                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Oauth._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
+
+        Oauth._buildPort = function(config) {
+            return config.get('oauthPort', null) || corbel.Oauth.defaultPort;
+        };
+
         /**
          * Default encoding
          * @type {String}
@@ -4037,6 +4076,7 @@
         }, {
 
             moduleName: 'notifications',
+            defaultPort: 8094,
 
             create: function(driver) {
                 return new corbel.Notifications(driver);
@@ -4070,7 +4110,7 @@
              * @param {String} notification.text    Notification content
              * @param {String} notification.sender  Notification sender
              * @param {String} [notification.title] Notification title
-             *    
+             *
              * @return {Promise}                    Promise that resolves in the new notification id or rejects with a {@link CorbelError}
              */
             create: function(notification) {
@@ -4104,7 +4144,7 @@
              * @method
              * @memberOf Corbel.Notifications.NotificationsBuilder
              * @param  {Object} data                    Data to be updated
-             * 
+             *
              * @return {Promise}                        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             update: function(data) {
@@ -4152,13 +4192,19 @@
                 var uri = '',
                     urlBase = this.driver.config.get('notificationsEndpoint', null) ?
                     this.driver.config.get('notificationsEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
                     uri += '/' + id;
                 }
                 return uri;
+            },
+
+            _buildPort: function(config) {
+                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
             }
 
         }, {
@@ -4189,6 +4235,7 @@
         };
 
         Ec.moduleName = 'ec';
+        Ec.defaultPort = 8088;
 
 
         Ec.create = function(driver) {
@@ -4221,7 +4268,7 @@
                * @constant
                * @type {String}
                * @default
-               
+  
               FAILED: 'FAILED',
   
               /**
@@ -4272,9 +4319,15 @@
             }
             var urlBase = this.driver.config.get('ecEndpoint', null) ?
                 this.driver.config.get('ecpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName);
+                this.driver.config.get('urlBase')
+                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
+                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
 
             return urlBase + uri;
+        };
+
+        Ec._buildPort = function(config) {
+            return config.get('ecPort', null) || corbel.Ec.defaultPort;
         };
     })();
 
@@ -4416,6 +4469,7 @@
         }, {
 
             moduleName: 'evci',
+            defaultPort: 8086,
 
             create: function(driver) {
                 return new corbel.Evci(driver);
@@ -4426,6 +4480,7 @@
         return corbel.Evci;
 
     })();
+
     (function() {
 
         var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.inherit({
@@ -4470,13 +4525,19 @@
                 var uri = '',
                     urlBase = this.driver.config.get('evciEndpoint', null) ?
                     this.driver.config.get('evciEndpoint') :
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (eventType) {
                     uri += '/' + eventType;
                 }
                 return uri;
+            },
+
+            _buildPort: function(config) {
+                return config.get('evciPort', null) || corbel.Evci.defaultPort;
             }
 
         }, {
@@ -4491,6 +4552,7 @@
 
         return EventBuilder;
     })();
+
     (function() {
 
         /**
@@ -4552,6 +4614,7 @@
 
         }, {
             moduleName: 'borrow',
+            defaultPort: 8100,
 
             create: function(driver) {
                 return new corbel.Borrow(driver);
@@ -4566,13 +4629,19 @@
                 });
 
                 var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
                 }
 
                 return urlBase + uri;
+            },
+
+            _buildPort: function(config) {
+                return config.get('borrowPort', null) || corbel.Borrow.defaultPort;
             }
         });
 
@@ -5165,14 +5234,21 @@
         }, {
 
             moduleName: 'composr',
+            defaultPort: 3000,
 
             create: function(driver) {
                 return new corbel.CompoSR(driver);
             },
 
+            _buildPort: function(config) {
+                return config.get('composrPort', null) || corbel.CompoSR.defaultPort;
+            },
+
             _buildUri: function() {
                 var urlBase = this.driver.config.get('composrEndpoint', null) ||
-                    this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName);
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -5185,7 +5261,7 @@
                     }
                 });
                 return urlBase + uri;
-            },
+            }
 
         });
 

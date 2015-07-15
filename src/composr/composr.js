@@ -50,14 +50,21 @@
   }, {
 
     moduleName: 'composr',
+    defaultPort: 3000,
 
     create: function(driver) {
       return new corbel.CompoSR(driver);
     },
 
+    _buildPort: function(config) {
+      return config.get('composrPort', null) || corbel.CompoSR.defaultPort;
+    },
+
     _buildUri: function() {
       var urlBase = this.driver.config.get('composrEndpoint', null) ||
-        this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName);
+        this.driver.config.get('urlBase')
+          .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
+          .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));
 
       if (urlBase.slice(-1) === '/') {
         urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -70,7 +77,7 @@
         }
       });
       return urlBase + uri;
-    },
+    }
 
   });
 
