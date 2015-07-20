@@ -1268,17 +1268,45 @@
                 result = 'api:aggregation=' + JSON.stringify(params.aggregation);
             }
 
+            //Encodes each query value for being URI compilant
+            function encodeQueryComponents(obj) {
+                if (Array.isArray(obj)) {
+                    obj = obj.map(function(item) {
+                        return encodeQueryComponents(item);
+                    });
+                } else if (typeof(obj) === 'object') {
+                    Object.keys(obj).forEach(function(key) {
+                        obj[key] = encodeQueryComponents(obj[key]);
+                    });
+                } else if (typeof(obj) === 'string') {
+                    //Return the encoded component (decode first for avoiding double encode)
+                    obj = encodeURIComponent(decodeURIComponent(obj));
+                }
+                return obj;
+            }
+
             function queryObjectToString(qry) {
                 var result = '';
+                var query;
                 qry.queryDomain = qry.queryDomain || 'api';
                 result += qry.queryDomain + ':query=';
-                if (typeof qry.query === 'string') {
-                    result += qry.query;
-                } else {
-                    result += JSON.stringify(qry.query);
-                }
+                try {
+                    if (typeof qry.query === 'string') {
+                        query = JSON.parse(qry.query);
+                    } else {
+                        //Clone the object we don't want to modify the original query object
+                        query = JSON.parse(JSON.stringify(qry.query));
+                    }
 
-                return result;
+                    query = JSON.stringify(encodeQueryComponents(query));
+
+                    result += query;
+
+                    return result;
+                } catch (e) {
+                    //Return the query even if it is not a valid object
+                    return result + qry.query;
+                }
             }
 
             if (params.query) {
@@ -1385,8 +1413,8 @@
              * https://github.com/ariya/phantomjs/issues/11013
              * https://developers.google.com/web/updates/2012/06/Don-t-Build-Blobs-Construct-Them
              * https://code.google.com/p/phantomjs/issues/detail?id=1013
-             * Phrantom has ton Blob() constructor support, 
-             * use BlobBuilder instead.    
+             * Phrantom has ton Blob() constructor support,
+             * use BlobBuilder instead.
              */
             var BlobBuilder;
             var BlobConstructor;
@@ -1426,7 +1454,6 @@
         return utils;
 
     })();
-
 
     (function() {
 

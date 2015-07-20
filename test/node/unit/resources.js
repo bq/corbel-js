@@ -153,6 +153,16 @@ describe('corbel resources module', function() {
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace(DEFAULT_QUERY_OBJECT_STRING, 'customQueryString'));
   });
 
+  it('generates a query with weird characters', function(){
+    var requestParams = {
+      query: [{
+        '$eq'  : { 'name' : 'Chewaçcá Sä+^*quñardel'}
+      }]
+    };
+
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/resource:entity?api:query=[{\"$eq\":{\"name\":\"Chewa%C3%A7c%C3%A1%20S%C3%A4%2B%5E*qu%C3%B1ardel\"}}]');
+  });
+
   it('generate resource multi query (OR)', function() {
     var requestParams = {
       queries: [{
@@ -220,7 +230,7 @@ describe('corbel resources module', function() {
       }
     };
 
-    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/resource:entity?api:query=[{\"$like\":{\"title\":\"Praga\"}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\",\"books:Book/9979a1daf7c6eebf04375bd0fc37f3c3\"]}}]&api:query=[{\"$elem_match\":{\"authors\":[{\"$like\":{\"name\":\"Praga\"}}]}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\"]}}]&api:search={\"text\":\"test\"}&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/resource:entity?api:query=[{\"$like\":{\"title\":\"Praga\"}},{\"$in\":{\"_dst_id\":[\"books%3ABook%2Ff44ee834b058d9f383acaece2d44613c\",\"books%3ABook%2F9979a1daf7c6eebf04375bd0fc37f3c3\"]}}]&api:query=[{\"$elem_match\":{\"authors\":[{\"$like\":{\"name\":\"Praga\"}}]}},{\"$in\":{\"_dst_id\":[\"books%3ABook%2Ff44ee834b058d9f383acaece2d44613c\"]}}]&api:search={\"text\":\"test\"}&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
   });
 
 
