@@ -124,7 +124,8 @@ describe('corbel.Services', function() {
     var driver = corbel.getDriver({
         urlBase: 'urlBase/',
         clientId: 'clientId',
-        clientSecret: 'clientSecret'
+        clientSecret: 'clientSecret',
+        audience: 'audience'
       }),
       service,
       requestStub;
