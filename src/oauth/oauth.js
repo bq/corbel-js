@@ -16,6 +16,7 @@
     };
 
     Oauth.moduleName = 'oauth';
+    Oauth.defaultPort = 8084;
 
     Oauth.create = function(driver) {
         return new Oauth(driver);
@@ -30,10 +31,17 @@
 
         var urlBase = this.driver.config.get('oauthEndpoint', null) ?
             this.driver.config.get('oauthEndpoint') :
-            this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName);
+            this.driver.config.get('urlBase')
+              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
+              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Oauth._buildPort(this.driver.config));
 
         return urlBase + uri;
     };
+
+    Oauth._buildPort = function(config) {
+      return config.get('oauthPort', null) || corbel.Oauth.defaultPort;
+    };
+
     /**
      * Default encoding
      * @type {String}

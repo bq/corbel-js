@@ -16,6 +16,7 @@
     };
 
     Ec.moduleName = 'ec';
+    Ec.defaultPort = 8088;
 
 
     Ec.create = function(driver) {
@@ -48,7 +49,7 @@
              * @constant
              * @type {String}
              * @default
-             
+
             FAILED: 'FAILED',
 
             /**
@@ -73,7 +74,7 @@
     /**
      * COMMON MIXINS
      */
-    
+
 
     // Ec._encrypt = function (data) {
     //     return {
@@ -99,8 +100,14 @@
         }
         var urlBase = this.driver.config.get('ecEndpoint', null) ?
             this.driver.config.get('ecpoint') :
-            this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName);
+            this.driver.config.get('urlBase')
+              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
+              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
 
         return urlBase + uri;
+    };
+
+    Ec._buildPort = function(config) {
+      return config.get('ecPort', null) || corbel.Ec.defaultPort;
     };
 })();

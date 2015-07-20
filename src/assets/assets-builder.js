@@ -31,7 +31,7 @@
      * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
      */
     get: function(params) {
-      
+
       var options = params ? params : {};
 
       var args = corbel.utils.extend(options, {
@@ -41,7 +41,7 @@
       });
 
       return this.request(args);
-     
+
     },
 
     /**
@@ -102,13 +102,19 @@
       var uri = '',
         urlBase = this.driver.config.get('assetsEndpoint', null) ?
         this.driver.config.get('assetsEndpoint') :
-        this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName);
+        this.driver.config.get('urlBase')
+          .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
+          .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
       uri = urlBase + path;
       if (id) {
         uri += '/' + id;
       }
       return uri;
+    },
+
+    _buildPort: function(config) {
+      return config.get('assetsPort', null) || corbel.Assets.defaultPort;
     }
 
   }, {

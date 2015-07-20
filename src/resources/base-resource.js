@@ -17,7 +17,9 @@
 
             var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
                 this.driver.config.get('resourcesEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName);
+                this.driver.config.get('urlBase')
+                  .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
+                  .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
             var uri = urlBase + 'resource/' + srcType;
 
@@ -32,6 +34,10 @@
             }
 
             return uri;
+        },
+
+        _buildPort: function(config) {
+          return config.get('resourcesPort', null) || corbel.Resources.defaultPort;
         },
 
         request: function(args) {

@@ -24,7 +24,7 @@
          * @param {String} notification.text    Notification content
          * @param {String} notification.sender  Notification sender
          * @param {String} [notification.title] Notification title
-         *    
+         *
          * @return {Promise}                    Promise that resolves in the new notification id or rejects with a {@link CorbelError}
          */
         create: function(notification) {
@@ -58,7 +58,7 @@
          * @method
          * @memberOf Corbel.Notifications.NotificationsBuilder
          * @param  {Object} data                    Data to be updated
-         * 
+         *
          * @return {Promise}                        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
          */
         update: function(data) {
@@ -106,13 +106,19 @@
             var uri = '',
                 urlBase = this.driver.config.get('notificationsEndpoint', null) ?
                 this.driver.config.get('notificationsEndpoint') :
-                this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName);
+                this.driver.config.get('urlBase')
+                  .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)
+                  .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
             uri = urlBase + path;
             if (id) {
                 uri += '/' + id;
             }
             return uri;
+        },
+
+        _buildPort: function(config) {
+          return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
         }
 
     }, {

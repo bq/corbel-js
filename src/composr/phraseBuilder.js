@@ -53,6 +53,6 @@
     },
 
     _buildUri: corbel.CompoSR._buildUri
-    
+
   });
 })();

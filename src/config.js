@@ -14,6 +14,7 @@ function Config(config) {
 }
 
 Config.URL_BASE_PLACEHOLDER = '{{module}}';
+Config.URL_BASE_PORT_PLACEHOLDER = '{{modulePort}}';
 
 corbel.Config = Config;
 

@@ -26,6 +26,7 @@
     }, {
 
         moduleName: 'evci',
+        defaultPort: 8086,
 
         create: function(driver) {
             return new corbel.Evci(driver);

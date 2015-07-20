@@ -16,6 +16,7 @@
     };
 
     Iam.moduleName = 'iam';
+    Iam.defaultPort = 8082;
 
     Iam.create = function(driver) {
         return new Iam(driver);
@@ -44,9 +45,15 @@
 
         var urlBase = this.driver.config.get('iamEndpoint', null) ?
             this.driver.config.get('iamEndpoint') :
-            this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName);
+            this.driver.config.get('urlBase')
+              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
+              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Iam._buildPort(this.driver.config));
 
         return urlBase + uri;
+    };
+
+    Iam._buildPort = function(config) {
+      return config.get('iamPort', null) || corbel.Iam.defaultPort;
     };
 
 })();

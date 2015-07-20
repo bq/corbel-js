@@ -63,6 +63,7 @@
 
   }, {
     moduleName: 'borrow',
+    defaultPort: 8100,
 
     create: function(driver) {
       return new corbel.Borrow(driver);
@@ -77,13 +78,19 @@
         });
 
         var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-          this.driver.config.get('urlBase').replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName);
+          this.driver.config.get('urlBase')
+            .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
+            .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
 
         if (urlBase.slice(-1) === '/') {
           urlBase = urlBase.substring(0, urlBase.length - 1);
         }
 
         return urlBase + uri;
+    },
+
+    _buildPort: function(config) {
+      return config.get('borrowPort', null) || corbel.Borrow.defaultPort;
     }
   });
 
