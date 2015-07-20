@@ -29,7 +29,7 @@
      */
 
     /**
-     * Provate method to build a tring uri
+     * Private method to build a tring uri
      * @private
      * @param  {String} uri
      * @param  {String|Number} id

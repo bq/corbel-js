@@ -48,7 +48,7 @@
 
             var secret = params.secret || this.driver.config.get('clientSecret');
             params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
-            params.claims.aud = params.claims.aud || corbel.Iam.AUD;
+            params.claims.aud = params.claims.aud || this.dirver.config.get('audience') || Iam.AUD;
             params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
             return corbel.jwt.generate(params.claims, secret);
         },
