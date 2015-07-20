@@ -43,6 +43,7 @@ var corbelDriver = corbel.getDriver(options);
 var options = {
     'clientId': 'clientId',
     'clientSecret': 'clientSecret',
+    'audience': 'audience',
 
     'urlBase': 'http://localhost:8080/{{module}}',
 
