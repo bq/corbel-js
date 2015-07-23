@@ -233,7 +233,39 @@
                 url: this._buildUri(this.uri, this.id) + '/profile',
                 method: corbel.request.method.GET
             });
+        },
+
+        /**
+         * Add groups to the user
+         * @method
+         * @memberOf iam.UserBuilder
+         * @param {Object} groups     The data of the groups
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         */
+        addGroups: function(groups) {
+            console.log('iamInterface.user.addGroups');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/groups',
+                method: corbel.request.method.PUT,
+                data: groups
+            });
+        },
+
+        /**
+         * Delete group to user 
+         * @method
+         * @memberOf iam.UserBuilder
+         * @param {Object} groups     The data of the groups
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+         */
+        deleteGroup: function(group) {
+            console.log('iamInterface.user.deleteGroup');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/groups/'+group,
+                method: corbel.request.method.DELETE
+            });
         }
+
 
     });
 

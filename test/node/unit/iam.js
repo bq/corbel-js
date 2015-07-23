@@ -492,6 +492,28 @@ describe('corbel IAM module', function() {
 
     });
 
+    describe('User groups', function() {
+
+        it('Add groups to user', function() {
+            var groups = ['g1', 'g2'];
+
+            corbelDriver.iam.user('userId').addGroups(groups);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/groups');
+            expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('delete group to user', function() {
+            corbelDriver.iam.user('userId').deleteGroup('g1');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/groups/g1');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+    });
+
     describe('Domain admin interface', function() {
         var data = {
             id: 'jklasdfjklasdf',
