@@ -59,6 +59,7 @@
   //  @include ../iam/tokenBuilder.js
   //  @include ../iam/usernameBuilder.js
   //  @include ../iam/usersBuilder.js
+  //  @include ../iam/groupsBuilder.js
   //  @include ../assets/assets.js
   //  @include ../assets/assets-builder.js
   //  @include ../request-params/aggregation-builder.js

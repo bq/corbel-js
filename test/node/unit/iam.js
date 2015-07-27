@@ -626,4 +626,68 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
     });
+
+    describe('Groups api interface', function() {
+        it('Get all groups', function() {
+            corbelDriver.iam.group().getAll();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get a group', function() {
+            var id = 'id';
+
+            corbelDriver.iam.group(id).get();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group/' + id);
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Create a group', function() {
+            var group = {
+                name: 'name',
+            scopes: ['scope1', 'scope2']
+            };
+
+            corbelDriver.iam.group().create(group);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group');
+            expect(callRequestParam.method).to.be.equal('POST');
+        });
+
+        it('Add scopes to a group', function() {
+            var id = 'id';
+
+            corbelDriver.iam.group(id).addScopes(['scope1']);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group/' + id + '/scopes');
+            expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('Remove scopes from a group', function() {
+            var id = 'id';
+            var scopeToRemove = 'scope1';
+
+            corbelDriver.iam.group(id).removeScope(scopeToRemove);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group/' + id + '/scopes/' + scopeToRemove);
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('Delete a group', function() {
+            var id = 'id';
+
+            corbelDriver.iam.group(id).delete();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'group/' + id);
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+    });
 });
