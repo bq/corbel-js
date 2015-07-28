@@ -58,9 +58,8 @@ var options = {
 ```javascript
 corbelDriver.iam.token().create().then(function() {
     return corbelDriver.resources.collection(collectionName).add('application/json', params);
-}).then(function(response) {
-    var resourceId = response.data;
-    return corbelDriver.resources.resource(collectionName, respurceId).get();
+}).then(function(resourceId) {
+    return corbelDriver.resources.resource(collectionName, resourceId).get();
 }).then(function(response) {
     console.log('resource', response.data);
 }).catch(function(error) {
@@ -155,6 +154,9 @@ A collection is a container of resources that share the same type. For instance:
   corbelDriver.resources
     .collection('collectionName')
     .add(objectData,requestOptionsObject)
+    .then(function(resourceCreatedId){
+      //
+    });
   ```
 
 Examples: 
@@ -376,7 +378,7 @@ Assets are dynamic groups of scopes that a user can have for a certain period of
 
 This is an example of an asset: 
 
-```json
+```javascript
 {
    _id: "0b2dff5c39934c210d80056a94eb27bc6c6d6378",
    userId: "fooid",
