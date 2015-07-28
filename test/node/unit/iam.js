@@ -13,7 +13,7 @@ describe('corbel IAM module', function() {
 
         clientId: 'clientId',
         clientSecret: 'clientSecret',
-
+        audience: 'audience',
         scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
         urlBase: 'https://{{module}}-corbel.io/'
@@ -174,7 +174,7 @@ describe('corbel IAM module', function() {
 
             var testJwt = corbel.jwt.generate({
                 iss: CONFIG.clientId,
-                aud: corbel.Iam.AUD,
+                aud: CONFIG.audience,
                 exp: 1234,
                 scope: CONFIG.scopes,
                 'refresh_token': 'refresh_token'
@@ -200,7 +200,7 @@ describe('corbel IAM module', function() {
 
             var testJwt = corbel.jwt.generate({
                 iss: CONFIG.clientId,
-                aud: corbel.Iam.AUD,
+                aud: CONFIG.audience,
                 exp: 1234,
                 scope: 'test_scope',
                 'refresh_token': 'refresh_token'
