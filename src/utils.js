@@ -253,7 +253,7 @@
 
     if (params.search) {
       result += result ? '&' : '';
-      result += 'api:search=' + JSON.stringify(params.search);
+      result += 'api:search=' + (typeof params.search === 'object' ? JSON.stringify(params.search) : params.search);
     }
 
     if (params.sort) {

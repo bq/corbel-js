@@ -135,6 +135,23 @@ describe('corbel resources module', function() {
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED);
   });
 
+
+  it('generate resource query correctly with a string search', function() {
+    var requestParams = {
+      query: DEFAULT_QUERY_OBJECT,
+      search: 'test',
+      pagination: {
+        page: 1,
+        size: 5
+      },
+      sort: {
+        field1: corbel.Resources.sort.ASC
+      }
+    };
+
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace('api:search={"text":"test"}', 'api:search=test'));
+  });
+
   it('generate resource query correctly with custom query string', function() {
     var requestParams = {
       query: 'customQueryString',
