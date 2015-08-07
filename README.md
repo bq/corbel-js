@@ -200,6 +200,12 @@ Following params can be passed both as request options object and as chainable m
   { query: [{$like: {} }, {$:{} } ] }
   ```
 
+* Custom query parameters:
+
+  ```
+  { customQueryParams: {myParam: 'myValue', ... } }
+  ```
+
 Examples: 
 
 ```javascript

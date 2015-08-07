@@ -273,6 +273,13 @@
       }
     }
 
+    if (params.customQueryParams) {
+      Object.keys(params.customQueryParams).forEach(function(param) {
+        result += result ? '&' : '';
+        result += param + '=' + params.customQueryParams[param];
+      });
+    }
+
     return result;
   };
 
