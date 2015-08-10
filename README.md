@@ -9,9 +9,30 @@ corbel-js
 [![Dependency status](https://david-dm.org/bq/corbel-js/status.png)](https://david-dm.org/bq/corbel-js#info=dependencies&view=table)
 [![Dev Dependency Status](https://david-dm.org/bq/corbel-js/dev-status.png)](https://david-dm.org/bq/corbel-js#info=devDependencies&view=table)
 
-A SDK for corbel compatible with browsers and node.
+A SDK for [corbel][corbel-url] compatible with browsers and node.
 
 ## [Homepage](http://opensource.bq.com/corbel-js/)
+
+<!-- MarkdownTOC -->
+
+- Quickstart
+  - Installation
+  - What is corbel-js ?
+  - Usage
+    - Instance a new driver
+    - Driver options
+- API
+  - Resources
+    - Collection
+    - Relations
+      - Relation model
+    - Resources
+    - Assets
+  - Chainable API
+- library static methods
+- Examples
+
+<!-- /MarkdownTOC -->
 
 ## Quickstart
 
@@ -31,50 +52,46 @@ A SDK for corbel compatible with browsers and node.
   npm install corbel-js --save
   ```
 
-### Instance a new driver
+### What is corbel-js ?
+
+Corbel-js is a SDK for working with the [Corbel][corbel-url] backend.
+
+Using corbel-js SDK would allow you to :
+- Create collections and resources
+- CRUD operations for your models
+- Authenticate users
+- *...(much more)*
+
+
+### Usage
+
+#### Instance a new driver
 
 ```javascript
 var corbelDriver = corbel.getDriver(options);
 ```
 
-### Driver options
+#### Driver options
 
 ```javascript
 var options = {
     'clientId': 'clientId',
     'clientSecret': 'clientSecret',
     'audience': 'audience',
-
     'urlBase': 'http://localhost:8080/{{module}}',
-
     'scopes': 'scopes',
-
-    'device_id'
+    'device_id' : 'device_id'
 }
 ```
 
-### Get an application token
-
-```javascript
-corbelDriver.iam.token().create().then(function() {
-    return corbelDriver.resources.collection(collectionName).add('application/json', params);
-}).then(function(resourceId) {
-    return corbelDriver.resources.resource(collectionName, resourceId).get();
-}).then(function(response) {
-    console.log('resource', response.data);
-}).catch(function(error) {
-    console.error('some.error', error);
-});
-```
-
-
+## API
 ### Resources
 
 The Resources API is a flexible programming interface for retrieval of resource's representations. Using the patterns described by this API we can deploy any kind of resource in our Corbel ecosystem with minimal impact on clients and server code. 
 A request can contain URL parameters which can modify the content of representation returned or its transmission to the client.
  Parameter names must be specified on using its canonical form.
 
-*More info:
+*More info*:
 http://docs.silkroadresources.apiary.io/
 
 https://confluence.bq.com/pages/viewpage.action?title=SilkRoad+-+Resources+API&spaceKey=SILKROAD*
@@ -161,6 +178,8 @@ A collection is a container of resources that share the same type. For instance:
 
 Examples: 
 
+** Adding an item to a collection **
+
 ```javascript
 collection.add({
     //related data
@@ -210,16 +229,20 @@ Examples:
 
 ```javascript
 var collection = corbelDriver.resources
-    .collection('books:book');
+  .collection('books:book');
 
 collection.get({
-    //request options
-    query: [{
-    '$like': {
-        'name': 'Default name'
-    }
-}]).then(function(collectionData){ });
+  //request options
+  query: [{
+  '$like': {
+      'name': 'Default name'
+  }
+}]).then(function(response){ 
+  //response.data => [ ..., ..., ...]
+});
+```
 
+```javascript
 collection.get({
     //request options
     dataType: 'application/json',
@@ -232,10 +255,57 @@ collection.get({
             title: corbel.Resources.order.sort
         }
     }
-}]).then(function(collectionData){ });
+}]).then(function(response){
+  //response.data => [ ..., ..., ...]
+});
 ```
 
 #### Relations
+
+A relation is a model that stablishes a relation between two different sets of resources or one resource and arbitrary data. The registers on the relation may have aditional information.
+
+For example:
+Having 2 different resources, a set of car models and a set of car sellers.
+
+If you want to populate the car sellers with some relations to the models available at the store, and also allowing to specify a different set of data for each car in each shop, you could use a relation.
+
+
+.....CarModels..............Relation.................Sellers..
++---------------+    +----------------------+   +------------+
+|               |    |                      |   |            |
+| carModels     |    | carSellers_carModels |   | carSellers |
+|               |    |                      |   |            |
++---------------+    +----------------------+   +------------+
+
+```javascript
+var sellerId = 'test-seller';
+var carModelId = 'nexus-alpha-1';
+
+//Extra information on the relation
+var data = {
+  priceDiscount : 0.2,
+  amount : 10
+};
+
+corbelDriver.resources
+    .relation('carSellers', sellerId , 'carModels')
+    .add(carModelId, data, requestOptionsObject)
+    .then(function(){
+      //Done;
+    });
+```
+
+##### Relation model
+
+The mandatory fields that define the relation are `_src_id` and `_dst_id`.
+
+```javascript
+{
+    _src_id: "carSeller_id",
+    _dst_id: "car-model-001",
+    sendedAtAddress : 'street test'
+}
+```
 
 **Relation API**
 
@@ -256,17 +326,31 @@ collection.get({
 
 * **add**: Add new relation **(destId, relationData, requestOptionsObject)**
 
+To some specific item on another resource:
+
   ```javascript
+  var sourceId = 15;
   corbelDriver.resources
-    .relation('resourceName',15,'relationName')
+    .relation('resourceName', sourceId, 'relationName')
     .add(destId, relationData, requestOptionsObject)
   ```
+
+Not using other resources on the relation
+
+```javascript
+  var sourceId = 15;
+  corbelDriver.resources
+    .relation('resourceName', sourceId, 'relationName')
+    .add(null, relationData, requestOptionsObject)
+```
+
 
 * **move**: Move a relation **(destId, pos, requestOptionsObject)**
 
   ```javascript
+  var sourceId = 'id1';
   corbelDriver.resources
-    .relation('resourceName',15,'relatio nName')
+    .relation('resourceName', sourceId, 'relatio nName')
     .move(destId, pos, requestOptionsObject)
   ```
 
@@ -378,7 +462,7 @@ resource.delete('resourceId', {
 }).then(function(){ });
 ```
 
-####Assets
+#### Assets
 
 Assets are dynamic groups of scopes that a user can have for a certain period of time. 
 
@@ -494,3 +578,24 @@ corbel.request.send(params);
 corbel.Resources
 // ... more
 ```
+
+
+## Examples
+
+*Get an application token, add an item to a collection, then retrieve it*
+
+```javascript
+corbelDriver.iam.token().create().then(function() {
+    return corbelDriver.resources.collection(collectionName).add('application/json', params);
+}).then(function(resourceId) {
+    return corbelDriver.resources.resource(collectionName, resourceId).get();
+}).then(function(response) {
+    console.log('resource', response.data);
+}).catch(function(error) {
+    console.error('some.error', error);
+});
+```
+
+
+
+[corbel-url]:https://github.com/corbel-platform/corbel
