@@ -262,7 +262,7 @@ collection.get({
 
 #### Relations
 
-A relation is a model that stablishes a relation between two different sets of resources or one resource and arbitrary data. The registers on the relation may have aditional information.
+A relation is a model that creates a relation between two different sets of resources or one resource and arbitrary data. The registers on the relation may have aditional information.
 
 For example:
 Having 2 different resources, a set of car models and a set of car sellers.
