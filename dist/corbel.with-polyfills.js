@@ -1190,10 +1190,11 @@
         };
 
         /**
-         * Translate this full exampe query to a Silkroad Compliant QueryString
+         * Translate this full exampe query to a Corbel Compliant QueryString
          * @param {Object} params
          * @param {Object} params.aggregation
          * @param {Object} params.query
+         * @param {Object} params.condition
          * @param {Object} params.page
          * @param {Number} params.page.page
          * @param {Number} params.page.size
@@ -1319,6 +1320,16 @@
                 params.queries.forEach(function(query) {
                     result += result ? '&' : '';
                     result += queryObjectToString(query);
+                });
+            }
+
+            if (params.condition) {
+                result = 'api:condition=' + JSON.stringify(params.condition);
+            }
+
+            if (params.conditions) {
+                params.conditions.forEach(function(condition) {
+                    result = 'api:condition=' + JSON.stringify(condition);
                 });
             }
 
@@ -1454,6 +1465,7 @@
         return utils;
 
     })();
+
 
     (function() {
 
@@ -4388,6 +4400,7 @@
         return corbel.requestParamsBuilder;
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
+
     (function() {
         corbel.Resources = corbel.Object.inherit({
 
