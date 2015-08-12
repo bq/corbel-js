@@ -7,9 +7,18 @@ var corbel = require('../../../dist/corbel.js'),
   expect = chai.expect;
 
 var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
+
   DEFAULT_QUERY_OBJECT_STRING = '[{"$eq":{"field3":true}},{"$eq":{"field4":true}},{"$gt":{"field5":"value"}},{"$gte":{"field5":"value"}},{"$lt":{"field5":"value"}},{"$lte":{"field5":"value"}},{"$ne":{"field5":"value"}},{"$in":{"field2":["pepe","juan"]}},{"$all":{"field5":["pepe","juan"]}},{"$like":{"field5":"value"}}]',
 
+  DEFAULT_SIMPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]', 
+
+  DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]&api:condition=[{\"$eq\":{\"test\":3}}]',
+
   URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
+
+  URL_SIMPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_SIMPLE_CONDITION_OBJECT_STRING,
+
+  URL_MULTIPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING, 
 
 
   DEFAULT_QUERY_OBJECT = [{
@@ -116,6 +125,35 @@ describe('corbel resources module', function() {
 
   });
 
+  it('generate single condition correctly', function(){
+    var params = {
+        condition: [{
+            '$eq': {
+                test: 2
+            }
+        }]
+    };
+    expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_SIMPLE_CONDITION_DECODED);
+  });
+
+  it('generate multi condition correctly', function(){
+    var params = {
+        conditions: [{
+            condition: [{
+                '$eq': {
+                    test: 2
+                }
+            }]
+        }, {
+            condition: [{
+                '$eq': {
+                    test: 3
+                }
+            }]
+        }]
+    };
+    expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
+  });
 
   it('generate resource query correctly', function() {
     var requestParams = {
