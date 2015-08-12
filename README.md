@@ -198,7 +198,7 @@ Following params can be passed both as request options object and as chainable m
 * Pagination:
 
   ```
-  { pagination: { page: 1, pageSize: 5 } }
+  { pagination: { page: 1, size: 5 } }
   ```
 
 * Aggregations:
