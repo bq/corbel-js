@@ -269,13 +269,14 @@ Having 2 different resources, a set of car models and a set of car sellers.
 
 If you want to populate the car sellers with some relations to the models available at the store, and also allowing to specify a different set of data for each car in each shop, you could use a relation.
 
-
+```
 .....CarModels..............Relation.................Sellers..
 +---------------+    +----------------------+   +------------+
 |               |    |                      |   |            |
 | carModels     |    | carSellers_carModels |   | carSellers |
 |               |    |                      |   |            |
 +---------------+    +----------------------+   +------------+
+```
 
 ```javascript
 var sellerId = 'test-seller';

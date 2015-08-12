@@ -372,7 +372,7 @@ describe('corbel resources module', function() {
     });
 
     var callRequestParam = corbel.request.send.firstCall.args[0];
-    expect(callRequestParam.method).to.be.equal('POST');
+    expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
 

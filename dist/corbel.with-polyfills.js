@@ -1286,17 +1286,17 @@
                 return obj;
             }
 
-            function queryObjectToString(qry) {
+            function queryObjectToString(qry, type) {
                 var result = '';
                 var query;
                 qry.queryDomain = qry.queryDomain || 'api';
-                result += qry.queryDomain + ':query=';
+                result += qry.queryDomain + ':' + type + '=';
                 try {
                     if (typeof qry.query === 'string') {
-                        query = JSON.parse(qry.query);
+                        query = JSON.parse(qry[type]);
                     } else {
                         //Clone the object we don't want to modify the original query object
-                        query = JSON.parse(JSON.stringify(qry.query));
+                        query = JSON.parse(JSON.stringify(qry[type]));
                     }
 
                     query = JSON.stringify(encodeQueryComponents(query));
@@ -1306,30 +1306,33 @@
                     return result;
                 } catch (e) {
                     //Return the query even if it is not a valid object
-                    return result + qry.query;
+                    return result + qry[type];
                 }
             }
 
             if (params.query) {
                 params.queryDomain = params.queryDomain || 'api';
                 result += result ? '&' : '';
-                result += queryObjectToString(params);
+                result += queryObjectToString(params, 'query');
             }
 
             if (params.queries) {
                 params.queries.forEach(function(query) {
                     result += result ? '&' : '';
-                    result += queryObjectToString(query);
+                    result += queryObjectToString(query, 'query');
                 });
             }
 
             if (params.condition) {
-                result = 'api:condition=' + JSON.stringify(params.condition);
+                params.queryDomain = params.queryDomain || 'api';
+                result += result ? '&' : '';
+                result += queryObjectToString(params, 'condition');
             }
 
             if (params.conditions) {
                 params.conditions.forEach(function(condition) {
-                    result = 'api:condition=' + JSON.stringify(condition);
+                    result += result ? '&' : '';
+                    result += queryObjectToString(condition, 'condition');
                 });
             }
 
@@ -1472,7 +1475,6 @@
         return utils;
 
     })();
-
 
 
     (function() {
@@ -4408,7 +4410,6 @@
         return corbel.requestParamsBuilder;
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
-
     (function() {
         corbel.Resources = corbel.Object.inherit({
 
@@ -4594,7 +4595,7 @@
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
                     contentType: 'application/json',
                     data: relationData,
-                    method: corbel.request.method.POST
+                    method: corbel.request.method.PUT
                 });
 
                 return this.request(args);
