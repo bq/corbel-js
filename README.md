@@ -195,6 +195,14 @@ collection.add({
 
 Following params can be passed both as request options object and as chainable methods:
 
+* Conditions (only for update):
+
+  ```
+  { condition: [{$eq: {} } ] }
+
+  { conditions: [{ condition: [{$eq: {} } ] }, { condition: [{$eq: {} } ] } ] }
+  ```
+
 * Pagination:
 
   ```
@@ -213,10 +221,12 @@ Following params can be passed both as request options object and as chainable m
   { sort: { title: corbel.Resources.order.sort } }
   ```
 
-* Querys:
+* Query:
 
   ```
-  { query: [{$like: {} }, {$:{} } ] }
+  { query: [{$like: {} } ] }
+
+  { queries: [{ query: [{$like: {} } ] }, { query: [{$like: {} } ] } ] }
   ```
 
 * Custom query parameters:
@@ -237,6 +247,30 @@ collection.get({
   '$like': {
       'name': 'Default name'
   }
+}]).then(function(response){ 
+  //response.data => [ ..., ..., ...]
+});
+```
+
+```javascript
+var collection = corbelDriver.resources
+  .collection('books:book');
+
+collection.get({
+  //request options
+  queries: [{
+      query: [{
+          '$eq': {
+            intField: 100
+          }
+      }]
+  }, {
+      query: [{
+          '$eq': {
+              intField: 200
+          }
+      }]
+  }]
 }]).then(function(response){ 
   //response.data => [ ..., ..., ...]
 });
