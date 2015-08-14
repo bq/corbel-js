@@ -3,6 +3,7 @@
 global.Promise = require('es6-promise').Promise;
 
 require('./unit/config.js');
+require('./unit/baseUrlIntegrity.js');
 require('./unit/corbel.js');
 require('./unit/validate.js');
 require('./unit/request.js');
