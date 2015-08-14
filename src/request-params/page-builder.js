@@ -24,9 +24,9 @@ var pageBuilder = (function() {
      * @param  {int} size
      * @return {RequestParamsBuilder} RequestParamsBuilder
      */
-    pageBuilder.pageSize = function(size) {
+    pageBuilder.pageSize = function(pageSize) {
         this.params.pagination = this.params.pagination || {};
-        this.params.pagination.size = size;
+        this.params.pagination.pageSize = pageSize;
         return this;
     };
 

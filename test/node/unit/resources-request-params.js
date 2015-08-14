@@ -183,7 +183,7 @@ describe('corbel resources request-params module', function() {
             expect(serviceSpy.firstCall.args[0].query).to.be.equal(corbel.utils.serializeParams({
                 pagination: {
                     page: 1,
-                    size: 7
+                    pageSize: 7
                 },
                 query: [{
                     '$like': {
@@ -213,7 +213,7 @@ describe('corbel resources request-params module', function() {
                 dataType: 'application/json',
                 pagination: {
                     page: 2,
-                    size: 7
+                    pageSize: 7
                 },
                 sort: {
                     field: corbel.Resources.sort.ASC
@@ -223,7 +223,7 @@ describe('corbel resources request-params module', function() {
             expect(serviceSpy.firstCall.args[0].query).to.be.equal(corbel.utils.serializeParams({
                 pagination: {
                     page: 2,
-                    size: 7
+                    pageSize: 7
                 },
                 query: [{
                     '$like': {

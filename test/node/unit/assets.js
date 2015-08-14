@@ -64,7 +64,7 @@ describe('In Assets module we can', function() {
                 }
             }],
             pagination: {
-                size: 2,
+                pageSize: 2,
                 page: 3
             },
             sort: {
@@ -99,7 +99,7 @@ describe('In Assets module we can', function() {
                 }
             }],
             pagination: {
-                size: 2,
+                pageSize: 2,
                 page: 3
             },
             sort: {

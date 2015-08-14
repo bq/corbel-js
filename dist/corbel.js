@@ -199,7 +199,7 @@
          * @param {Object} params.condition
          * @param {Object} params.page
          * @param {Number} params.page.page
-         * @param {Number} params.page.size
+         * @param {Number} params.page.pageSize
          * @param {Object} params.sort
          * @return {String}
          * @example
@@ -249,7 +249,7 @@
          *       ],
          *       queryDomain: 'api',  // 'api', '7digital' supported
          *     }]
-         *     page: { page: 0, size: 10 },
+         *     page: { page: 0, pageSize: 10 },
          *     sort: {field: 'asc'},
          *     aggregation: {
          *         '$count': '*'
@@ -354,9 +354,9 @@
                     result += 'api:page=' + params.pagination.page;
                 }
 
-                if (params.pagination.size) {
+                if (params.pagination.pageSize) {
                     result += result ? '&' : '';
-                    result += 'api:pageSize=' + params.pagination.size;
+                    result += 'api:pageSize=' + params.pagination.pageSize;
                 }
             }
 
@@ -3130,9 +3130,9 @@
          * @param  {int} size
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
-        pageBuilder.pageSize = function(size) {
+        pageBuilder.pageSize = function(pageSize) {
             this.params.pagination = this.params.pagination || {};
-            this.params.pagination.size = size;
+            this.params.pagination.pageSize = pageSize;
             return this;
         };
 
@@ -3152,6 +3152,7 @@
 
 
     })();
+
     var sortBuilder = (function() {
 
         var sortBuilder = {};

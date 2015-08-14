@@ -163,7 +163,7 @@ describe('corbel resources module', function() {
       },
       pagination: {
         page: 1,
-        size: 5
+        pageSize: 5
       },
       sort: {
         field1: corbel.Resources.sort.ASC
@@ -180,7 +180,7 @@ describe('corbel resources module', function() {
       search: 'test',
       pagination: {
         page: 1,
-        size: 5
+        pageSize: 5
       },
       sort: {
         field1: corbel.Resources.sort.ASC
@@ -198,7 +198,7 @@ describe('corbel resources module', function() {
       },
       pagination: {
         page: 1,
-        size: 5
+        pageSize: 5
       },
       sort: {
         field1: corbel.Resources.sort.ASC
@@ -230,7 +230,7 @@ describe('corbel resources module', function() {
       },
       pagination: {
         page: 1,
-        size: 5
+        pageSize: 5
       },
       sort: {
         field1: corbel.Resources.sort.ASC
@@ -278,7 +278,7 @@ describe('corbel resources module', function() {
       },
       pagination: {
         page: 1,
-        size: 5
+        pageSize: 5
       },
       sort: {
         field1: corbel.Resources.sort.ASC
