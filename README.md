@@ -13,6 +13,24 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
 
 ## [Homepage](http://opensource.bq.com/corbel-js/)
 
+# BREAKING CHANGES (0.1.0)
+
+- Pagination change in query, `size` renamed to `pageSize`
+
+```
+{
+  pagination : {
+    page : 1,
+    pageSize : 10
+  }
+}
+
+```
+
+- Response error fix. :
+  +  Now it responds with an object instead of a string.
+
+
 <!-- MarkdownTOC -->
 
 - Quickstart
@@ -195,7 +213,7 @@ collection.add({
 
 Following params can be passed both as request options object and as chainable methods:
 
-* Conditions (only for update):
+* Conditions (only for update, updates a set of items that match a certain condition, same sintaxis than query):
 
   ```
   { condition: [{$eq: {} } ] }
@@ -233,6 +251,14 @@ Following params can be passed both as request options object and as chainable m
 
   ```
   { customQueryParams: {myParam: 'myValue', ... } }
+  ```
+
+* Search (ElasticSearch):
+
+  ```
+  { search: {text: 'This is the text i want to search'} }
+
+  { search: 'This is the text i want to search'}
   ```
 
 Examples: 

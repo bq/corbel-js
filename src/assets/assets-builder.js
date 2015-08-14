@@ -32,7 +32,7 @@
      */
     get: function(params) {
 
-      var options = params ? params : {};
+      var options = params ? corbel.utils.clone(params) : {};
 
       var args = corbel.utils.extend(options, {
           url: this._buildUri(this.uri, this.id),
@@ -84,18 +84,13 @@
      * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link CorbelError}
      */
     access: function(params) {
-      var args = params || {};
+      var args = params ? corbel.utils.clone(params) : {};
       args.url = this._buildUri(this.uri + '/access');
       args.method = corbel.request.method.GET;
       args.noRedirect = true;
 
       var that = this;
-      return that.request(args).then(function(uri) {
-        return that.request({
-          noRetry: args.noRetry,
-          url: uri
-        });
-      });
+      return that.request(args);
     },
 
     _buildUri: function(path, id) {
