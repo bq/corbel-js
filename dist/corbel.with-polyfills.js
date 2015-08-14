@@ -1089,6 +1089,7 @@
          * @return {Object}
          */
         utils.extend = function(obj) {
+
             Array.prototype.slice.call(arguments, 1).forEach(function(source) {
                 if (source) {
                     for (var prop in source) {
@@ -1286,17 +1287,17 @@
                 return obj;
             }
 
-            function queryObjectToString(qry, type) {
+            function queryObjectToString(params, key) {
                 var result = '';
                 var query;
-                qry.queryDomain = qry.queryDomain || 'api';
-                result += qry.queryDomain + ':' + type + '=';
+                params.queryDomain = params.queryDomain || 'api';
+                result += params.queryDomain + ':' + key + '=';
                 try {
-                    if (typeof qry.query === 'string') {
-                        query = JSON.parse(qry[type]);
+                    if (typeof params[key] === 'string') {
+                        query = JSON.parse(params[key]);
                     } else {
                         //Clone the object we don't want to modify the original query object
-                        query = JSON.parse(JSON.stringify(qry[type]));
+                        query = JSON.parse(JSON.stringify(params[key]));
                     }
 
                     query = JSON.stringify(encodeQueryComponents(query));
@@ -1306,7 +1307,7 @@
                     return result;
                 } catch (e) {
                     //Return the query even if it is not a valid object
-                    return result + qry[type];
+                    return result + params[key];
                 }
             }
 
@@ -1389,16 +1390,7 @@
         };
 
         utils.clone = function(obj) {
-            if (null === obj || 'object' !== typeof obj) {
-                return obj;
-            }
-            var copy = {};
-            for (var attr in obj) {
-                if (obj.hasOwnProperty(attr)) {
-                    copy[attr] = obj[attr];
-                }
-            }
-            return copy;
+            return JSON.parse(JSON.stringify(obj));
         };
 
         utils.isJSON = function(string) {
@@ -2221,7 +2213,7 @@
         request.parse = function(data, responseType, dataType) {
             var parsed;
             Object.keys(request.parseHandlers).forEach(function(type) {
-                if (responseType.indexOf(type) !== -1) {
+                if (responseType && responseType.indexOf(type) !== -1) {
                     parsed = request.parseHandlers[type](data, dataType);
                 }
             });
@@ -2247,6 +2239,10 @@
 
             if (!options.url) {
                 throw new Error('undefined:url');
+            }
+
+            if (typeof(options.url) !== 'string') {
+                throw new Error('invalid:url', options.url);
             }
 
             var params = {
@@ -2333,8 +2329,12 @@
                     callbackError.call(this, response.error, statusCode, response.responseObject);
                 }
 
+                if (response.response) {
+                    data = request.parse(response.response, response.responseType, response.dataType);
+                }
+
                 promiseResponse = {
-                    data: response.responseObject,
+                    data: data,
                     status: statusCode,
                     error: response.error
                 };
@@ -2387,7 +2387,7 @@
          * @return {Boolean}
          */
         request.isCrossDomain = function(url) {
-            if (url && url.indexOf('http') !== -1) {
+            if (url && typeof(url) === 'string' && url.indexOf('http') !== -1) {
                 return true;
             } else {
                 return false;
@@ -3462,8 +3462,9 @@
          * @return {Promise}
          */
         corbel.Iam._getUser = function(method, uri, id, postfix) {
+            var url = (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id));
             return this.request({
-                url: (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id)),
+                url: url,
                 method: corbel.request.method.GET
             });
         };
@@ -4048,7 +4049,7 @@
              */
             get: function(params) {
 
-                var options = params ? params : {};
+                var options = params ? corbel.utils.clone(params) : {};
 
                 var args = corbel.utils.extend(options, {
                     url: this._buildUri(this.uri, this.id),
@@ -4100,18 +4101,13 @@
              * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link CorbelError}
              */
             access: function(params) {
-                var args = params || {};
+                var args = params ? corbel.utils.clone(params) : {};
                 args.url = this._buildUri(this.uri + '/access');
                 args.method = corbel.request.method.GET;
                 args.noRedirect = true;
 
                 var that = this;
-                return that.request(args).then(function(uri) {
-                    return that.request({
-                        noRetry: args.noRetry,
-                        url: uri
-                    });
-                });
+                return that.request(args);
             },
 
             _buildUri: function(path, id) {
@@ -4524,9 +4520,9 @@
             },
 
             getDefaultOptions: function(options) {
-                options = options || {};
+                var defaultOptions = options ? corbel.utils.clone(options) : {};
 
-                return options;
+                return defaultOptions;
             }
 
         });

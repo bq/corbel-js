@@ -180,7 +180,7 @@
   request.parse = function(data, responseType, dataType) {
     var parsed;
     Object.keys(request.parseHandlers).forEach(function(type) {
-      if (responseType.indexOf(type) !== -1) {
+      if (responseType && responseType.indexOf(type) !== -1) {
         parsed = request.parseHandlers[type](data, dataType);
       }
     });
@@ -206,6 +206,10 @@
 
     if (!options.url) {
       throw new Error('undefined:url');
+    }
+    
+    if(typeof(options.url) !== 'string'){
+      throw new Error('invalid:url', options.url);
     }
 
     var params = {
@@ -292,8 +296,12 @@
         callbackError.call(this, response.error, statusCode, response.responseObject);
       }
 
+      if (response.response) {
+        data = request.parse(response.response, response.responseType, response.dataType);
+      }
+
       promiseResponse = {
-        data: response.responseObject,
+        data: data,
         status: statusCode,
         error: response.error
       };
@@ -346,7 +354,7 @@
    * @return {Boolean}
    */
   request.isCrossDomain = function(url) {
-    if (url && url.indexOf('http') !== -1) {
+    if (url && typeof(url) === 'string' && url.indexOf('http') !== -1) {
       return true;
     } else {
       return false;
