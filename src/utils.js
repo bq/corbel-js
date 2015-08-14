@@ -18,6 +18,7 @@
    * @return {Object}
    */
   utils.extend = function(obj) {
+
     Array.prototype.slice.call(arguments, 1).forEach(function(source) {
       if (source) {
         for (var prop in source) {
@@ -215,17 +216,17 @@
       return obj;
     }
 
-    function queryObjectToString(qry, type) {
+    function queryObjectToString(params, key) {
       var result = '';
       var query;
-      qry.queryDomain = qry.queryDomain || 'api';
-      result += qry.queryDomain + ':' + type + '=';
+      params.queryDomain = params.queryDomain || 'api';
+      result += params.queryDomain + ':' + key + '=';
       try {
-        if (typeof qry.query === 'string') {
-          query = JSON.parse(qry[type]);
+        if (typeof params[key] === 'string') {
+          query = JSON.parse(params[key]);
         } else {
           //Clone the object we don't want to modify the original query object
-          query = JSON.parse(JSON.stringify(qry[type]));
+          query = JSON.parse(JSON.stringify(params[key]));
         }
 
         query = JSON.stringify(encodeQueryComponents(query));
@@ -235,7 +236,7 @@
         return result;
       } catch (e) {
         //Return the query even if it is not a valid object
-        return result + qry[type];
+        return result + params[key];
       }
     }
 
@@ -318,16 +319,7 @@
   };
 
   utils.clone = function(obj) {
-    if (null === obj || 'object' !== typeof obj) {
-      return obj;
-    }
-    var copy = {};
-    for (var attr in obj) {
-      if (obj.hasOwnProperty(attr)) {
-        copy[attr] = obj[attr];
-      }
-    }
-    return copy;
+    return JSON.parse(JSON.stringify(obj));
   };
 
   utils.isJSON = function(string) {

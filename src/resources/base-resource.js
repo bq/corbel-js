@@ -56,9 +56,9 @@
         },
 
         getDefaultOptions: function(options) {
-            options = options || {};
+            var defaultOptions = options ? corbel.utils.clone(options) : {};
 
-            return options;
+            return defaultOptions;
         }
 
     });
