@@ -206,7 +206,7 @@ Following params can be passed both as request options object and as chainable m
 * Pagination:
 
   ```
-  { pagination: { page: 1, size: 5 } }
+  { pagination: { page: 1, pageSize: 5 } }
   ```
 
 * Aggregations:
@@ -282,7 +282,7 @@ collection.get({
     dataType: 'application/json',
     pagination: {
         page: 1,
-        size: 7
+        pageSize: 7
     },
     {
         sort: {

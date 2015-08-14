@@ -281,7 +281,7 @@
         result += 'api:page=' + params.pagination.page;
       }
 
-      if (params.pagination.size) {
+      if (params.pagination.pageSize) {
         result += result ? '&' : '';
         result += 'api:pageSize=' + params.pagination.size;
       }
