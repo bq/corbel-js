@@ -29,8 +29,9 @@
      * @return {Promise}
      */
     corbel.Iam._getUser = function(method, uri, id, postfix) {
+        var url = (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id));
         return this.request({
-            url: (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id)),
+            url: url,
             method: corbel.request.method.GET
         });
     };

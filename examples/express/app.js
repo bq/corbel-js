@@ -83,9 +83,7 @@ app.use(function(req, res, next) {
 
     // respond with html page
     if (req.accepts('html')) {
-        res.render('404', {
-            url: req.url
-        });
+        res.status(404).send('<html><body><div>' + req.url + '</div></body></html>');
         return;
     }
 
