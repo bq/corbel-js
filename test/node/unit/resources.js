@@ -376,5 +376,9 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
 
+  it('generates the correct URL for relations', function() {
+    expect( resources.relation('cars:Car', 'id123', 'cars:Store').getURL()).to.be.equal(TEST_ENDPOINT + 'resource/cars:Car/id123/cars:Store');
+  });
+
 
 });
