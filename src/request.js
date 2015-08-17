@@ -279,12 +279,12 @@
       }
 
       if (callbackSuccess) {
-        callbackSuccess.call(this, data, statusCode, response.responseObject);
+        callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
       }
 
       promiseResponse = {
         data: data,
-        status: statusCode,
+        status: statusCode
       };
 
       promiseResponse[response.responseObjectType] = response.responseObject;
@@ -294,7 +294,7 @@
     } else if (statusType === 4) {
 
       if (callbackError) {
-        callbackError.call(this, response.error, statusCode, response.responseObject);
+        callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
       }
 
       if (response.response) {
@@ -341,6 +341,9 @@
         responseType: responseType,
         response: body,
         status: status,
+        headers : {
+          Location : response.headers ? response.headers.Location : ''
+        },
         responseObjectType: 'response',
         error: error
       }, resolver, params.callbackSuccess, params.callbackError);
@@ -363,7 +366,6 @@
   };
 
   request._browserAjax = function(params, resolver) {
-
     var httpReq = new XMLHttpRequest();
 
     if (request.isCrossDomain(params.url) && params.withCredentials) {
@@ -391,6 +393,9 @@
         responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
         response: xhr.response || xhr.responseText,
         status: xhr.status,
+        headers : {
+          Location : xhr.getResponseHeader('Location')
+        },
         responseObjectType: 'xhr',
         error: xhr.error
       }, resolver, params.callbackSuccess, params.callbackError);

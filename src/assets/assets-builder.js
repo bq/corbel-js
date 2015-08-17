@@ -88,9 +88,28 @@
       args.url = this._buildUri(this.uri + '/access');
       args.method = corbel.request.method.GET;
       args.noRedirect = true;
-
+      
       var that = this;
-      return that.request(args);
+
+      var promise = new Promise(function(resolve, reject){
+        args.success = function(data, statusCode, responseObject, responseHeaders){
+          that.request({
+            noRetry : args.noRetry,
+            url : responseHeaders.Location
+          })
+          .then(function(response){
+            resolve(response);
+          })
+          .catch(function(err){
+            reject(err);
+          });
+        };
+      });
+    
+      //Trigger the double request;
+      that.request(args);
+
+      return promise;
     },
 
     _buildUri: function(path, id) {
