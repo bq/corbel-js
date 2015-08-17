@@ -1389,8 +1389,57 @@
             return destiny;
         };
 
-        utils.clone = function(obj) {
-            return JSON.parse(JSON.stringify(obj));
+        utils.clone = function clone(item) {
+            if (!item) {
+                return item;
+            } // null, undefined values check
+
+            var types = [Number, String, Boolean],
+                result;
+
+            // normalizing primitives if someone did new String('aaa'), or new Number('444');
+            types.forEach(function(type) {
+                if (item instanceof type) {
+                    result = type(item);
+                }
+            });
+
+            if (typeof result === 'undefined') {
+                if (Object.prototype.toString.call(item) === '[object Array]') {
+                    result = [];
+                    item.forEach(function(child, index) {
+                        result[index] = clone(child);
+                    });
+                } else if (typeof item === 'object') {
+                    // testing that this is DOM
+                    if (item.nodeType && typeof item.cloneNode === 'function') {
+                        result = item.cloneNode(true);
+                    } else if (!item.prototype) { // check that this is a literal
+                        if (item instanceof Date) {
+                            result = new Date(item);
+                        } else {
+                            // it is an object literal
+                            result = {};
+                            for (var i in item) {
+                                result[i] = clone(item[i]);
+                            }
+                        }
+                    } else {
+                        // depending what you would like here,
+                        // just keep the reference, or create new object
+                        if (false && item.constructor) {
+                            // would not advice to do that, reason? Read below
+                            result = new item.constructor();
+                        } else {
+                            result = item;
+                        }
+                    }
+                } else {
+                    result = item;
+                }
+            }
+
+            return result;
         };
 
         utils.isJSON = function(string) {
@@ -1467,7 +1516,6 @@
         return utils;
 
     })();
-
 
     (function() {
 
@@ -2312,12 +2360,12 @@
                 }
 
                 if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject);
+                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
                 }
 
                 promiseResponse = {
                     data: data,
-                    status: statusCode,
+                    status: statusCode
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -2327,7 +2375,7 @@
             } else if (statusType === 4) {
 
                 if (callbackError) {
-                    callbackError.call(this, response.error, statusCode, response.responseObject);
+                    callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
                 }
 
                 if (response.response) {
@@ -2374,6 +2422,9 @@
                     responseType: responseType,
                     response: body,
                     status: status,
+                    headers: {
+                        Location: response.headers ? response.headers.Location : ''
+                    },
                     responseObjectType: 'response',
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
@@ -2396,7 +2447,6 @@
         };
 
         request._browserAjax = function(params, resolver) {
-
             var httpReq = new XMLHttpRequest();
 
             if (request.isCrossDomain(params.url) && params.withCredentials) {
@@ -2424,6 +2474,9 @@
                     responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
                     response: xhr.response || xhr.responseText,
                     status: xhr.status,
+                    headers: {
+                        Location: xhr.getResponseHeader('Location')
+                    },
                     responseObjectType: 'xhr',
                     error: xhr.error
                 }, resolver, params.callbackSuccess, params.callbackError);
@@ -2622,7 +2675,7 @@
 
                 params = this._addAuthorization(params);
 
-                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType']);
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'success', 'error']);
             },
 
             /**
@@ -4108,7 +4161,26 @@
                 args.noRedirect = true;
 
                 var that = this;
-                return that.request(args);
+
+                var promise = new Promise(function(resolve, reject) {
+                    args.success = function(data, statusCode, responseObject, responseHeaders) {
+                        that.request({
+                                noRetry: args.noRetry,
+                                url: responseHeaders.Location
+                            })
+                            .then(function(response) {
+                                resolve(response);
+                            })
+                            .catch(function(err) {
+                                reject(err);
+                            });
+                    };
+                });
+
+                //Trigger the double request;
+                that.request(args);
+
+                return promise;
             },
 
             _buildUri: function(path, id) {

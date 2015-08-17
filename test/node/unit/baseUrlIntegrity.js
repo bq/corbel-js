@@ -14,7 +14,6 @@ var CONFIG = {
   clientId: 'clientId',
   clientSecret: 'clientSecret',
   scopes: 'scopes',
-
   urlBase: 'https://{{module}}-mycorbel.com/v1.0/'
 };
 
