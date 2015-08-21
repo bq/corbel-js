@@ -10,7 +10,7 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
 
   DEFAULT_QUERY_OBJECT_STRING = '[{"$eq":{"field3":true}},{"$eq":{"field4":true}},{"$gt":{"field5":"value"}},{"$gte":{"field5":"value"}},{"$lt":{"field5":"value"}},{"$lte":{"field5":"value"}},{"$ne":{"field5":"value"}},{"$in":{"field2":["pepe","juan"]}},{"$all":{"field5":["pepe","juan"]}},{"$like":{"field5":"value"}}]',
 
-  DEFAULT_SIMPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]', 
+  DEFAULT_SIMPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]',
 
   DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]&api:condition=[{\"$eq\":{\"test\":3}}]',
 
@@ -18,7 +18,7 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
 
   URL_SIMPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_SIMPLE_CONDITION_OBJECT_STRING,
 
-  URL_MULTIPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING, 
+  URL_MULTIPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING,
 
 
   DEFAULT_QUERY_OBJECT = [{
@@ -348,13 +348,22 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
   });
 
-  it('update a relation', function() {
-    resources.relation('books:Book', '123', '456').move({
-      name: 'test'
-    });
+  it('should move a relation', function() {
+    resources.relation('books:Book', '123', '456').move('test', 1);
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    expect(callRequestParam.data._order).to.be.equal('$pos(1)');
+    expect(callRequestParam.url).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/books:Book/123/456;r=456/test');
+  });
+
+  it('should move a relation with composed Id', function() {
+    resources.relation('books:Book', '123', '456').move('notImportant/test', 1);
+    var callRequestParam = corbel.request.send.firstCall.args[0];
+    expect(callRequestParam.method).to.be.equal('PUT');
+    expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+    expect(callRequestParam.data._order).to.be.equal('$pos(1)');
+    expect(callRequestParam.url).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/books:Book/123/456;r=456/test');
   });
 
   it('delete a relation', function() {
