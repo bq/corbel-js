@@ -75,6 +75,11 @@
           */
          move: function(destId, pos, options) {
 
+             var positionStartId = destId.indexOf('/');
+             if (positionStartId !== -1){
+               destId = destId.substring(positionStartId + 1);
+             }
+
              options = this.getDefaultOptions(options);
 
              var args = corbel.utils.extend(options, {
