@@ -196,6 +196,7 @@
    * @param  {object} options.headers                             The request headers
    * @param  {string} options.responseType                        The response type of the body: `blob` | `undefined`
    * @param  {string} options.contentType                         The content type of the body
+   * @param  {boolean} options.withCredentials                    If is needed to set or send cookies
    * @param  {object | uint8array | blob} options.dataType        Optional data sent to the server
    * @param  {function} options.success                           Callback function for success request response
    * @param  {function} options.error                             Callback function for handle error in the request
@@ -218,7 +219,8 @@
       headers: typeof options.headers === 'object' ? options.headers : {},
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-      responseType: options.responseType
+      responseType: options.responseType,
+      withCredentials: options.withCredentials
     };
 
     // default content-type
@@ -316,9 +318,11 @@
 
   request._nodeAjax = function(params, resolver) {
 
-    var request = require('request');
-
-    request({
+    var requestAjax = require('request');
+    if (request.isCrossDomain(params.url) && params.withCredentials) {
+      requestAjax = requestAjax.defaults({jar: true})
+    }
+    requestAjax({
       method: params.method,
       url: params.url,
       headers: params.headers,
@@ -342,7 +346,8 @@
         response: body,
         status: status,
         headers : {
-          Location : response.headers ? response.headers.Location : ''
+          Location : response.headers ? response.headers.Location : '',
+          'Set-Cookie' : response.headers ? response.headers['set-cookie'] : ''
         },
         responseObjectType: 'response',
         error: error
