@@ -385,6 +385,17 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
 
+  it('add an anonymous relation', function() {
+    resources.relation('books:Book', '123', '456').addAnonymous({
+      name: 'test',
+      data: 'test'
+    });
+
+    var callRequestParam = corbel.request.send.firstCall.args[0];
+    expect(callRequestParam.method).to.be.equal('POST');
+    expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+  });
+
   it('generates the correct URL for relations', function() {
     expect( resources.relation('cars:Car', 'id123', 'cars:Store').getURL()).to.be.equal(TEST_ENDPOINT + 'resource/cars:Car/id123/cars:Store');
   });
