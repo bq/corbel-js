@@ -3206,10 +3206,10 @@
          * @param  {int} size
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
-        pageBuilder.pageParam = function(page, size) {
+        pageBuilder.pageParam = function(page, pageSize) {
             this.params.pagination = this.params.pagination || {};
             this.params.pagination.page = page;
-            this.params.pagination.size = size;
+            this.params.pagination.pageSize = pageSize;
             return this;
         };
 
@@ -3678,6 +3678,27 @@
                     contentType: 'application/json',
                     data: relationData,
                     method: corbel.request.method.PUT
+                });
+
+                return this.request(args);
+            },
+
+            /**
+             * Adds a new anonymous relation
+             * @method
+             * @memberOf Resources.Relation
+             * @param  {Object} relationData Additional data to be added to the relation (in json)
+             * @return {Promise}             ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
+             * @example uri = '555'
+             */
+            addAnonymous: function(relationData, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type, this.srcId, this.destType),
+                    contentType: 'application/json',
+                    data: relationData,
+                    method: corbel.request.method.POST
                 });
 
                 return this.request(args);
