@@ -111,6 +111,7 @@
       // Use access access token if exists
       if (accessToken) {
         params.headers.Authorization = 'Bearer ' + accessToken;
+        params.withCredentials = true;
       }
       return params;
     },
@@ -168,7 +169,7 @@
 
       params = this._addAuthorization(params);
 
-      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'success', 'error']);
+      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
     },
 
     /**

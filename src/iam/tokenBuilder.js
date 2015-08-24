@@ -59,7 +59,8 @@
                 query: corbel.utils.param(corbel.utils.extend({
                     assertion: this._getJwt(params),
                     'grant_type': corbel.Iam.GRANT_TYPE
-                }, params.oauth))
+                }, params.oauth)), 
+                withCredentials: true
             };
 
             if (setCookie) {
@@ -79,7 +80,8 @@
                     assertion: this._getJwt(params),
                     'grant_type': corbel.Iam.GRANT_TYPE
                 },
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8', 
+                withCredentials: true
             };
 
             if (setCookie) {

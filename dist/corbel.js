@@ -1279,6 +1279,7 @@
          * @param  {object} options.headers                             The request headers
          * @param  {string} options.responseType                        The response type of the body: `blob` | `undefined`
          * @param  {string} options.contentType                         The content type of the body
+         * @param  {boolean} options.withCredentials                    If is needed to set or send cookies
          * @param  {object | uint8array | blob} options.dataType        Optional data sent to the server
          * @param  {function} options.success                           Callback function for success request response
          * @param  {function} options.error                             Callback function for handle error in the request
@@ -1301,7 +1302,8 @@
                 headers: typeof options.headers === 'object' ? options.headers : {},
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
-                responseType: options.responseType
+                responseType: options.responseType,
+                withCredentials: options.withCredentials
             };
 
             // default content-type
@@ -1399,9 +1401,13 @@
 
         request._nodeAjax = function(params, resolver) {
 
-            var request = require('request');
-
-            request({
+            var requestAjax = require('request');
+            if (request.isCrossDomain(params.url) && params.withCredentials) {
+                requestAjax = requestAjax.defaults({
+                    jar: true
+                });
+            }
+            requestAjax({
                 method: params.method,
                 url: params.url,
                 headers: params.headers,
@@ -1425,7 +1431,8 @@
                     response: body,
                     status: status,
                     headers: {
-                        Location: response.headers ? response.headers.Location : ''
+                        Location: response.headers ? response.headers.Location : '',
+                        'Set-Cookie': response.headers ? response.headers['set-cookie'] : ''
                     },
                     responseObjectType: 'response',
                     error: error
@@ -1620,6 +1627,7 @@
                 // Use access access token if exists
                 if (accessToken) {
                     params.headers.Authorization = 'Bearer ' + accessToken;
+                    params.withCredentials = true;
                 }
                 return params;
             },
@@ -1677,7 +1685,7 @@
 
                 params = this._addAuthorization(params);
 
-                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'success', 'error']);
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
             },
 
             /**
@@ -2343,7 +2351,8 @@
                     query: corbel.utils.param(corbel.utils.extend({
                         assertion: this._getJwt(params),
                         'grant_type': corbel.Iam.GRANT_TYPE
-                    }, params.oauth))
+                    }, params.oauth)),
+                    withCredentials: true
                 };
 
                 if (setCookie) {
@@ -2363,7 +2372,8 @@
                         assertion: this._getJwt(params),
                         'grant_type': corbel.Iam.GRANT_TYPE
                     },
-                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    withCredentials: true
                 };
 
                 if (setCookie) {
@@ -3682,6 +3692,11 @@
              */
             move: function(destId, pos, options) {
 
+                var positionStartId = destId.indexOf('/');
+                if (positionStartId !== -1) {
+                    destId = destId.substring(positionStartId + 1);
+                }
+
                 options = this.getDefaultOptions(options);
 
                 var args = corbel.utils.extend(options, {
@@ -3721,6 +3736,7 @@
         return corbel.Resources.Relation;
 
     })();
+
     (function() {
 
         /**
