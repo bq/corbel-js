@@ -35,10 +35,10 @@ var pageBuilder = (function() {
      * @param  {int} size
      * @return {RequestParamsBuilder} RequestParamsBuilder
      */
-    pageBuilder.pageParam = function(page, size) {
+    pageBuilder.pageParam = function(page, pageSize) {
         this.params.pagination = this.params.pagination || {};
         this.params.pagination.page = page;
-        this.params.pagination.size = size;
+        this.params.pagination.pageSize = pageSize;
         return this;
     };
 
