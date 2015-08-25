@@ -1369,7 +1369,8 @@
 
                 promiseResponse = {
                     data: data,
-                    status: statusCode
+                    status: statusCode,
+                    headers: response.headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -1389,7 +1390,8 @@
                 promiseResponse = {
                     data: data,
                     status: statusCode,
-                    error: response.error
+                    error: response.error,
+                    headers: response.headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -3425,25 +3427,13 @@
 
                 var that = this;
 
-                var promise = new Promise(function(resolve, reject) {
-                    args.success = function(data, statusCode, responseObject, responseHeaders) {
-                        that.request({
-                                noRetry: args.noRetry,
-                                url: responseHeaders.Location
-                            })
-                            .then(function(response) {
-                                resolve(response);
-                            })
-                            .catch(function(err) {
-                                reject(err);
-                            });
-                    };
+                return this.request(args).
+                then(function(response) {
+                    return that.request({
+                        noRetry: args.noRetry,
+                        url: response.headers.Location
+                    });
                 });
-
-                //Trigger the double request;
-                that.request(args);
-
-                return promise;
             },
 
             _buildUri: function(path, id) {
@@ -3491,7 +3481,6 @@
         return AssetsBuilder;
 
     })();
-
     (function() {
         corbel.Resources = corbel.Object.inherit({
 

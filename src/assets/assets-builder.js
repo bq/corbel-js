@@ -35,9 +35,9 @@
       var options = params ? corbel.utils.clone(params) : {};
 
       var args = corbel.utils.extend(options, {
-          url: this._buildUri(this.uri, this.id),
-          method: corbel.request.method.GET,
-          query: params ? corbel.utils.serializeParams(params) : null
+        url: this._buildUri(this.uri, this.id),
+        method: corbel.request.method.GET,
+        query: params ? corbel.utils.serializeParams(params) : null
       });
 
       return this.request(args);
@@ -88,28 +88,16 @@
       args.url = this._buildUri(this.uri + '/access');
       args.method = corbel.request.method.GET;
       args.noRedirect = true;
-      
+
       var that = this;
 
-      var promise = new Promise(function(resolve, reject){
-        args.success = function(data, statusCode, responseObject, responseHeaders){
-          that.request({
-            noRetry : args.noRetry,
-            url : responseHeaders.Location
-          })
-          .then(function(response){
-            resolve(response);
-          })
-          .catch(function(err){
-            reject(err);
-          });
-        };
+      return this.request(args).
+      then(function(response) {
+        return that.request({
+          noRetry: args.noRetry,
+          url: response.headers.Location
+        });
       });
-    
-      //Trigger the double request;
-      that.request(args);
-
-      return promise;
     },
 
     _buildUri: function(path, id) {
@@ -117,8 +105,8 @@
         urlBase = this.driver.config.get('assetsEndpoint', null) ?
         this.driver.config.get('assetsEndpoint') :
         this.driver.config.get('urlBase')
-          .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
-          .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+        .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
+        .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
       uri = urlBase + path;
       if (id) {
