@@ -91,25 +91,13 @@
       
       var that = this;
 
-      var promise = new Promise(function(resolve, reject){
-        args.success = function(data, statusCode, responseObject, responseHeaders){
-          that.request({
-            noRetry : args.noRetry,
-            url : responseHeaders.Location
-          })
-          .then(function(response){
-            resolve(response);
-          })
-          .catch(function(err){
-            reject(err);
-          });
-        };
+      return this.request(args).
+      then(function (response) {
+        return that.request({
+          noRetry : args.noRetry,
+          url : response.headers.Location
+        })
       });
-    
-      //Trigger the double request;
-      that.request(args);
-
-      return promise;
     },
 
     _buildUri: function(path, id) {

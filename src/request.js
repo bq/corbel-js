@@ -286,7 +286,8 @@
 
       promiseResponse = {
         data: data,
-        status: statusCode
+        status: statusCode,
+        headers: response.headers
       };
 
       promiseResponse[response.responseObjectType] = response.responseObject;
@@ -306,7 +307,8 @@
       promiseResponse = {
         data: data,
         status: statusCode,
-        error: response.error
+        error: response.error,
+        headers: response.headers
       };
 
       promiseResponse[response.responseObjectType] = response.responseObject;
