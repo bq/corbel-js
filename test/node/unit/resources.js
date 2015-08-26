@@ -16,6 +16,8 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
 
   URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
 
+  URL_COLLECTION_PAGINATION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=0&api:pageSize=0',
+
   URL_SIMPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_SIMPLE_CONDITION_OBJECT_STRING,
 
   URL_MULTIPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING,
@@ -169,10 +171,25 @@ describe('corbel resources module', function() {
         field1: corbel.Resources.sort.ASC
       }
     };
-
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED);
   });
 
+  it('generate resource query correctly', function() {
+    var requestParams = {
+      query: DEFAULT_QUERY_OBJECT,
+      search: {
+        text: 'test'
+      },
+      pagination: {
+        page: 0,
+        pageSize: 0
+      },
+      sort: {
+        field1: corbel.Resources.sort.ASC
+      }
+    };
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_PAGINATION_DECODED);
+  });
 
   it('generate resource query correctly with a string search', function() {
     var requestParams = {
