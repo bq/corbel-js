@@ -21,7 +21,8 @@
                   .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
                   .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
-            var uri = urlBase + 'resource/' + srcType;
+            var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, null);
+            var uri = urlBase + domain +'/resource/' + srcType;
 
             if (srcId) {
                 uri += '/' + srcId;

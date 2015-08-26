@@ -99,6 +99,15 @@
          * @param  {Object} params          Parameters to authorice
          * @param {String} [params.jwt]     Assertion to generate the token
          * @param {Object} [params.claims]  Claims to generate the token
+         * @param {Object} [params.oauth]   Oauth specific params
+         *
+         * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
+         * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
+         * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
+         * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
+         * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
+         * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
+         * 
          * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
          * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
          */
@@ -115,6 +124,7 @@
             var that = this;
             return promise.then(function(response) {
                 that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domain);
                 if (params.jwt) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
                 }
