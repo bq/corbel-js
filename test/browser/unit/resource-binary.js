@@ -6,9 +6,11 @@ var CONFIG = {
   clientSecret: 'clientSecret',
   scopes: 'scopes',
 
+  domain: 'domain-example',
+
   urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
 };
-var TEST_ENDPOINT = CONFIG.urlBase.replace('{{module}}', 'resources');
+var TEST_ENDPOINT = CONFIG.urlBase.replace('{{module}}', 'resources') + CONFIG.domain + '/';
 
 describe('corbel resources module', function() {
 
