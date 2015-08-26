@@ -169,10 +169,27 @@ describe('corbel resources module', function() {
         field1: corbel.Resources.sort.ASC
       }
     };
-
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED);
   });
 
+  it('generate resource query correctly', function() {
+    var urlDecoded = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING +
+       '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=0&api:pageSize=0';
+    var requestParams = {
+      query: DEFAULT_QUERY_OBJECT,
+      search: {
+        text: 'test'
+      },
+      pagination: {
+        page: 0,
+        pageSize: 0
+      },
+      sort: {
+        field1: corbel.Resources.sort.ASC
+      }
+    };
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(urlDecoded);
+  });
 
   it('generate resource query correctly with a string search', function() {
     var requestParams = {

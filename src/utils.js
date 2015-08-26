@@ -277,12 +277,12 @@
     }
 
     if (params.pagination) {
-      if (params.pagination.page) {
+      if (params.pagination.page || params.pagination.pageSize === 0) {
         result += result ? '&' : '';
         result += 'api:page=' + params.pagination.page;
       }
 
-      if (params.pagination.pageSize) {
+      if (params.pagination.pageSize || params.pagination.pageSize === 0) {
         result += result ? '&' : '';
         result += 'api:pageSize=' + params.pagination.pageSize;
       }
