@@ -6,7 +6,7 @@ var corbel = require('../../../dist/corbel.js'),
   sinon = require('sinon'),
   expect = chai.expect;
 
-var TEST_ENDPOINT = 'https://resources-mycorbel.com/v1.0/',
+var TEST_ENDPOINT = 'https://resources-mycorbel.com/v1.0/domain-example/',
 
   URL_EXAMPLE_RESOURCES = TEST_ENDPOINT + 'resource/resource:entity?api:search={"text":"test"}';
 
@@ -14,6 +14,7 @@ var CONFIG = {
   clientId: 'clientId',
   clientSecret: 'clientSecret',
   scopes: 'scopes',
+  domain: 'domain-example',
   urlBase: 'https://{{module}}-mycorbel.com/v1.0/'
 };
 
