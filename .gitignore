@@ -6,3 +6,4 @@ doc
 *.log
 .storage
 *.swp
+.idea
