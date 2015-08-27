@@ -2901,7 +2901,7 @@
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
-                    query: params ? params : null,
+                    query: params ? corbel.utils.serializeParams(params) : null,
                     withAuth: true
                 });
             },
