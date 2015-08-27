@@ -109,9 +109,9 @@ describe('corbel resources module', function() {
   describe('in resources', function() {
 
     it('has all operations', function() {
-      expect(resources.resource()).to.respondTo('get');
-      expect(resources.resource()).to.respondTo('update');
-      expect(resources.resource()).to.respondTo('delete');
+      expect(resources.resource('resource:entity', 'resource:anyId')).to.respondTo('get');
+      expect(resources.resource('resource:entity', 'resource:anyId')).to.respondTo('update');
+      expect(resources.resource('resource:entity', 'resource:anyId')).to.respondTo('delete');
     });
 
   });
