@@ -105,14 +105,14 @@ var options = {
 ## API
 ### Resources
 
-The Resources API is a flexible programming interface for retrieval of resource's representations. Using the patterns described by this API we can deploy any kind of resource in our Corbel ecosystem with minimal impact on clients and server code. 
+The Resources API is a flexible programming interface for retrieval of resource's representations. Using the patterns described by this API we can deploy any kind of resource in our Corbel ecosystem with minimal impact on clients and server code.
 A request can contain URL parameters which can modify the content of representation returned or its transmission to the client.
  Parameter names must be specified on using its canonical form.
 
 *More info*:
-http://docs.silkroadresources.apiary.io/
+http://docs.corbelresources.apiary.io/
 
-https://confluence.bq.com/pages/viewpage.action?title=SilkRoad+-+Resources+API&spaceKey=SILKROAD*
+http://corbel.io/docs/resources.html
 
 **Resources API**
 
@@ -121,14 +121,14 @@ Resources is exposed to corbelDriver instance and It has static methods and vari
 * Statics properties and methods in **corbel.Resources**:
   * **create**: Factory **method** for instantiating a Resources object
   * **sort**: Sort **constants object**
-    
+
     ```javascript
     corbel.Resources.sort.ASC
     corbel.Resources.sort.DESC
     ```
 
   * **ALL**: **Constant** for use to specify all resources wildcard
-    
+
     ```javascript
     corbel.Resources.ALL
     ```
@@ -143,7 +143,7 @@ Resources is exposed to corbelDriver instance and It has static methods and vari
   ```
 
 * **resource**: Resource factory method **resource('resourceName',id)**
-  
+
   ```javascript
   corbelDriver.resources
     .resource('resourceName',id)
@@ -194,7 +194,7 @@ A collection is a container of resources that share the same type. For instance:
     });
   ```
 
-Examples: 
+Examples:
 
 ** Adding an item to a collection **
 
@@ -234,7 +234,7 @@ Following params can be passed both as request options object and as chainable m
   ```
 
 * Sort:
-  
+
   ```
   { sort: { title: corbel.Resources.order.sort } }
   ```
@@ -261,7 +261,7 @@ Following params can be passed both as request options object and as chainable m
   { search: 'This is the text i want to search'}
   ```
 
-Examples: 
+Examples:
 
 ```javascript
 var collection = corbelDriver.resources
@@ -273,7 +273,7 @@ collection.get({
   '$like': {
       'name': 'Default name'
   }
-}]).then(function(response){ 
+}]).then(function(response){
   //response.data => [ ..., ..., ...]
 });
 ```
@@ -297,7 +297,7 @@ collection.get({
           }
       }]
   }]
-}]).then(function(response){ 
+}]).then(function(response){
   //response.data => [ ..., ..., ...]
 });
 ```
@@ -423,7 +423,7 @@ Not using other resources on the relation
     .delete(destId, requestOptionsObject)
   ```
 
-Examples: 
+Examples:
 
 ```javascript
 var relation = corbelDriver.resources
@@ -469,7 +469,7 @@ A resource is a single object in a collection. For instance
 
 **Resources API**
 
-* Factory method 
+* Factory method
 
   ```javascript
   corbelDriver.resources
@@ -525,9 +525,9 @@ resource.delete('resourceId', {
 
 #### Assets
 
-Assets are dynamic groups of scopes that a user can have for a certain period of time. 
+Assets are dynamic groups of scopes that a user can have for a certain period of time.
 
-This is an example of an asset: 
+This is an example of an asset:
 
 ```javascript
 {
@@ -599,7 +599,7 @@ corbelDriver.assets().get();
 
 You can use a chainable api to set defaults parameters over any kind of resource:
 
-Example: 
+Example:
 
 ```javascript
 var collection = corbelDriver.resources
@@ -626,7 +626,7 @@ collection
 
 //Collection doesn't have the defaults chainable params
 
-//this get request will not use any request params previously defined 
+//this get request will not use any request params previously defined
 collection.get();
 
 ```
