@@ -350,7 +350,7 @@
             }
 
             if (params.pagination) {
-                if (params.pagination.page || params.pagination.pageSize === 0) {
+                if (params.pagination.page || params.pagination.page === 0) {
                     result += result ? '&' : '';
                     result += 'api:page=' + params.pagination.page;
                 }
