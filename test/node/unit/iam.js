@@ -538,6 +538,14 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
+        it('Gets all domains', function() {
+            corbelDriver.iam.domain().getAll();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
         it('Update a domain', function() {
             corbelDriver.iam.domain(data.id).update(data);
 
@@ -570,6 +578,14 @@ describe('corbel IAM module', function() {
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + data.domain + '/client/' + data.id);
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+         it('Get all clients in a domain', function() {
+            corbelDriver.iam.client(data.domain).getAll();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + data.domain + '/client');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 

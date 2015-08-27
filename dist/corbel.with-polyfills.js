@@ -3032,6 +3032,25 @@
             },
 
             /**
+             * Gets all clients by domain.
+             *
+             * @method
+             * @memberOf corbel.Iam.ClientBuilder
+             * @param  {object} options             Get options for the request
+             * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
+             * @see {@link corbel.util.serializeParams} to see a example of the params
+             */
+            getAll: function(params) {
+                corbel.validate.failIfIsDefined(this.clientId, 'This function not allowed client identifier');
+                console.log('iamInterface.domain.getAll');
+                return this.request({
+                    url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
              * Updates a client.
              *
              * @method
@@ -3081,6 +3100,7 @@
         });
 
     })();
+
     (function() {
 
         /**
@@ -3159,6 +3179,26 @@
                 });
             },
 
+
+            /**
+             * Gets all domains.
+             *
+             * @method
+             * @memberOf corbel.Iam.DomainBuilder
+             * @param  {object} params             Get options for the request
+             * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
+             * @see {@link corbel.util.serializeParams} to see a example of the params
+             */
+            getAll: function(params) {
+                corbel.validate.failIfIsDefined(this.domainId, 'This function not allowed domain identifier');
+                console.log('iamInterface.domain.getAll');
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
             /**
              * Updates a domain.
              *
@@ -3205,6 +3245,7 @@
         });
 
     })();
+
     (function() {
 
         /**
