@@ -20,7 +20,7 @@ describe('In OAUTH module', function() {
         urlBase: 'https://{{module}}-corbel.io/'
     };
 
-    var OAUTH_URL = CONFIG.urlBase.replace('{{module}}', 'oauth') + 'oauth/';
+    var OAUTH_URL = CONFIG.urlBase.replace('{{module}}', 'oauth');
 
     before(function() {
         corbelDriver = corbel.getDriver(CONFIG);
@@ -46,7 +46,7 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).login('testUser', 'testPassword');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'authorize');
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
             expect(callRequestParam.method).to.be.equal('POST');
             var response = callRequestParam.data;
             expect(response).to.have.a.property('username', 'testUser');
@@ -63,7 +63,7 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).loginWithCookie();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'authorize');
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
             expect(callRequestParam.method).to.be.equal('GET');
             var response = callRequestParam.data;
             expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
@@ -111,7 +111,7 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).signout();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'signout');
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/signout');
             expect(callRequestParam.method).to.be.equal('GET');
         });
     });
@@ -129,7 +129,7 @@ describe('In OAUTH module', function() {
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
 
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'token');
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/token');
             expect(callRequestParam.method).to.be.equal('POST');
             var response = callRequestParam.data;
             expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);

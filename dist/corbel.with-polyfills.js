@@ -5292,7 +5292,7 @@
                 this.params = params;
                 this.clientSecret = clientSecret;
                 this.clientId = clientId;
-                this.uri = 'oauth/user';
+                this.uri = 'user';
             },
             _buildUri: corbel.Oauth._buildUri,
             /**
