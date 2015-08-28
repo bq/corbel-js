@@ -3886,6 +3886,9 @@
         corbel.Resources.Resource = corbel.Resources.BaseResource.inherit({
 
             constructor: function(type, id, driver, params) {
+                if (!type || !id) {
+                    throw new Error('error:request:bad:missing:resource');
+                }
                 this.type = type;
                 this.id = id;
                 this.driver = driver;

@@ -71,7 +71,7 @@ describe('corbel resources request-params module', function() {
 
     it('resource has all request_params methods', function() {
         for (var i = 0; i < REQUEST_PARAMS_METHODS.length; i++) {
-            expect(resources.resource('resource:entity')).respondTo(REQUEST_PARAMS_METHODS[i]);
+            expect(resources.resource('resource:entity', 'resource:id')).respondTo(REQUEST_PARAMS_METHODS[i]);
         }
     });
 
