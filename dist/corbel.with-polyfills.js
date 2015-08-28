@@ -5129,20 +5129,36 @@
              */
             login: function(username, password, setCookie) {
                 console.log('oauthInterface.authorization.login', username + ':' + password);
-                this.params.username = username;
-                this.params.password = password;
-                this.params.setCookie = setCookie;
+
+                this.params.data.username = username;
+                this.params.data.password = password;
                 this.params.withCredentials = true;
                 // make request, generate oauth cookie, then redirect manually
                 return this.request({
                     url: this._buildUri(this.uri + '/authorize'),
                     method: corbel.request.method.POST,
-                    data: this.params
+                    data: this.params.data,
+                    contentType: this.params.contentType
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    if (res.jqXHR.getResponseHeader('Location')) {
+                        var params = {
+                            url: corbel.Services.getLocationId(res)
+                        };
+
+                        if (setCookie) {
+                            params.headers = {
+                                RequestCookie: 'true'
+                            };
+                            params.withCredentials = true;
+                        }
+
+                        return this.request(params);
+                    } else {
+                        return res.data;
+                    }
                 });
             },
+
             /**
              * Sign out from oauth server
              * @method
@@ -5164,6 +5180,7 @@
 
             _buildUri: corbel.Oauth._buildUri
         });
+
     })();
 
     (function() {

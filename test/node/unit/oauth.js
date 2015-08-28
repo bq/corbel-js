@@ -49,11 +49,6 @@ describe('In OAUTH module', function() {
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'authorize');
             expect(callRequestParam.method).to.be.equal('POST');
             var response = callRequestParam.data;
-            expect(response.noRedirect).to.be.equal(true);
-            expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
-            expect(response.data).to.have.a.property('client_id', 'testClient');
-            expect(response.data).to.have.a.property('redirect_uri', 'redirectUri');
-            expect(response.data).to.have.a.property('response_type', 'code');
             expect(response).to.have.a.property('username', 'testUser');
             expect(response).to.have.a.property('password', 'testPassword');
         });
