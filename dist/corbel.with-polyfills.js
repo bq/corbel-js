@@ -6107,8 +6107,7 @@
                     method: corbel.request.method.POST,
                     data: loanableResource,
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
@@ -6166,8 +6165,7 @@
                     method: corbel.request.method.POST,
                     data: license,
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
@@ -6507,8 +6505,7 @@
                     method: corbel.request.method.POST,
                     data: lender,
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
