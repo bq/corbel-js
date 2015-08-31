@@ -5798,8 +5798,7 @@
                     method: corbel.request.method.POST,
                     data: product,
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
@@ -5856,6 +5855,7 @@
             _buildUri: corbel.Ec._buildUri
         });
     })();
+
     (function() {
         corbel.Evci = corbel.Object.inherit({
 
