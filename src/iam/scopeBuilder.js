@@ -53,8 +53,7 @@
                 method: corbel.request.method.POST,
                 data: scope
             }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
-                return res;
+                return corbel.Services.getLocationId(res);
             });
         },
 
