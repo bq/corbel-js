@@ -77,8 +77,7 @@
                 dataType: 'text',
                 data: user
             }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
-                return res;
+                return corbel.Services.getLocationId(res);
             });
         },
         /**
@@ -166,8 +165,7 @@
                 },
                 noRetry: true
             }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
-                return res;
+                return corbel.Services.getLocationId(res);
             });
         },
         /**
