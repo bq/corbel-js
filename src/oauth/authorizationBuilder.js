@@ -63,8 +63,7 @@
                 data: this.params,
                 query: this.params.data ? corbel.utils.serializeParams(this.params.data) : null
             }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
-                return res;
+                return corbel.Services.getLocationId(res);
             });
         },
         /**
@@ -122,8 +121,7 @@
                 method: corbel.request.method.GET,
                 withCredentials: true
             }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
-                return res;
+                return corbel.Services.getLocationId(res);
             });
         },
 
