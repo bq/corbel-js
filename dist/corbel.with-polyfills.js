@@ -2459,11 +2459,11 @@
         request._browserAjax = function(params, resolver) {
             var httpReq = new XMLHttpRequest();
 
+            httpReq.open(params.method, params.url, true);
+
             if (request.isCrossDomain(params.url) && params.withCredentials) {
                 httpReq.withCredentials = true;
             }
-
-            httpReq.open(params.method, params.url, true);
 
             /* add request headers */
             for (var header in params.headers) {
@@ -3157,8 +3157,7 @@
                     method: corbel.request.method.POST,
                     data: domain
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
 
@@ -5118,8 +5117,7 @@
                     data: this.params,
                     query: this.params.data ? corbel.utils.serializeParams(this.params.data) : null
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
@@ -5176,8 +5174,7 @@
                     method: corbel.request.method.GET,
                     withCredentials: true
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
 
@@ -5324,8 +5321,7 @@
                     dataType: 'text',
                     data: user
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**
@@ -5413,8 +5409,7 @@
                     },
                     noRetry: true
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
             /**

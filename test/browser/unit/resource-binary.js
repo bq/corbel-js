@@ -56,7 +56,7 @@ describe('corbel resources module', function() {
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
     expect(callRequestParam.method).to.be.equal('PUT');
-    expect(callRequestParam.headers.Accept).to.be.equal('blob');
+    expect(callRequestParam.headers.Accept).to.be.equal('image/png');
     expect(callRequestParam.data instanceof Blob).to.be.equal(true);
   });
 
