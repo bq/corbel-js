@@ -4872,6 +4872,7 @@
                 return this.request(args);
             },
 
+
             /**
              * Updates a resource
              * @method
@@ -4890,7 +4891,8 @@
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.PUT,
                     data: data,
-                    contentType: options.dataType
+                    contentType: options.dataType,
+                    Accept: options.dataType
                 });
 
                 return this.request(args);
