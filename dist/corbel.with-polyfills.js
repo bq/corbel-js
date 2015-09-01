@@ -2302,7 +2302,7 @@
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
                 responseType: options.responseType,
-                withCredentials: options.withCredentials
+                withCredentials: options.withCredentials || true
             };
 
             // default content-type
