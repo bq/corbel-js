@@ -375,11 +375,11 @@
   request._browserAjax = function(params, resolver) {
     var httpReq = new XMLHttpRequest();
 
+    httpReq.open(params.method, params.url, true);
+
     if (request.isCrossDomain(params.url) && params.withCredentials) {
       httpReq.withCredentials = true;
     }
-
-    httpReq.open(params.method, params.url, true);
 
     /* add request headers */
     for (var header in params.headers) {
