@@ -3916,6 +3916,7 @@
                 return this.request(args);
             },
 
+
             /**
              * Updates a resource
              * @method

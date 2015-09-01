@@ -51,7 +51,7 @@ describe('corbel resources module', function() {
 
   it('update/create a binary resource', function() {
     resources.resource('books:Book', '123').update(blob, {
-      dataType: 'blob'
+      dataType: 'image/png'
     });
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
