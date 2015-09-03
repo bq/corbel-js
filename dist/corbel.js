@@ -50,6 +50,13 @@
             this.composr = corbel.CompoSR.create(this);
         }
 
+        /**
+         * @return {CorbelDriver} A new instance of corbel driver with the same config
+         */
+        CorbelDriver.prototype.clone = function() {
+            return new CorbelDriver(this.config.getConfig());
+        };
+
         corbel.CorbelDriver = CorbelDriver;
 
         /**
