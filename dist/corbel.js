@@ -3855,6 +3855,28 @@
             },
 
             /**
+             * Update every element in a collection, accepts query params
+             * @method
+             * @memberOf resources.CollectionBuilder
+             * @param  {Object} data             The element to be updated
+             * @param  {Object} options/query    Options object with dataType request option
+             * @return {Promise}                 ES6 promise that resolves to an {Array} of resources or rejects with a {@link CorbelError}
+             */
+            update: function(data, options) {
+                options = this.getDefaultOptions(options);
+
+                var args = corbel.utils.extend(options, {
+                    url: this.buildUri(this.type),
+                    method: corbel.request.method.PUT,
+                    contentType: options.dataType,
+                    Accept: options.dataType,
+                    data: data
+                });
+
+                return this.request(args);
+            },
+
+            /**
              * Delete a collection
              * @method
              * @memberOf Resources.CollectionBuilder
@@ -3879,6 +3901,7 @@
         return corbel.Resources.Collection;
 
     })();
+
     (function() {
         /**
          * Builder for resource requests
