@@ -194,6 +194,18 @@ A collection is a container of resources that share the same type. For instance:
     });
   ```
 
+* **update**: Updates the elements of a collection **(objectData,requestOptionsObject)**
+
+  ```javascript
+  corbelDriver.resources
+    .collection('collectionName')
+    .update(objectData,requestOptionsObject)
+    .then(function(){
+      //
+    });
+  ```
+
+
 Examples:
 
 ** Adding an item to a collection **
@@ -206,6 +218,20 @@ collection.add({
 },{
     //request options
 }).then(function(idNewModel){ });
+```
+
+** Updating a collection **
+
+```javascript
+collection.update({
+    //related data
+    name: 'Update model name',
+    lastName: 'Update model last name'
+},{
+   condition: [{
+        $eq: {} 
+    } ] 
+}).then(function(){ });
 ```
 
 **Collection request params API**
