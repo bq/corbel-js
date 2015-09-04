@@ -156,6 +156,7 @@ Resources is exposed to corbelDriver instance and It has static methods and vari
     .relation('sourceResourceName', sourceResourceId, 'destResourceName')
   ```
 
+
 #### Collection
 
 A collection is a container of resources that share the same type. For instance:
@@ -548,6 +549,43 @@ resource.delete('resourceId', {
     //request options
 }).then(function(){ });
 ```
+
+
+**Images**
+
+The Resources API is capable to handle images and perform operations over it.
+
+* **update**: Update an image **(resourceData, requestOptionsObject)**
+
+  ```javascript
+  /*requestOptionsObject example*/
+   requestOptionsObject : {
+     dataType: 'image/png',
+   })
+  ```
+
+* **get**: Get an image **(requestOptionsObject)**
+
+  ```javascript
+  /*requestOptionsObject example*/
+   requestOptionsObject : {
+     dataType: 'image/png',
+     query: 'image:operations=resize=(100,20)&image:format=gif',
+     responseType: 'blob' /*arraybuffer is supported as well*/
+   })
+  ```
+
+* **delete**: Delete an image **(requestOptionsObject)**
+
+  ```javascript
+  /*requestOptionsObject example*/
+   requestOptionsObject : {
+     dataType: 'image/png',
+   })
+  ```
+
+For more information, visit: http://docs.corbelimage.apiary.io/
+
 
 #### Assets
 
