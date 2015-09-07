@@ -25,7 +25,7 @@ describe('In Evci module we can', function() {
   
     var EVENT_DATA = '{\'test_object\':\'test\'}';
   
-    var EVCI_URL = CONFIG.urlBase.replace('{{module}}', 'evci') + 'event';
+    var EVCI_URL = CONFIG.urlBase.replace('{{module}}', corbel.Evci.moduleName) + 'event';
 
     var corbelDriver = corbel.getDriver(CONFIG);
 

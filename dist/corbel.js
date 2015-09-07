@@ -4674,7 +4674,6 @@
         Ec.moduleName = 'ec';
         Ec.defaultPort = 8088;
 
-
         Ec.create = function(driver) {
             return new Ec(driver);
         };
@@ -4701,19 +4700,19 @@
                 COMPLETED: 'COMPLETED',
 
                 /**
-               * FAILED constant
-               * @constant
-               * @type {String}
-               * @default
+         * FAILED constant
+         * @constant
+         * @type {String}
+         * @default
   
-              FAILED: 'FAILED',
+        FAILED: 'FAILED',
   
-              /**
-               * IN_PAYMENT constant
-               * @constant
-               * @type {String}
-               * @default
-               */
+        /**
+         * IN_PAYMENT constant
+         * @constant
+         * @type {String}
+         * @default
+         */
                 IN_PAYMENT: 'IN_PAYMENT',
 
                 /**
@@ -4726,11 +4725,9 @@
             }
         };
 
-
         /**
          * COMMON MIXINS
          */
-
 
         // Ec._encrypt = function (data) {
         //     return {
@@ -4766,6 +4763,127 @@
         Ec._buildPort = function(config) {
             return config.get('ecPort', null) || corbel.Ec.defaultPort;
         };
+
+    })();
+
+    (function() {
+
+        /**
+         * Create a OrderBuilder for order managing requests.
+         *
+         * @param {String}  id  The id of the order.
+         *
+         * @return {corbel.Ec.OrderBuilder}
+         */
+        corbel.Ec.prototype.order = function(id) {
+            var order = new OrderBuilder(id);
+            order.driver = this.driver;
+            return order;
+        };
+
+        /**
+         * A builder for order requests.
+         *
+         * @param {String}  id order ID.
+         *
+         * @class
+         * @memberOf corbel.Ec.OrderBuilder
+         */
+        var OrderBuilder = corbel.Ec.OrderBuilder = corbel.Services.inherit({
+
+            constructor: function(id) {
+                if (id) {
+                    this.id = id;
+                }
+                this.uri = 'order';
+            },
+
+            /**
+             * Gets an order
+             * @method
+             * @memberOf ec.OrderBuilder
+             * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
+             */
+            get: function() {
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.GET
+                });
+            },
+
+            /**
+             * Updates the order
+             * @method
+             * @memberOf ec.OrderBuilder
+             * @param  {Object} order        Data of the order to update
+             * @param {Array} order.items    Array of products to purchase
+             * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            update: function(order) {
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.PUT,
+                    data: order
+                });
+            },
+
+            /**
+             * Deletes the Order
+             * @method
+             * @memberOf ec.OrderBuilder
+             * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            delete: function() {
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.DELETE
+                });
+            },
+
+            /**
+             * Prepares the order, required to checkout
+             * @method
+             * @memberOf ec.OrderBuilder
+             * @param {Array} couponIds  Array of String with the coupons ids to prepare the order
+             * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             */
+            prepare: function(couponIds) {
+                return this.request({
+                    url: this._buildUri(this.uri, this.id, '/prepare'),
+                    method: corbel.request.method.POST,
+                    data: couponIds
+                });
+            },
+
+            /**
+             * Checks out the Order
+             * @method
+             * @memberOf ec.OrderBuilder
+             * @param  {Object} data            Pruchase information to do the checkout
+             * @param {Array} paymentMethodIds  Array of String with the payment methods ids to checkout the order
+             * @param {Array} discountsIds      Array of String with the discounts ids to checkout the order
+             * @return {Promise}                Promise that resolves in the new purchase id or rejects with a {@link SilkRoadError}
+             */
+            checkout: function(data) {
+                if (!data.paymentMethodIds) {
+                    return Promise.reject(new Error('paymentMethodIds lists needed'));
+                }
+                if (!data.paymentMethodIds.length) {
+                    return Promise.reject(new Error('One payment method is needed at least'));
+                }
+                return this.request({
+                    method: corbel.request.method.POST,
+                    url: this._buildUri(this.uri, this.id, '/checkout'),
+                    data: data
+                }).then(function(res) {
+                    return corbel.Services.getLocationId(res);
+                });
+            },
+
+            _buildUri: corbel.Ec._buildUri
+
+        });
+
     })();
 
     (function() {
@@ -4798,6 +4916,7 @@
                 }
                 this.uri = 'product';
             },
+
             /**
              * Create a new product.
              *
@@ -4828,6 +4947,7 @@
                     return corbel.Services.getLocationId(res);
                 });
             },
+
             /**
              * Get a product.
              *
@@ -4846,6 +4966,7 @@
                     query: params ? corbel.utils.serializeParams(params) : null
                 });
             },
+
             /**
              * Update a product.
              *
@@ -4864,6 +4985,7 @@
                     data: product
                 });
             },
+
             /**Delete a product.
              *
              * @method
@@ -4880,7 +5002,9 @@
             },
 
             _buildUri: corbel.Ec._buildUri
+
         });
+
     })();
 
     (function() {
