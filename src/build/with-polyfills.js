@@ -79,6 +79,7 @@
   //  @include ../notifications/notifications.js
   //  @include ../notifications/notificationsBuilder.js
   //  @include ../ec/ec.js
+  //  @include ../ec/orderBuilder.js
   //  @include ../ec/productBuilder.js
   //  @include ../evci/evci.js
   //  @include ../evci/eventBuilder.js

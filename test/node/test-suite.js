@@ -2,6 +2,11 @@
 
 global.Promise = require('es6-promise').Promise;
 
+var chai = require('chai');
+var chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
+chai.should();
+
 require('./unit/config.js');
 require('./unit/baseUrlIntegrity.js');
 require('./unit/corbel.js');

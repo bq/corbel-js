@@ -140,6 +140,7 @@ describe('corbel-js browser', function() {
                 success: function(data, status, httpResponse) {
                     expect(data).to.be.a('object');
                     expect(status).to.be.a('number');
+                    // @TODO: weird assertion
                     expect(typeof httpResponse).to.be.equal('object');
                     done();
                 }

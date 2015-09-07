@@ -4,110 +4,108 @@
 
 (function() {
 
+  /**
+   * A module to make Ec requests.
+   * @exports Ec
+   * @namespace
+   * @memberof app.corbel
+   */
+
+  var Ec = corbel.Ec = function(driver) {
+    this.driver = driver;
+  };
+
+  Ec.moduleName = 'ec';
+  Ec.defaultPort = 8088;
+
+  Ec.create = function(driver) {
+    return new Ec(driver);
+  };
+
+  Ec._ec = {
     /**
-     * A module to make Ec requests.
-     * @exports Ec
      * @namespace
-     * @memberof app.corbel
      */
+    purchaseStates: {
+      /**
+       * IN_PROCESS constant
+       * @constant
+       * @type {String}
+       * @default
+       */
+      IN_PROCESS: 'IN_PROCESS',
 
-    var Ec = corbel.Ec = function(driver) {
-        this.driver = driver;
-    };
+      /**
+       * COMPLETED constant
+       * @constant
+       * @type {String}
+       * @default
+       */
+      COMPLETED: 'COMPLETED',
 
-    Ec.moduleName = 'ec';
-    Ec.defaultPort = 8088;
+      /**
+       * FAILED constant
+       * @constant
+       * @type {String}
+       * @default
 
+      FAILED: 'FAILED',
 
-    Ec.create = function(driver) {
-        return new Ec(driver);
-    };
+      /**
+       * IN_PAYMENT constant
+       * @constant
+       * @type {String}
+       * @default
+       */
+      IN_PAYMENT: 'IN_PAYMENT',
 
-    Ec._ec = {
-        /**
-         * @namespace
-         */
-        purchaseStates: {
-            /**
-             * IN_PROCESS constant
-             * @constant
-             * @type {String}
-             * @default
-             */
-            IN_PROCESS: 'IN_PROCESS',
+      /**
+       * CANCELLED constant
+       * @constant
+       * @type {String}
+       * @default
+       */
+      CANCELLED: 'CANCELLED'
+    }
+  };
 
-            /**
-             * COMPLETED constant
-             * @constant
-             * @type {String}
-             * @default
-             */
-            COMPLETED: 'COMPLETED',
+  /**
+   * COMMON MIXINS
+   */
 
-            /**
-             * FAILED constant
-             * @constant
-             * @type {String}
-             * @default
+  // Ec._encrypt = function (data) {
+  //     return {
+  //         name: data.name,
+  //         data: cse.encrypt(data.number, data.holderName, data.cvc, data.expiryMonth, data.expiryYear)
+  //     };
+  // };
 
-            FAILED: 'FAILED',
+  /**
+   * Private method to build a string uri
+   * @private
+   * @param  {String} uri
+   * @param  {String|Number} id
+   * @param  {String} extra
+   * @return {String}
+   */
+  Ec._buildUri = function(uri, id, extra) {
+    if (id) {
+      uri += '/' + id;
+    }
+    if (extra) {
+      uri += extra;
+    }
+    var urlBase = this.driver.config.get('ecEndpoint', null) ?
+      this.driver.config.get('ecpoint') :
+      this.driver.config.get('urlBase')
+      .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
+      .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
 
-            /**
-             * IN_PAYMENT constant
-             * @constant
-             * @type {String}
-             * @default
-             */
-            IN_PAYMENT: 'IN_PAYMENT',
+    return urlBase + uri;
+  };
 
-            /**
-             * CANCELLED constant
-             * @constant
-             * @type {String}
-             * @default
-             */
-            CANCELLED: 'CANCELLED'
-        }
-    };
+  Ec._buildPort = function(config) {
+    return config.get('ecPort', null) || corbel.Ec.defaultPort;
+  };
 
-
-    /**
-     * COMMON MIXINS
-     */
-
-
-    // Ec._encrypt = function (data) {
-    //     return {
-    //         name: data.name,
-    //         data: cse.encrypt(data.number, data.holderName, data.cvc, data.expiryMonth, data.expiryYear)
-    //     };
-    // };
-
-    /**
-     * Private method to build a string uri
-     * @private
-     * @param  {String} uri
-     * @param  {String|Number} id
-     * @param  {String} extra
-     * @return {String}
-     */
-    Ec._buildUri = function(uri, id, extra) {
-        if (id) {
-            uri += '/' + id;
-        }
-        if (extra) {
-            uri += extra;
-        }
-        var urlBase = this.driver.config.get('ecEndpoint', null) ?
-            this.driver.config.get('ecpoint') :
-            this.driver.config.get('urlBase')
-              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
-              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
-
-        return urlBase + uri;
-    };
-
-    Ec._buildPort = function(config) {
-      return config.get('ecPort', null) || corbel.Ec.defaultPort;
-    };
 })();
