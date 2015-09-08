@@ -6,7 +6,7 @@ var corbel = require('../../../dist/corbel.js'),
   sinon = require('sinon'),
   expect = chai.expect;
 
-var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/',
+var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/domain-example/',
 
   DEFAULT_QUERY_OBJECT_STRING = '[{"$eq":{"field3":true}},{"$eq":{"field4":true}},{"$gt":{"field5":"value"}},{"$gte":{"field5":"value"}},{"$lt":{"field5":"value"}},{"$lte":{"field5":"value"}},{"$ne":{"field5":"value"}},{"$in":{"field2":["pepe","juan"]}},{"$all":{"field5":["pepe","juan"]}},{"$like":{"field5":"value"}}]',
 
@@ -67,6 +67,8 @@ var CONFIG = {
   clientId: 'clientId',
   clientSecret: 'clientSecret',
   scopes: 'scopes',
+
+  domain: 'domain-example',
 
   urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
 };
@@ -371,7 +373,7 @@ describe('corbel resources module', function() {
     expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
     expect(callRequestParam.data._order).to.be.equal('$pos(1)');
-    expect(callRequestParam.url).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/books:Book/123/456;r=456/test');
+    expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123/456;r=456/test');
   });
 
   it('should move a relation with composed Id', function() {
@@ -380,7 +382,7 @@ describe('corbel resources module', function() {
     expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
     expect(callRequestParam.data._order).to.be.equal('$pos(1)');
-    expect(callRequestParam.url).to.be.equal('https://resources-qa.bqws.io/v1.0/resource/books:Book/123/456;r=456/test');
+    expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123/456;r=456/test');
   });
 
   it('delete a relation', function() {

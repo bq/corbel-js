@@ -26,6 +26,7 @@
     Iam.AUD = 'http://iam.bqws.io';
     Iam.IAM_TOKEN = 'iamToken';
     Iam.IAM_TOKEN_SCOPES = 'iamScopes';
+    Iam.IAM_DOMAIN = 'domain';
 
     /**
      * COMMON MIXINS
