@@ -124,7 +124,7 @@
             var that = this;
             return promise.then(function(response) {
                 that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domain);
+                that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domainId);
                 if (params.jwt) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
                 }

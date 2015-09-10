@@ -2466,7 +2466,7 @@
                 var that = this;
                 return promise.then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                    that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domain);
+                    that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domainId);
                     if (params.jwt) {
                         that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
                     }
@@ -4783,7 +4783,7 @@
         /**
          * Create a OrderBuilder for order managing requests.
          *
-         * @param {String}  id  The id of the order.
+         * @param {string}  id  The id of the order.
          *
          * @return {corbel.Ec.OrderBuilder}
          */
@@ -4796,7 +4796,7 @@
         /**
          * A builder for order requests.
          *
-         * @param {String}  id order ID.
+         * @param {string}  id order ID.
          *
          * @class
          * @memberOf corbel.Ec.OrderBuilder
@@ -4813,7 +4813,7 @@
             /**
              * Gets an order
              * @method
-             * @memberOf ec.OrderBuilder
+             * @memberOf corbel.Ec.OrderBuilder
              * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
              */
             get: function() {
@@ -4826,9 +4826,9 @@
             /**
              * Updates the order
              * @method
-             * @memberOf ec.OrderBuilder
+             * @memberOf corbel.Ec.OrderBuilder
              * @param  {Object} order        Data of the order to update
-             * @param {Array} order.items    Array of products to purchase
+             * @param {Object[]} order.items    Array of products to purchase
              * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             update: function(order) {
@@ -4842,7 +4842,7 @@
             /**
              * Deletes the Order
              * @method
-             * @memberOf ec.OrderBuilder
+             * @memberOf corbel.Ec.OrderBuilder
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             delete: function() {
@@ -4855,8 +4855,8 @@
             /**
              * Prepares the order, required to checkout
              * @method
-             * @memberOf ec.OrderBuilder
-             * @param {Array} couponIds  Array of String with the coupons ids to prepare the order
+             * @memberOf corbel.Ec.OrderBuilder
+             * @param {string[]} couponIds  Array of String with the coupons ids to prepare the order
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             prepare: function(couponIds) {
@@ -4870,10 +4870,10 @@
             /**
              * Checks out the Order
              * @method
-             * @memberOf ec.OrderBuilder
+             * @memberOf corbel.Ec.OrderBuilder
              * @param  {Object} data            Pruchase information to do the checkout
-             * @param {Array} paymentMethodIds  Array of String with the payment methods ids to checkout the order
-             * @param {Array} discountsIds      Array of String with the discounts ids to checkout the order
+             * @param {string[]} paymentMethodIds  Array of String with the payment methods ids to checkout the order
+             * @param {string[]} discountsIds      Array of String with the discounts ids to checkout the order
              * @return {Promise}                Promise that resolves in the new purchase id or rejects with a {@link SilkRoadError}
              */
             checkout: function(data) {
@@ -4892,6 +4892,12 @@
                 });
             },
 
+            /**
+             * Internal module uri builder
+             * @method
+             * @memberOf corbel.Ec.OrderBuilder
+             * @return {string}
+             */
             _buildUri: corbel.Ec._buildUri
 
         });
