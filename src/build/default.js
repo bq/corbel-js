@@ -52,6 +52,7 @@
   //  @include ../iam/usernameBuilder.js
   //  @include ../iam/usersBuilder.js
   //  @include ../iam/groupsBuilder.js
+  //  @include ../iam/emailBuilder.js
   //  @include ../request-params/aggregation-builder.js
   //  @include ../request-params/query-builder.js
   //  @include ../request-params/page-builder.js
