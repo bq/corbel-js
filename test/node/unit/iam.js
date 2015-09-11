@@ -252,6 +252,43 @@ describe('corbel IAM module', function() {
 
     });
 
+    describe('Email availability', function() {
+        it('Get email availability', function() {
+            var EMAIL = 'test@test.com';
+            corbelDriver.iam.email().availability(EMAIL);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'email/' + EMAIL);
+            expect(callRequestParam.method).to.be.equal('HEAD');
+        });
+
+        it('Email available return true', function(done) {
+            corbelRequestStub.returns(Promise.reject({
+                status: 404
+            }));
+            corbelDriver.iam.email().availability('test@domingo.com').then(function(result) {
+                expect(result).to.be.equal(true);
+                done();
+            });
+        });
+
+        it('Email not available return false', function(done) {
+            corbelDriver.iam.email().availability('test@test.com').then(function(result) {
+                expect(result).to.be.equal(false);
+                done();
+            });
+        });
+
+        it('On server error reject promise', function(done) {
+            corbelRequestStub.returns(Promise.reject({
+                httpStatus: 500
+            }));
+            corbelDriver.iam.email().availability('test').catch(function() {
+                done();
+            });
+        });
+    });
+
     describe('Users Management', function() {
 
         it('Create user', function() {
