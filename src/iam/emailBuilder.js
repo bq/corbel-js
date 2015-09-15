@@ -43,6 +43,9 @@
             return this.request({
                 url: this._buildUri(this.uri, email),
                 method: corbel.request.method.GET
+            })
+            .then(function(id){
+                return id;
             });
         },
 
