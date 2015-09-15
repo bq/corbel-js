@@ -214,8 +214,8 @@ describe('corbel IAM module', function() {
         });
     });
 
-    describe('Users availability', function() {
-        it('Get username availability', function() {
+    describe('usernames availability', function() {
+        it('get username availability', function() {
             var USERNAME = 'test';
             corbelDriver.iam.username().availability(USERNAME);
 
@@ -224,7 +224,7 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('HEAD');
         });
 
-        it('Username available return true', function(done) {
+        it('username available return true', function(done) {
             corbelRequestStub.returns(Promise.reject({
                 status: 404
             }));
@@ -234,14 +234,14 @@ describe('corbel IAM module', function() {
             });
         });
 
-        it('Username not available return false', function(done) {
+        it('username not available return false', function(done) {
             corbelDriver.iam.username().availability('test').then(function(result) {
                 expect(result).to.be.equal(false);
                 done();
             });
         });
 
-        it('On server error reject promise', function(done) {
+        it('on server error reject promise', function(done) {
             corbelRequestStub.returns(Promise.reject({
                 httpStatus: 500
             }));
