@@ -2557,10 +2557,29 @@
                         return Promise.reject(response);
                     }
                 });
+            },
+
+            /**
+             * Gets a UserId.
+             *
+             * @method
+             * @memberOf corbel.Iam.UsernameBuilder
+             *
+             * @param {String} username The username.
+             *
+             * @return {Promise} A promise with the user or fails with a {@link corbelError}.
+             */
+            getUserId: function(username) {
+                console.log('iamInterface.username.getUserId', username);
+                return this.request({
+                    url: this._buildUri(this.uri, username),
+                    method: corbel.request.method.GET
+                });
             }
         });
 
     })();
+
     (function() {
 
         /**
