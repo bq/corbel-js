@@ -237,7 +237,7 @@ module.exports = function(grunt) {
       tap: {
         options: {
           reporter: 'tap',
-          captureFile: 'target/node/test_results.dirty.tap', // Optionally capture the reporter output to a file
+          captureFile: '.tmp/test/report/node/test_results.dirty.tap', // Optionally capture the reporter output to a file
           quiet: false // Optionally suppress output to standard out (defaults to false)
         },
         src: ['test/node/test-suite.js']
@@ -262,7 +262,7 @@ module.exports = function(grunt) {
       tap: {
         options: {
           reporter: 'tap',
-          output: 'target/browser/test_results.dirty.tap'
+          output: '.tmp/test/report/browser/test_results.dirty.tap'
         }
       }
     },
@@ -278,11 +278,11 @@ module.exports = function(grunt) {
         },
         files: [{
           expand: true,
-          cwd: 'target',
+          cwd: '.tmp',
           src: [
             '**/*.dirty.tap'
           ],
-          dest: 'target/',
+          dest: '.tmp/',
           ext: '.tap'
         }]
       }
@@ -401,10 +401,9 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('test:tap', [
-    'express:load',
-    'connect:test_webserver',
-    'mocha_phantomjs:ci',
-    'mochaTest:ci',
+    'test:browser',
+    'mocha_phantomjs:tap',
+    'mochaTest:tap',
     'lineremover:tap'
   ]);
 
