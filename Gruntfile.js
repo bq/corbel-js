@@ -403,8 +403,8 @@ module.exports = function(grunt) {
   grunt.registerTask('test:tap', [
     'test:browser',
     'mocha_phantomjs:tap',
-    'mochaTest:tap',
-    'lineremover:tap'
+    'mochaTest:tap'
+    // 'lineremover:tap'
   ]);
 
   grunt.registerTask('coverage:node', [
