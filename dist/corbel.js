@@ -205,10 +205,12 @@
          * @param {Object} params.aggregation
          * @param {Object} params.query
          * @param {Object} params.condition
-         * @param {Object} params.page
-         * @param {Number} params.page.page
-         * @param {Number} params.page.pageSize
+         * @param {Object} params.pagination
+         * @param {Number} params.pagination.page
+         * @param {Number} params.pagination.pageSize
          * @param {Object} params.sort
+         * @param {String} params.search
+         * @param {Boolean} params.binded
          * @return {String}
          * @example
          * var params = {
@@ -354,6 +356,11 @@
             if (params.sort) {
                 result += result ? '&' : '';
                 result += 'api:sort=' + JSON.stringify(params.sort);
+            }
+
+            if (params.binded) {
+                result += result ? '&' : '';
+                result += 'api:binded=' + params.binded;
             }
 
             if (params.pagination) {
