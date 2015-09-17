@@ -93,7 +93,7 @@
      * @param  {object} data
      * @return {string}
      */
-    'dataURI': function(data) {
+    dataURI: function(data) {
       if (corbel.Config.isNode) {
         //var buffer = new Buffer(data.split('base64,')[1], 'base64');
       } else {
@@ -109,7 +109,7 @@
      * @param  {object} data
      * @return {string}
      */
-    'blob': function(data) {
+    blob: function(data) {
       if (corbel.Config.isNode) {
         throw new Error('error:request:unsupported:data_type');
       }
@@ -121,7 +121,7 @@
      * @param  {object} data
      * @return {string}
      */
-    'stream': function(data) {
+    stream: function(data) {
         if (corbel.Config.isBrowser) {
           throw new Error('error:request:unsupported:data_type');
         }
@@ -160,12 +160,12 @@
      * @return {mixed}
      */
     json: function(data) {
-      data = data || '{}';
-      if (typeof data === 'string') {
-        data = JSON.parse(data);
+        data = data || '{}';
+        if (typeof data === 'string') {
+          data = JSON.parse(data);
+        }
+        return data;
       }
-      return data;
-    }
       // 'blob' type do not require any process
       // @todo: xml
   };
@@ -208,8 +208,8 @@
     if (!options.url) {
       throw new Error('undefined:url');
     }
-    
-    if(typeof(options.url) !== 'string'){
+
+    if (typeof(options.url) !== 'string') {
       throw new Error('invalid:url', options.url);
     }
 
@@ -222,6 +222,8 @@
       responseType: options.responseType,
       withCredentials: options.withCredentials || true
     };
+
+    params = rewriteRequestToPostIfUrlLengthIsTooBig(options, params);
 
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
@@ -273,7 +275,7 @@
       promiseResponse;
 
     var data = response.response;
-    
+
     if (statusType < 3) {
 
       if (response.response) {
@@ -318,11 +320,30 @@
 
   };
 
+  var rewriteRequestToPostIfUrlLengthIsTooBig = function(options, params) {
+    var AUTOMATIC_HTTP_METHOD_OVERRIDE = corbel.Config.AUTOMATIC_HTTP_METHOD_OVERRIDE || true;
+    var HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN = corbel.Config.HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN || 2048;
+    
+    if (AUTOMATIC_HTTP_METHOD_OVERRIDE &&
+      params.method === request.method.GET &&
+      params.url.length > HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN) {
+        var url = params.url.split('?');
+        params.method = request.method.POST;
+        params.headers['X-HTTP-Method-Override'] = request.method.GET;
+        params.url = url[0];
+        options.data = url[1];
+        options.contentType = 'application/x-www-form-urlencoded';
+    }
+    return params;
+  };
+
   request._nodeAjax = function(params, resolver) {
 
     var requestAjax = require('request');
     if (request.isCrossDomain(params.url) && params.withCredentials) {
-      requestAjax = requestAjax.defaults({jar: true});
+      requestAjax = requestAjax.defaults({
+        jar: true
+      });
     }
     requestAjax({
       method: params.method,
@@ -347,9 +368,9 @@
         responseType: responseType,
         response: body,
         status: status,
-        headers : {
-          Location : response.headers ? response.headers.Location : '',
-          'Set-Cookie' : response.headers ? response.headers['set-cookie'] : ''
+        headers: {
+          Location: response.headers ? response.headers.Location : '',
+          'Set-Cookie': response.headers ? response.headers['set-cookie'] : ''
         },
         responseObjectType: 'response',
         error: error
@@ -400,8 +421,8 @@
         responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
         response: xhr.response || xhr.responseText,
         status: xhr.status,
-        headers : {
-          Location : xhr.getResponseHeader('Location')
+        headers: {
+          Location: xhr.getResponseHeader('Location')
         },
         responseObjectType: 'xhr',
         error: xhr.error
