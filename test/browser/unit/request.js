@@ -2,163 +2,243 @@
 
 describe('corbel-js browser', function() {
 
-    var sandbox;
+  var sandbox;
 
-    this.timeout(4000);
+  this.timeout(4000);
 
-    beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+  var fakeServer;
+
+  beforeEach(function() {
+    sandbox = sinon.sandbox.create();
+    fakeServer = sinon.fakeServer.create();
+  });
+
+  afterEach(function() {
+    sandbox.restore();
+    fakeServer.restore();
+  });
+
+  it('corbel-js contains all modules', function() {
+    expect(corbel).to.include.keys('request');
+  });
+
+  describe('request module', function() {
+
+    var url = '/url',
+      request;
+
+    before(function() {
+      request = corbel.request;
     });
 
-    afterEach(function() {
-        sandbox.restore();
+    it('should has own properties', function() {
+      expect(request).to.include.keys('method');
+      ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'].forEach(function(verb) {
+        expect(request.method).to.include.keys(verb);
+      });
     });
 
-    it('corbel-js contains all modules', function() {
-        expect(corbel).to.include.keys('request');
+    it('expected methods are available', function() {
+      expect(request).to.respondTo('send');
     });
 
-    describe('request module', function() {
+    ['GET', 'POST', 'PATCH', 'PUT', 'HEAD'].forEach(function(verb) {
+      it('send method accepts http ' + verb + ' verb', function(done) {
+        var fakeResponse = [
+          200, {
+            'Content-type': 'application/json'
+          },
+          '{}'
+        ];
 
-        var url = 'http://localhost:3000/',
-            request;
+        fakeServer.respondWith(verb, url, fakeResponse);
 
-        before(function() {
-            request = corbel.request;
+        request.send({
+          method: verb,
+          url: url
+        }).then(function() {
+          done();
+        }).catch(function(error) {
+          done(error);
         });
 
-        it('should has own properties', function() {
-            expect(request).to.include.keys('method');
-            expect(request.method).to.include.keys('GET');
-            expect(request.method).to.include.keys('POST');
-            expect(request.method).to.include.keys('PUT');
-            expect(request.method).to.include.keys('DELETE');
-            expect(request.method).to.include.keys('OPTIONS');
-            expect(request.method).to.include.keys('PATCH');
-            expect(request.method).to.include.keys('HEAD');
+        fakeServer.respond();
+
+      });
+    });
+
+
+    it('send method throws an error if no url setting', function() {
+
+      var fn = function() {
+        return request.send({
+          method: 'GET'
         });
+      };
 
-        it('expected methods are available', function() {
-            expect(request).to.respondTo('send');
-        });
+      expect(fn).to.throw('undefined:url');
+    });
 
-        it('send method accepts all http verbs', function(done) {
+    it('send mehtod returns a promise', function() {
 
-            request.send({
-                method: 'GET',
-                url: url
-            }).then(function() {
-                return request.send({
-                    method: 'POST',
-                    url: url
-                });
-            }).then(function() {
-                return request.send({
-                    method: 'PATCH',
-                    url: url
-                });
-            }).then(function() {
-                return request.send({
-                    method: 'PUT',
-                    url: url
-                });
-            }).then(function() {
-                return request.send({
-                    method: 'HEAD',
-                    url: url
-                });
-            }).then(function() {
-                done();
-            }).catch(function(error) {
-                done(error);
-            });
+      var promise = request.send({
+        method: 'GET',
+        url: url
+      });
 
-        });
+      expect(promise).to.be.instanceof(Promise);
+    });
 
-        it('send method throws an error if no url setting', function() {
+    it('send mehtod returns a promise and it resolves', function(done) {
+      var fakeResponse = [
+        200, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
 
-            var fn = function() {
-                return request.send({
-                    method: 'GET'
-                });
-            };
+      fakeServer.respondWith('GET', url, fakeResponse);
 
-            expect(fn).to.throw('undefined:url');
-        });
+      request.send({
+        method: 'GET',
+        url: url
+      }).then(function() {
+        done();
+      });
 
-        it('send mehtod returns a promise', function() {
-
-            var promise = request.send({
-                method: 'GET',
-                url: url
-            });
-
-            expect(promise).to.be.instanceof(Promise);
-        });
-
-        it('send mehtod returns a promise and it resolves', function(done) {
-
-            request.send({
-                method: 'GET',
-                url: url
-            }).then(function() {
-                done();
-            });
-
-        });
-
-        it('send mehtod returns a promise and reject it', function(done) {
-            var promise = request.send({
-                method: 'GET',
-                url: url + '404'
-            });
-
-            promise.catch(function(error) {
-                expect(error.status).to.be.equal(404);
-                done();
-            });
-
-        });
-
-        it('send mehtod accepts a success callback', function(done) {
-            request.send({
-                method: 'GET',
-                url: url,
-                success: function() {
-                    done();
-                },
-                error: function(error) {
-                    done(error);
-                },
-            });
-        });
-
-        it('success callback expect responseText, status , incoming message object', function(done) {
-            request.send({
-                method: 'GET',
-                url: url,
-                success: function(data, status, httpResponse) {
-                    expect(data).to.be.a('object');
-                    expect(status).to.be.a('number');
-                    // @TODO: weird assertion
-                    expect(typeof httpResponse).to.be.equal('object');
-                    done();
-                }
-            });
-        });
-
-        it('send mehtod accepts an error callback', function(done) {
-            request.send({
-                method: 'GET',
-                url: url + '404',
-                error: function(data, status) {
-                    expect(status).to.be.equal(404);
-                    done();
-                }
-            });
-
-        });
+      fakeServer.respond();
 
     });
+
+    it('send mehtod returns a promise and reject it', function(done) {
+      var fakeResponse = [
+        404, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      var promise = request.send({
+        method: 'GET',
+        url: url
+      });
+
+      promise.catch(function(error) {
+        expect(error.status).to.be.equal(404);
+        done();
+      });
+      
+      fakeServer.respond();
+    });
+
+    it('send mehtod accepts a success callback', function(done) {
+      var fakeResponse = [
+        200, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      request.send({
+        method: 'GET',
+        url: url,
+        success: function() {
+          done();
+        },
+        error: function(error) {
+          done(error);
+        },
+      });
+
+      fakeServer.respond();
+    });
+
+    it('success callback expect responseText, status , incoming message object', function(done) {
+      var responseData = {
+        DATA: 'DATA'
+      };
+
+      var fakeResponse = [
+        200, {
+          'Content-type': 'application/json'
+        },
+        JSON.stringify(responseData)
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      request.send({
+        method: 'GET',
+        url: url,
+        success: function(data, status, httpResponse) {
+          expect(data).to.be.a('object');
+          expect(data).to.deep.equal(responseData);
+          expect(status).to.be.a('number');
+          // @TODO: weird assertion
+          expect(typeof httpResponse).to.be.equal('object');
+          done();
+        }
+      });
+
+      fakeServer.respond();
+
+    });
+
+    it('send mehtod accepts an error callback', function(done) {
+      var fakeResponse = [
+        404, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      request.send({
+        method: 'GET',
+        url: url,
+        error: function(data, status) {
+          expect(status).to.be.equal(404);
+          done();
+        }
+      });
+
+      fakeServer.respond();
+    });
+
+    it('send too large GET rewrite to POST and active override method header', function(done) {
+      var responseData = {
+        DATA: 'DATA'
+      };
+      var okResponse = [
+        200, {
+          'Content-type': 'application/json'
+        },
+        JSON.stringify(responseData)
+      ];
+
+      fakeServer.respondWith('POST', url, okResponse);
+
+      var largeUrl = url + '?' + new Array(5000).join('a');
+      request.send({
+        method: 'GET',
+        url: largeUrl,
+        success: function(data, status) {
+          expect(data).to.deep.equal(responseData);
+          expect(status).to.be.equal(200);
+          done();
+        }
+      });
+
+      fakeServer.respond();
+
+
+    });
+
+  });
 
 });
