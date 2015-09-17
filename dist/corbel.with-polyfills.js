@@ -3756,8 +3756,7 @@
                     method: corbel.request.method.PUT,
                     data: data
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
 
