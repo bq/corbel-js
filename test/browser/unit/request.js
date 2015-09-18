@@ -11,6 +11,7 @@ describe('corbel-js browser', function() {
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
     fakeServer = sinon.fakeServer.create();
+    fakeServer.autoRespond = true;
   });
 
   afterEach(function() {
@@ -61,9 +62,6 @@ describe('corbel-js browser', function() {
         }).catch(function(error) {
           done(error);
         });
-
-        fakeServer.respond();
-
       });
     });
 
@@ -105,9 +103,6 @@ describe('corbel-js browser', function() {
       }).then(function() {
         done();
       });
-
-      fakeServer.respond();
-
     });
 
     it('send mehtod returns a promise and reject it', function(done) {
@@ -129,8 +124,6 @@ describe('corbel-js browser', function() {
         expect(error.status).to.be.equal(404);
         done();
       });
-      
-      fakeServer.respond();
     });
 
     it('send mehtod accepts a success callback', function(done) {
@@ -153,8 +146,6 @@ describe('corbel-js browser', function() {
           done(error);
         },
       });
-
-      fakeServer.respond();
     });
 
     it('success callback expect responseText, status , incoming message object', function(done) {
@@ -183,9 +174,6 @@ describe('corbel-js browser', function() {
           done();
         }
       });
-
-      fakeServer.respond();
-
     });
 
     it('send mehtod accepts an error callback', function(done) {
@@ -206,8 +194,6 @@ describe('corbel-js browser', function() {
           done();
         }
       });
-
-      fakeServer.respond();
     });
 
     it('send too large GET rewrite to POST and active override method header', function(done) {
@@ -230,12 +216,11 @@ describe('corbel-js browser', function() {
         success: function(data, status) {
           expect(data).to.deep.equal(responseData);
           expect(status).to.be.equal(200);
+          expect(fakeServer.requests[0]).to.have.deep.property('requestHeaders.X-HTTP-Method-Override', 'GET');
+          expect(fakeServer.requests[0]).to.have.deep.property('requestHeaders.content-type', 'application/x-www-form-urlencoded;charset=utf-8');
           done();
         }
       });
-
-      fakeServer.respond();
-
 
     });
 
