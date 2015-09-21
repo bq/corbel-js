@@ -89,7 +89,7 @@ Using corbel-js SDK would allow you to :
 var corbelDriver = corbel.getDriver(options);
 ```
 
-#### Driver options
+#### Driver options (with client/secret)
 
 ```javascript
 var options = {
@@ -99,6 +99,20 @@ var options = {
     'urlBase': 'http://localhost:8080/{{module}}',
     'scopes': 'scopes',
     'device_id' : 'device_id'
+}
+```
+
+#### Driver options (with accessToken)
+
+```javascript
+var options = {
+    'iamToken': {
+      accessToken: 'token',
+      expiresAt: 1442837305000, // optional
+      refreshToken: 'token',    // optional
+    },
+    'domain': 'app:domain'
+    'urlBase': 'http://localhost:8080/{{module}}'
 }
 ```
 
