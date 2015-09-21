@@ -3926,6 +3926,21 @@
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
                 });
+            },
+
+            /**
+             * Delete the logged user
+             * @method
+             * @memberOf corbel.Iam.UserBuilder
+             * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+             */
+            deleteMe: function() {
+                console.log('iamInterface.user.deleteMe');
+                return this.request({
+                    url: this._buildUri(this.uri, 'me'),
+                    method: corbel.request.method.DELETE,
+                    withAuth: true
+                });
             }
 
         });
