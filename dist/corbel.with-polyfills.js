@@ -1355,6 +1355,11 @@
                 result += 'api:search=' + (typeof params.search === 'object' ? JSON.stringify(params.search) : params.search);
             }
 
+            if (params.distinct) {
+                result += result ? '&' : '';
+                result += 'api:distinct=' + (typeof params.distinct === 'object' ? JSON.stringify(params.distinct) : params.distinct);
+            }
+
             if (params.sort) {
                 result += result ? '&' : '';
                 result += 'api:sort=' + JSON.stringify(params.sort);
