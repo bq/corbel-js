@@ -22,6 +22,12 @@
       this.driver = driver;
     },
 
+    extractLocationId: function(res) {
+        console.log('silkroadServices.extractLocationId', res);
+        var uri = res.jqXHR.getResponseHeader('Location');
+        return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
+    },
+
     /**
      * Execute the actual ajax request.
      * Retries request with refresh token when credentials are needed.
@@ -121,7 +127,7 @@
      * and authorization params if needed.
      * By default, all request are json (dataType/contentType)
      * with object serialization support
-     * 
+     *
      * @memberof corbel.Services.prototype
      * @param  {object} args
      * @return {object}

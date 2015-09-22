@@ -252,7 +252,7 @@
         },
 
         /**
-         * Delete group to user 
+         * Delete group to user
          * @method
          * @memberOf iam.UserBuilder
          * @param {Object} groups     The data of the groups
@@ -372,6 +372,144 @@
             console.log('iamInterface.user.deleteMe');
             return this.request({
                 url: this._buildUri(this.uri, 'me'),
+                method: corbel.request.method.DELETE,
+                withAuth: true
+            });
+        },
+
+        /**
+         * User device register
+         * @method
+         * @memberOf corbel.iam.UserBuilder
+         * @param  {Object} data      The device data
+         * @param  {Object} data.URI  The device token
+         * @param  {Object} data.name The device name
+         * @param  {Object} data.type The device type (Android, Apple)
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+         */
+        registerMyDevice : function(data) {
+            console.log('iamInterface.user.registerMyDevice');
+            return this.request({
+                url: this._buildUri(this.uri, 'me') + '/devices',
+                method: corbel.request.method.PUT,
+                withAuth: true,
+                data: data
+            }).then(function(res) {
+                return this.extractLocationId(res);
+            });
+        },
+
+        /**
+         * User device register
+         * @method
+         * @memberOf iam.UserBuilder
+         * @param  {Object} data      The device data
+         * @param  {Object} data.URI  The device token
+         * @param  {Object} data.name The device name
+         * @param  {Object} data.type The device type (Android, Apple)
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+         */
+        registerDevice: function(data) {
+            console.log('iamInterface.user.registerDevice');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices',
+                method: corbel.request.method.PUT,
+                withAuth: true,
+                data: data
+            }).then(function(res) {
+                return this.extractLocationId(res);
+            });
+        },
+
+        /**
+         * Get device
+         * @method
+         * @memberOf iam.UserBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        getDevice: function(deviceId) {
+            console.log('iamInterface.user.getDevice');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                method: corbel.request.method.GET,
+                withAuth: true
+            });
+        },
+
+        /**
+         * Get devices
+         * @method
+         * @memberOf iam.UserBuilder
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        getDevices: function() {
+            console.log('iamInterface.user.getDevices');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices/',
+                method: corbel.request.method.GET,
+                withAuth: true
+            });
+        },
+
+        /**
+         * Get my user devices
+         * @method
+         * @memberOf iam.UsersBuilder
+         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        getMyDevices: function() {
+            console.log('iamInterface.user.getMyDevices');
+            return this.request({
+                url: this._buildUri(this.uri, 'me') + '/devices',
+                method: corbel.request.method.GET,
+                withAuth: true
+            });
+        },
+
+        /**
+         * Get my user devices
+         * @method
+         * @memberOf iam.UsersBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        getMyDevice: function(deviceId) {
+            console.log('iamInterface.user.getMyDevice');
+            return this.request({
+                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
+                method: corbel.request.method.GET,
+                withAuth: true
+            });
+        },
+
+        /**
+         * Delete user device
+         * @method
+         * @memberOf iam.UsersBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        deleteMyDevice: function(deviceId) {
+            console.log('iamInterface.user.deleteMyDevice');
+            return this.request({
+                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
+                method: corbel.request.method.DELETE,
+                withAuth: true
+            });
+        },
+
+        /**
+         * Delete user device
+         * @method
+         * @memberOf iam.UserBuilder
+         * @param  {String}  deviceId    The device id
+         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
+         */
+        deleteDevice: function(deviceId) {
+            console.log('iamInterface.user.deleteDevice');
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
                 method: corbel.request.method.DELETE,
                 withAuth: true
             });
