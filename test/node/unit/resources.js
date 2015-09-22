@@ -14,7 +14,7 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/domain-example/',
 
   DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING = '[{\"$eq\":{\"test\":2}}]&api:condition=[{\"$eq\":{\"test\":3}}]',
 
-  URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
+  URL_COLLECTION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING + '&api:search={"text":"test"}&api:distinct=text,field1&api:sort={"field1":"asc"}&api:page=1&api:pageSize=5',
 
   URL_SIMPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_SIMPLE_CONDITION_OBJECT_STRING,
 
@@ -127,32 +127,32 @@ describe('corbel resources module', function() {
 
   });
 
-  it('generate single condition correctly', function(){
+  it('generate single condition correctly', function() {
     var params = {
-        condition: [{
-            '$eq': {
-                test: 2
-            }
-        }]
+      condition: [{
+        '$eq': {
+          test: 2
+        }
+      }]
     };
     expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_SIMPLE_CONDITION_DECODED);
   });
 
-  it('generate multi condition correctly', function(){
+  it('generate multi condition correctly', function() {
     var params = {
-        conditions: [{
-            condition: [{
-                '$eq': {
-                    test: 2
-                }
-            }]
-        }, {
-            condition: [{
-                '$eq': {
-                    test: 3
-                }
-            }]
+      conditions: [{
+        condition: [{
+          '$eq': {
+            test: 2
+          }
         }]
+      }, {
+        condition: [{
+          '$eq': {
+            test: 3
+          }
+        }]
+      }]
     };
     expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
   });
@@ -163,6 +163,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
+      distinct: 'text,field1',
       pagination: {
         page: 1,
         pageSize: 5
@@ -176,12 +177,13 @@ describe('corbel resources module', function() {
 
   it('generate resource query correctly', function() {
     var urlDecoded = TEST_ENDPOINT + 'resource/resource:entity?api:query=' + DEFAULT_QUERY_OBJECT_STRING +
-       '&api:search={"text":"test"}&api:sort={"field1":"asc"}&api:page=0&api:pageSize=0';
+      '&api:search={"text":"test"}&api:distinct=text,field1&api:sort={"field1":"asc"}&api:page=0&api:pageSize=0';
     var requestParams = {
       query: DEFAULT_QUERY_OBJECT,
       search: {
         text: 'test'
       },
+      distinct: 'text,field1',
       pagination: {
         page: 0,
         pageSize: 0
@@ -197,6 +199,7 @@ describe('corbel resources module', function() {
     var requestParams = {
       query: DEFAULT_QUERY_OBJECT,
       search: 'test',
+      distinct: 'text,field1',
       pagination: {
         page: 1,
         pageSize: 5
@@ -215,6 +218,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
+      distinct: 'text,field1',
       pagination: {
         page: 1,
         pageSize: 5
@@ -227,10 +231,12 @@ describe('corbel resources module', function() {
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace(DEFAULT_QUERY_OBJECT_STRING, 'customQueryString'));
   });
 
-  it('generates a query with weird characters', function(){
+  it('generates a query with weird characters', function() {
     var requestParams = {
       query: [{
-        '$eq'  : { 'name' : 'Chewaçcá Sä+^*quñardel'}
+        '$eq': {
+          'name': 'Chewaçcá Sä+^*quñardel'
+        }
       }]
     };
 
@@ -247,6 +253,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
+      distinct: ['text','field1'],
       pagination: {
         page: 1,
         pageSize: 5
@@ -256,7 +263,7 @@ describe('corbel resources module', function() {
       }
     };
 
-    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(TEST_ENDPOINT + 'resource/resource:entity?api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:search={\"text\":\"test\"}&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(TEST_ENDPOINT + 'resource/resource:entity?api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:query=[{\"$eq\":{\"field3\":true}},{\"$eq\":{\"field4\":true}},{\"$gt\":{\"field5\":\"value\"}},{\"$gte\":{\"field5\":\"value\"}},{\"$lt\":{\"field5\":\"value\"}},{\"$lte\":{\"field5\":\"value\"}},{\"$ne\":{\"field5\":\"value\"}},{\"$in\":{\"field2\":[\"pepe\",\"juan\"]}},{\"$all\":{\"field5\":[\"pepe\",\"juan\"]}},{\"$like\":{\"field5\":\"value\"}}]&api:search={\"text\":\"test\"}&api:distinct=text,field1&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
   });
 
   it('generate resource multi query (OR)', function() {
@@ -295,6 +302,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
+      distinct: ['text','field1'],
       pagination: {
         page: 1,
         pageSize: 5
@@ -304,7 +312,7 @@ describe('corbel resources module', function() {
       }
     };
 
-    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(TEST_ENDPOINT + 'resource/resource:entity?api:query=[{\"$like\":{\"title\":\"Praga\"}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\",\"books:Book/9979a1daf7c6eebf04375bd0fc37f3c3\"]}}]&api:query=[{\"$elem_match\":{\"authors\":[{\"$like\":{\"name\":\"Praga\"}}]}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\"]}}]&api:search={\"text\":\"test\"}&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(TEST_ENDPOINT + 'resource/resource:entity?api:query=[{\"$like\":{\"title\":\"Praga\"}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\",\"books:Book/9979a1daf7c6eebf04375bd0fc37f3c3\"]}}]&api:query=[{\"$elem_match\":{\"authors\":[{\"$like\":{\"name\":\"Praga\"}}]}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\"]}}]&api:search={\"text\":\"test\"}&api:distinct=text,field1&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
   });
 
 
@@ -416,7 +424,7 @@ describe('corbel resources module', function() {
   });
 
   it('generates the correct URL for relations', function() {
-    expect( resources.relation('cars:Car', 'id123', 'cars:Store').getURL()).to.be.equal(TEST_ENDPOINT + 'resource/cars:Car/id123/cars:Store');
+    expect(resources.relation('cars:Car', 'id123', 'cars:Store').getURL()).to.be.equal(TEST_ENDPOINT + 'resource/cars:Car/id123/cars:Store');
   });
 
 
