@@ -3953,6 +3953,21 @@
             },
 
             /**
+             * Gets the logged user
+             * @method
+             * @memberOf iam.UsersBuilder
+             * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
+             */
+            getMe: function() {
+                console.log('iamInterface.users.getMe');
+                return this.request({
+                    url: this._buildUri(this.uri, 'me'),
+                    method: corbel.request.method.GET,
+                    withAuth: true
+                });
+            },
+
+            /**
              * Update the logged user
              * @method
              * @memberOf iam.UsersBuilder
