@@ -346,6 +346,23 @@
         },
 
         /**
+         * Update the logged user
+         * @method
+         * @memberOf iam.UsersBuilder
+         * @param  {Object} data    The data to update
+         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
+         */
+        updateMe: function(data) {
+            console.log('iamInterface.users.updateMe', data);
+            return this.request({
+                url: this._buildUri(this.uri, 'me'),
+                method: corbel.request.method.PUT,
+                data: data,
+                withAuth: true
+            });
+        },
+
+        /**
          * Delete the logged user
          * @method
          * @memberOf corbel.Iam.UserBuilder
