@@ -327,15 +327,24 @@
     if (AUTOMATIC_HTTP_METHOD_OVERRIDE &&
       params.method === request.method.GET &&
       params.url.length > HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN) {
-        var url = params.url.split('?');
-        params.method = request.method.POST;
-        params.headers['X-HTTP-Method-Override'] = request.method.GET;
-        params.url = url[0];
-        options.data = url[1];
-        options.contentType = 'application/x-www-form-urlencoded';
+      var url = params.url.split('?');
+      params.method = request.method.POST;
+      params.headers['X-HTTP-Method-Override'] = request.method.GET;
+      params.url = url[0];
+      options.data = encodeUrlToForm(url[1]);
+      options.contentType = 'application/x-www-form-urlencoded';
     }
-
     return params;
+  };
+
+  var encodeUrlToForm = function(url) {
+    var form = {};
+    url.split('&').forEach(function(formEntry) {
+      var formPair = formEntry.split('=');
+      //value require double encode in Override Method Filter
+      form[formPair[0]] = encodeURI(formPair[1]);
+    });
+    return form;
   };
 
   request._nodeAjax = function(params, resolver) {

@@ -110,10 +110,6 @@
 
 
   utils.toURLEncoded = function(obj) {
-    if (typeof obj === 'string') {
-      return encodeURIComponent(obj);
-    }
-
     var str = [];
     for (var p in obj) {
       if (obj.hasOwnProperty(p)) {
