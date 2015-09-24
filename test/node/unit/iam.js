@@ -293,7 +293,7 @@ describe('corbel IAM module', function() {
 
         it('Create user', function() {
             var username = 'username';
-            corbelDriver.iam.user().create({
+            corbelDriver.iam.users().create({
                 username: username
             });
 
@@ -304,7 +304,7 @@ describe('corbel IAM module', function() {
         });
 
         it('Get all users', function() {
-            corbelDriver.iam.user().get();
+            corbelDriver.iam.users().get();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user');
@@ -399,7 +399,7 @@ describe('corbel IAM module', function() {
         });
 
         it('generate sendResetPasswordEmail request correctly', function() {
-            corbelDriver.iam.user().sendResetPasswordEmail('test@email.com');
+            corbelDriver.iam.users().sendResetPasswordEmail('test@email.com');
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/resetPassword?email=test@email.com');
             expect(callRequestParam.method).to.be.equal('GET');
@@ -451,7 +451,7 @@ describe('corbel IAM module', function() {
         });
 
         it('Get user profiles', function() {
-            corbelDriver.iam.user().getProfiles();
+            corbelDriver.iam.users().getProfiles();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/profile');

@@ -9,17 +9,28 @@
      * @param  {string} [id=undefined|id|'me'] Id of the user to perform the request
      * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
      */
-    corbel.Iam.prototype.user = function(id) {
-        var builder;
-        if (id) {
-            builder = new UserBuilder(id);
-        } else {
-            builder = new UsersBuilder();
-        }
+     corbel.Iam.prototype.user = function(id) {
+         var builder;
+         if (id) {
+             builder = new UserBuilder(id);
+         } else {
+             builder = new UserMeBuilder('me');
+         }
 
-        builder.driver = this.driver;
-        return builder;
-    };
+         builder.driver = this.driver;
+         return builder;
+     };
+
+     /**
+      * Starts a users request
+      * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
+      */
+     corbel.Iam.prototype.users = function() {
+         var builder =  new UsersBuilder();
+
+         builder.driver = this.driver;
+         return builder;
+     };
 
     /**
      * getUser mixin for UserBuilder & UsersBuilder
@@ -219,75 +230,6 @@
                  method: corbel.request.method.DELETE
              });
          },
-
-        /**
-         * User device register
-         * @method
-         * @memberOf corbel.iam.UserBuilder
-         * @param  {Object} data      The device data
-         * @param  {Object} data.URI  The device token
-         * @param  {Object} data.name The device name
-         * @param  {Object} data.type The device type (Android, Apple)
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link SilkRoadError}
-         */
-        registerMyDevice : function(data) {
-            console.log('iamInterface.user.registerMyDevice');
-            return this.request({
-                url: this._buildUri(this.uri, 'me') + '/devices',
-                method: corbel.request.method.PUT,
-                withAuth: true,
-                data: data
-            }).then(function(res) {
-                return this.extractLocationId(res);
-            });
-        },
-        /**
-         * Get my user devices
-         * @method
-         * @memberOf corbel.iam.UsersBuilder
-         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
-         */
-        getMyDevices: function() {
-            console.log('iamInterface.user.getMyDevices');
-            return this.request({
-                url: this._buildUri(this.uri, 'me') + '/devices',
-                method: corbel.request.method.GET,
-                withAuth: true
-            });
-        },
-
-        /**
-         * Get my user devices
-         * @method
-         * @memberOf corbel.iam.UsersBuilder
-         * @param  {String}  deviceId    The device id
-         * @return {Promise} Q promise that resolves to a list of Device {Object} or rejects with a {@link SilkRoadError}
-         */
-        getMyDevice: function(deviceId) {
-            console.log('iamInterface.user.getMyDevice');
-            return this.request({
-                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-                method: corbel.request.method.GET,
-                withAuth: true
-            });
-        },
-
-        /**
-         * Delete user device
-         * @method
-         * @memberOf iam.UsersBuilder
-         * @param  {String}  deviceId    The device id
-         * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link SilkRoadError}
-         */
-        deleteMyDevice: function(deviceId) {
-            console.log('iamInterface.user.deleteMyDevice');
-            return this.request({
-                url: this._buildUri(this.uri, 'me') + '/devices/' + deviceId,
-                method: corbel.request.method.DELETE,
-                withAuth: true
-            });
-        },
-
          /**
           * Get user profiles
           * @method
@@ -336,13 +278,35 @@
 
     });
 
-
+    var UserMeBuilder = corbel.Iam.UserBuilder.inherit({
+        deleteMyGroup : function(){
+            return this.deleteGroup.apply(this, arguments);
+        },
+        updateMe : function(){
+            return this.update.apply(this, arguments);
+        },
+        deleteMe :function(){
+             return this.delete.apply(this, arguments);
+    },
+        registerMyDevice :function(){
+             return this.registerDevice.apply(this, arguments);
+    },
+        getMyDevices :function(){
+             return this.getDevices.apply(this, arguments);
+    },
+        getMyDevice :function(){
+             return this.getDevice.apply(this, arguments);
+    },
+        deleteMyDevice :function(){
+             return this.deleteDevice.apply(this, arguments);
+         }
+    });
     /**
      * Builder for creating requests of users collection
      * @class
      * @memberOf iam
      */
-    var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
+     var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
 
         constructor: function() {
             this.uri = 'user';
@@ -409,38 +373,6 @@
                 url: this._buildUri(this.uri) + '/profile',
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
-            });
-        },
-
-        /**
-         * Update the logged user
-         * @method
-         * @memberOf iam.UsersBuilder
-         * @param  {Object} data    The data to update
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        updateMe: function(data) {
-            console.log('iamInterface.users.updateMe', data);
-            return this.request({
-                url: this._buildUri(this.uri, 'me'),
-                method: corbel.request.method.PUT,
-                data: data,
-                withAuth: true
-            });
-        },
-
-        /**
-         * Delete the logged user
-         * @method
-         * @memberOf corbel.Iam.UserBuilder
-         * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
-         */
-        deleteMe: function() {
-            console.log('iamInterface.user.deleteMe');
-            return this.request({
-                url: this._buildUri(this.uri, 'me'),
-                method: corbel.request.method.DELETE,
-                withAuth: true
             });
         }
     });
