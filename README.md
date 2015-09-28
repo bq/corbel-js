@@ -13,24 +13,6 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
 
 ## [Homepage](http://opensource.bq.com/corbel-js/)
 
-# BREAKING CHANGES (0.1.0)
-
-- Pagination change in query, `size` renamed to `pageSize`
-
-```
-{
-  pagination : {
-    page : 1,
-    pageSize : 10
-  }
-}
-
-```
-
-- Response error fix. :
-  +  Now it responds with an object instead of a string.
-
-
 <!-- MarkdownTOC -->
 
 - Quickstart

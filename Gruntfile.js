@@ -44,7 +44,8 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('./package.json'),
 
     clean: {
-      all: ['.tmp', 'dist', 'doc']
+      all: ['.tmp', 'dist', 'doc'],
+      tap: ['.tmp/**/*.dirty.tap']
     },
 
     copy: {
