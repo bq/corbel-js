@@ -2949,8 +2949,7 @@
                     method: corbel.request.method.GET,
                     query: query
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
 
