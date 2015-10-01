@@ -2949,8 +2949,7 @@
                     method: corbel.request.method.GET,
                     query: query
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
+                    return corbel.Services.getLocationId(res);
                 });
             },
 
@@ -3599,6 +3598,26 @@
             },
 
             /**
+             * Gets all assets
+             * @method
+             * @memberOf assets.AssetBuilder
+             * @param  {Object} [params]              Params of the silkroad request
+             * @memberof corbel.Assets.AssetsBuilder.prototype
+             * @param  {object} [params]      Params of a {@link corbel.request}
+             * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
+             */
+            getAll: function(params) {
+                var options = params ? corbel.utils.clone(params) : {};
+
+                var args = corbel.utils.extend(options, {
+                    url: this._buildUri(this.uri, 'all'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+                return this.request(args);
+            },
+
+            /**
              * Delete asset
              * @memberof corbel.Assets.AssetsBuilder.prototype
              * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
@@ -3649,6 +3668,9 @@
                 then(function(response) {
                     return that.request({
                         noRetry: args.noRetry,
+                        method: corbel.request.method.POST,
+                        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                        data: response.data,
                         url: response.headers.Location
                     });
                 });
