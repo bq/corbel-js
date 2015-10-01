@@ -281,23 +281,6 @@
                 result = 'api:aggregation=' + JSON.stringify(params.aggregation);
             }
 
-            //Encodes each query value for being URI compilant
-            function encodeQueryComponents(obj) {
-                if (Array.isArray(obj)) {
-                    obj = obj.map(function(item) {
-                        return encodeQueryComponents(item);
-                    });
-                } else if (typeof(obj) === 'object') {
-                    Object.keys(obj).forEach(function(key) {
-                        obj[key] = encodeQueryComponents(obj[key]);
-                    });
-                } else if (typeof(obj) === 'string') {
-                    //Return the encoded component (decode first for avoiding double encode)
-                    obj = encodeURIComponent(decodeURIComponent(obj));
-                }
-                return obj;
-            }
-
             function queryObjectToString(params, key) {
                 var result = '';
                 var query;
@@ -311,7 +294,7 @@
                         query = JSON.parse(JSON.stringify(params[key]));
                     }
 
-                    query = JSON.stringify(encodeQueryComponents(query));
+                    query = JSON.stringify(query);
 
                     result += query;
 
