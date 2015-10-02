@@ -19,7 +19,7 @@
                 builder.driver = driver;
                 return builder;
             };
-        },
+        }
 
 
     }, {

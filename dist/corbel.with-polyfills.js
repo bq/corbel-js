@@ -3039,7 +3039,7 @@
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
                     method: corbel.request.method.POST,
-                    data: client,
+                    data: client
                 }).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
@@ -4246,7 +4246,7 @@
                     builder.driver = driver;
                     return builder;
                 };
-            },
+            }
 
 
         }, {
@@ -5660,7 +5660,7 @@
                     builder.driver = driver;
                     return builder;
                 };
-            },
+            }
 
 
         }, {
@@ -6101,7 +6101,7 @@
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
-                    data: product,
+                    data: product
                 }).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
@@ -6114,7 +6114,7 @@
              * @memberOf corbel.Ec.EcBuilder
              *
              * @param  {Object} params  The params filter
-             * 
+             *
              * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
              */
             get: function(params) {
@@ -6133,7 +6133,7 @@
              * @memberOf corbel.Ec.EcBuilder
              *
              * @param  {Object} product  The product update
-             * 
+             *
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             update: function(product) {
@@ -6415,7 +6415,7 @@
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
-                    data: loanableResource,
+                    data: loanableResource
                 }).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
@@ -6473,7 +6473,7 @@
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'license'),
                     method: corbel.request.method.POST,
-                    data: license,
+                    data: license
                 }).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
@@ -6813,7 +6813,7 @@
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
-                    data: lender,
+                    data: lender
                 }).then(function(res) {
                     return corbel.Services.getLocationId(res);
                 });
@@ -7016,7 +7016,7 @@
                 console.log('composrInterface.phrase.get');
                 return this.request({
                     url: this._buildUri('phrase', this.id),
-                    method: corbel.request.method.GET,
+                    method: corbel.request.method.GET
                 });
             },
 
@@ -7024,7 +7024,7 @@
                 console.log('composrInterface.phrase.getAll');
                 return this.request({
                     url: this._buildUri('phrase'),
-                    method: corbel.request.method.GET,
+                    method: corbel.request.method.GET
                 });
             },
 
@@ -7032,7 +7032,7 @@
                 console.log('composrInterface.phrase.delete');
                 return this.request({
                     url: this._buildUri('phrase', this.id),
-                    method: corbel.request.method.DELETE,
+                    method: corbel.request.method.DELETE
                 });
             },
 

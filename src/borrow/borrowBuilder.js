@@ -44,7 +44,7 @@
             return this.request({
                 url: this._buildUri(this.uri),
                 method: corbel.request.method.POST,
-                data: loanableResource,
+                data: loanableResource
             }).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });
@@ -102,7 +102,7 @@
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'license'),
                 method: corbel.request.method.POST,
-                data: license,
+                data: license
             }).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });
