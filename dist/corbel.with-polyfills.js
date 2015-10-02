@@ -2458,8 +2458,8 @@
                     response: body,
                     status: status,
                     headers: {
-                        Location: response.headers ? response.headers.Location : '',
-                        'Set-Cookie': response.headers ? response.headers['set-cookie'] : ''
+                        Location: response && response.headers ? response.headers.Location : '',
+                        'Set-Cookie': response && response.headers ? response.headers['set-cookie'] : ''
                     },
                     responseObjectType: 'response',
                     error: error
