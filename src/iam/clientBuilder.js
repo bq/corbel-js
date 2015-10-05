@@ -60,7 +60,7 @@
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
         method: corbel.request.method.POST,
-        data: client,
+        data: client
       }).then(function(res) {
         return corbel.Services.getLocationId(res);
       });

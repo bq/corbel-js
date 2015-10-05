@@ -41,7 +41,7 @@
             return this.request({
                 url: this._buildUri(this.uri),
                 method: corbel.request.method.POST,
-                data: lender,
+                data: lender
             }).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });

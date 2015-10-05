@@ -58,7 +58,7 @@
       return this.request({
         url: this._buildUri(this.uri),
         method: corbel.request.method.POST,
-        data: product,
+        data: product
       }).then(function(res) {
         return corbel.Services.getLocationId(res);
       });
@@ -71,7 +71,7 @@
      * @memberOf corbel.Ec.EcBuilder
      *
      * @param  {Object} params  The params filter
-     * 
+     *
      * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
      */
     get: function(params) {
@@ -90,7 +90,7 @@
      * @memberOf corbel.Ec.EcBuilder
      *
      * @param  {Object} product  The product update
-     * 
+     *
      * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
      */
     update: function(product) {

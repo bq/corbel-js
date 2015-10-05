@@ -32,7 +32,7 @@
       console.log('composrInterface.phrase.get');
       return this.request({
         url: this._buildUri('phrase', this.id),
-        method: corbel.request.method.GET,
+        method: corbel.request.method.GET
       });
     },
 
@@ -40,7 +40,7 @@
       console.log('composrInterface.phrase.getAll');
       return this.request({
         url: this._buildUri('phrase'),
-        method: corbel.request.method.GET,
+        method: corbel.request.method.GET
       });
     },
 
@@ -48,7 +48,7 @@
       console.log('composrInterface.phrase.delete');
       return this.request({
         url: this._buildUri('phrase', this.id),
-        method: corbel.request.method.DELETE,
+        method: corbel.request.method.DELETE
       });
     },
 
