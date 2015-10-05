@@ -4329,9 +4329,6 @@
 
             /**
              * Gets all assets
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @param  {Object} [params]              Params of the silkroad request
              * @memberof corbel.Assets.AssetsBuilder.prototype
              * @param  {object} [params]      Params of a {@link corbel.request}
              * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
@@ -4856,7 +4853,7 @@
              * @memberOf Resources.Relation
              * @param  {String} dataType    Mime type of the expected resource
              * @param  {String} destId         Relationed resource
-             * @param  {Object} params      Params of the silkroad request
+             * @param  {Object} params      Params of the corbel request
              * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link CorbelError}
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */

@@ -28,7 +28,7 @@
           * @memberOf Resources.Relation
           * @param  {String} dataType    Mime type of the expected resource
           * @param  {String} destId         Relationed resource
-          * @param  {Object} params      Params of the silkroad request
+          * @param  {Object} params      Params of the corbel request
           * @return {Promise}            ES6 promise that resolves to a relation {Object} or rejects with a {@link CorbelError}
           * @see {@link corbel.util.serializeParams} to see a example of the params
           */
