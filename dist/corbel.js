@@ -3582,9 +3582,6 @@
 
             /**
              * Gets all assets
-             * @method
-             * @memberOf assets.AssetBuilder
-             * @param  {Object} [params]              Params of the silkroad request
              * @memberof corbel.Assets.AssetsBuilder.prototype
              * @param  {object} [params]      Params of a {@link corbel.request}
              * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
