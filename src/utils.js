@@ -252,8 +252,12 @@
     }
 
     if (params.search) {
-      result += result ? '&' : '';
-      result += 'api:search=' + (typeof params.search === 'object' ? JSON.stringify(params.search) : params.search);
+        result += result ? '&' : '';
+        result += 'api:search=' + JSON.stringify(params.search);
+        if (params.binded) {
+            result += result ? '&' : '';
+            result += 'api:binded=' + JSON.stringify(params.binded);
+        }
     }
 
     if (params.distinct) {
@@ -264,11 +268,6 @@
     if (params.sort) {
       result += result ? '&' : '';
       result += 'api:sort=' + JSON.stringify(params.sort);
-    }
-
-    if (params.binded) {
-      result += result ? '&' : '';
-      result += 'api:binded=' + params.binded;
     }
 
     if (params.pagination) {
