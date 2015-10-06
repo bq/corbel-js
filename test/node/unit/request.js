@@ -9,7 +9,7 @@ describe('corbel-js node', function() {
 
     var sandbox;
 
-    this.timeout(4000);
+    this.timeout(20000);
 
     beforeEach(function() {
         sandbox = sinon.sandbox.create();
