@@ -190,6 +190,7 @@ describe('corbel.Services', function() {
 
             var spyRefresh = sandbox.spy(service, '_refreshHandler');
             var spyDoRequest = sandbox.spy(service, '_doRequest');
+            var spyToken = sandbox.spy(service.driver.iam, 'token');
 
             // stub request
             requestStub.onCall(0).returns(Promise.reject({
@@ -207,7 +208,8 @@ describe('corbel.Services', function() {
 
               expect(retries).to.be.equal(1);
 
-              expect(spyRefresh.callCount).to.be.equal(0);
+              expect(spyRefresh.callCount).to.be.equal(1);
+              expect(spyToken.callCount).to.be.equal(0);
               expect(spyDoRequest.callCount).to.be.equal(1);
               done();
             });
@@ -225,6 +227,7 @@ describe('corbel.Services', function() {
             },
             spyRefresh,
             spyDoRequest,
+            spyToken,
             scopesExample = 'scopes',
             newToken = {
               accessToken: 'newToken',
@@ -238,6 +241,7 @@ describe('corbel.Services', function() {
 
             spyRefresh = sandbox.spy(service, '_refreshHandler');
             spyDoRequest = sandbox.spy(service, '_doRequest');
+            spyToken = sandbox.spy(service.driver.iam, 'token');
 
             // stub request
             requestStub.onCall(0).returns(Promise.reject({
@@ -265,6 +269,7 @@ describe('corbel.Services', function() {
               url: 'url'
             }).then(function() {
               expect(spyRefresh.calledOnce).to.be.equal(true);
+              expect(spyToken.calledOnce).to.be.equal(true);
               done();
             });
 
@@ -283,6 +288,8 @@ describe('corbel.Services', function() {
                 url: 'url'
               }).catch(function(response) {
                 expect(spyRefresh.calledOnce).to.be.equal(true);
+                expect(spyRefresh.calledOnce).to.be.equal(true);
+                expect(spyToken.calledOnce).to.be.equal(true);
                 expect(spyDoRequest.calledOnce).to.be.equal(true);
 
                 expect(response.status).to.be.equal(401);
@@ -381,6 +388,33 @@ describe('corbel.Services', function() {
 
                 });
 
+
+              });
+
+            });
+
+
+          });
+
+
+          describe.skip('with a client without refreshToken', function() {
+            it('it calls token create when the request fails', function(done) {
+
+
+            });
+
+            describe('if success', function() {
+
+
+              it('retries request', function(done) {
+
+              });
+
+            });
+
+            describe('if fails', function() {
+
+              it('rejects response', function() {
 
               });
 
