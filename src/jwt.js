@@ -94,14 +94,12 @@
             try {
                 decoded[0] = JSON.parse(serialize(decoded[0]));
             } catch (e) {
-                console.log('error:jwt:decode:0');
                 decoded[0] = false;
             }
 
             try {
                 decoded[1] = JSON.parse(serialize(decoded[1]));
             } catch (e) {
-                console.log('error:jwt:decode:1');
                 decoded[1] = false;
             }
 
