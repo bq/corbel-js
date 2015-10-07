@@ -89,7 +89,8 @@
     "test:node:debug": "node-debug $(which grunt) test:node",
     "test:browser:debug": "node-debug $(which grunt) test:browser",
     "clean": "rm -rf node_modules bower_components",
-    "build": "grunt dist"
+    "build": "grunt dist",
+    "coverage": "grunt coverage:node"
   },
   "config": {
     "travis-cov": {

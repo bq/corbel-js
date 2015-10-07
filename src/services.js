@@ -45,16 +45,13 @@
       var that = this;
       return this._doRequest(params).catch(function(response) {
         var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-        if (response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE && tokenObject.refreshToken) {
-          return that._refreshHandler().then(function() {
+        return that._refreshHandler(tokenObject, response)
+          .then(function() {
             return that._doRequest(that._buildParams(args));
-          }).catch(function() {
+          })
+          .catch(function() {
             return Promise.reject(response);
           });
-        } else {
-          console.log('corbeljs:services:no_refresh', response.status, !!tokenObject);
-          return Promise.reject(response);
-        }
       });
 
     },
@@ -101,9 +98,21 @@
      * Default token refresh handler
      * @return {Promise}
      */
-    _refreshHandler: function() {
-      console.log('corbeljs:services:refresh');
-      return this.driver.iam.token().refresh(this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
+    _refreshHandler: function(tokenObject, response) {
+
+      if (response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
+        if (tokenObject.refreshToken) {
+          console.log('corbeljs:services:token:refresh');
+          return this.driver.iam.token()
+            .refresh(tokenObject.refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
+        } else {
+          console.log('corbeljs:services:token:create');
+          return this.driver.iam.token().create();
+        }
+      } else {
+        console.log('corbeljs:services:token:no_refresh', response.status, !!tokenObject);
+        return Promise.reject(response);
+      }
     },
 
     /**
