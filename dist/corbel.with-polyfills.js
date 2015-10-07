@@ -2054,14 +2054,12 @@
                 try {
                     decoded[0] = JSON.parse(serialize(decoded[0]));
                 } catch (e) {
-                    console.log('error:jwt:decode:0');
                     decoded[0] = false;
                 }
 
                 try {
                     decoded[1] = JSON.parse(serialize(decoded[1]));
                 } catch (e) {
-                    console.log('error:jwt:decode:1');
                     decoded[1] = false;
                 }
 
@@ -2461,10 +2459,7 @@
                     responseType: responseType,
                     response: body,
                     status: status,
-                    headers: {
-                        Location: response && response.headers ? response.headers.Location : '',
-                        'Set-Cookie': response && response.headers ? response.headers['set-cookie'] : ''
-                    },
+                    headers: response.headers || {},
                     responseObjectType: 'response',
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
@@ -2484,6 +2479,31 @@
             } else {
                 return false;
             }
+        };
+
+        /**
+         * https://gist.github.com/monsur/706839
+         * @param  {string} headerStr Headers in string format as returned in xhr.getAllResponseHeaders()
+         * @return {Object}
+         */
+        request._parseResponseHeaders = function(headerStr) {
+            var headers = {};
+            if (!headerStr) {
+                return headers;
+            }
+            var headerPairs = headerStr.split('\u000d\u000a');
+            for (var i = 0; i < headerPairs.length; i++) {
+                var headerPair = headerPairs[i];
+                // Can't use split() here because it does the wrong thing
+                // if the header value has the string ": " in it.
+                var index = headerPair.indexOf('\u003a\u0020');
+                if (index > 0) {
+                    var key = headerPair.substring(0, index);
+                    var val = headerPair.substring(index + 2);
+                    headers[key] = val;
+                }
+            }
+            return headers;
         };
 
         request._browserAjax = function(params, resolver) {
@@ -2514,9 +2534,7 @@
                     responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
                     response: xhr.response || xhr.responseText,
                     status: xhr.status,
-                    headers: {
-                        Location: xhr.getResponseHeader('Location')
-                    },
+                    headers: request._parseResponseHeaders(xhr.getAllResponseHeaders()),
                     responseObjectType: 'xhr',
                     error: xhr.error
                 }, resolver, params.callbackSuccess, params.callbackError);
