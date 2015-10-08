@@ -1589,19 +1589,27 @@
              */
             request: function(args) {
 
-                var params = this._buildParams(args);
-
                 var that = this;
-                return this._doRequest(params).catch(function(response) {
-                    var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-                    return that._refreshHandler(tokenObject, response)
-                        .then(function() {
-                            return that._doRequest(that._buildParams(args));
-                        })
-                        .catch(function() {
-                            return Promise.reject(response);
+
+                function requestWithRetries() {
+                    var params = that._buildParams(args);
+
+                    return that._doRequest(params)
+                        .catch(function(response) {
+                            var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+                            return that._refreshHandler(tokenObject, response)
+                                .then(function() {
+                                    //Has refreshed the token, retry request
+                                    return requestWithRetries();
+                                })
+                                .catch(function() {
+                                    //Has failed refreshing, reject request
+                                    return Promise.reject(response);
+                                });
                         });
-                });
+                }
+
+                return requestWithRetries();
 
             },
 
@@ -1841,7 +1849,6 @@
         return Services;
 
     })();
-
 
     //----------corbel modules----------------
 
@@ -2495,11 +2502,18 @@
                 params = params || {};
                 // if there are oauth params this mean we should do use the GET verb
                 var promise;
-                if (params.oauth) {
-                    promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                try {
+                    if (params.oauth) {
+                        promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                    }
+
+                    // otherwise we use the traditional POST verb.
+                    promise = this._doPostTokenRequest(this.uri, params, setCookie);
+
+                } catch (e) {
+                    console.log('error', e);
+                    return Promise.reject(e);
                 }
-                // otherwise we use the traditional POST verb.
-                promise = this._doPostTokenRequest(this.uri, params, setCookie);
 
                 var that = this;
                 return promise.then(function(response) {

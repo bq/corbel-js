@@ -23,9 +23,9 @@
     },
 
     extractLocationId: function(res) {
-        console.log('silkroadServices.extractLocationId', res);
-        var uri = res.jqXHR.getResponseHeader('Location');
-        return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
+      console.log('silkroadServices.extractLocationId', res);
+      var uri = res.jqXHR.getResponseHeader('Location');
+      return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
     },
 
     /**
@@ -40,19 +40,27 @@
      */
     request: function(args) {
 
-      var params = this._buildParams(args);
-
       var that = this;
-      return this._doRequest(params).catch(function(response) {
-        var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-        return that._refreshHandler(tokenObject, response)
-          .then(function() {
-            return that._doRequest(that._buildParams(args));
-          })
-          .catch(function() {
-            return Promise.reject(response);
+
+      function requestWithRetries() {
+        var params = that._buildParams(args);
+
+        return that._doRequest(params)
+          .catch(function(response) {
+            var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+            return that._refreshHandler(tokenObject, response)
+              .then(function() {
+                //Has refreshed the token, retry request
+                return requestWithRetries();
+              })
+              .catch(function() {
+                //Has failed refreshing, reject request
+                return Promise.reject(response);
+              });
           });
-      });
+      }
+
+      return requestWithRetries();
 
     },
 
