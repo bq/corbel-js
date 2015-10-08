@@ -276,47 +276,47 @@
 
     var data = response.response;
 
-    if (statusType === 4 || response.error) {
+    if (statusType < 3) {
 
-        if (callbackError) {
-          callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
-        }
-
-        if (response.response) {
-          data = request.parse(response.response, response.responseType, response.dataType);
-        }
-
-        promiseResponse = {
-          data: data,
-          status: statusCode,
-          error: response.error,
-          headers: response.headers
-        };
-
-        promiseResponse[response.responseObjectType] = response.responseObject;
-
-        resolver.reject(promiseResponse);
-
-    } else if (statusType < 3) {
-
-        if (response.response) {
+      if (response.response) {
         data = request.parse(response.response, response.responseType, response.dataType);
-        }
+      }
 
-        if (callbackSuccess) {
+      if (callbackSuccess) {
         callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-        }
+      }
 
-        promiseResponse = {
+      promiseResponse = {
         data: data,
         status: statusCode,
         headers: response.headers
-        };
+      };
 
-        promiseResponse[response.responseObjectType] = response.responseObject;
+      promiseResponse[response.responseObjectType] = response.responseObject;
 
-        resolver.resolve(promiseResponse);
+      resolver.resolve(promiseResponse);
+
+    } else if (statusType === 4) {
+
+      if (callbackError) {
+        callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
       }
+
+      if (response.response) {
+        data = request.parse(response.response, response.responseType, response.dataType);
+      }
+
+      promiseResponse = {
+        data: data,
+        status: statusCode,
+        error: response.error,
+        headers: response.headers
+      };
+
+      promiseResponse[response.responseObjectType] = response.responseObject;
+
+      resolver.reject(promiseResponse);
+    }
 
   };
 
@@ -463,24 +463,17 @@
 
     //response fail ()
     httpReq.onerror = function(xhr) {
-        var error;
+      xhr = xhr.target || xhr; // only for fake sinon response xhr
 
-        // Error flag to support disconnection errors
-        if (xhr.type === 'error') {
-            error = true;
-        }
-
-        xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-        processResponse.call(this, {
-            responseObject: xhr,
-            dataType: xhr.dataType,
-            responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
-            response: xhr.response || xhr.responseText,
-            status: xhr.status,
-            responseObjectType: 'xhr',
-            error: xhr.error || error
-        }, resolver, params.callbackSuccess, params.callbackError);
+      processResponse.call(this, {
+        responseObject: xhr,
+        dataType: xhr.dataType,
+        responseType: xhr.responseType || xhr.getResponseHeader('content-type'),
+        response: xhr.response || xhr.responseText,
+        status: xhr.status,
+        responseObjectType: 'xhr',
+        error: xhr.error
+      }, resolver, params.callbackSuccess, params.callbackError);
 
     }.bind(this);
 
