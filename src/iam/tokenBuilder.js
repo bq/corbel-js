@@ -115,11 +115,18 @@
             params = params || {};
             // if there are oauth params this mean we should do use the GET verb
             var promise;
-            if (params.oauth) {
-                promise = this._doGetTokenRequest(this.uri, params, setCookie);
+            try{
+                if (params.oauth) {
+                    promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                }
+                
+                // otherwise we use the traditional POST verb.
+                promise = this._doPostTokenRequest(this.uri, params, setCookie);
+                
+            }catch(e){
+                console.log('error', e);
+                return Promise.reject(e);
             }
-            // otherwise we use the traditional POST verb.
-            promise = this._doPostTokenRequest(this.uri, params, setCookie);
 
             var that = this;
             return promise.then(function(response) {
