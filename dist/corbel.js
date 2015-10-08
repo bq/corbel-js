@@ -1589,19 +1589,44 @@
              */
             request: function(args) {
 
-                var params = this._buildParams(args);
-
                 var that = this;
-                return this._doRequest(params).catch(function(response) {
-                    var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-                    return that._refreshHandler(tokenObject, response)
-                        .then(function() {
-                            return that._doRequest(that._buildParams(args));
-                        })
-                        .catch(function() {
-                            return Promise.reject(response);
+
+                function requestWithRetries() {
+                    var params = that._buildParams(args);
+
+                    return that._doRequest(params)
+                        .catch(function(response) {
+
+                            var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                            var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
+
+                            if (retries < maxRetries &&
+                                response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
+
+                                var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+                                //A 401 request within, refresh the token and retry the request.
+                                return that._refreshHandler(tokenObject, response)
+                                    .then(function() {
+                                        //Has refreshed the token, retry request
+                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
+                                        return requestWithRetries();
+                                    })
+                                    .catch(function(err) {
+                                        //Has failed refreshing, reject request and reset the retries counter
+                                        console.log('corbeljs:services:token:refresh:fail', err);
+                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                                        return Promise.reject(response);
+                                    });
+
+                            } else {
+                                console.log('corbeljs:services:token:no_refresh', response.status, !!tokenObject);
+                                return Promise.reject(response);
+                            }
+
                         });
-                });
+                }
+
+                return requestWithRetries();
 
             },
 
@@ -1616,6 +1641,7 @@
                 return corbel.request.send(params).then(function(response) {
 
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
+                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
 
                     return Promise.resolve(response);
 
@@ -1648,19 +1674,13 @@
              * @return {Promise}
              */
             _refreshHandler: function(tokenObject, response) {
-
-                if (response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
-                    if (tokenObject.refreshToken) {
-                        console.log('corbeljs:services:token:refresh');
-                        return this.driver.iam.token()
-                            .refresh(tokenObject.refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
-                    } else {
-                        console.log('corbeljs:services:token:create');
-                        return this.driver.iam.token().create();
-                    }
+                if (tokenObject.refreshToken) {
+                    console.log('corbeljs:services:token:refresh');
+                    return this.driver.iam.token()
+                        .refresh(tokenObject.refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
                 } else {
-                    console.log('corbeljs:services:token:no_refresh', response.status, !!tokenObject);
-                    return Promise.reject(response);
+                    console.log('corbeljs:services:token:create');
+                    return this.driver.iam.token().create();
                 }
             },
 
@@ -1798,6 +1818,23 @@
             _FORCE_UPDATE_STATUS_CODE: 403,
 
             /**
+             * _UNAUTHORIZED_MAX_RETRIES constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {number}
+             * @default
+             */
+            _UNAUTHORIZED_MAX_RETRIES: 1,
+
+            /**
+             * _UNAUTHORIZED_NUM_RETRIES constant
+             * @constant
+             * @memberof corbel.Services
+             * @type {string}
+             * @default
+             */
+            _UNAUTHORIZED_NUM_RETRIES: 'un_r',
+            /**
              * _UNAUTHORIZED_STATUS_CODE constant
              * @constant
              * @memberof corbel.Services
@@ -1841,7 +1878,6 @@
         return Services;
 
     })();
-
 
     //----------corbel modules----------------
 
@@ -2495,11 +2531,18 @@
                 params = params || {};
                 // if there are oauth params this mean we should do use the GET verb
                 var promise;
-                if (params.oauth) {
-                    promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                try {
+                    if (params.oauth) {
+                        promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                    }
+
+                    // otherwise we use the traditional POST verb.
+                    promise = this._doPostTokenRequest(this.uri, params, setCookie);
+
+                } catch (e) {
+                    console.log('error', e);
+                    return Promise.reject(e);
                 }
-                // otherwise we use the traditional POST verb.
-                promise = this._doPostTokenRequest(this.uri, params, setCookie);
 
                 var that = this;
                 return promise.then(function(response) {
