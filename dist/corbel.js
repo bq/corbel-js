@@ -1627,6 +1627,7 @@
                                     .then(function() {
                                         //Has refreshed the token, retry request
                                         that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
+                                        //@TODO: see if we need to upgrade the token to access assets.
                                         return requestWithRetries();
                                     })
                                     .catch(function(err) {
@@ -1637,6 +1638,7 @@
                                     });
 
                             } else {
+                                that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
                                 console.log('corbeljs:services:token:no_refresh', response.status);
                                 return Promise.reject(response);
                             }
