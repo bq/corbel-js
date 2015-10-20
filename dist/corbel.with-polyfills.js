@@ -3683,15 +3683,17 @@
 
         /**
          * Starts a user request
-         * @param  {string} [id=undefined|id|'me'] Id of the user to perform the request
-         * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
+         * @param  {string} [id=id|'me'] Id of the user to perform the request
+         * @return {corbel.Iam.UserBuilder|corbel.Iam.UserMeBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.user = function(id) {
             var builder;
-            if (id) {
+            if (id === 'me') {
+                builder = new UserMeBuilder('me');
+            } else if (id) {
                 builder = new UserBuilder(id);
             } else {
-                builder = new UserMeBuilder('me');
+                throw new Error('undefined user id');
             }
 
             builder.driver = this.driver;

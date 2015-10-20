@@ -470,14 +470,6 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
-        it('Register my device without parameter in constructor', function() {
-            corbelDriver.iam.user().registerDevice('Device data');
-
-            var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices');
-            expect(callRequestParam.method).to.be.equal('PUT');
-        });
-
         it('Register device', function() {
             corbelDriver.iam.user('userId').registerDevice('Device data');
 
@@ -510,14 +502,6 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('Get my devices without parameter in constructor', function() {
-            corbelDriver.iam.user().getDevices();
-
-            var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/');
-            expect(callRequestParam.method).to.be.equal('GET');
-        });
-
         it('Get my device', function() {
             corbelDriver.iam.user('me').getDevice('123');
             var callRequestParam = corbel.request.send.firstCall.args[0];
@@ -525,24 +509,8 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('Get my device without parameter in constructor', function() {
-            corbelDriver.iam.user().getDevice('123');
-
-            var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/123');
-            expect(callRequestParam.method).to.be.equal('GET');
-        });
-
         it('Delete my device', function() {
             corbelDriver.iam.user('me').deleteDevice('deviceId');
-
-            var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/deviceId');
-            expect(callRequestParam.method).to.be.equal('DELETE');
-        });
-
-        it('Delete my device without parameter in constructor', function() {
-            corbelDriver.iam.user().deleteDevice('deviceId');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/deviceId');
