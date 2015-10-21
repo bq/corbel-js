@@ -193,7 +193,7 @@
       return result;
     }
 
-    if (!(params instanceof Object)) {
+    if (!(params instanceof Object) && (typeof params !== 'object')) {
       throw new Error('expected params to be an Object type, but got ' + typeof params);
     }
 
