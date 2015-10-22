@@ -3689,11 +3689,11 @@
         corbel.Iam.prototype.user = function(id) {
             var builder;
             if (id === 'me') {
-                builder = new UserMeBuilder('me');
+                builder = new UserBuilder('me');
             } else if (id) {
                 builder = new UserBuilder(id);
             } else {
-                throw new Error('undefined user id');
+                builder = new UserMeBuilder('me');
             }
 
             builder.driver = this.driver;
@@ -3732,7 +3732,7 @@
          * @memberOf iam
          * @param {string} id The id of the user
          */
-        var UserBuilder = corbel.Iam.UserBuilder = corbel.Services.inherit({
+        var CommonUserBuilder = corbel.Iam.CommonUserBuilder = corbel.Services.inherit({
 
             constructor: function(id) {
                 this.uri = 'user';
@@ -3760,7 +3760,7 @@
              * @param  {Object} data    The data to update
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
-            update: function(data) {
+            _update: function(data) {
                 console.log('iamInterface.user.update', data);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -3775,7 +3775,7 @@
              * @memberOf corbel.Iam.UserBuilder
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
-            delete: function() {
+            _delete: function() {
                 console.log('iamInterface.user.delete');
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -3791,7 +3791,7 @@
              * @memberOf corbel.Iam.UsersBuilder
              * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
-            signOut: function() {
+            _signOut: function() {
                 console.log('iamInterface.users.signOutMe');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/signout',
@@ -3805,7 +3805,7 @@
              * @memberOf corbel.Iam.UserBuilder
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
-            disconnect: function() {
+            _disconnect: function() {
                 console.log('iamInterface.user.disconnect');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/disconnect',
@@ -3838,7 +3838,7 @@
              * @memberOf corbel.Iam.UserBuilder
              * @return {Promise}  Q promise that resolves to {Array} of Identity or rejects with a {@link corbelError}
              */
-            getIdentities: function() {
+            _getIdentities: function() {
                 console.log('iamInterface.user.getIdentities');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/identity',
@@ -3855,7 +3855,7 @@
              * @param  {Object} data.type The device type (Android, Apple)
              * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
-            registerDevice: function(data) {
+            _registerDevice: function(data) {
                 console.log('iamInterface.user.registerDevice');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices',
@@ -3873,7 +3873,7 @@
              * @param  {string}  deviceId    The device id
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
-            getDevice: function(deviceId) {
+            _getDevice: function(deviceId) {
                 console.log('iamInterface.user.getDevice');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
@@ -3887,7 +3887,7 @@
              * @memberOf corbel.Iam.UserBuilder
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
-            getDevices: function() {
+            _getDevices: function() {
                 console.log('iamInterface.user.getDevices');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/',
@@ -3902,7 +3902,7 @@
              * @param  {string}  deviceId    The device id
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
-            deleteDevice: function(deviceId) {
+            _deleteDevice: function(deviceId) {
                 console.log('iamInterface.user.deleteDevice');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
@@ -3915,7 +3915,7 @@
              * @memberOf corbel.Iam.UserBuilder
              * @return {Promise}  Q promise that resolves to a User Profile or rejects with a {@link corbelError}
              */
-            getProfile: function() {
+            _getProfile: function() {
                 console.log('iamInterface.user.getProfile');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/profile',
@@ -3946,7 +3946,7 @@
              * @param {Object} groups     The data of the groups
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
-            deleteGroup: function(group) {
+            _deleteGroup: function(group) {
                 console.log('iamInterface.user.deleteGroup');
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/groups/' + group,
@@ -3954,32 +3954,80 @@
                 });
             }
 
-
         });
 
-        var UserMeBuilder = corbel.Iam.UserBuilder.inherit({
-            deleteMyGroup: function() {
-                return this.deleteGroup.apply(this, arguments);
+        var UserBuilder = corbel.Iam.CommonUserBuilder.inherit({
+            deleteGroup: function() {
+                return this._deleteGroup.apply(this, arguments);
             },
-            updateMe: function() {
-                return this.update.apply(this, arguments);
+            update: function() {
+                return this._update.apply(this, arguments);
             },
-            deleteMe: function() {
-                return this.delete.apply(this, arguments);
+            delete: function() {
+                return this._delete.apply(this, arguments);
             },
-            registerMyDevice: function() {
-                return this.registerDevice.apply(this, arguments);
+            registerDevice: function() {
+                return this._registerDevice.apply(this, arguments);
             },
-            getMyDevices: function() {
-                return this.getDevices.apply(this, arguments);
+            getDevices: function() {
+                return this._getDevices.apply(this, arguments);
             },
-            getMyDevice: function() {
-                return this.getDevice.apply(this, arguments);
+            getDevice: function() {
+                return this._getDevice.apply(this, arguments);
             },
-            deleteMyDevice: function() {
-                return this.deleteDevice.apply(this, arguments);
+            deleteDevice: function() {
+                return this._deleteDevice.apply(this, arguments);
+            },
+            signOut: function() {
+                return this._signOut.apply(this, arguments);
+            },
+            disconnect: function() {
+                return this._disconnect.apply(this, arguments);
+            },
+            getIdentities: function() {
+                return this._getIdentities.apply(this, arguments);
+            },
+            getProfile: function() {
+                return this._getProfile.apply(this, arguments);
             }
         });
+
+        var UserMeBuilder = corbel.Iam.CommonUserBuilder.inherit({
+            deleteMyGroup: function() {
+                return this._deleteGroup.apply(this, arguments);
+            },
+            updateMe: function() {
+                return this._update.apply(this, arguments);
+            },
+            deleteMe: function() {
+                return this._delete.apply(this, arguments);
+            },
+            registerMyDevice: function() {
+                return this._registerDevice.apply(this, arguments);
+            },
+            getMyDevices: function() {
+                return this._getDevices.apply(this, arguments);
+            },
+            getMyDevice: function() {
+                return this._getDevice.apply(this, arguments);
+            },
+            deleteMyDevice: function() {
+                return this._deleteDevice.apply(this, arguments);
+            },
+            signOutMe: function() {
+                return this._signOut.apply(this, arguments);
+            },
+            disconnectMe: function() {
+                return this._disconnect.apply(this, arguments);
+            },
+            getMyIdentities: function() {
+                return this._getIdentities.apply(this, arguments);
+            },
+            getMyProfile: function() {
+                return this._getProfile.apply(this, arguments);
+            }
+        });
+
         /**
          * Builder for creating requests of users collection
          * @class
