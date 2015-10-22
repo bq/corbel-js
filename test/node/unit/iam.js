@@ -340,10 +340,23 @@ describe('corbel IAM module', function() {
             expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
         });
 
-        it('Update user me', function() {
+        it('Update user using me', function() {
             var username = 'username';
 
             corbelDriver.iam.user('me').update({
+                username: username
+            });
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me');
+            expect(callRequestParam.method).to.be.equal('PUT');
+            expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
+        });
+
+        it('Update user me', function() {
+            var username = 'username';
+
+            corbelDriver.iam.user().updateMe({
                 username: username
             });
 
@@ -361,8 +374,7 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
-        it('Delete user me', function() {
-
+        it('Delete user using me', function() {
             corbelDriver.iam.user('me').delete();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
@@ -370,10 +382,27 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
+        it('Delete user me', function() {
+
+            corbelDriver.iam.user().deleteMe();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('Sign Out user using me', function() {
+
+            corbelDriver.iam.user('me').signOut();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/signout');
+            expect(callRequestParam.method).to.be.equal('PUT');
+        });
 
         it('Sign Out user me', function() {
 
-            corbelDriver.iam.user('me').signOut();
+            corbelDriver.iam.user().signOutMe();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/signout');
@@ -392,6 +421,15 @@ describe('corbel IAM module', function() {
         it('Disconnect user logged', function() {
 
             corbelDriver.iam.user('me').disconnect();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/disconnect');
+            expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('Disconnect me', function() {
+
+            corbelDriver.iam.user().disconnectMe();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/disconnect');
@@ -434,8 +472,32 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('Get user profile me', function() {
+        it('Get user identities using me', function() {
+            corbelDriver.iam.user('me').getIdentities();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/identity');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get my identities', function() {
+            corbelDriver.iam.user().getMyIdentities();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/identity');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get user profile using me', function() {
             corbelDriver.iam.user('me').getProfile();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/profile');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get my profile', function() {
+            corbelDriver.iam.user().getMyProfile();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/profile');
@@ -463,7 +525,7 @@ describe('corbel IAM module', function() {
     describe('User devices', function() {
 
         it('Register my device', function() {
-            corbelDriver.iam.user('me').registerDevice('Device data');
+            corbelDriver.iam.user().registerMyDevice('Device data');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices');
@@ -478,11 +540,35 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('Register device using me', function() {
+            corbelDriver.iam.user('me').registerDevice('Device data');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices');
+            expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
         it('Get device id', function() {
             corbelDriver.iam.user('userId').getDevice('deviceId');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/devices/deviceId');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get device id using me', function() {
+            corbelDriver.iam.user('me').getDevice('deviceId');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/deviceId');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get  my device id', function() {
+            corbelDriver.iam.user().getMyDevice('deviceId');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/deviceId');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
@@ -494,8 +580,17 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('Get my devices', function() {
+        it('Get devices using me', function() {
             corbelDriver.iam.user('me').getDevices();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+
+        it('Get my devices', function() {
+            corbelDriver.iam.user().getMyDevices();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/');
@@ -545,6 +640,22 @@ describe('corbel IAM module', function() {
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/groups/g1');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('delete group my group using me', function() {
+            corbelDriver.iam.user('me').deleteGroup('g1');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/groups/g1');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('delete my group', function() {
+            corbelDriver.iam.user().deleteMyGroup('g1');
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/groups/g1');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
