@@ -124,6 +124,28 @@ describe('corbel-js browser', function() {
       });
     });
 
+    it('send method returns a promise and it reject when client is disconnected', function(done) {
+
+      fakeServer.respondWith('GET', url, function(request){
+        request.error = true;
+        request.setResponseHeaders({
+          'Content-Type': 'text/html',
+          status: 0
+        });
+        request.setResponseBody('');
+      });
+
+      var promise = request.send({
+        method: 'GET',
+        url: url
+      });
+
+      promise.catch(function(error) {
+        expect(error.status).to.be.equal(0);
+        done();
+      });
+    });
+
     it('send mehtod accepts a success callback', function(done) {
       var fakeResponse = [
         200, {
