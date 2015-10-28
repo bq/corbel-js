@@ -304,6 +304,7 @@ collection.get({
 });
 ```
 
+
 ```javascript
 var collection = corbelDriver.resources
   .collection('books:book');
