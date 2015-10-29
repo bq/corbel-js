@@ -25,6 +25,7 @@
         this.evci = corbel.Evci.create(this);
         this.borrow = corbel.Borrow.create(this);
         this.composr = corbel.CompoSR.create(this);
+        this.scheduler = corbel.Scheduler.create(this);
     }
 
     /**
