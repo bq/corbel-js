@@ -1359,27 +1359,10 @@
 
             var data = response.response;
 
-            if (statusType < 3) {
+            if (statusType === 4 || response.error) {
 
-                if (response.response) {
-                    data = request.parse(response.response, response.responseType, response.dataType);
-                }
-
-                if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-                }
-
-                promiseResponse = {
-                    data: data,
-                    status: statusCode,
-                    headers: response.headers
-                };
-
-                promiseResponse[response.responseObjectType] = response.responseObject;
-
-                resolver.resolve(promiseResponse);
-
-            } else if (statusType === 4) {
+                var disconnected = response.error && response.status === 0;
+                statusCode = disconnected ? 0 : statusCode;
 
                 if (callbackError) {
                     callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
@@ -1399,6 +1382,26 @@
                 promiseResponse[response.responseObjectType] = response.responseObject;
 
                 resolver.reject(promiseResponse);
+
+            } else if (statusType < 3) {
+
+                if (response.response) {
+                    data = request.parse(response.response, response.responseType, response.dataType);
+                }
+
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
+                }
+
+                promiseResponse = {
+                    data: data,
+                    status: statusCode,
+                    headers: response.headers
+                };
+
+                promiseResponse[response.responseObjectType] = response.responseObject;
+
+                resolver.resolve(promiseResponse);
             }
 
         };
@@ -1548,6 +1551,13 @@
             httpReq.onerror = function(xhr) {
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
 
+                var error;
+
+                // Error flag to support disconnection errors
+                if (xhr.type === 'error') {
+                    error = true;
+                }
+
                 processResponse.call(this, {
                     responseObject: xhr,
                     dataType: xhr.dataType,
@@ -1555,7 +1565,7 @@
                     response: xhr.response || xhr.responseText,
                     status: xhr.status,
                     responseObjectType: 'xhr',
-                    error: xhr.error
+                    error: xhr.error || error
                 }, resolver, params.callbackSuccess, params.callbackError);
 
             }.bind(this);
