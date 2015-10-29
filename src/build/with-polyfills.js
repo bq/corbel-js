@@ -63,6 +63,8 @@
   //  @include ../iam/emailBuilder.js
   //  @include ../assets/assets.js
   //  @include ../assets/assets-builder.js
+  //  @include ../scheduler/scheduler.js
+  //  @include ../scheduler/schedulerBuilder.js
   //  @include ../request-params/aggregation-builder.js
   //  @include ../request-params/query-builder.js
   //  @include ../request-params/page-builder.js

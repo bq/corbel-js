@@ -60,6 +60,8 @@
   //  @include ../request-params/request-params-builder.js
   //  @include ../assets/assets.js
   //  @include ../assets/assets-builder.js
+  //  @include ../scheduler/scheduler.js
+  //  @include ../scheduler/schedulerBuilder.js
   //  @include ../resources/resources.js
   //  @include ../resources/base-resource.js
   //  @include ../resources/relation.js

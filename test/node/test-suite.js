@@ -22,5 +22,6 @@ require('./unit/oauth.js');
 require('./unit/notifications.js');
 require('./unit/ec.js');
 require('./unit/evci.js');
+require('./unit/scheduler.js');
 require('./unit/borrow.js');
 require('./unit/composr.js');
