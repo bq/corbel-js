@@ -1464,7 +1464,7 @@
                     responseType: responseType,
                     response: body,
                     status: status,
-                    headers: response.headers || {},
+                    headers: response ? response.headers : {},
                     responseObjectType: 'response',
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
