@@ -4524,7 +4524,7 @@
                         method: corbel.request.method.POST,
                         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                         data: response.data,
-                        url: response.headers.Location
+                        url: response.headers.location
                     });
                 });
             },
