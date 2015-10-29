@@ -254,7 +254,7 @@
     if (params.search) {
         result += result ? '&' : '';
         result += 'api:search=' + JSON.stringify(params.search);
-        if (params.binded) {
+        if (params.hasOwnProperty('binded')) {
             result += result ? '&' : '';
             result += 'api:binded=' + JSON.stringify(params.binded);
         }
