@@ -27,7 +27,7 @@
      * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
      * @license   Licensed under MIT license
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-     * @version   2.2.0
+     * @version   3.0.2
      */
 
     (function() {
@@ -60,7 +60,7 @@
         var lib$es6$promise$asap$$vertxNext;
         var lib$es6$promise$asap$$customSchedulerFn;
 
-        function lib$es6$promise$asap$$asap(callback, arg) {
+        var lib$es6$promise$asap$$asap = function asap(callback, arg) {
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
             lib$es6$promise$asap$$len += 2;
@@ -76,10 +76,12 @@
             }
         }
 
-        var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
-
         function lib$es6$promise$asap$$setScheduler(scheduleFn) {
             lib$es6$promise$asap$$customSchedulerFn = scheduleFn;
+        }
+
+        function lib$es6$promise$asap$$setAsap(asapFn) {
+            lib$es6$promise$asap$$asap = asapFn;
         }
 
         var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
@@ -94,15 +96,10 @@
 
         // node
         function lib$es6$promise$asap$$useNextTick() {
-            var nextTick = process.nextTick;
             // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-            // setImmediate should be used instead instead
-            var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
-            if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
-                nextTick = setImmediate;
-            }
+            // see https://github.com/cujojs/when/issues/410 for details
             return function() {
-                nextTick(lib$es6$promise$asap$$flush);
+                process.nextTick(lib$es6$promise$asap$$flush);
             };
         }
 
@@ -157,7 +154,7 @@
             lib$es6$promise$asap$$len = 0;
         }
 
-        function lib$es6$promise$asap$$attemptVertex() {
+        function lib$es6$promise$asap$$attemptVertx() {
             try {
                 var r = require;
                 var vertx = r('vertx');
@@ -177,7 +174,7 @@
         } else if (lib$es6$promise$asap$$isWorker) {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
         } else if (lib$es6$promise$asap$$browserWindow === undefined && typeof require === 'function') {
-            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertx();
         } else {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
         }
@@ -190,7 +187,7 @@
 
         var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
 
-        function lib$es6$promise$$internal$$selfFullfillment() {
+        function lib$es6$promise$$internal$$selfFulfillment() {
             return new TypeError("You cannot resolve a promise with itself");
         }
 
@@ -216,7 +213,7 @@
         }
 
         function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
-            lib$es6$promise$asap$$default(function(promise) {
+            lib$es6$promise$asap$$asap(function(promise) {
                 var sealed = false;
                 var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
                     if (sealed) {
@@ -278,7 +275,7 @@
 
         function lib$es6$promise$$internal$$resolve(promise, value) {
             if (promise === value) {
-                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
+                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFulfillment());
             } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
                 lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
             } else {
@@ -303,7 +300,7 @@
             promise._state = lib$es6$promise$$internal$$FULFILLED;
 
             if (promise._subscribers.length !== 0) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, promise);
             }
         }
 
@@ -314,7 +311,7 @@
             promise._state = lib$es6$promise$$internal$$REJECTED;
             promise._result = reason;
 
-            lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
+            lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publishRejection, promise);
         }
 
         function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
@@ -328,7 +325,7 @@
             subscribers[length + lib$es6$promise$$internal$$REJECTED] = onRejection;
 
             if (length === 0 && parent._state) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, parent);
             }
         }
 
@@ -591,7 +588,7 @@
         /**
         Promise objects represent the eventual result of an asynchronous operation. The
         primary way of interacting with a promise is through its `then` method, which
-        registers callbacks to receive either a promise’s eventual value or the reason
+        registers callbacks to receive either a promise's eventual value or the reason
         why the promise cannot be fulfilled.
   
         Terminology
@@ -715,7 +712,8 @@
         lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
         lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
         lib$es6$promise$promise$$Promise._setScheduler = lib$es6$promise$asap$$setScheduler;
-        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$default;
+        lib$es6$promise$promise$$Promise._setAsap = lib$es6$promise$asap$$setAsap;
+        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$asap;
 
         lib$es6$promise$promise$$Promise.prototype = {
             constructor: lib$es6$promise$promise$$Promise,
@@ -926,7 +924,7 @@
 
                 if (state) {
                     var callback = arguments[state - 1];
-                    lib$es6$promise$asap$$default(function() {
+                    lib$es6$promise$asap$$asap(function() {
                         lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
                     });
                 } else {
@@ -1023,6 +1021,7 @@
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
+
     (function() {
 
         /**
@@ -1078,6 +1077,7 @@
         };
 
     })();
+
 
 
     (function() {
@@ -1519,6 +1519,7 @@
     })();
 
 
+
     (function() {
 
 
@@ -1636,6 +1637,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -1660,6 +1662,7 @@
         return corbel.Object;
 
     })();
+
 
     (function() {
 
@@ -1963,6 +1966,7 @@
 
 
     /* jshint camelcase:false */
+
     (function() {
 
         var jwt = corbel.jwt = {
@@ -2082,6 +2086,7 @@
         return jwt;
 
     })();
+
 
     (function() {
 
@@ -2909,6 +2914,7 @@
 
     //----------corbel modules----------------
 
+
     function Config(config) {
         config = config || {};
         // config default values
@@ -3003,6 +3009,7 @@
         this.config[field] = value;
     };
 
+
     (function() {
 
         /**
@@ -3059,6 +3066,7 @@
         };
 
     })();
+
 
     (function() {
 
@@ -3212,6 +3220,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -3356,6 +3365,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -3445,6 +3455,7 @@
         });
 
     })();
+
 
     (function() {
 
@@ -3620,6 +3631,7 @@
         });
 
     })();
+
     (function() {
 
         /**
@@ -3688,6 +3700,7 @@
         });
 
     })();
+
 
     (function() {
 
@@ -4114,6 +4127,7 @@
         });
     })();
 
+
     (function() {
 
         /**
@@ -4286,6 +4300,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -4359,6 +4374,7 @@
     })();
 
     (function() {
+
         /**
          * An assets API factory
          * @exports corbel.Assets
@@ -4420,6 +4436,7 @@
         return corbel.Assets;
 
     })();
+
 
     (function() {
 
@@ -4584,6 +4601,8 @@
         return AssetsBuilder;
 
     })();
+
+
     var aggregationBuilder = (function() {
 
         var aggregationBuilder = {};
@@ -4602,6 +4621,8 @@
         return aggregationBuilder;
 
     })();
+
+
     var queryBuilder = (function() {
 
         var queryBuilder = {};
@@ -4737,6 +4758,8 @@
         return queryBuilder;
 
     })();
+
+
     var pageBuilder = (function() {
 
         var pageBuilder = {};
@@ -4780,6 +4803,8 @@
 
     })();
 
+
+
     var sortBuilder = (function() {
 
         var sortBuilder = {};
@@ -4806,6 +4831,8 @@
 
         return sortBuilder;
     })();
+
+
     (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
 
 
@@ -4836,6 +4863,7 @@
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
     (function() {
+
         corbel.Resources = corbel.Object.inherit({
 
             constructor: function(driver) {
@@ -4896,6 +4924,7 @@
     })();
 
     (function() {
+
         corbel.Resources.BaseResource = corbel.Services.inherit({
 
             /**
@@ -4965,6 +4994,7 @@
     })();
 
     (function() {
+
         /**
          * Relation
          * @class
@@ -5104,6 +5134,7 @@
 
     (function() {
 
+
         /**
          * Collection requests
          * @class
@@ -5212,6 +5243,7 @@
     })();
 
     (function() {
+
         /**
          * Builder for resource requests
          * @class
@@ -5307,6 +5339,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -5396,6 +5429,7 @@
             });
         };
     })();
+
 
     (function() {
         /**
@@ -5524,6 +5558,7 @@
 
     })();
 
+
     (function() {
         /**
          * Create a TokenBuilder for token managing requests.
@@ -5586,6 +5621,7 @@
             _buildUri: corbel.Oauth._buildUri
         });
     })();
+
 
     (function() {
         /**
@@ -5801,6 +5837,7 @@
     })();
 
     (function() {
+
         corbel.Notifications = corbel.Object.inherit({
 
             /**
@@ -5833,6 +5870,7 @@
         return corbel.Notifications;
 
     })();
+
 
     (function() {
 
@@ -5967,6 +6005,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -6074,6 +6113,7 @@
         };
 
     })();
+
 
     (function() {
 
@@ -6201,6 +6241,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -6323,6 +6364,7 @@
     })();
 
     (function() {
+
         corbel.Evci = corbel.Object.inherit({
 
             /**
@@ -6356,6 +6398,7 @@
         return corbel.Evci;
 
     })();
+
 
     (function() {
 
@@ -6428,6 +6471,7 @@
 
         return EventBuilder;
     })();
+
 
     (function() {
 
@@ -6528,6 +6572,7 @@
 
 
     })();
+
 
     (function() {
 
@@ -6877,6 +6922,7 @@
         });
     })();
 
+
     (function() {
 
 
@@ -6929,6 +6975,7 @@
             _buildUri: corbel.Borrow._buildUri
         });
     })();
+
 
     (function() {
 
@@ -7059,6 +7106,7 @@
         });
     })();
 
+
     (function() {
 
         /**
@@ -7142,6 +7190,7 @@
 
     })();
 
+
     (function() {
 
 
@@ -7196,6 +7245,7 @@
 
         });
     })();
+
 
     (function() {
 
