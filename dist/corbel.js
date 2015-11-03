@@ -4918,7 +4918,7 @@
              */
             sendNotification: function(notification) {
                 console.log('notificationsInterface.notification.sendNotification', notification);
-                this.uri += 'send';
+                this.uri += '/send';
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
