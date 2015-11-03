@@ -37,7 +37,7 @@ describe('In Assets module we can', function() {
     it('create one asset', function() {
         corbelRequestStub.returns(Promise.resolve());
         var testData = '{\'test_object\':\'test\'}';
-        corbelDriver.assets().create(testData);
+        corbelDriver.assets.asset().create(testData);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL);
@@ -48,7 +48,7 @@ describe('In Assets module we can', function() {
     it('get my user assets', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        corbelDriver.assets().get();
+        corbelDriver.assets.asset().get();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL);
@@ -72,7 +72,7 @@ describe('In Assets module we can', function() {
             }
         };
 
-        corbelDriver.assets().get(params);
+        corbelDriver.assets.asset().get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '?api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
@@ -83,7 +83,7 @@ describe('In Assets module we can', function() {
     it('get all assets', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
 
-        corbelDriver.assets('all').get();
+        corbelDriver.assets.asset('all').get();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all');
@@ -107,7 +107,7 @@ describe('In Assets module we can', function() {
             }
         };
 
-        corbelDriver.assets('all').get(params);
+        corbelDriver.assets.asset('all').get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
@@ -120,7 +120,7 @@ describe('In Assets module we can', function() {
             aggregation : { '$count' : '*'}
         };
 
-        corbelDriver.assets('all').get(params);
+        corbelDriver.assets.asset('all').get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation={\"$count\":\"*\"}');
@@ -131,7 +131,7 @@ describe('In Assets module we can', function() {
         corbelRequestStub.returns(Promise.resolve());
         var assetId = 1;
 
-        corbelDriver.assets(assetId).delete();
+        corbelDriver.assets.asset(assetId).delete();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '/' + assetId);
@@ -140,7 +140,7 @@ describe('In Assets module we can', function() {
 
     it('get access', function() {
         corbelRequestStub.returns(Promise.resolve());
-        corbelDriver.assets().access();
+        corbelDriver.assets.asset().access();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
         expect(callRequestParam.url).to.be.equal(ASSET_URL + '/access');

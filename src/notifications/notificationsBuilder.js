@@ -11,7 +11,8 @@
          * @param  {String} id String with the asset id or 'all' key
          * @return {Assets}
          */
-        constructor: function(id) {
+        constructor: function(driver, id) {
+            this.driver = driver;
             this.uri = 'notification';
             this.id = id;
         },

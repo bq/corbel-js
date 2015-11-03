@@ -20,14 +20,11 @@
      */
     constructor: function(driver) {
       this.driver = driver;
+    },
 
-      return function(id) {
-        var builder = new corbel.Assets.AssetsBuilder(id);
-        builder.driver = driver;
-        return builder;
-      };
+    asset: function(id) {
+      return new corbel.Assets.AssetsBuilder(this.driver, id);
     }
-
 
   }, {
 

@@ -13,14 +13,11 @@
          */
         constructor: function(driver) {
             this.driver = driver;
+        },
 
-            return function(id) {
-                var builder = new corbel.Notifications.NotificationsBuilder(id);
-                builder.driver = driver;
-                return builder;
-            };
+        notification: function(id) {
+            return new corbel.Notifications.NotificationsBuilder(this.driver, id);
         }
-
 
     }, {
 

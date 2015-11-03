@@ -38,7 +38,7 @@ describe('In Notifications module we can', function() {
     it('create one notification', function() {
         corbelRequestStub.returns(Promise.resolve());
         var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
-        corbelDriver.notifications().create(notificationData);
+        corbelDriver.notifications.notification().create(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL);
@@ -50,7 +50,7 @@ describe('In Notifications module we can', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
         var idNotification = 1;
 
-        corbelDriver.notifications(idNotification).get();
+        corbelDriver.notifications.notification(idNotification).get();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
@@ -74,7 +74,7 @@ describe('In Notifications module we can', function() {
             }
         };
 
-        corbelDriver.notifications().get(params);
+        corbelDriver.notifications.notification().get(params);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         var url = paramsRecived.url.split('?');

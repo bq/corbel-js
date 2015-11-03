@@ -3629,14 +3629,11 @@
              */
             constructor: function(driver) {
                 this.driver = driver;
+            },
 
-                return function(id) {
-                    var builder = new corbel.Assets.AssetsBuilder(id);
-                    builder.driver = driver;
-                    return builder;
-                };
+            asset: function(id) {
+                return new corbel.Assets.AssetsBuilder(this.driver, id);
             }
-
 
         }, {
 
@@ -3691,7 +3688,8 @@
              * @param  {string}                         id string with the asset id or `all` key
              * @return {corbel.Assets.AssetsBuilder}
              */
-            constructor: function(id) {
+            constructor: function(driver, id) {
+                this.driver = driver;
                 this.uri = 'asset';
                 this.id = id;
             },
@@ -3787,7 +3785,7 @@
                         method: corbel.request.method.POST,
                         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                         data: response.data,
-                        url: response.headers.location
+                        url: response.headers.Location
                     });
                 });
             },
@@ -4812,14 +4810,11 @@
              */
             constructor: function(driver) {
                 this.driver = driver;
+            },
 
-                return function(id) {
-                    var builder = new corbel.Notifications.NotificationsBuilder(id);
-                    builder.driver = driver;
-                    return builder;
-                };
+            notification: function(id) {
+                return new corbel.Notifications.NotificationsBuilder(this.driver, id);
             }
-
 
         }, {
 
@@ -4845,7 +4840,8 @@
              * @param  {String} id String with the asset id or 'all' key
              * @return {Assets}
              */
-            constructor: function(id) {
+            constructor: function(driver, id) {
+                this.driver = driver;
                 this.uri = 'notification';
                 this.id = id;
             },
