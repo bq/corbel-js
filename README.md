@@ -621,13 +621,13 @@ var corbelDriver = corbel.getDriver({
   });
 
 //Enable the user permissions for that accessToken
-corbelDriver.assets().access();
+corbelDriver.assets.asset().access();
 ```
 
 You can also request all the user assets if you want, for example, listing al the goods that a user has purchased:
 
 ```javascript
-corbelDriver.assets().get();
+corbelDriver.assets.asset().get();
 ```
 
 **Assets API**
@@ -635,27 +635,27 @@ corbelDriver.assets().get();
 * Factory method
 
   ```javascript
-  corbelDriver.assets()
+  corbelDriver.assets.asset()
   ```
 
 * **get**: Get all the assets **(requestOptionsObject)**
 
   ```javascript
-  corbelDriver.assets()
+  corbelDriver.assets.asset()
     .get(requestOptionsObject)
   ```
 
 * **create**: Create an asset **(assetData)**
 
   ```javascript
-  corbelDriver.assets()
+  corbelDriver.assets.asset()
     .create(assetdata)
   ```
 
 * **delete**: Delete an asset **(assetId)**
 
   ```javascript
-   corbelDriver.assets(assetId).delete();
+   corbelDriver.assets.asset(assetId).delete();
   ```
 
 
