@@ -3,10 +3,11 @@
 module.exports = function(grunt) {
 
   var mountFolder = function(connect, dir) {
-    return connect.static(require('path').resolve(dir));
+    return serveStatic(dir);
   };
 
   var path = require('path');
+  var serveStatic = require('serve-static');
 
   require('load-grunt-tasks')(grunt);
 
@@ -325,7 +326,15 @@ module.exports = function(grunt) {
         tagMessage: 'v<%= version %>', //default: 'Version <%= version %>',
         tagName: 'v<%= version %>'
       }
+    },
+
+    versioncheck: {
+      options: {
+        skip: ['angular', 'angular-mocks'],
+        hideUpToDate: true
+      }
     }
+
   });
 
   grunt.loadTasks('tasks');
@@ -429,8 +438,10 @@ module.exports = function(grunt) {
     'watch:jsdoc'
   ]);
 
-  grunt.registerTask('build', ['preprocess:default', 'preprocess:polyfills', 'jsbeautifier']);
+  grunt.registerTask('build', ['versioncheck', 'preprocess:default', 'preprocess:polyfills', 'jsbeautifier']);
 
   grunt.registerTask('dist', ['jshint', 'test']);
+
+  grunt.registerTask('default', ['dist']);
 
 };
