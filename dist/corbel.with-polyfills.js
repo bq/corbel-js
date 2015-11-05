@@ -4532,7 +4532,7 @@
                         method: corbel.request.method.POST,
                         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                         data: response.data,
-                        url: response.headers.location
+                        url: response.headers.Location
                     });
                 });
             },
