@@ -35,7 +35,7 @@ describe('In Notifications module we can', function() {
         sandbox.restore();
     });
 
-    it('create one notification', function() {
+    it('create notification', function() {
         corbelRequestStub.returns(Promise.resolve());
         var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
         corbelDriver.notifications.notification().create(notificationData);
@@ -46,7 +46,7 @@ describe('In Notifications module we can', function() {
         expect(paramsRecived.data).to.be.equal(notificationData);
     });
 
-    it('get one', function() {
+    it('get notification', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
         var idNotification = 1;
 
@@ -81,5 +81,40 @@ describe('In Notifications module we can', function() {
         expect(url).to.be.include(NOTIFICATION_URL);
         expect(url).to.be.include('api:query=[{"$eq":{"type":"mail"}}]&api:sort={"field":"asc"}');
         expect(paramsRecived.method).to.be.equal('GET');
+    });
+
+    it('update notification', function() {
+        corbelRequestStub.returns(Promise.resolve('OK'));
+        var idNotification = 1;
+        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
+
+        corbelDriver.notifications.notification(idNotification).update(notificationData);
+
+        var paramsRecived = corbelRequestStub.getCall(0).args[0];
+        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
+        expect(paramsRecived.method).to.be.equal('PUT');
+        expect(paramsRecived.data).to.be.equal(notificationData);
+    });
+
+    it('delete notification', function() {
+        corbelRequestStub.returns(Promise.resolve('OK'));
+        var idNotification = 1;
+
+        corbelDriver.notifications.notification(idNotification).delete();
+
+        var paramsRecived = corbelRequestStub.getCall(0).args[0];
+        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
+        expect(paramsRecived.method).to.be.equal('DELETE');
+    });
+
+    it('send notification', function() {
+        corbelRequestStub.returns(Promise.resolve());
+        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
+        corbelDriver.notifications.notification().sendNotification(notificationData);
+
+        var paramsRecived = corbelRequestStub.getCall(0).args[0];
+        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/send');
+        expect(paramsRecived.method).to.be.equal('POST');
+        expect(paramsRecived.data).to.be.equal(notificationData);
     });
 });
