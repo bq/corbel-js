@@ -1533,6 +1533,19 @@
          */
         corbel.validate = {};
 
+        corbel.validate.values = function(keys, obj) {
+            var that = this;
+            keys.forEach(function(key) {
+                that.value(key, obj[key]);
+            });
+            return true;
+        };
+
+        corbel.validate.value = function(key, value) {
+            return this.isDefined(value, key + ' value is mandatory and cannot be undefined');
+        };
+
+
         /**
          * Checks if some value is not undefined
          * @param  {Mixed}  value
@@ -4502,6 +4515,7 @@
              * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function() {
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -4601,6 +4615,7 @@
 
     })();
     (function() {
+
         corbel.Scheduler = corbel.Object.inherit({
 
             /**
@@ -4628,6 +4643,7 @@
         return corbel.Scheduler;
     })();
 
+
     (function() {
 
         var TaskBuilder = corbel.Scheduler.TaskBuilder = corbel.Services.inherit({
@@ -4652,6 +4668,7 @@
 
             get: function(params) {
                 console.log('schedulerInterface.task.get', params);
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
@@ -4661,6 +4678,7 @@
 
             update: function(task) {
                 console.log('schedulerInterface.task.update', task);
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
@@ -4670,6 +4688,7 @@
 
             delete: function() {
                 console.log('schedulerInterface.task.delete');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -4708,6 +4727,8 @@
         return TaskBuilder;
 
     })();
+
+
 
     var aggregationBuilder = (function() {
 
@@ -6037,6 +6058,7 @@
              */
             update: function(data) {
                 console.log('notificationsInterface.notification.update', data);
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
@@ -6051,6 +6073,7 @@
              */
             delete: function() {
                 console.log('notificationsInterface.notification.delete');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -6258,6 +6281,7 @@
              * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
              */
             get: function() {
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
@@ -6273,6 +6297,7 @@
              * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             update: function(order) {
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
@@ -6287,6 +6312,7 @@
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             delete: function() {
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -6301,6 +6327,7 @@
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             prepare: function(couponIds) {
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, '/prepare'),
                     method: corbel.request.method.POST,
@@ -6324,6 +6351,7 @@
                 if (!data.paymentMethodIds.length) {
                     return Promise.reject(new Error('One payment method is needed at least'));
                 }
+                corbel.validate.value('id', this.id);
                 return this.request({
                     method: corbel.request.method.POST,
                     url: this._buildUri(this.uri, this.id, '/checkout'),
@@ -6439,6 +6467,7 @@
              */
             update: function(product) {
                 console.log('ecInterface.product.update');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
@@ -6455,6 +6484,7 @@
              */
             delete: function() {
                 console.log('ecInterface.product.delete');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -6481,12 +6511,8 @@
             },
 
             event: function(type) {
-                if (!type) {
-                    throw new Error('Send event require event type');
-                }
                 return new corbel.Evci.EventBuilder(type, this.driver);
             }
-
 
         }, {
 
@@ -6534,6 +6560,7 @@
                     throw new Error('Send event require data');
                 }
                 console.log('evciInterface.publish', eventData);
+                corbel.validate.value('eventType', this.eventType);
                 return this.request({
                     url: this._buildUri(this.uri, this.eventType),
                     method: corbel.request.method.POST,
@@ -6735,6 +6762,7 @@
              */
             get: function() {
                 console.log('borrowInterface.resource.get');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
@@ -6750,6 +6778,7 @@
              */
             delete: function() {
                 console.log('borrowInterface.resource.delete');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -6775,6 +6804,7 @@
            */
             addLicense: function(license) {
                 console.log('borrowInterface.resource.addLicense', license);
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'license'),
                     method: corbel.request.method.POST,
@@ -6795,6 +6825,10 @@
              */
             applyFor: function(userId) {
                 console.log('borrowInterface.resource.applyFor', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.PUT
@@ -6810,6 +6844,7 @@
              */
             applyForMe: function() {
                 console.log('borrowInterface.resource.applyForMe');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.PUT
@@ -6827,6 +6862,10 @@
              */
             getLentOf: function(userId) {
                 console.log('borrowInterface.resource.getLentOf', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.GET
@@ -6841,6 +6880,7 @@
              */
             getMyLent: function() {
                 console.log('borrowInterface.resource.getMyLent');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.GET
@@ -6858,6 +6898,10 @@
              */
             returnLoanOf: function(userId) {
                 console.log('borrowInterface.resource.returnLoanOf', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.DELETE
@@ -6873,6 +6917,7 @@
              */
             returnMyLoan: function() {
                 console.log('borrowInterface.resource.returnMyLoan');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.DELETE
@@ -6890,6 +6935,10 @@
              */
             renewFor: function(userId) {
                 console.log('borrowInterface.resource.renewFor', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'renewal/' + userId),
                     method: corbel.request.method.PUT
@@ -6905,6 +6954,7 @@
              */
             renewForMe: function() {
                 console.log('borrowInterface.resource.renewForMe');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'renewal/me'),
                     method: corbel.request.method.PUT
@@ -6922,6 +6972,10 @@
              */
             reserveFor: function(userId) {
                 console.log('borrowInterface.resource.reserveFor', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                     method: corbel.request.method.PUT
@@ -6937,6 +6991,7 @@
              */
             reserveForMe: function() {
                 console.log('borrowInterface.resource.reserveForMe');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/me'),
                     method: corbel.request.method.PUT
@@ -6954,6 +7009,10 @@
              */
             cancelReservationFor: function(userId) {
                 console.log('borrowInterface.resource.cancelReservationFor', userId);
+                corbel.validate.values(['id', 'userId'], {
+                    'id': this.id,
+                    'userId': userId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                     method: corbel.request.method.DELETE
@@ -6969,6 +7028,7 @@
              */
             cancelMyReservation: function() {
                 console.log('borrowInterface.resource.cancelMyReservation');
+                corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/me'),
                     method: corbel.request.method.DELETE
@@ -6986,6 +7046,7 @@
              */
             getHistoryOf: function(userId) {
                 console.log('borrowInterface.resource.getHistoryOf', userId);
+                corbel.validate.value('userId', userId);
                 return this.request({
                     url: this._buildUri(this.uri, 'history/' + userId),
                     method: corbel.request.method.GET
@@ -7137,6 +7198,7 @@
              */
             update: function(lender) {
                 console.log('borrowInterface.lender.update');
+
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
@@ -7153,6 +7215,7 @@
              */
             delete: function() {
                 console.log('borrowInterface.lender.delete');
+
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
@@ -7168,6 +7231,7 @@
              */
             get: function() {
                 console.log('borrowInterface.lender.get');
+
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
@@ -7314,6 +7378,7 @@
 
             put: function(body) {
                 console.log('composrInterface.phrase.add');
+
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.PUT,
@@ -7323,6 +7388,8 @@
 
             get: function() {
                 console.log('composrInterface.phrase.get');
+                corbel.validate.value('id', this.id);
+
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.GET
@@ -7339,6 +7406,8 @@
 
             delete: function() {
                 console.log('composrInterface.phrase.delete');
+                corbel.validate.value('id', this.id);
+
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.DELETE

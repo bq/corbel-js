@@ -82,6 +82,13 @@ describe('In EC module', function() {
       expect(callRequestParam.url).to.contain('api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
     });
 
+    it('update one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.product().update({});
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('update one', function() {
       corbelRequestStub.returns(Promise.resolve(204));
       var productDataUpdate = '{\'test_object\':\'testUpdate\'}';
@@ -93,6 +100,13 @@ describe('In EC module', function() {
       expect(callRequestParam.url).to.be.equal(EC_URL + 'product' + '/1');
       expect(callRequestParam.method).to.be.equal('PUT');
       expect(callRequestParam.data).to.be.equal(productDataUpdate);
+    });
+
+    it('delete one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.product().delete();
+      }).to.throw('id value is mandatory and cannot be undefined');
     });
 
     it('delete one', function() {
@@ -126,6 +140,13 @@ describe('In EC module', function() {
 
     });
 
+    it('get one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.order().get();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('update one', function(done) {
       corbelRequestStub.returns(Promise.resolve(204));
       var productDataUpdate = '{\'test_object\':\'testUpdate\'}';
@@ -145,6 +166,13 @@ describe('In EC module', function() {
 
     });
 
+    it('update one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.order().update({});
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('delete one', function(done) {
       corbelRequestStub.returns(Promise.resolve(204));
       var idOrder = 1;
@@ -162,6 +190,13 @@ describe('In EC module', function() {
 
     });
 
+    it('delete one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.order().delete();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('checkout', function() {
       corbelRequestStub.returns(Promise.resolve());
       var checkoutData = {
@@ -175,6 +210,16 @@ describe('In EC module', function() {
       expect(paramsRecived.data).to.be.equal(checkoutData);
     });
 
+    it('checkout without an id', function() {
+      var checkoutData = {
+        paymentMethodIds: ['paymentMethod']
+      };
+        corbelRequestStub.returns(Promise.resolve('OK'));
+        expect(function(){
+          corbelDriver.ec.order().checkout(checkoutData);
+        }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('checkout failed with empty payment methods', function(done) {
       corbelRequestStub.returns(Promise.resolve(202));
       var checkoutData = {
@@ -186,6 +231,13 @@ describe('In EC module', function() {
           expect(response.message).to.be.equal('One payment method is needed at least');
         }).should.be.eventually.fulfilled
         .and.notify(done);
+    });
+
+    it('prepare without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.order().prepare();
+      }).to.throw('id value is mandatory and cannot be undefined');
     });
 
     it('prepare', function(done) {

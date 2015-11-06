@@ -26,6 +26,7 @@
 
         get: function(params) {
             console.log('schedulerInterface.task.get', params);
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.GET,
@@ -35,6 +36,7 @@
 
         update: function(task) {
             console.log('schedulerInterface.task.update', task);
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.PUT,
@@ -44,6 +46,7 @@
 
         delete: function() {
             console.log('schedulerInterface.task.delete');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE

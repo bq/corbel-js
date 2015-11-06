@@ -16,12 +16,8 @@
         },
 
         event: function(type) {
-            if (!type) {
-                throw new Error('Send event require event type');
-            }
             return new corbel.Evci.EventBuilder(type, this.driver);
         }
-
 
     }, {
 
