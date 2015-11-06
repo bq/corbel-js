@@ -64,6 +64,7 @@
          */
         update: function(data) {
             console.log('notificationsInterface.notification.update', data);
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.PUT,
@@ -78,6 +79,7 @@
          */
         delete: function() {
             console.log('notificationsInterface.notification.delete');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE

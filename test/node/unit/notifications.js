@@ -96,6 +96,13 @@ describe('In Notifications module we can', function() {
         expect(paramsRecived.data).to.be.equal(notificationData);
     });
 
+    it('update notification without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.notifications.notification().update({});
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('delete notification', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
         var idNotification = 1;
@@ -105,6 +112,13 @@ describe('In Notifications module we can', function() {
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
         expect(paramsRecived.method).to.be.equal('DELETE');
+    });
+
+    it('delete notification without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.notifications.notification().delete();
+      }).to.throw('id value is mandatory and cannot be undefined');
     });
 
     it('send notification', function() {

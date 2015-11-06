@@ -224,6 +224,13 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('HEAD');
         });
 
+        it('get username availability with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.username().availability();
+          }).to.throw('username value is mandatory and cannot be undefined');
+        });
+
         it('username available return true', function(done) {
             corbelRequestStub.returns(Promise.reject({
                 status: 404
@@ -260,6 +267,13 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'email/' + EMAIL);
             expect(callRequestParam.method).to.be.equal('HEAD');
+        });
+
+        it('get email availability with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.email().availability();
+          }).to.throw('email value is mandatory and cannot be undefined');
         });
 
         it('Email available return true', function(done) {
@@ -677,6 +691,13 @@ describe('corbel IAM module', function() {
             });
         });
 
+        it('get a domain with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.domain().get();
+          }).to.throw('domainId value is mandatory and cannot be undefined');
+        });
+
         it('Gets a domain', function() {
             corbelDriver.iam.domain(data.id).get();
 
@@ -684,6 +705,7 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + data.id);
             expect(callRequestParam.method).to.be.equal('GET');
         });
+
 
         it('Gets all domains', function() {
             corbelDriver.iam.domain().getAll();
@@ -701,6 +723,13 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('update a domain with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.domain().update({});
+          }).to.throw('domainId value is mandatory and cannot be undefined');
+        });
+
         it('Remove a domain', function() {
             var domainId = 'sjdfkls';
             corbelDriver.iam.domain(domainId).remove();
@@ -708,6 +737,13 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + domainId);
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('remove a domain with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.domain().remove();
+          }).to.throw('domainId value is mandatory and cannot be undefined');
         });
 
         it('Create a new client', function() {
@@ -720,12 +756,33 @@ describe('corbel IAM module', function() {
             });
         });
 
+        it('Create a new client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client(undefined, 'clientId').create({});
+          }).to.throw('domainId value is mandatory and cannot be undefined');
+        });
+
         it('Get a client', function() {
             corbelDriver.iam.client(data.domain, data.id).get();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + data.domain + '/client/' + data.id);
             expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('get a client with undefined clientId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client(data.domain, undefined).get();
+          }).to.throw('clientId value is mandatory and cannot be undefined');
+        });
+
+        it('get a client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client(undefined, 'clientId').get();
+          }).to.throw('domainId value is mandatory and cannot be undefined');
         });
 
          it('Get all clients in a domain', function() {
@@ -744,12 +801,40 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('update a new client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client(undefined, 'clientId').update({});
+          }).to.throw('domainId value is mandatory and cannot be undefined');
+        });
+
+        it('update a new client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client('domainId', undefined).update({});
+          }).to.throw('clientId value is mandatory and cannot be undefined');
+        });
+
         it('Remove a client', function() {
             corbelDriver.iam.client(data.domain, data.id).remove();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'domain/' + data.domain + '/client/' + data.id);
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('remove a new client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client(undefined, 'clientId').remove({});
+          }).to.throw('domainId value is mandatory and cannot be undefined');
+        });
+
+        it('remove a new client with undefined domainId', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.client('domainId', undefined).remove({});
+          }).to.throw('clientId value is mandatory and cannot be undefined');
         });
 
     });
@@ -779,6 +864,13 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
+        it('get a scope with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.scope().get();
+          }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
         it('Remove a scope', function() {
             var scopeId = 'jklsdfbnwerj';
 
@@ -787,6 +879,13 @@ describe('corbel IAM module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'scope/' + scopeId);
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('remove a scope with undefined value', function() {
+          corbelRequestStub.returns(Promise.resolve('OK'));
+          expect(function(){
+            corbelDriver.iam.scope().remove();
+          }).to.throw('id value is mandatory and cannot be undefined');
         });
     });
 

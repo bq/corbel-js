@@ -21,6 +21,7 @@
 
     put: function(body) {
       console.log('composrInterface.phrase.add');
+
       return this.request({
         url: this._buildUri('phrase', this.id),
         method: corbel.request.method.PUT,
@@ -30,6 +31,8 @@
 
     get: function() {
       console.log('composrInterface.phrase.get');
+      corbel.validate.value('id', this.id);
+
       return this.request({
         url: this._buildUri('phrase', this.id),
         method: corbel.request.method.GET
@@ -46,6 +49,8 @@
 
     delete: function() {
       console.log('composrInterface.phrase.delete');
+      corbel.validate.value('id', this.id);
+
       return this.request({
         url: this._buildUri('phrase', this.id),
         method: corbel.request.method.DELETE
