@@ -126,6 +126,7 @@ describe('corbel compoSR module', function() {
         });
 
         describe('phrases', function() {
+
             it('its possible add phrases', function() {
                 corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -142,6 +143,13 @@ describe('corbel compoSR module', function() {
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase');
                 expect(paramsReceived.method).to.be.equal('PUT');
                 expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(phrase));
+            });
+
+            it('it is not possible to get phrases without an id', function() {
+                corbelRequestStub.returns(Promise.resolve('OK'));
+                expect(function(){
+                  composr.phrase().get();
+                }).to.throw('id value is mandatory and cannot be undefined');
             });
 
             it('its possible get phrases', function() {
@@ -162,6 +170,13 @@ describe('corbel compoSR module', function() {
                 var paramsReceived = corbel.request.send.firstCall.args[0];
                 expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase');
                 expect(paramsReceived.method).to.be.equal('GET');
+            });
+
+            it('it is not possible to delete phrases without an id', function() {
+                corbelRequestStub.returns(Promise.resolve('OK'));
+                expect(function(){
+                  composr.phrase().delete();
+                }).to.throw('id value is mandatory and cannot be undefined');
             });
 
             it('its possible delete phrases', function() {

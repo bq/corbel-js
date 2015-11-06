@@ -14,11 +14,10 @@
     corbel.Resources.Resource = corbel.Resources.BaseResource.inherit({
 
         constructor: function(type, id, driver, params) {
-            if (!type || !id) {
-                throw new Error('error:request:bad:missing:resource');
-            }
             this.type = type;
             this.id = id;
+            corbel.validate.values(['type', 'id'], this);
+
             this.driver = driver;
             this.params = params || {};
         },
@@ -35,6 +34,7 @@
          */
         get: function(options) {
             options = this.getDefaultOptions(options);
+            
 
             var args = corbel.utils.extend(options, {
                 url: this.buildUri(this.type, this.id),

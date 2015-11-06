@@ -36,6 +36,7 @@
          */
         availability: function(username) {
             console.log('iamInterface.username.availability', username);
+            corbel.validate.value('username', username);
             return this.request({
                 url: this._buildUri(this.uri, username),
                 method: corbel.request.method.HEAD
@@ -62,6 +63,8 @@
         */
         getUserId: function(username) {
             console.log('iamInterface.username.getUserId', username);
+            corbel.validate.value('username', username);
+            
             return this.request({
                 url: this._buildUri(this.uri, username),
                 method: corbel.request.method.GET

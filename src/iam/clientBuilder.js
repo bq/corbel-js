@@ -57,6 +57,7 @@
      */
     create: function(client) {
       console.log('iamInterface.domain.create', client);
+      corbel.validate.value('domainId', this.domainId);
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
         method: corbel.request.method.POST,
@@ -78,6 +79,7 @@
      */
     get: function() {
       console.log('iamInterface.domain.get', this.clientId);
+      corbel.validate.values(['domainId', 'clientId'], this);
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
         method: corbel.request.method.GET
@@ -95,6 +97,7 @@
      */
     getAll: function(params) {
       corbel.validate.failIfIsDefined(this.clientId, 'This function not allowed client identifier');
+      corbel.validate.value('domainId', this.domainId);
       console.log('iamInterface.domain.getAll');
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
@@ -123,6 +126,7 @@
      */
     update: function(client) {
       console.log('iamInterface.domain.update', client);
+      corbel.validate.values(['domainId', 'clientId'], this);
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
         method: corbel.request.method.PUT,
@@ -142,6 +146,8 @@
      */
     remove: function() {
       console.log('iamInterface.domain.remove', this.domainId, this.clientId);
+      corbel.validate.values(['domainId', 'clientId'], this);
+
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
         method: corbel.request.method.DELETE

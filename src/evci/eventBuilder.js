@@ -32,6 +32,7 @@
                 throw new Error('Send event require data');
             }
             console.log('evciInterface.publish', eventData);
+            corbel.validate.value('eventType', this.eventType);
             return this.request({
                 url: this._buildUri(this.uri,this.eventType),
                 method: corbel.request.method.POST,
