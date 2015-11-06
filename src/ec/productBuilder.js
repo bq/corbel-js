@@ -95,6 +95,7 @@
      */
     update: function(product) {
       console.log('ecInterface.product.update');
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.PUT,
@@ -111,6 +112,7 @@
      */
     delete: function() {
       console.log('ecInterface.product.delete');
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE

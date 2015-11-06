@@ -59,6 +59,7 @@
          */
         get: function() {
             console.log('borrowInterface.resource.get');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri ,this.id),
                 method: corbel.request.method.GET
@@ -74,6 +75,7 @@
          */
         delete: function() {
             console.log('borrowInterface.resource.delete');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE
@@ -99,6 +101,7 @@
          */
         addLicense: function(license) {
             console.log('borrowInterface.resource.addLicense', license);
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'license'),
                 method: corbel.request.method.POST,
@@ -119,6 +122,10 @@
          */
         applyFor: function(userId) {
             console.log('borrowInterface.resource.applyFor', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                 method: corbel.request.method.PUT
@@ -134,6 +141,7 @@
          */
         applyForMe: function() {
             console.log('borrowInterface.resource.applyForMe');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/me'),
                 method: corbel.request.method.PUT
@@ -151,6 +159,10 @@
          */
         getLentOf: function(userId) {
             console.log('borrowInterface.resource.getLentOf', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                 method: corbel.request.method.GET
@@ -165,6 +177,7 @@
          */
         getMyLent: function() {
             console.log('borrowInterface.resource.getMyLent');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/me'),
                 method: corbel.request.method.GET
@@ -182,6 +195,10 @@
          */
         returnLoanOf: function(userId) {
             console.log('borrowInterface.resource.returnLoanOf', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                 method: corbel.request.method.DELETE
@@ -197,6 +214,7 @@
         */
         returnMyLoan: function() {
             console.log('borrowInterface.resource.returnMyLoan');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'loan/me'),
                 method: corbel.request.method.DELETE
@@ -214,6 +232,10 @@
          */
         renewFor: function(userId) {
             console.log('borrowInterface.resource.renewFor', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'renewal/' + userId),
                 method: corbel.request.method.PUT
@@ -229,6 +251,7 @@
          */
         renewForMe: function() {
             console.log('borrowInterface.resource.renewForMe');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'renewal/me'),
                 method: corbel.request.method.PUT
@@ -246,6 +269,10 @@
          */
         reserveFor: function(userId) {
             console.log('borrowInterface.resource.reserveFor', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                 method: corbel.request.method.PUT
@@ -261,6 +288,7 @@
          */
         reserveForMe: function() {
             console.log('borrowInterface.resource.reserveForMe');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'reservation/me'),
                 method: corbel.request.method.PUT
@@ -278,6 +306,10 @@
          */
         cancelReservationFor: function(userId) {
             console.log('borrowInterface.resource.cancelReservationFor', userId);
+            corbel.validate.values(['id', 'userId'], {
+                'id': this.id,
+                'userId': userId
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                 method: corbel.request.method.DELETE
@@ -293,6 +325,7 @@
         */
         cancelMyReservation: function() {
             console.log('borrowInterface.resource.cancelMyReservation');
+            corbel.validate.value('id', this.id);
             return this.request({
                 url: this._buildUri(this.uri, this.id, 'reservation/me'),
                 method: corbel.request.method.DELETE
@@ -310,6 +343,7 @@
          */
         getHistoryOf: function(userId) {
             console.log('borrowInterface.resource.getHistoryOf', userId);
+            corbel.validate.value('userId', userId);
             return this.request({
                 url: this._buildUri(this.uri, 'history/' + userId),
                 method: corbel.request.method.GET

@@ -127,6 +127,14 @@ describe('In Assets module we can', function() {
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
+    it('delete an undefinded asset', function() {
+        corbelRequestStub.returns(Promise.resolve('OK'));
+
+        expect(function(){
+          corbelDriver.assets.asset().delete();
+        }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
     it('delete one asset', function() {
         corbelRequestStub.returns(Promise.resolve());
         var assetId = 1;

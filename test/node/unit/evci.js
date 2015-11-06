@@ -50,7 +50,10 @@ describe('In Evci module we can', function() {
     });
 
     it('throw exception when create event without type', function() {
-        expect(corbelDriver.evci.event).to.throw('Send event require event type');
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.evci.event().publish(EVENT_DATA);
+      }).to.throw('eventType value is mandatory and cannot be undefined');
     });
 
     it('throw exception when publish event without data', function() {

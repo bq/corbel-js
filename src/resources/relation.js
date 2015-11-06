@@ -18,6 +18,7 @@
              this.type = srcType;
              this.srcId = srcId;
              this.destType = destType;
+             corbel.validate.values(['type', 'srcId', 'destType'],this);
              this.driver = driver;
              this.params = params || {};
          },
@@ -33,15 +34,14 @@
           * @see {@link corbel.util.serializeParams} to see a example of the params
           */
          get: function(destId, options) {
-             options = this.getDefaultOptions(options);
+          options = this.getDefaultOptions(options);
+          var args = corbel.utils.extend(options, {
+              url: this.buildUri(this.type, this.srcId, this.destType, destId),
+              method: corbel.request.method.GET,
+              Accept: options.dataType
+          });
 
-             var args = corbel.utils.extend(options, {
-                 url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 method: corbel.request.method.GET,
-                 Accept: options.dataType
-             });
-
-             return this.request(args);
+          return this.request(args);
          },
 
          /**
@@ -54,16 +54,17 @@
           * @example uri = '555'
           */
          add: function(destId, relationData, options) {
-             options = this.getDefaultOptions(options);
+          options = this.getDefaultOptions(options);
+          corbel.validate.value('destId', destId);
 
-             var args = corbel.utils.extend(options, {
-                 url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 contentType: 'application/json',
-                 data: relationData,
-                 method: corbel.request.method.PUT
-             });
+          var args = corbel.utils.extend(options, {
+            url: this.buildUri(this.type, this.srcId, this.destType, destId),
+            contentType: 'application/json',
+            data: relationData,
+            method: corbel.request.method.PUT
+          });
 
-             return this.request(args);
+          return this.request(args);
          },
 
           /**
@@ -75,16 +76,16 @@
            * @example uri = '555'
            */
           addAnonymous: function(relationData, options) {
-              options = this.getDefaultOptions(options);
+            options = this.getDefaultOptions(options);
 
-              var args = corbel.utils.extend(options, {
-                  url: this.buildUri(this.type, this.srcId, this.destType),
-                  contentType: 'application/json',
-                  data: relationData,
-                  method: corbel.request.method.POST
-              });
+            var args = corbel.utils.extend(options, {
+              url: this.buildUri(this.type, this.srcId, this.destType),
+              contentType: 'application/json',
+              data: relationData,
+              method: corbel.request.method.POST
+            });
 
-              return this.request(args);
+            return this.request(args);
           },
 
          /**
@@ -95,24 +96,24 @@
           * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
           */
          move: function(destId, pos, options) {
+          corbel.validate.value('destId', destId);
+          var positionStartId = destId.indexOf('/');
+          if (positionStartId !== -1){
+            destId = destId.substring(positionStartId + 1);
+          }
 
-             var positionStartId = destId.indexOf('/');
-             if (positionStartId !== -1){
-               destId = destId.substring(positionStartId + 1);
-             }
+          options = this.getDefaultOptions(options);
 
-             options = this.getDefaultOptions(options);
+          var args = corbel.utils.extend(options, {
+             url: this.buildUri(this.type, this.srcId, this.destType, destId),
+             contentType: 'application/json',
+             data: {
+                 '_order': '$pos(' + pos + ')'
+             },
+             method: corbel.request.method.PUT
+          });
 
-             var args = corbel.utils.extend(options, {
-                 url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 contentType: 'application/json',
-                 data: {
-                     '_order': '$pos(' + pos + ')'
-                 },
-                 method: corbel.request.method.PUT
-             });
-
-             return this.request(args);
+          return this.request(args);
          },
 
          /**
@@ -124,17 +125,16 @@
           * @example
           * destId = 'music:Track/555'
           */
-         delete: function(destId, options) {
-             options = this.getDefaultOptions(options);
+        delete: function(destId, options) {
+          options = this.getDefaultOptions(options);
 
-             var args = corbel.utils.extend(options, {
-                 url: this.buildUri(this.type, this.srcId, this.destType, destId),
-                 method: corbel.request.method.DELETE
-             });
+          var args = corbel.utils.extend(options, {
+            url: this.buildUri(this.type, this.srcId, this.destType, destId),
+            method: corbel.request.method.DELETE
+          });
 
-             return this.request(args);
-         }
-
+          return this.request(args);
+        }
      });
 
      return corbel.Resources.Relation;

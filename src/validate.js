@@ -14,6 +14,19 @@
      */
     corbel.validate = {};
 
+    corbel.validate.values = function(keys, obj){
+      var that = this;
+      keys.forEach(function(key){
+        that.value(key, obj[key]);
+      });
+      return true;
+    };
+
+    corbel.validate.value = function(key, value){
+        return this.isDefined(value, key + ' value is mandatory and cannot be undefined');
+    };
+
+
     /**
      * Checks if some value is not undefined
      * @param  {Mixed}  value

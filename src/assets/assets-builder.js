@@ -68,6 +68,7 @@
      * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
      */
     delete: function() {
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE

@@ -40,6 +40,8 @@
         */
         getUserId: function(email) {
             console.log('iamInterface.email.getUserId', email);
+            corbel.validate.value('email', email);
+
             return this.request({
                 url: this._buildUri(this.uri, email),
                 method: corbel.request.method.GET
@@ -55,6 +57,8 @@
         */
         availability: function(email) {
             console.log('iamInterface.email.availability', email);
+            corbel.validate.value('email', email);
+            
             return this.request({
                 url: this._buildUri(this.uri, email),
                 method: corbel.request.method.HEAD
