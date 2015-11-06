@@ -209,6 +209,20 @@
       return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
     },
 
+    _verifyParam: function(that, parametersNames){
+      parametersNames.forEach(function(parameterName){
+        if(that[parameterName] === undefined){
+          throw new Error( parameterName + ' parameter is mandatory and cannot be undefined');
+        }
+      });
+    },
+
+    _buildUriById: function(path, id){
+      this._verifyParam(this, ['id']);
+      return this._buildUri(path,id); 
+    },
+
+
     /**
      * @memberof corbel.Services.prototype
      * @return {string}

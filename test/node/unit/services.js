@@ -142,6 +142,27 @@ describe('corbel.Services', function() {
       expect(service).to.respondTo('_addAuthorization');
       expect(service).to.respondTo('_buildParams');
       expect(service).to.respondTo('_buildUri');
+      expect(service).to.respondTo('_buildUriById');
+      expect(service).to.respondTo('_verifyParam');
+    });
+
+    describe('when verifying params', function(){
+
+      it('an error is raised when expected parameter is undefined', function(){
+
+        expect(function(){
+          service._verifyParam({}, ['id']);
+        }).to.throw('id parameter is mandatory and cannot be undefined');
+      });
+
+      it('no error is raised when expected parameter has been defined', function(){
+
+        expect(function(){
+          service._verifyParam({
+            id: 'id'
+          }, ['id']);
+        }).not.to.throw('id parameter is mandatory and cannot be undefined');
+      });
     });
 
     describe('when calling a request', function() {
