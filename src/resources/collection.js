@@ -16,6 +16,7 @@
 
         constructor: function(type, driver, params) {
             this.type = type;
+            corbel.validate.value('type', this.type);
             this.driver = driver;
             this.params = params || {};
         },

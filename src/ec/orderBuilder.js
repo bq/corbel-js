@@ -41,6 +41,7 @@
      * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
      */
     get: function() {
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.GET
@@ -56,6 +57,7 @@
      * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
     update: function(order) {
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.PUT,
@@ -70,6 +72,7 @@
      * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
     delete: function() {
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE
@@ -84,6 +87,7 @@
      * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
     prepare: function(couponIds) {
+      corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id, '/prepare'),
         method: corbel.request.method.POST,
@@ -107,6 +111,7 @@
       if (!data.paymentMethodIds.length) {
         return Promise.reject(new Error('One payment method is needed at least'));
       }
+      corbel.validate.value('id', this.id);
       return this.request({
         method: corbel.request.method.POST,
         url: this._buildUri(this.uri, this.id, '/checkout'),

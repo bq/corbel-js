@@ -54,6 +54,13 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('POST');
         });
 
+        it('get (undefined) loanable resource', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+            expect(function(){
+              corbelDriver.borrow.resource().get();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
         it('get loanable resource', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -64,6 +71,13 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
+        it('delete (undefined) loanable resource', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+            expect(function(){
+              corbelDriver.borrow.resource().delete();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
         it('delete loanable resource', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -72,6 +86,15 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource');
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('add license to (undefined) loanable resource', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+            var license = {};
+
+            expect(function(){
+              corbelDriver.borrow.resource().addLicense(license);
+            }).to.throw('id value is mandatory and cannot be undefined');
         });
 
         it('add license to loanable resource', function() {
@@ -85,6 +108,22 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('POST');
         });
 
+        it('apply for any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+              corbelDriver.borrow.resource().applyFor('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('apply for any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+              corbelDriver.borrow.resource('resourceId').applyFor();
+            }).to.throw('userId value is mandatory and cannot be undefined');
+        });
+
         it('apply for any user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -95,7 +134,15 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
-        it('apply for user logged', function() {
+        it('apply for logged user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+              corbelDriver.borrow.resource().applyForMe();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('apply for logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource('idResource').applyForMe();
@@ -103,6 +150,22 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/loan/me');
             expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('get lent of any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().getLentOf('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('get lent of any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('resourceId').getLentOf();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('get lent of any user', function() {
@@ -115,7 +178,15 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('get lent of user logged', function() {
+        it('get lent of logged user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().getMyLent();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('get lent of logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource('idResource').getMyLent();
@@ -123,6 +194,22 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/loan/me');
             expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('return loan of any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().returnLoanOf('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('return loan of any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('resourceId').returnLoanOf();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('return loan of any user', function() {
@@ -135,7 +222,15 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
-        it('return loan of user logged', function() {
+        it('return loan of logged user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().returnMyLoan();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('return loan of logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource('idResource').returnMyLoan();
@@ -143,6 +238,22 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/loan/me');
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('renew loan for any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().renewFor('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('renew loan for any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('idResource').renewFor();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('renew loan for any user', function() {
@@ -155,7 +266,15 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
-        it('renew loan for user logged', function() {
+        it('renew loan for logged user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().renewForMe();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('renew loan for logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource('idResource').renewForMe();
@@ -163,6 +282,22 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/renewal/me');
             expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('reserve for any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().reserveFor('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('reserve for any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('idResource').reserveFor();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('reserve for any user', function() {
@@ -175,6 +310,14 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('reserve for me user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().reserveForMe();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
         it('reserve for me user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -183,6 +326,22 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/reservation/me');
             expect(callRequestParam.method).to.be.equal('PUT');
+        });
+
+        it('cancel reservation for any user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().cancelReservationFor('userId');
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('cancel reservation for any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('idResource').cancelReservationFor();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('cancel reservation for any user', function() {
@@ -195,7 +354,15 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
-        it('cancel reservation for user logged', function() {
+        it('cancel reservation for logged user using an undefined resourceId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource().cancelMyReservation();
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
+
+        it('cancel reservation for logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource('idResource').cancelMyReservation();
@@ -203,6 +370,14 @@ describe('corbel BORROW module', function() {
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(BORROW_END_POINT + '/idResource/reservation/me');
             expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('get history for any user using an undefined userId', function() {
+            corbelRequestStub.returns(Promise.resolve('OK'));
+
+            expect(function(){
+                corbelDriver.borrow.resource('idResource').getHistoryOf();
+            }).to.throw('userId value is mandatory and cannot be undefined');
         });
 
         it('get history for any user', function() {
@@ -215,7 +390,7 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('get history for user logged', function() {
+        it('get history for logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.resource().getMyHistory();
@@ -237,6 +412,7 @@ describe('corbel BORROW module', function() {
     });
 
     describe('we can like a user', function() {
+
         it('get all reservations of any user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
@@ -247,7 +423,7 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-         it('get all reservations of user logged', function() {
+         it('get all reservations of logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.user().getAllReservations();
@@ -267,7 +443,7 @@ describe('corbel BORROW module', function() {
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
-        it('get all loans of user logged', function() {
+        it('get all loans of logged user', function() {
             corbelRequestStub.returns(Promise.resolve('OK'));
 
             corbelDriver.borrow.user().getAllLoans();

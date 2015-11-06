@@ -73,7 +73,7 @@ var CONFIG = {
   urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
 };
 
-describe('corbel resources module', function() {
+describe.only('corbel resources module', function() {
 
   var sandbox = sinon.sandbox.create(),
     corbelDriver,
@@ -102,8 +102,8 @@ describe('corbel resources module', function() {
   describe('in collections', function() {
 
     it('has all operations', function() {
-      expect(resources.collection()).to.respondTo('get');
-      expect(resources.collection()).to.respondTo('add');
+      expect(resources.collection('id')).to.respondTo('get');
+      expect(resources.collection('id')).to.respondTo('add');
     });
 
   });
@@ -121,8 +121,8 @@ describe('corbel resources module', function() {
   describe('in relations', function() {
 
     it('has all operations', function() {
-      expect(resources.relation()).to.respondTo('get');
-      expect(resources.relation()).to.respondTo('add');
+      expect(resources.relation('','','')).to.respondTo('get');
+      expect(resources.relation('','','')).to.respondTo('add');
     });
 
   });
@@ -315,6 +315,11 @@ describe('corbel resources module', function() {
     expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(TEST_ENDPOINT + 'resource/resource:entity?api:query=[{\"$like\":{\"title\":\"Praga\"}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\",\"books:Book/9979a1daf7c6eebf04375bd0fc37f3c3\"]}}]&api:query=[{\"$elem_match\":{\"authors\":[{\"$like\":{\"name\":\"Praga\"}}]}},{\"$in\":{\"_dst_id\":[\"books:Book/f44ee834b058d9f383acaece2d44613c\"]}}]&api:search={\"text\":\"test\"}&api:distinct=text,field1&api:sort={\"field1\":\"asc\"}&api:page=1&api:pageSize=5');
   });
 
+  it('resources.collection has mandatory parameters', function() {
+    expect(function(){
+      resources.collection();
+    }).to.throw('type value is mandatory and cannot be undefined');
+  });
 
   it('gets all resources in a collection correctly', function() {
     resources.collection('books:Book').get();
@@ -322,6 +327,12 @@ describe('corbel resources module', function() {
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
     expect(callRequestParam.method).to.be.equal('GET');
+  });
+
+  it('gets all resources in a collection with undefined collectionId', function() {
+    expect(function(){
+      resources.collection().get();
+    }).to.throw('type value is mandatory and cannot be undefined');
   });
 
   it('gets all resources in a collection with a mediaType', function() {
@@ -342,6 +353,16 @@ describe('corbel resources module', function() {
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book');
     expect(callRequestParam.method).to.be.equal('POST');
+  });
+
+  it('resources.resource has mandatory parameters', function() {
+    expect(function(){
+      resources.resource('type', undefined);
+    }).to.throw('id value is mandatory and cannot be undefined');
+
+    expect(function(){
+      resources.resource(undefined, 'id');
+    }).to.throw('type value is mandatory and cannot be undefined');
   });
 
   it('update a resource', function() {
@@ -375,6 +396,24 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
   });
 
+  it('resources.relation has mandatory parameters', function() {
+    expect(function(){
+      resources.relation();
+    }).to.throw('type value is mandatory and cannot be undefined');
+
+    expect(function(){
+      resources.relation(undefined, 'srcId', 'destType');
+    }).to.throw('type value is mandatory and cannot be undefined');
+
+    expect(function(){
+      resources.relation('type', undefined, 'destType');
+    }).to.throw('srcId value is mandatory and cannot be undefined');
+
+    expect(function(){
+      resources.relation('type', 'srcId', undefined);
+    }).to.throw('destType value is mandatory and cannot be undefined');
+  });
+
   it('should move a relation', function() {
     resources.relation('books:Book', '123', '456').move('test', 1);
     var callRequestParam = corbel.request.send.firstCall.args[0];
@@ -382,6 +421,12 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
     expect(callRequestParam.data._order).to.be.equal('$pos(1)');
     expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123/456;r=456/test');
+  });
+
+  it('cannot move a relation with undefined values', function() {
+    expect(function(){
+      resources.relation('books:Book', '123', '456').move();
+    }).to.throw('destId value is mandatory and cannot be undefined');
   });
 
   it('should move a relation with composed Id', function() {
@@ -412,6 +457,12 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
 
+  it('cannot add a relation with undefined values', function() {
+    expect(function(){
+      resources.relation('books:Book', '123', '456').add();
+    }).to.throw('destId value is mandatory and cannot be undefined');
+  });
+
   it('add an anonymous relation', function() {
     resources.relation('books:Book', '123', '456').addAnonymous({
       name: 'test',
@@ -426,6 +477,4 @@ describe('corbel resources module', function() {
   it('generates the correct URL for relations', function() {
     expect(resources.relation('cars:Car', 'id123', 'cars:Store').getURL()).to.be.equal(TEST_ENDPOINT + 'resource/cars:Car/id123/cars:Store');
   });
-
-
 });

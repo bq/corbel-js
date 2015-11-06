@@ -58,6 +58,7 @@
         */
         update: function(lender) {
             console.log('borrowInterface.lender.update');
+
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.PUT,
@@ -74,6 +75,7 @@
         */
         delete: function() {
             console.log('borrowInterface.lender.delete');
+
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE
@@ -89,6 +91,7 @@
          */
         get: function() {
             console.log('borrowInterface.lender.get');
+
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.GET

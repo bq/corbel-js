@@ -75,6 +75,7 @@
          */
         get: function() {
             console.log('iamInterface.user.get');
+            corbel.validate.value('id', this.id);
             return this._getUser(corbel.request.method.GET, this.uri, this.id);
         },
 
@@ -87,6 +88,8 @@
          */
         _update: function(data) {
             console.log('iamInterface.user.update', data);
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.PUT,
@@ -102,6 +105,8 @@
          */
         _delete: function() {
             console.log('iamInterface.user.delete');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE
@@ -118,6 +123,8 @@
          */
         _signOut: function() {
             console.log('iamInterface.users.signOutMe');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/signout',
                 method: corbel.request.method.PUT
@@ -132,6 +139,8 @@
          */
         _disconnect: function() {
             console.log('iamInterface.user.disconnect');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/disconnect',
                 method: corbel.request.method.PUT
@@ -150,6 +159,8 @@
         addIdentity: function(identity) {
             // console.log('iamInterface.user.addIdentity', identity);
             corbel.validate.isValue(identity, 'Missing identity');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/identity',
                 method: corbel.request.method.POST,
@@ -165,6 +176,8 @@
          */
         _getIdentities: function() {
             console.log('iamInterface.user.getIdentities');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/identity',
                 method: corbel.request.method.GET
@@ -181,14 +194,16 @@
           * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
           */
          _registerDevice: function(data) {
-             console.log('iamInterface.user.registerDevice');
-             return this.request({
-                 url: this._buildUri(this.uri, this.id) + '/devices',
-                 method: corbel.request.method.PUT,
-                 data: data
-             }).then(function(res) {
-                 return corbel.Services.getLocationId(res);
-             });
+            console.log('iamInterface.user.registerDevice');
+            corbel.validate.value('id', this.id);
+
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices',
+                method: corbel.request.method.PUT,
+                data: data
+            }).then(function(res) {
+                return corbel.Services.getLocationId(res);
+            });
          },
 
          /**
@@ -199,11 +214,16 @@
           * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
           */
          _getDevice: function(deviceId) {
-             console.log('iamInterface.user.getDevice');
-             return this.request({
-                 url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
-                 method: corbel.request.method.GET
-             });
+            console.log('iamInterface.user.getDevice');
+            corbel.validate.values(['id', 'deviceId'], {
+                'id':this.id,
+                'deviceId': deviceId
+            });
+
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                method: corbel.request.method.GET
+            });
          },
 
          /**
@@ -213,11 +233,12 @@
           * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
           */
          _getDevices: function() {
-             console.log('iamInterface.user.getDevices');
-             return this.request({
-                 url: this._buildUri(this.uri, this.id) + '/devices/',
-                 method: corbel.request.method.GET
-             });
+            console.log('iamInterface.user.getDevices');
+            corbel.validate.value('id', this.id);
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/devices/',
+                method: corbel.request.method.GET
+            });
          },
 
          /**
@@ -229,6 +250,7 @@
           */
          _deleteDevice: function(deviceId) {
              console.log('iamInterface.user.deleteDevice');
+             corbel.validate.value('deviceId', deviceId);
              return this.request({
                  url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
                  method: corbel.request.method.DELETE
@@ -242,6 +264,8 @@
           */
         _getProfile: function() {
             console.log('iamInterface.user.getProfile');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/profile',
                 method: corbel.request.method.GET
@@ -257,6 +281,8 @@
          */
         addGroups: function(groups) {
             console.log('iamInterface.user.addGroups');
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/groups',
                 method: corbel.request.method.PUT,
@@ -273,6 +299,10 @@
          */
         _deleteGroup: function(group) {
             console.log('iamInterface.user.deleteGroup');
+            corbel.validate.values(['id', 'group'], {
+                'id':this.id,
+                'group': group
+            });
             return this.request({
                 url: this._buildUri(this.uri, this.id) + '/groups/'+group,
                 method: corbel.request.method.DELETE
