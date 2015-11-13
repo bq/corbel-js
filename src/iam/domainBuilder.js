@@ -73,6 +73,8 @@
      */
     get: function() {
       console.log('iamInterface.domain.get', this.domainId);
+      corbel.validate.value('domainId', this.domainId);
+
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId),
         method: corbel.request.method.GET
@@ -118,6 +120,8 @@
      */
     update: function(domain) {
       console.log('iamInterface.domain.update', domain);
+      corbel.validate.value('domainId', this.domainId);
+
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId),
         method: corbel.request.method.PUT,
@@ -137,6 +141,8 @@
      */
     remove: function() {
       console.log('iamInterface.domain.remove', this.domainId);
+      corbel.validate.value('domainId', this.domainId);
+
       return this.request({
         url: this._buildUri(this.uri + '/' + this.domainId),
         method: corbel.request.method.DELETE

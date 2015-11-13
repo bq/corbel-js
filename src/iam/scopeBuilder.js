@@ -67,6 +67,8 @@
          */
         get: function() {
             console.log('iamInterface.scope.get', this.id);
+            corbel.validate.value('id', this.id);
+
             return this.request({
                 url: this._buildUri(this.uri + '/' + this.id),
                 method: corbel.request.method.GET
@@ -82,6 +84,8 @@
          */
         remove: function() {
             console.log('iamInterface.scope.remove', this.id);
+            corbel.validate.value('id', this.id);
+            
             return this.request({
                 url: this._buildUri(this.uri + '/' + this.id),
                 method: corbel.request.method.DELETE

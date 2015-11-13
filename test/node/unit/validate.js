@@ -13,12 +13,32 @@ describe('Validate module', function() {
 
     it('has all namespace properties', function() {
         expect(corbel.validate).to.include.keys(
+            'values',
+            'value',
             'isDefined',
             'isNotNull',
             'isValue',
             'isGreaterThan',
             'isGreaterThanOrEqual'
         );
+    });
+
+    describe('corbel.validate.values', function() {
+
+        it('returns true when values are defined', function() {
+            expect(corbel.validate.values(['id', 'value'], {
+                'id':'1',
+                'value': 'value'
+            })).to.be.equal(true);
+        });
+
+        it('throws an error when a certain value is undefined', function() {
+            expect(function() {
+                corbel.validate.values(['id', 'value'], {
+                    'value': 'value'
+                });
+            }).to.throw('id value is mandatory and cannot be undefined');
+        });
     });
 
     describe('corbel.validate.isDefined', function() {
