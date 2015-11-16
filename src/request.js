@@ -220,7 +220,8 @@
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
       responseType: options.responseType,
-      withCredentials: options.withCredentials || true
+      withCredentials: options.withCredentials || true,
+      useCookies : options.useCookies || false
     };
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
@@ -353,11 +354,12 @@
   request._nodeAjax = function(params, resolver) {
 
     var requestAjax = require('request');
-    if (request.isCrossDomain(params.url) && params.withCredentials) {
+    if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
       requestAjax = requestAjax.defaults({
         jar: true
       });
     }
+
     requestAjax({
       method: params.method,
       url: params.url,
