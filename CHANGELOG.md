@@ -1,7 +1,7 @@
 
 # Changelog
 
-### v0.2.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.8...v0.2.9)
+### v0.2.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.9...v0.2.10)
 
 #### Features
 
