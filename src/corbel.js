@@ -11,6 +11,7 @@
      * @return {CorbelDriver}
      */
     function CorbelDriver(config) {
+        this._events = [];
         // create instance config
         this.guid = corbel.utils.guid();
         this.config = corbel.Config.create(config);
@@ -30,9 +31,75 @@
     /**
      * @return {CorbelDriver} A new instance of corbel driver with the same config
      */
-    CorbelDriver.prototype.clone = function () {
+    CorbelDriver.prototype.clone = function() {
         return new CorbelDriver(this.config.getConfig());
     };
+
+    /**
+     * Adds an event handler for especific event
+     * @param {string}   name Event name
+     * @param {Function} fn   Function to call
+     */
+    CorbelDriver.prototype.addEventListener = function(name, fn) {
+        if (typeof fn !== 'function') {
+            throw new Error('corbel:error:invalid:type');
+        }
+        this._events[name] = this._events[name] || [];
+        if (this._events[name].indexOf(fn) === -1) {
+            this._events[name].push(fn);
+        }
+    };
+
+    /**
+     * Removes the handler from event list
+     * @param  {string}   name Event name
+     * @param  {Function} fn   Function to remove
+     */
+    CorbelDriver.prototype.removeEventListener = function(name, fn) {
+        if (this._events[name]) {
+            var index = this._events[name].indexOf(fn);
+            if (index !== -1) {
+                this._events[name].splice(index, 1);
+            }
+        }
+    };
+
+    /**
+     * Fires all events handlers for an specific event name
+     * @param  {string} name    Event name
+     * @param  {Mixed} options  Data for event handlers
+     */
+    CorbelDriver.prototype.dispatch = function(name, options) {
+        if (this._events[name] && this._events[name].length) {
+            this._events[name].forEach(function(fn) {
+                fn(options);
+            });
+        }
+    };
+
+    /**
+     * Adds an event handler for especific event
+     * @see CorbelDriver.prototype.addEventListener
+     * @param {string}   name Event name
+     * @param {Function} fn   Function to call
+     */
+    CorbelDriver.prototype.on = CorbelDriver.prototype.addEventListener;
+
+    /**
+     * Removes the handler from event list
+     * @see CorbelDriver.prototype.removeEventListener
+     * @param  {string}   name Event name
+     * @param  {Function} fn   Function to remove
+     */
+    CorbelDriver.prototype.off = CorbelDriver.prototype.removeEventListener;
+
+    /**
+     * Fires all events handlers for an specific event name
+     * @see CorbelDriver.prototype.dispatch
+     * @param  {string} name    Event name
+     * @param  {Mixed} options  Data for event handlers
+     */
+    CorbelDriver.prototype.trigger = CorbelDriver.prototype.dispatch;
 
     corbel.CorbelDriver = CorbelDriver;
 
