@@ -1828,7 +1828,7 @@
                 }
 
                 if (params.query) {
-                    params.url += '?' + params.query;
+                    params.url += '?' + encodeURIComponent(params.query);
                 }
 
                 if (params.noRedirect) {
