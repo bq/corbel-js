@@ -76,10 +76,10 @@ describe('In EC module', function() {
       corbelDriver.ec.product().get(params);
 
       var callRequestParam = corbel.request.send.firstCall.args[0];
-      expect(callRequestParam.url).to.be.include(EC_URL + 'product');
+      expect(decodeURIComponent(callRequestParam.url)).to.be.include(EC_URL + 'product');
       expect(callRequestParam.method).to.be.equal('GET');
       console.log(callRequestParam);
-      expect(callRequestParam.url).to.contain('api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
+      expect(decodeURIComponent(callRequestParam.url)).to.contain('api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
     });
 
     it('update one', function() {

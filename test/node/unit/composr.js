@@ -81,7 +81,7 @@ describe('corbel compoSR module', function() {
                 composr.request('phrase/Id', 'param1', 'param2').post(body, this.options);
 
                 var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1');
+                expect(decodeURIComponent(paramsReceived.url)).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1');
                 expect(paramsReceived.method).to.be.equal('POST');
                 expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
             });
