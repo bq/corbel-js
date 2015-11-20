@@ -40,7 +40,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets().create(testData);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL);
+        expect(callRequestParam.url).to.be.equal(ASSET_URL);
         expect(callRequestParam.method).to.be.equal('POST');
         expect(callRequestParam.data).to.be.equal(testData);
     });
@@ -51,7 +51,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets().get();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL);
+        expect(callRequestParam.url).to.be.equal(ASSET_URL);
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
@@ -75,7 +75,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets().get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(decodeURIComponent(callRequestParam.url))).to.be.equal(ASSET_URL + '?api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '?api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
         expect(callRequestParam.query).to.be.equal();
         expect(callRequestParam.method).to.be.equal('GET');
     });
@@ -86,7 +86,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets('all').get();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL + '/all');
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all');
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
@@ -110,7 +110,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets('all').get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(decodeURIComponent(callRequestParam.url))).to.be.equal(ASSET_URL + '/all?' + 'api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
@@ -123,7 +123,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets('all').get(params);
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation={\"$count\":\"*\"}');
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation={\"$count\":\"*\"}');
         expect(callRequestParam.method).to.be.equal('GET');
     });
 
@@ -134,7 +134,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets(assetId).delete();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL + '/' + assetId);
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/' + assetId);
         expect(callRequestParam.method).to.be.equal('DELETE');
     });
 
@@ -143,7 +143,7 @@ describe('In Assets module we can', function() {
         corbelDriver.assets().access();
 
         var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(decodeURIComponent(callRequestParam.url)).to.be.equal(ASSET_URL + '/access');
+        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/access');
         expect(callRequestParam.method).to.be.equal('GET');
         expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
     });

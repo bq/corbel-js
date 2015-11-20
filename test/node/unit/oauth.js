@@ -276,7 +276,7 @@ describe('In OAUTH module', function() {
             oauth.user(clientParams).sendResetPasswordEmail('test@email.com');
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            var spplitedResponse = decodeURIComponent(callRequestParam.url).split('?');
+            var spplitedResponse = callRequestParam.url.split('?');
             //expect(spplitedResponse).to.be.equal(USER_OAUTH_URL + '/resetPassword?email=test@email.com');
             expect(callRequestParam.method).to.be.equal('GET');
             expect(spplitedResponse).to.include('email=test@email.com');
