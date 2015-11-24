@@ -44,7 +44,7 @@
             uri += '/' + id;
         }
 
-        var urlBase = this.driver.config.get('iamEndpoint', null) ?
+        var urlBase = this._isRunningLocally(Iam.moduleName) ?
             this.driver.config.get('iamEndpoint') :
             this.driver.config.get('urlBase')
               .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)

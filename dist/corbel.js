@@ -1807,6 +1807,10 @@
                 return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
             },
 
+            _isRunningLocally: function(moduleName) {
+                return this.driver.config.get(moduleName + 'Endpoint', null) && this.driver.config.get('localServices').indexOf(moduleName) !== -1;
+            },
+
             /**
              * @memberof corbel.Services.prototype
              * @return {string}
@@ -2070,7 +2074,7 @@
                 uri += '/' + id;
             }
 
-            var urlBase = this.driver.config.get('iamEndpoint', null) ?
+            var urlBase = this._isRunningLocally(Iam.moduleName) ?
                 this.driver.config.get('iamEndpoint') :
                 this.driver.config.get('urlBase')
                 .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
@@ -2592,11 +2596,11 @@
              *
              * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
              * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
-             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String
+             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
              * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
              * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
              * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
-             *
+             * 
              * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
              * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
              */
@@ -3896,7 +3900,7 @@
 
             _buildUri: function(path, id) {
                 var uri = '',
-                    urlBase = this.driver.config.get('assetsEndpoint', null) ?
+                    urlBase = this._isRunningLocally(corbel.Assets.moduleName) ?
                     this.driver.config.get('assetsEndpoint') :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
@@ -3939,6 +3943,7 @@
         return AssetsBuilder;
 
     })();
+
     (function() {
 
         corbel.Scheduler = corbel.Object.inherit({
@@ -4022,7 +4027,7 @@
 
             _buildUri: function(path, id) {
                 var uri = '',
-                    urlBase = this.driver.config.get('schedulerEndpoint', null) ?
+                    urlBase = this._isRunningLocally(corbel.Scheduler.moduleName) ?
                     this.driver.config.get('schedulerEndpoint') :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Scheduler.moduleName)
@@ -4128,7 +4133,7 @@
              */
             buildUri: function(srcType, srcId, destType, destId) {
 
-                var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
+                var urlBase = this._isRunningLocally(corbel.Resources.moduleName) ?
                     this.driver.config.get('resourcesEndpoint') :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
@@ -4559,7 +4564,7 @@
          */
         Oauth._buildUri = function(uri) {
 
-            var urlBase = this.driver.config.get('oauthEndpoint', null) ?
+            var urlBase = this._isRunningLocally(Oauth.moduleName) ?
                 this.driver.config.get('oauthEndpoint') :
                 this.driver.config.get('urlBase')
                 .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
@@ -4782,7 +4787,7 @@
          * @class
          *
          * @param {Object} params Initial params
-         *
+         * 
          * @memberOf corbel.Oauth.TokenBuilder
          */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
@@ -4795,9 +4800,9 @@
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             *
+             * 
              * @param  {String} code The code to exchange for the token
-             *
+             * 
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
@@ -4848,11 +4853,11 @@
         /**
          * A builder for a user management requests.
          * @class
-         *
+         * 
          * @param {Object} params           Parameters for initializing the builder
          * @param {String} [clientId]       Application client Id (required for creating user)
          * @param {String} [clientSecret]   Application client secret (required for creating user)
-         *
+         *    
          * @memberOf corbel.Oauth.UserBuilder
          */
         var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
@@ -4897,9 +4902,9 @@
              * Gets the user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
-             * @param  {Object} id      The user id/me
-             *
+             * 
+             * @param  {Object} id      The user id/me 
+             *  
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function(id) {
@@ -4914,7 +4919,7 @@
              * Get profile of some user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * @param  {Object} id      The user id/me
+             * @param  {Object} id      The user id/me 
              * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
              */
             getProfile: function(id) {
@@ -4929,10 +4934,10 @@
              * Updates the user or  the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id              The user id or me
              * @param  {Object} modification    Json object with the modificacion of the user
-             *
+             * 
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             update: function(id, modification) {
@@ -4947,9 +4952,9 @@
             /**
              * Deletes the user or the logged user
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id        The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             delete: function(id) {
@@ -4985,9 +4990,9 @@
              * Sends a email to the logged user or user to validate his email address
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id     The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
@@ -5003,9 +5008,9 @@
              * Validates the email of a user or the logged user
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id   The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
@@ -5166,7 +5171,7 @@
 
             _buildUri: function(path, id) {
                 var uri = '',
-                    urlBase = this.driver.config.get('notificationsEndpoint', null) ?
+                    urlBase = this._isRunningLocally(corbel.Notifications.moduleName) ?
                     this.driver.config.get('notificationsEndpoint') :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)
@@ -5244,9 +5249,9 @@
          * @constant
          * @type {String}
          * @default
-
+  
         FAILED: 'FAILED',
-
+  
         /**
          * IN_PAYMENT constant
          * @constant
@@ -5291,7 +5296,7 @@
             if (extra) {
                 uri += extra;
             }
-            var urlBase = this.driver.config.get('ecEndpoint', null) ?
+            var urlBase = this._isRunningLocally(Ec.moduleName) ?
                 this.driver.config.get('ecpoint') :
                 this.driver.config.get('urlBase')
                 .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
@@ -5638,7 +5643,7 @@
 
             _buildUri: function(path, eventType) {
                 var uri = '',
-                    urlBase = this.driver.config.get('evciEndpoint', null) ?
+                    urlBase = this._isRunningLocally(corbel.Evci.moduleName) ?
                     this.driver.config.get('evciEndpoint') :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)
@@ -5744,7 +5749,8 @@
                     }
                 });
 
-                var urlBase = this.driver.config.get('borrowEndpoint', null) ||
+                var urlBase = this._isRunningLocally(corbel.Borrow.moduleName) ?
+                    this.driver.config.get('borrowEndpoint', null) :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
                     .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
@@ -5863,7 +5869,7 @@
            * @param {timestamp} license.expire       Expire date
            * @param {timestamp} licensee.start       Start date
            * @param {String} license.asset           Asigned to the resource
-
+  
            * @return {Promise} A promise with the id of the created a license or fails
            *                   with a {@link corbelError}.
            */
@@ -6399,7 +6405,8 @@
             },
 
             _buildUri: function() {
-                var urlBase = this.driver.config.get('composrEndpoint', null) ||
+                var urlBase = this._isRunningLocally(corbel.CompoSR.moduleName) ?
+                    this.driver.config.get('composrEndpoint', null) :
                     this.driver.config.get('urlBase')
                     .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
                     .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));

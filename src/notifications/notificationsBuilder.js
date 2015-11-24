@@ -107,7 +107,7 @@
 
         _buildUri: function(path, id) {
             var uri = '',
-                urlBase = this.driver.config.get('notificationsEndpoint', null) ?
+                urlBase = this._isRunningLocally(corbel.Notifications.moduleName) ?
                 this.driver.config.get('notificationsEndpoint') :
                 this.driver.config.get('urlBase')
                   .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)

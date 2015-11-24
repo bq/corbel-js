@@ -29,7 +29,7 @@
      */
     Oauth._buildUri = function(uri) {
 
-        var urlBase = this.driver.config.get('oauthEndpoint', null) ?
+        var urlBase = this._isRunningLocally(Oauth.moduleName) ?
             this.driver.config.get('oauthEndpoint') :
             this.driver.config.get('urlBase')
               .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)

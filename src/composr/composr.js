@@ -61,7 +61,8 @@
     },
 
     _buildUri: function() {
-      var urlBase = this.driver.config.get('composrEndpoint', null) ||
+      var urlBase = this._isRunningLocally(corbel.CompoSR.moduleName) ? 
+        this.driver.config.get('composrEndpoint', null) :
         this.driver.config.get('urlBase')
           .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
           .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));

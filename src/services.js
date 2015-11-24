@@ -209,6 +209,10 @@
       return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
     },
 
+    _isRunningLocally: function(moduleName){
+      return this.driver.config.get(moduleName+'Endpoint', null) && this.driver.config.get('localServices').indexOf(moduleName)!==-1;
+    },
+
     /**
      * @memberof corbel.Services.prototype
      * @return {string}

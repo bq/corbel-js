@@ -124,7 +124,7 @@
 
     _buildUri: function(path, id) {
       var uri = '',
-        urlBase = this.driver.config.get('assetsEndpoint', null) ?
+        urlBase = this._isRunningLocally(corbel.Assets.moduleName) ?
         this.driver.config.get('assetsEndpoint') :
         this.driver.config.get('urlBase')
         .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)

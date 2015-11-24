@@ -55,7 +55,7 @@
 
         _buildUri: function(path, id) {
             var uri = '',
-                urlBase = this.driver.config.get('schedulerEndpoint', null) ?
+                urlBase = this._isRunningLocally(corbel.Scheduler.moduleName) ?
                 this.driver.config.get('schedulerEndpoint') :
                 this.driver.config.get('urlBase')
                   .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Scheduler.moduleName)

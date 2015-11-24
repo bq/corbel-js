@@ -15,7 +15,7 @@
          */
         buildUri: function(srcType, srcId, destType, destId) {
 
-            var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
+            var urlBase = this._isRunningLocally(corbel.Resources.moduleName) ?
                 this.driver.config.get('resourcesEndpoint') :
                 this.driver.config.get('urlBase')
                   .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)

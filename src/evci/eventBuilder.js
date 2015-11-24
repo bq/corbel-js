@@ -45,7 +45,7 @@
 
         _buildUri: function(path,eventType) {
             var uri = '',
-                urlBase = this.driver.config.get('evciEndpoint', null) ?
+                urlBase = this._isRunningLocally(corbel.Evci.moduleName) ?
                 this.driver.config.get('evciEndpoint') :
                 this.driver.config.get('urlBase')
                   .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)

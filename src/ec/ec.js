@@ -95,7 +95,7 @@
     if (extra) {
       uri += extra;
     }
-    var urlBase = this.driver.config.get('ecEndpoint', null) ?
+    var urlBase = this._isRunningLocally(Ec.moduleName) ?
       this.driver.config.get('ecpoint') :
       this.driver.config.get('urlBase')
       .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)

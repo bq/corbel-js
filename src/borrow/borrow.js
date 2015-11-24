@@ -77,7 +77,8 @@
           }
         });
 
-        var urlBase = this.driver.config.get('borrowEndpoint', null) ||
+        var urlBase = this._isRunningLocally(corbel.Borrow.moduleName) ?
+          this.driver.config.get('borrowEndpoint', null) :
           this.driver.config.get('urlBase')
             .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
             .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
