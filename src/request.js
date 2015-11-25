@@ -489,7 +489,12 @@
 
     }.bind(this);
 
-    httpReq.send(params.data);
+    if (params.data) {
+      httpReq.send(params.data);
+    }
+    else {
+      httpReq.send();
+    }
   };
 
   return request;
