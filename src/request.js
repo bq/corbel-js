@@ -275,6 +275,7 @@
       promiseResponse;
 
     var data = response.response;
+    var headers = keysToLowerCase(response.headers);
 
     if (statusType === 4 || response.error) {
 
@@ -293,7 +294,7 @@
           data: data,
           status: statusCode,
           error: response.error,
-          headers: response.headers
+          headers: headers
         };
 
         promiseResponse[response.responseObjectType] = response.responseObject;
@@ -313,7 +314,7 @@
         promiseResponse = {
         data: data,
         status: statusCode,
-        headers: response.headers
+        headers: headers
         };
 
         promiseResponse[response.responseObjectType] = response.responseObject;
@@ -321,6 +322,18 @@
         resolver.resolve(promiseResponse);
       }
 
+  };
+
+  var keysToLowerCase = function(obj) {
+        var key;
+        var keys = Object.keys(obj);
+        var n = keys.length;
+        var newobj = {};
+        while (n--) {
+          key = keys[n];
+          newobj[key.toLowerCase()] = obj[key];
+        }
+        return newobj;
   };
 
   var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {

@@ -25,7 +25,6 @@
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
-
     (function() {
 
         /**
@@ -82,7 +81,6 @@
         };
 
     })();
-
 
 
     (function() {
@@ -524,7 +522,6 @@
     })();
 
 
-
     (function() {
 
 
@@ -655,7 +652,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -680,7 +676,6 @@
         return corbel.Object;
 
     })();
-
 
     (function() {
 
@@ -984,7 +979,6 @@
 
 
     /* jshint camelcase:false */
-
     (function() {
 
         var jwt = corbel.jwt = {
@@ -1104,7 +1098,6 @@
         return jwt;
 
     })();
-
 
     (function() {
 
@@ -1379,6 +1372,7 @@
                 promiseResponse;
 
             var data = response.response;
+            var headers = keysToLowerCase(response.headers);
 
             if (statusType === 4 || response.error) {
 
@@ -1397,7 +1391,7 @@
                     data: data,
                     status: statusCode,
                     error: response.error,
-                    headers: response.headers
+                    headers: headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -1417,7 +1411,7 @@
                 promiseResponse = {
                     data: data,
                     status: statusCode,
-                    headers: response.headers
+                    headers: headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -1425,6 +1419,18 @@
                 resolver.resolve(promiseResponse);
             }
 
+        };
+
+        var keysToLowerCase = function(obj) {
+            var key;
+            var keys = Object.keys(obj);
+            var n = keys.length;
+            var newobj = {};
+            while (n--) {
+                key = keys[n];
+                newobj[key.toLowerCase()] = obj[key];
+            }
+            return newobj;
         };
 
         var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
@@ -1932,7 +1938,6 @@
 
     //----------corbel modules----------------
 
-
     function Config(config) {
         config = config || {};
         // config default values
@@ -2027,7 +2032,6 @@
         this.config[field] = value;
     };
 
-
     (function() {
 
         /**
@@ -2084,7 +2088,6 @@
         };
 
     })();
-
 
     (function() {
 
@@ -2244,7 +2247,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -2395,7 +2397,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -2489,7 +2490,6 @@
         });
 
     })();
-
 
     (function() {
 
@@ -2592,11 +2592,11 @@
              *
              * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
              * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
-             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String
+             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
              * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
              * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
              * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
-             *
+             * 
              * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
              * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
              */
@@ -2665,7 +2665,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -2737,7 +2736,6 @@
         });
 
     })();
-
 
     (function() {
 
@@ -3194,7 +3192,6 @@
         });
     })();
 
-
     (function() {
 
         /**
@@ -3374,7 +3371,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -3451,8 +3447,6 @@
         });
     })();
 
-
-
     var aggregationBuilder = (function() {
 
         var aggregationBuilder = {};
@@ -3471,8 +3465,6 @@
         return aggregationBuilder;
 
     })();
-
-
     var queryBuilder = (function() {
 
         var queryBuilder = {};
@@ -3608,8 +3600,6 @@
         return queryBuilder;
 
     })();
-
-
     var pageBuilder = (function() {
 
         var pageBuilder = {};
@@ -3653,8 +3643,6 @@
 
     })();
 
-
-
     var sortBuilder = (function() {
 
         var sortBuilder = {};
@@ -3681,8 +3669,6 @@
 
         return sortBuilder;
     })();
-
-
     (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
 
 
@@ -3713,7 +3699,6 @@
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
     (function() {
-
         /**
          * An assets API factory
          * @exports corbel.Assets
@@ -3772,7 +3757,6 @@
         return corbel.Assets;
 
     })();
-
 
     (function() {
 
@@ -3939,8 +3923,8 @@
         return AssetsBuilder;
 
     })();
-    (function() {
 
+    (function() {
         corbel.Scheduler = corbel.Object.inherit({
 
             /**
@@ -3967,7 +3951,6 @@
 
         return corbel.Scheduler;
     })();
-
 
     (function() {
 
@@ -4054,7 +4037,6 @@
     })();
 
     (function() {
-
         corbel.Resources = corbel.Object.inherit({
 
             constructor: function(driver) {
@@ -4115,7 +4097,6 @@
     })();
 
     (function() {
-
         corbel.Resources.BaseResource = corbel.Services.inherit({
 
             /**
@@ -4185,7 +4166,6 @@
     })();
 
     (function() {
-
         /**
          * Relation
          * @class
@@ -4325,7 +4305,6 @@
 
     (function() {
 
-
         /**
          * Collection requests
          * @class
@@ -4435,7 +4414,6 @@
     })();
 
     (function() {
-
         /**
          * Builder for resource requests
          * @class
@@ -4531,7 +4509,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -4621,7 +4598,6 @@
             });
         };
     })();
-
 
     (function() {
         /**
@@ -4750,7 +4726,6 @@
 
     })();
 
-
     (function() {
         /**
          * Create a TokenBuilder for token managing requests.
@@ -4782,7 +4757,7 @@
          * @class
          *
          * @param {Object} params Initial params
-         *
+         * 
          * @memberOf corbel.Oauth.TokenBuilder
          */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
@@ -4795,9 +4770,9 @@
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             *
+             * 
              * @param  {String} code The code to exchange for the token
-             *
+             * 
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
@@ -4813,7 +4788,6 @@
             _buildUri: corbel.Oauth._buildUri
         });
     })();
-
 
     (function() {
         /**
@@ -4848,11 +4822,11 @@
         /**
          * A builder for a user management requests.
          * @class
-         *
+         * 
          * @param {Object} params           Parameters for initializing the builder
          * @param {String} [clientId]       Application client Id (required for creating user)
          * @param {String} [clientSecret]   Application client secret (required for creating user)
-         *
+         *    
          * @memberOf corbel.Oauth.UserBuilder
          */
         var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
@@ -4897,9 +4871,9 @@
              * Gets the user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
-             * @param  {Object} id      The user id/me
-             *
+             * 
+             * @param  {Object} id      The user id/me 
+             *  
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function(id) {
@@ -4914,7 +4888,7 @@
              * Get profile of some user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * @param  {Object} id      The user id/me
+             * @param  {Object} id      The user id/me 
              * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
              */
             getProfile: function(id) {
@@ -4929,10 +4903,10 @@
              * Updates the user or  the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id              The user id or me
              * @param  {Object} modification    Json object with the modificacion of the user
-             *
+             * 
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             update: function(id, modification) {
@@ -4947,9 +4921,9 @@
             /**
              * Deletes the user or the logged user
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id        The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             delete: function(id) {
@@ -4985,9 +4959,9 @@
              * Sends a email to the logged user or user to validate his email address
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id     The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
@@ -5003,9 +4977,9 @@
              * Validates the email of a user or the logged user
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id   The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
@@ -5029,7 +5003,6 @@
     })();
 
     (function() {
-
         corbel.Notifications = corbel.Object.inherit({
 
             /**
@@ -5059,7 +5032,6 @@
         return corbel.Notifications;
 
     })();
-
 
     (function() {
 
@@ -5197,7 +5169,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -5244,9 +5215,9 @@
          * @constant
          * @type {String}
          * @default
-
+  
         FAILED: 'FAILED',
-
+  
         /**
          * IN_PAYMENT constant
          * @constant
@@ -5305,7 +5276,6 @@
         };
 
     })();
-
 
     (function() {
 
@@ -5438,7 +5408,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -5563,7 +5532,6 @@
     })();
 
     (function() {
-
         corbel.Evci = corbel.Object.inherit({
 
             /**
@@ -5593,7 +5561,6 @@
         return corbel.Evci;
 
     })();
-
 
     (function() {
 
@@ -5667,7 +5634,6 @@
 
         return EventBuilder;
     })();
-
 
     (function() {
 
@@ -5769,7 +5735,6 @@
 
     })();
 
-
     (function() {
 
 
@@ -5863,7 +5828,7 @@
            * @param {timestamp} license.expire       Expire date
            * @param {timestamp} licensee.start       Start date
            * @param {String} license.asset           Asigned to the resource
-
+  
            * @return {Promise} A promise with the id of the created a license or fails
            *                   with a {@link corbelError}.
            */
@@ -6152,7 +6117,6 @@
         });
     })();
 
-
     (function() {
 
 
@@ -6205,7 +6169,6 @@
             _buildUri: corbel.Borrow._buildUri
         });
     })();
-
 
     (function() {
 
@@ -6339,7 +6302,6 @@
         });
     })();
 
-
     (function() {
 
         /**
@@ -6423,7 +6385,6 @@
 
     })();
 
-
     (function() {
 
 
@@ -6483,7 +6444,6 @@
 
         });
     })();
-
 
     (function() {
 
