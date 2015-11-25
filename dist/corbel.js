@@ -1639,9 +1639,11 @@
 
             }.bind(this);
 
+
             if (params.data) {
                 httpReq.send(params.data);
             } else {
+                //IE fix, send nothing (not null or undefined)
                 httpReq.send();
             }
         };
