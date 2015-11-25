@@ -365,6 +365,24 @@
     return result;
   };
 
+  /**
+   * Change the keys of the object to lowercase due to
+   * compatibility reasons
+   * @param  {Object} obj object which keys will converted to lowercase
+   * @return {Object}
+   */
+  utils.keysToLowerCase = function(obj) {
+    var key;
+    var keys = Object.keys(obj);
+    var n = keys.length;
+    var newobj = {};
+    while (n--) {
+      key = keys[n];
+      newobj[key.toLowerCase()] = obj[key];
+    }
+    return newobj;
+  };
+
   utils.isJSON = function(string) {
     try {
       JSON.parse(string);

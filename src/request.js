@@ -275,6 +275,7 @@
       promiseResponse;
 
     var data = response.response;
+    var headers = corbel.utils.keysToLowerCase(response.headers);
 
     if (statusType === 4 || response.error) {
 
@@ -282,7 +283,7 @@
         statusCode = disconnected ? 0 : statusCode;
 
         if (callbackError) {
-          callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
+          callbackError.call(this, response.error, statusCode, response.responseObject, headers);
         }
 
         if (response.response) {
@@ -293,7 +294,7 @@
           data: data,
           status: statusCode,
           error: response.error,
-          headers: response.headers
+          headers: headers
         };
 
         promiseResponse[response.responseObjectType] = response.responseObject;
@@ -313,7 +314,7 @@
         promiseResponse = {
         data: data,
         status: statusCode,
-        headers: response.headers
+        headers: headers
         };
 
         promiseResponse[response.responseObjectType] = response.responseObject;
