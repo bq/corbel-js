@@ -590,66 +590,66 @@
         primary way of interacting with a promise is through its `then` method, which
         registers callbacks to receive either a promise's eventual value or the reason
         why the promise cannot be fulfilled.
-
+  
         Terminology
         -----------
-
+  
         - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
         - `thenable` is an object or function that defines a `then` method.
         - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
         - `exception` is a value that is thrown using the throw statement.
         - `reason` is a value that indicates why a promise was rejected.
         - `settled` the final resting state of a promise, fulfilled or rejected.
-
+  
         A promise can be in one of three states: pending, fulfilled, or rejected.
-
+  
         Promises that are fulfilled have a fulfillment value and are in the fulfilled
         state.  Promises that are rejected have a rejection reason and are in the
         rejected state.  A fulfillment value is never a thenable.
-
+  
         Promises can also be said to *resolve* a value.  If this value is also a
         promise, then the original promise's settled state will match the value's
         settled state.  So a promise that *resolves* a promise that rejects will
         itself reject, and a promise that *resolves* a promise that fulfills will
         itself fulfill.
-
-
+  
+  
         Basic Usage:
         ------------
-
+  
         ```js
         var promise = new Promise(function(resolve, reject) {
           // on success
           resolve(value);
-
+  
           // on failure
           reject(reason);
         });
-
+  
         promise.then(function(value) {
           // on fulfillment
         }, function(reason) {
           // on rejection
         });
         ```
-
+  
         Advanced Usage:
         ---------------
-
+  
         Promises shine when abstracting away asynchronous interactions such as
         `XMLHttpRequest`s.
-
+  
         ```js
         function getJSON(url) {
           return new Promise(function(resolve, reject){
             var xhr = new XMLHttpRequest();
-
+  
             xhr.open('GET', url);
             xhr.onreadystatechange = handler;
             xhr.responseType = 'json';
             xhr.setRequestHeader('Accept', 'application/json');
             xhr.send();
-
+  
             function handler() {
               if (this.readyState === this.DONE) {
                 if (this.status === 200) {
@@ -661,16 +661,16 @@
             };
           });
         }
-
+  
         getJSON('/posts.json').then(function(json) {
           // on fulfillment
         }, function(reason) {
           // on rejection
         });
         ```
-
+  
         Unlike callbacks, promises are great composable primitives.
-
+  
         ```js
         Promise.all([
           getJSON('/posts'),
@@ -678,11 +678,11 @@
         ]).then(function(values){
           values[0] // => postsJSON
           values[1] // => commentsJSON
-
+  
           return values;
         });
         ```
-
+  
         @class Promise
         @param {function} resolver
         Useful for tooling.
@@ -722,7 +722,7 @@
         The primary way of interacting with a promise is through its `then` method,
         which registers callbacks to receive either a promise's eventual value or the
         reason why the promise cannot be fulfilled.
-
+  
         ```js
         findUser().then(function(user){
           // user is available
@@ -730,14 +730,14 @@
           // user is unavailable, and you are given the reason why
         });
         ```
-
+  
         Chaining
         --------
-
+  
         The return value of `then` is itself a promise.  This second, 'downstream'
         promise is resolved with the return value of the first promise's fulfillment
         or rejection handler, or rejected if the handler throws an exception.
-
+  
         ```js
         findUser().then(function (user) {
           return user.name;
@@ -747,7 +747,7 @@
           // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
           // will be `'default name'`
         });
-
+  
         findUser().then(function (user) {
           throw new Error('Found user, but still unhappy');
         }, function (reason) {
@@ -760,7 +760,7 @@
         });
         ```
         If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-
+  
         ```js
         findUser().then(function (user) {
           throw new PedagogicalException('Upstream error');
@@ -772,15 +772,15 @@
           // The `PedgagocialException` is propagated all the way down to here
         });
         ```
-
+  
         Assimilation
         ------------
-
+  
         Sometimes the value you want to propagate to a downstream promise can only be
         retrieved asynchronously. This can be achieved by returning a promise in the
         fulfillment or rejection handler. The downstream promise will then be pending
         until the returned promise is settled. This is called *assimilation*.
-
+  
         ```js
         findUser().then(function (user) {
           return findCommentsByAuthor(user);
@@ -788,9 +788,9 @@
           // The user's comments are now available
         });
         ```
-
+  
         If the assimliated promise rejects, then the downstream promise will also reject.
-
+  
         ```js
         findUser().then(function (user) {
           return findCommentsByAuthor(user);
@@ -800,15 +800,15 @@
           // If `findCommentsByAuthor` rejects, we'll have the reason here
         });
         ```
-
+  
         Simple Example
         --------------
-
+  
         Synchronous Example
-
+  
         ```javascript
         var result;
-
+  
         try {
           result = findResult();
           // success
@@ -816,9 +816,9 @@
           // failure
         }
         ```
-
+  
         Errback Example
-
+  
         ```js
         findResult(function(result, err){
           if (err) {
@@ -828,9 +828,9 @@
           }
         });
         ```
-
+  
         Promise Example;
-
+  
         ```javascript
         findResult().then(function(result){
           // success
@@ -838,15 +838,15 @@
           // failure
         });
         ```
-
+  
         Advanced Example
         --------------
-
+  
         Synchronous Example
-
+  
         ```javascript
         var author, books;
-
+  
         try {
           author = findAuthor();
           books  = findBooksByAuthor(author);
@@ -855,19 +855,19 @@
           // failure
         }
         ```
-
+  
         Errback Example
-
+  
         ```js
-
+  
         function foundBooks(books) {
-
+  
         }
-
+  
         function failure(reason) {
-
+  
         }
-
+  
         findAuthor(function(author, err){
           if (err) {
             failure(err);
@@ -892,9 +892,9 @@
           }
         });
         ```
-
+  
         Promise Example;
-
+  
         ```javascript
         findAuthor().
           then(findBooksByAuthor).
@@ -904,7 +904,7 @@
           // something went wrong
         });
         ```
-
+  
         @method then
         @param {Function} onFulfilled
         @param {Function} onRejected
@@ -937,25 +937,25 @@
             /**
         `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
         as the catch block of a try/catch statement.
-
+  
         ```js
         function findAuthor(){
           throw new Error('couldn't find that author');
         }
-
+  
         // synchronous
         try {
           findAuthor();
         } catch(reason) {
           // something went wrong
         }
-
+  
         // async with promises
         findAuthor().catch(function(reason){
           // something went wrong
         });
         ```
-
+  
         @method catch
         @param {Function} onRejection
         Useful for tooling.
@@ -1021,7 +1021,6 @@
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
-
     (function() {
 
         /**
@@ -1078,7 +1077,6 @@
         };
 
     })();
-
 
 
     (function() {
@@ -1520,7 +1518,6 @@
     })();
 
 
-
     (function() {
 
 
@@ -1651,7 +1648,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -1676,7 +1672,6 @@
         return corbel.Object;
 
     })();
-
 
     (function() {
 
@@ -1980,7 +1975,6 @@
 
 
     /* jshint camelcase:false */
-
     (function() {
 
         var jwt = corbel.jwt = {
@@ -2100,7 +2094,6 @@
         return jwt;
 
     })();
-
 
     (function() {
 
@@ -2375,6 +2368,7 @@
                 promiseResponse;
 
             var data = response.response;
+            var headers = keysToLowerCase(response.headers);
 
             if (statusType === 4 || response.error) {
 
@@ -2382,7 +2376,7 @@
                 statusCode = disconnected ? 0 : statusCode;
 
                 if (callbackError) {
-                    callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
+                    callbackError.call(this, response.error, statusCode, response.responseObject, headers);
                 }
 
                 if (response.response) {
@@ -2393,7 +2387,7 @@
                     data: data,
                     status: statusCode,
                     error: response.error,
-                    headers: response.headers
+                    headers: headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -2413,7 +2407,7 @@
                 promiseResponse = {
                     data: data,
                     status: statusCode,
-                    headers: response.headers
+                    headers: headers
                 };
 
                 promiseResponse[response.responseObjectType] = response.responseObject;
@@ -2421,6 +2415,18 @@
                 resolver.resolve(promiseResponse);
             }
 
+        };
+
+        var keysToLowerCase = function(obj) {
+            var key;
+            var keys = Object.keys(obj);
+            var n = keys.length;
+            var newobj = {};
+            while (n--) {
+                key = keys[n];
+                newobj[key.toLowerCase()] = obj[key];
+            }
+            return newobj;
         };
 
         var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
@@ -2928,7 +2934,6 @@
 
     //----------corbel modules----------------
 
-
     function Config(config) {
         config = config || {};
         // config default values
@@ -3023,7 +3028,6 @@
         this.config[field] = value;
     };
 
-
     (function() {
 
         /**
@@ -3080,7 +3084,6 @@
         };
 
     })();
-
 
     (function() {
 
@@ -3240,7 +3243,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -3391,7 +3393,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -3485,7 +3486,6 @@
         });
 
     })();
-
 
     (function() {
 
@@ -3588,11 +3588,11 @@
              *
              * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
              * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
-             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String
+             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
              * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
              * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
              * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
-             *
+             * 
              * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
              * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
              */
@@ -3661,7 +3661,6 @@
         });
 
     })();
-
     (function() {
 
         /**
@@ -3733,7 +3732,6 @@
         });
 
     })();
-
 
     (function() {
 
@@ -4190,7 +4188,6 @@
         });
     })();
 
-
     (function() {
 
         /**
@@ -4370,7 +4367,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -4448,7 +4444,6 @@
     })();
 
     (function() {
-
         /**
          * An assets API factory
          * @exports corbel.Assets
@@ -4507,7 +4502,6 @@
         return corbel.Assets;
 
     })();
-
 
     (function() {
 
@@ -4674,8 +4668,8 @@
         return AssetsBuilder;
 
     })();
-    (function() {
 
+    (function() {
         corbel.Scheduler = corbel.Object.inherit({
 
             /**
@@ -4702,7 +4696,6 @@
 
         return corbel.Scheduler;
     })();
-
 
     (function() {
 
@@ -4788,8 +4781,6 @@
 
     })();
 
-
-
     var aggregationBuilder = (function() {
 
         var aggregationBuilder = {};
@@ -4808,8 +4799,6 @@
         return aggregationBuilder;
 
     })();
-
-
     var queryBuilder = (function() {
 
         var queryBuilder = {};
@@ -4945,8 +4934,6 @@
         return queryBuilder;
 
     })();
-
-
     var pageBuilder = (function() {
 
         var pageBuilder = {};
@@ -4990,8 +4977,6 @@
 
     })();
 
-
-
     var sortBuilder = (function() {
 
         var sortBuilder = {};
@@ -5018,8 +5003,6 @@
 
         return sortBuilder;
     })();
-
-
     (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
 
 
@@ -5050,7 +5033,6 @@
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
     (function() {
-
         corbel.Resources = corbel.Object.inherit({
 
             constructor: function(driver) {
@@ -5111,7 +5093,6 @@
     })();
 
     (function() {
-
         corbel.Resources.BaseResource = corbel.Services.inherit({
 
             /**
@@ -5181,7 +5162,6 @@
     })();
 
     (function() {
-
         /**
          * Relation
          * @class
@@ -5321,7 +5301,6 @@
 
     (function() {
 
-
         /**
          * Collection requests
          * @class
@@ -5431,7 +5410,6 @@
     })();
 
     (function() {
-
         /**
          * Builder for resource requests
          * @class
@@ -5527,7 +5505,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -5617,7 +5594,6 @@
             });
         };
     })();
-
 
     (function() {
         /**
@@ -5746,7 +5722,6 @@
 
     })();
 
-
     (function() {
         /**
          * Create a TokenBuilder for token managing requests.
@@ -5778,7 +5753,7 @@
          * @class
          *
          * @param {Object} params Initial params
-         *
+         * 
          * @memberOf corbel.Oauth.TokenBuilder
          */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
@@ -5791,9 +5766,9 @@
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             *
+             * 
              * @param  {String} code The code to exchange for the token
-             *
+             * 
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
@@ -5809,7 +5784,6 @@
             _buildUri: corbel.Oauth._buildUri
         });
     })();
-
 
     (function() {
         /**
@@ -5844,11 +5818,11 @@
         /**
          * A builder for a user management requests.
          * @class
-         *
+         * 
          * @param {Object} params           Parameters for initializing the builder
          * @param {String} [clientId]       Application client Id (required for creating user)
          * @param {String} [clientSecret]   Application client secret (required for creating user)
-         *
+         *    
          * @memberOf corbel.Oauth.UserBuilder
          */
         var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
@@ -5893,9 +5867,9 @@
              * Gets the user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
-             * @param  {Object} id      The user id/me
-             *
+             * 
+             * @param  {Object} id      The user id/me 
+             *  
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function(id) {
@@ -5910,7 +5884,7 @@
              * Get profile of some user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * @param  {Object} id      The user id/me
+             * @param  {Object} id      The user id/me 
              * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
              */
             getProfile: function(id) {
@@ -5925,10 +5899,10 @@
              * Updates the user or  the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id              The user id or me
              * @param  {Object} modification    Json object with the modificacion of the user
-             *
+             * 
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             update: function(id, modification) {
@@ -5943,9 +5917,9 @@
             /**
              * Deletes the user or the logged user
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id        The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             delete: function(id) {
@@ -5981,9 +5955,9 @@
              * Sends a email to the logged user or user to validate his email address
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id     The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
@@ -5999,9 +5973,9 @@
              * Validates the email of a user or the logged user
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id   The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
@@ -6025,7 +5999,6 @@
     })();
 
     (function() {
-
         corbel.Notifications = corbel.Object.inherit({
 
             /**
@@ -6055,7 +6028,6 @@
         return corbel.Notifications;
 
     })();
-
 
     (function() {
 
@@ -6193,7 +6165,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -6240,9 +6211,9 @@
          * @constant
          * @type {String}
          * @default
-
+  
         FAILED: 'FAILED',
-
+  
         /**
          * IN_PAYMENT constant
          * @constant
@@ -6301,7 +6272,6 @@
         };
 
     })();
-
 
     (function() {
 
@@ -6434,7 +6404,6 @@
 
     })();
 
-
     (function() {
 
         /**
@@ -6559,7 +6528,6 @@
     })();
 
     (function() {
-
         corbel.Evci = corbel.Object.inherit({
 
             /**
@@ -6589,7 +6557,6 @@
         return corbel.Evci;
 
     })();
-
 
     (function() {
 
@@ -6663,7 +6630,6 @@
 
         return EventBuilder;
     })();
-
 
     (function() {
 
@@ -6765,7 +6731,6 @@
 
     })();
 
-
     (function() {
 
 
@@ -6859,7 +6824,7 @@
            * @param {timestamp} license.expire       Expire date
            * @param {timestamp} licensee.start       Start date
            * @param {String} license.asset           Asigned to the resource
-
+  
            * @return {Promise} A promise with the id of the created a license or fails
            *                   with a {@link corbelError}.
            */
@@ -7148,7 +7113,6 @@
         });
     })();
 
-
     (function() {
 
 
@@ -7201,7 +7165,6 @@
             _buildUri: corbel.Borrow._buildUri
         });
     })();
-
 
     (function() {
 
@@ -7335,7 +7298,6 @@
         });
     })();
 
-
     (function() {
 
         /**
@@ -7419,7 +7381,6 @@
 
     })();
 
-
     (function() {
 
 
@@ -7479,7 +7440,6 @@
 
         });
     })();
-
 
     (function() {
 
