@@ -25,6 +25,7 @@
 
     //-----------Utils and libraries (exports into corbel namespace)---------------------------
 
+
     (function() {
 
         /**
@@ -81,6 +82,7 @@
         };
 
     })();
+
 
 
     (function() {
@@ -540,6 +542,7 @@
     })();
 
 
+
     (function() {
 
 
@@ -670,6 +673,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -694,6 +698,7 @@
         return corbel.Object;
 
     })();
+
 
     (function() {
 
@@ -997,6 +1002,7 @@
 
 
     /* jshint camelcase:false */
+
     (function() {
 
         var jwt = corbel.jwt = {
@@ -1116,6 +1122,7 @@
         return jwt;
 
     })();
+
 
     (function() {
 
@@ -1339,6 +1346,7 @@
             };
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
+            params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
 
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
@@ -1456,6 +1464,17 @@
             return params;
         };
 
+        var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
+            var urlComponents = url.split(/\?{1}/g);
+            if (urlComponents) {
+                return url
+                    .replace(urlComponents[1],
+                        encodeURIComponent(urlComponents[1]));
+            }
+
+            return url;
+        };
+
         var encodeUrlToForm = function(url) {
             var form = {};
             url.split('&').forEach(function(formEntry) {
@@ -1467,7 +1486,6 @@
         };
 
         request._nodeAjax = function(params, resolver) {
-
             var requestAjax = require('request');
             if (request.isCrossDomain(params.url) && params.withCredentials) {
                 requestAjax = requestAjax.defaults({
@@ -1944,6 +1962,7 @@
 
     //----------corbel modules----------------
 
+
     function Config(config) {
         config = config || {};
         // config default values
@@ -2038,6 +2057,7 @@
         this.config[field] = value;
     };
 
+
     (function() {
 
         /**
@@ -2094,6 +2114,7 @@
         };
 
     })();
+
 
     (function() {
 
@@ -2253,6 +2274,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -2403,6 +2425,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -2496,6 +2519,7 @@
         });
 
     })();
+
 
     (function() {
 
@@ -2671,6 +2695,7 @@
         });
 
     })();
+
     (function() {
 
         /**
@@ -2742,6 +2767,7 @@
         });
 
     })();
+
 
     (function() {
 
@@ -3198,6 +3224,7 @@
         });
     })();
 
+
     (function() {
 
         /**
@@ -3377,6 +3404,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -3453,6 +3481,8 @@
         });
     })();
 
+
+
     var aggregationBuilder = (function() {
 
         var aggregationBuilder = {};
@@ -3471,6 +3501,8 @@
         return aggregationBuilder;
 
     })();
+
+
     var queryBuilder = (function() {
 
         var queryBuilder = {};
@@ -3606,6 +3638,8 @@
         return queryBuilder;
 
     })();
+
+
     var pageBuilder = (function() {
 
         var pageBuilder = {};
@@ -3649,6 +3683,8 @@
 
     })();
 
+
+
     var sortBuilder = (function() {
 
         var sortBuilder = {};
@@ -3675,6 +3711,8 @@
 
         return sortBuilder;
     })();
+
+
     (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
 
 
@@ -3705,6 +3743,7 @@
 
     })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
     (function() {
+
         /**
          * An assets API factory
          * @exports corbel.Assets
@@ -3763,6 +3802,7 @@
         return corbel.Assets;
 
     })();
+
 
     (function() {
 
@@ -3931,6 +3971,7 @@
     })();
 
     (function() {
+
         corbel.Scheduler = corbel.Object.inherit({
 
             /**
@@ -3957,6 +3998,7 @@
 
         return corbel.Scheduler;
     })();
+
 
     (function() {
 
@@ -4043,6 +4085,7 @@
     })();
 
     (function() {
+
         corbel.Resources = corbel.Object.inherit({
 
             constructor: function(driver) {
@@ -4103,6 +4146,7 @@
     })();
 
     (function() {
+
         corbel.Resources.BaseResource = corbel.Services.inherit({
 
             /**
@@ -4172,6 +4216,7 @@
     })();
 
     (function() {
+
         /**
          * Relation
          * @class
@@ -4311,6 +4356,7 @@
 
     (function() {
 
+
         /**
          * Collection requests
          * @class
@@ -4420,6 +4466,7 @@
     })();
 
     (function() {
+
         /**
          * Builder for resource requests
          * @class
@@ -4515,6 +4562,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -4604,6 +4652,7 @@
             });
         };
     })();
+
 
     (function() {
         /**
@@ -4732,6 +4781,7 @@
 
     })();
 
+
     (function() {
         /**
          * Create a TokenBuilder for token managing requests.
@@ -4794,6 +4844,7 @@
             _buildUri: corbel.Oauth._buildUri
         });
     })();
+
 
     (function() {
         /**
@@ -5009,6 +5060,7 @@
     })();
 
     (function() {
+
         corbel.Notifications = corbel.Object.inherit({
 
             /**
@@ -5038,6 +5090,7 @@
         return corbel.Notifications;
 
     })();
+
 
     (function() {
 
@@ -5175,6 +5228,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -5282,6 +5336,7 @@
         };
 
     })();
+
 
     (function() {
 
@@ -5414,6 +5469,7 @@
 
     })();
 
+
     (function() {
 
         /**
@@ -5538,6 +5594,7 @@
     })();
 
     (function() {
+
         corbel.Evci = corbel.Object.inherit({
 
             /**
@@ -5567,6 +5624,7 @@
         return corbel.Evci;
 
     })();
+
 
     (function() {
 
@@ -5640,6 +5698,7 @@
 
         return EventBuilder;
     })();
+
 
     (function() {
 
@@ -5740,6 +5799,7 @@
 
 
     })();
+
 
     (function() {
 
@@ -6123,6 +6183,7 @@
         });
     })();
 
+
     (function() {
 
 
@@ -6175,6 +6236,7 @@
             _buildUri: corbel.Borrow._buildUri
         });
     })();
+
 
     (function() {
 
@@ -6308,6 +6370,7 @@
         });
     })();
 
+
     (function() {
 
         /**
@@ -6391,6 +6454,7 @@
 
     })();
 
+
     (function() {
 
 
@@ -6450,6 +6514,7 @@
 
         });
     })();
+
 
     (function() {
 
