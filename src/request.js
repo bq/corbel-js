@@ -122,13 +122,13 @@
      * @return {string}
      */
     stream: function(data) {
-        if (corbel.Config.isBrowser) {
-          throw new Error('error:request:unsupported:data_type');
-        }
-        return data;
+      if (corbel.Config.isBrowser) {
+        throw new Error('error:request:unsupported:data_type');
       }
-      // @todo: 'url' support
-      // 'url' type convert in stream in node, explode in browser
+      return data;
+    }
+    // @todo: 'url' support
+    // 'url' type convert in stream in node, explode in browser
   };
 
   /**
@@ -160,14 +160,14 @@
      * @return {mixed}
      */
     json: function(data) {
-        data = data || '{}';
-        if (typeof data === 'string') {
-          data = JSON.parse(data);
-        }
-        return data;
+      data = data || '{}';
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
       }
-      // 'blob' type do not require any process
-      // @todo: xml
+      return data;
+    }
+    // 'blob' type do not require any process
+    // @todo: xml
   };
 
   /**
@@ -225,6 +225,7 @@
     };
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
+    params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
 
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
@@ -342,6 +343,17 @@
     return params;
   };
 
+  var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
+    var urlComponents = url.split(/\?{1}/g);
+    if (urlComponents) {
+      return url
+        .replace(urlComponents[1],
+          encodeURIComponent(urlComponents[1]));
+    }
+
+    return url;
+  };
+
   var encodeUrlToForm = function(url) {
     var form = {};
     url.split('&').forEach(function(formEntry) {
@@ -353,7 +365,6 @@
   };
 
   request._nodeAjax = function(params, resolver) {
-
     var requestAjax = require('request');
     if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
       requestAjax = requestAjax.defaults({
