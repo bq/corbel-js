@@ -122,13 +122,13 @@
      * @return {string}
      */
     stream: function(data) {
-        if (corbel.Config.isBrowser) {
-          throw new Error('error:request:unsupported:data_type');
-        }
-        return data;
+      if (corbel.Config.isBrowser) {
+        throw new Error('error:request:unsupported:data_type');
       }
-      // @todo: 'url' support
-      // 'url' type convert in stream in node, explode in browser
+      return data;
+    }
+    // @todo: 'url' support
+    // 'url' type convert in stream in node, explode in browser
   };
 
   /**
@@ -160,14 +160,14 @@
      * @return {mixed}
      */
     json: function(data) {
-        data = data || '{}';
-        if (typeof data === 'string') {
-          data = JSON.parse(data);
-        }
-        return data;
+      data = data || '{}';
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
       }
-      // 'blob' type do not require any process
-      // @todo: xml
+      return data;
+    }
+    // 'blob' type do not require any process
+    // @todo: xml
   };
 
   /**
@@ -221,11 +221,11 @@
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
       responseType: options.responseType,
       withCredentials: options.withCredentials || true,
-      useCookies : options.useCookies || false
+      useCookies: options.useCookies || false
     };
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
-
+	params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url); 
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -279,48 +279,48 @@
 
     if (statusType === 4 || response.error) {
 
-        var disconnected = response.error && response.status === 0;
-        statusCode = disconnected ? 0 : statusCode;
+      var disconnected = response.error && response.status === 0;
+      statusCode = disconnected ? 0 : statusCode;
 
-        if (callbackError) {
-          callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
-        }
+      if (callbackError) {
+        callbackError.call(this, response.error, statusCode, response.responseObject, response.headers);
+      }
 
-        if (response.response) {
-          data = request.parse(response.response, response.responseType, response.dataType);
-        }
+      if (response.response) {
+        data = request.parse(response.response, response.responseType, response.dataType);
+      }
 
-        promiseResponse = {
-          data: data,
-          status: statusCode,
-          error: response.error,
-          headers: response.headers
-        };
+      promiseResponse = {
+        data: data,
+        status: statusCode,
+        error: response.error,
+        headers: response.headers
+      };
 
-        promiseResponse[response.responseObjectType] = response.responseObject;
+      promiseResponse[response.responseObjectType] = response.responseObject;
 
-        resolver.reject(promiseResponse);
+      resolver.reject(promiseResponse);
 
     } else if (statusType < 3) {
 
-        if (response.response) {
+      if (response.response) {
         data = request.parse(response.response, response.responseType, response.dataType);
-        }
+      }
 
-        if (callbackSuccess) {
+      if (callbackSuccess) {
         callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-        }
+      }
 
-        promiseResponse = {
+      promiseResponse = {
         data: data,
         status: statusCode,
         headers: response.headers
-        };
+      };
 
-        promiseResponse[response.responseObjectType] = response.responseObject;
+      promiseResponse[response.responseObjectType] = response.responseObject;
 
-        resolver.resolve(promiseResponse);
-      }
+      resolver.resolve(promiseResponse);
+    }
 
   };
 
@@ -351,6 +351,18 @@
     return form;
   };
 
+  var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
+    var urlComponents = url.split(/\?{1}/g);
+    if (urlComponents) {
+      return url
+        .replace(urlComponents[1],
+          encodeURI(urlComponents[1]));
+    }
+
+    return url;
+  };
+
+
   request._nodeAjax = function(params, resolver) {
 
     var requestAjax = require('request');
@@ -368,7 +380,6 @@
     }, function(error, response, body) {
       var responseType;
       var status;
-
       if (error) {
         responseType = undefined;
         status = 0;
@@ -474,7 +485,7 @@
 
       // Error flag to support disconnection errors
       if (xhr.type === 'error') {
-          error = true;
+        error = true;
       }
 
       processResponse.call(this, {
@@ -492,8 +503,7 @@
 
     if (params.data) {
       httpReq.send(params.data);
-    }
-    else {
+    } else {
       //IE fix, send nothing (not null or undefined)
       httpReq.send();
     }
