@@ -2373,6 +2373,7 @@
             };
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
+            params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
 
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
@@ -2498,6 +2499,18 @@
             });
             return form;
         };
+
+        var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
+            var urlComponents = url.split(/\?{1}/g);
+            if (urlComponents) {
+                return url
+                    .replace(urlComponents[1],
+                        encodeURIComponent(urlComponents[1]));
+            }
+
+            return url;
+        };
+
 
         request._nodeAjax = function(params, resolver) {
 
@@ -2649,7 +2662,6 @@
         return request;
 
     })();
-
 
     (function() {
 
