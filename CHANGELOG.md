@@ -1,17 +1,11 @@
 
 # Changelog
 
-### v0.2.8 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.0...v0.2.8)
+### v0.2.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.9...v0.2.10)
 
-#### Breaking changes
+#### Features
 
-* Assets and notifications' API have changed so now, both modules follow the main syntax
-
-    ```
-    corbelDriver.assets(.*).get() -> corbelDriver.assets.asset(.*).get()
-    corbelDriver.notifications(.*).get() -> corbelDriver.notifications.notification(.*).get()
-
-    ```
+* Event handler support `addEventListener/on`, `removeEventListener/off` and `dispatch/trigger`
 
 ### v0.2.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.1.2...v0.2.0)
 

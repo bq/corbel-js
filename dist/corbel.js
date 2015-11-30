@@ -34,6 +34,7 @@
          * @return {CorbelDriver}
          */
         function CorbelDriver(config) {
+            this._events = [];
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
@@ -57,6 +58,72 @@
         CorbelDriver.prototype.clone = function() {
             return new CorbelDriver(this.config.getConfig());
         };
+
+        /**
+         * Adds an event handler for especific event
+         * @param {string}   name Event name
+         * @param {Function} fn   Function to call
+         */
+        CorbelDriver.prototype.addEventListener = function(name, fn) {
+            if (typeof fn !== 'function') {
+                throw new Error('corbel:error:invalid:type');
+            }
+            this._events[name] = this._events[name] || [];
+            if (this._events[name].indexOf(fn) === -1) {
+                this._events[name].push(fn);
+            }
+        };
+
+        /**
+         * Removes the handler from event list
+         * @param  {string}   name Event name
+         * @param  {Function} fn   Function to remove
+         */
+        CorbelDriver.prototype.removeEventListener = function(name, fn) {
+            if (this._events[name]) {
+                var index = this._events[name].indexOf(fn);
+                if (index !== -1) {
+                    this._events[name].splice(index, 1);
+                }
+            }
+        };
+
+        /**
+         * Fires all events handlers for an specific event name
+         * @param  {string} name    Event name
+         * @param  {Mixed} options  Data for event handlers
+         */
+        CorbelDriver.prototype.dispatch = function(name, options) {
+            if (this._events[name] && this._events[name].length) {
+                this._events[name].forEach(function(fn) {
+                    fn(options);
+                });
+            }
+        };
+
+        /**
+         * Adds an event handler for especific event
+         * @see CorbelDriver.prototype.addEventListener
+         * @param {string}   name Event name
+         * @param {Function} fn   Function to call
+         */
+        CorbelDriver.prototype.on = CorbelDriver.prototype.addEventListener;
+
+        /**
+         * Removes the handler from event list
+         * @see CorbelDriver.prototype.removeEventListener
+         * @param  {string}   name Event name
+         * @param  {Function} fn   Function to remove
+         */
+        CorbelDriver.prototype.off = CorbelDriver.prototype.removeEventListener;
+
+        /**
+         * Fires all events handlers for an specific event name
+         * @see CorbelDriver.prototype.dispatch
+         * @param  {string} name    Event name
+         * @param  {Mixed} options  Data for event handlers
+         */
+        CorbelDriver.prototype.trigger = CorbelDriver.prototype.dispatch;
 
         corbel.CorbelDriver = CorbelDriver;
 
@@ -1335,7 +1402,8 @@
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
                 responseType: options.responseType,
-                withCredentials: options.withCredentials || true
+                withCredentials: options.withCredentials || true,
+                useCookies: options.useCookies || false
             };
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
@@ -1469,11 +1537,12 @@
         request._nodeAjax = function(params, resolver) {
 
             var requestAjax = require('request');
-            if (request.isCrossDomain(params.url) && params.withCredentials) {
+            if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
                 requestAjax = requestAjax.defaults({
                     jar: true
                 });
             }
+
             requestAjax({
                 method: params.method,
                 url: params.url,
@@ -1603,7 +1672,13 @@
 
             }.bind(this);
 
-            httpReq.send(params.data);
+
+            if (params.data) {
+                httpReq.send(params.data);
+            } else {
+                //IE fix, send nothing (not null or undefined)
+                httpReq.send();
+            }
         };
 
         return request;
@@ -2664,6 +2739,7 @@
                 // we use the traditional POST verb to refresh access token.
                 return this._doPostTokenRequest(this.uri, params).then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                    that.driver.trigger('token:refresh', response.data);
                     return response;
                 });
             }
