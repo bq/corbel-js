@@ -124,6 +124,28 @@ describe('corbel-js browser', function() {
       });
     });
 
+    it('send mehtod 500 returns a promise and reject it', function(done) {
+      var fakeResponse = [
+        500, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      var promise = request.send({
+        method: 'GET',
+        url: url
+      });
+
+      promise.catch(function(error) {
+        expect(error.status).to.be.equal(500);
+        done();
+      });
+    });
+
+
     it('send method returns a promise and it reject when client is disconnected', function(done) {
 
       fakeServer.respondWith('GET', url, function(request){
