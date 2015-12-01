@@ -168,8 +168,8 @@ describe('corbel-js node', function() {
         resolver.resolve();
       });
       var queryArgs = 'param1=1&param2=2&param3=3';
-      var parsedQueryArgs = encodeURIComponent(queryArgs);
-      url += '?';
+      var parsedQueryArgs = encodeURI(queryArgs);
+      url += '?'; 
 
       request.send({
         method: 'GET',
