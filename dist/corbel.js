@@ -1400,8 +1400,26 @@
             var data = response.response;
             var headers = corbel.utils.keysToLowerCase(response.headers);
 
-            if (statusType === 4 || response.error) {
+            if (statusType <= 3 && !response.error) {
 
+                if (response.response) {
+                    data = request.parse(response.response, response.responseType, response.dataType);
+                }
+
+                if (callbackSuccess) {
+                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
+                }
+
+                promiseResponse = {
+                    data: data,
+                    status: statusCode,
+                    headers: headers
+                };
+
+                promiseResponse[response.responseObjectType] = response.responseObject;
+
+                resolver.resolve(promiseResponse);
+            } else {
                 var disconnected = response.error && response.status === 0;
                 statusCode = disconnected ? 0 : statusCode;
 
@@ -1423,26 +1441,6 @@
                 promiseResponse[response.responseObjectType] = response.responseObject;
 
                 resolver.reject(promiseResponse);
-
-            } else if (statusType < 3) {
-
-                if (response.response) {
-                    data = request.parse(response.response, response.responseType, response.dataType);
-                }
-
-                if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-                }
-
-                promiseResponse = {
-                    data: data,
-                    status: statusCode,
-                    headers: headers
-                };
-
-                promiseResponse[response.responseObjectType] = response.responseObject;
-
-                resolver.resolve(promiseResponse);
             }
 
         };
