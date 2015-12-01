@@ -85,7 +85,7 @@ describe('corbel-js browser', function() {
       expect(promise).to.be.instanceof(Promise);
     });
 
-    it('send mehtod returns a promise and it resolves', function(done) {
+    it('send mehtod 200 returns a promise and it resolves', function(done) {
       var fakeResponse = [
         200, {
           'Content-type': 'application/json'
@@ -103,7 +103,7 @@ describe('corbel-js browser', function() {
       });
     });
 
-    it('send mehtod returns a promise and reject it', function(done) {
+    it('send mehtod 404 returns a promise and reject it', function(done) {
       var fakeResponse = [
         404, {
           'Content-type': 'application/json'
@@ -123,6 +123,28 @@ describe('corbel-js browser', function() {
         done();
       });
     });
+
+    it('send mehtod 500 returns a promise and reject it', function(done) {
+      var fakeResponse = [
+        500, {
+          'Content-type': 'application/json'
+        },
+        '{}'
+      ];
+
+      fakeServer.respondWith('GET', url, fakeResponse);
+
+      var promise = request.send({
+        method: 'GET',
+        url: url
+      });
+
+      promise.catch(function(error) {
+        expect(error.status).to.be.equal(500);
+        done();
+      });
+    });
+
 
     it('send method returns a promise and it reject when client is disconnected', function(done) {
 
