@@ -1705,40 +1705,35 @@
                 var that = this;
 
                 function requestWithRetries() {
-                    var params = that._buildParams(args);
 
-                    return that._doRequest(params)
-                        .catch(function(response) {
+                    return that._doRequest(that._buildParams(args)).catch(function(response) {
 
-                            var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                            var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
+                        var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                        var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
 
-                            if (retries < maxRetries &&
-                                response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
+                        if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
 
-                                var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-                                //A 401 request within, refresh the token and retry the request.
-                                return that._refreshHandler(tokenObject)
-                                    .then(function() {
-                                        //Has refreshed the token, retry request
-                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
-                                        //@TODO: see if we need to upgrade the token to access assets.
-                                        return requestWithRetries();
-                                    })
-                                    .catch(function() {
-                                        //Has failed refreshing, reject request and reset the retries counter
-                                        console.log('corbeljs:services:token:refresh:fail');
-                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                                        return Promise.reject(response);
-                                    });
-
-                            } else {
+                            var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+                            //A 401 request within, refresh the token and retry the request.
+                            return that._refreshHandler(tokenObject).then(function() {
+                                //Has refreshed the token, retry request
+                                that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
+                                //@TODO: see if we need to upgrade the token to access assets.
+                                return requestWithRetries();
+                            }).catch(function() {
+                                //Has failed refreshing, reject request and reset the retries counter
+                                console.log('corbeljs:services:token:refresh:fail');
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                                console.log('corbeljs:services:token:no_refresh', response.status);
                                 return Promise.reject(response);
-                            }
+                            });
 
-                        });
+                        } else {
+                            that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                            console.log('corbeljs:services:token:no_refresh', response.status);
+                            return Promise.reject(response);
+                        }
+
+                    });
                 }
 
                 return requestWithRetries();
@@ -1791,8 +1786,10 @@
             _refreshHandler: function(tokenObject) {
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    return this.driver.iam.token()
-                        .refresh(tokenObject.refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
+                    return this.driver.iam.token().refresh(
+                        tokenObject.refreshToken,
+                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
+                    );
                 } else {
                     console.log('corbeljs:services:token:create');
                     return this.driver.iam.token().create();
@@ -1837,7 +1834,10 @@
                     },
                     method: corbel.request.method.GET
                 };
-                var params = corbel.utils.defaults(args, defaults);
+
+                // do not modify args object
+                var params = corbel.utils.defaults({}, args);
+                params = corbel.utils.defaults(params, defaults);
 
                 if (!params.url) {
                     throw new Error('You must define an url');
@@ -1993,6 +1993,7 @@
         return Services;
 
     })();
+
 
     //----------corbel modules----------------
 

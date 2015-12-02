@@ -167,13 +167,12 @@ describe('corbel.Services', function() {
           requestStub.returns(Promise.resolve('data'));
           var spy = sandbox.spy(service, '_refreshHandler');
 
-          service.request({
+          expect(service.request({
             method: 'GET',
             url: 'url'
-          }).then(function() {
+          })).to.be.fulfilled.then(function() {
             expect(spy.callCount).to.be.equal(0);
-            done();
-          });
+          }).should.notify(done);
 
         });
 
@@ -199,20 +198,18 @@ describe('corbel.Services', function() {
             }));
 
 
-            service.request({
+            expect(service.request({
               method: 'GET',
               url: 'url'
-            }).catch(function() {
+            })).to.be.rejected.then(function() {
 
               var retries = driver.config.get(corbel.Services._FORCE_UPDATE_STATUS);
-
               expect(retries).to.be.equal(1);
 
               expect(spyRefresh.callCount).to.be.equal(0);
               expect(spyToken.callCount).to.be.equal(0);
               expect(spyDoRequest.callCount).to.be.equal(1);
-              done();
-            });
+            }).should.notify(done);
 
           });
 
@@ -269,15 +266,14 @@ describe('corbel.Services', function() {
               data: 'responseData'
             }));
 
-            service.request({
+            expect(service.request({
               method: 'GET',
               url: 'url'
-            }).then(function() {
+            })).to.be.fulfilled.then(function() {
               expect(spyRefresh.calledOnce).to.be.equal(true);
               expect(stubToken.calledOnce).to.be.equal(true);
               expect(spyTokenRefresh.calledOnce).to.be.equal(true);
-              done();
-            });
+            }).should.notify(done);
 
           });
 
@@ -304,18 +300,16 @@ describe('corbel.Services', function() {
               data: 'responseData'
             }));
 
-            service.request({
+            expect(service.request({
               method: 'GET',
               url: 'url'
-            })
-              .catch(function(response) {
-                expect(response.status).to.equals(401);
-                expect(requestStub.callCount).to.be.equal(3);
-                expect(spyRefresh.callCount).to.be.equal(1);
-                expect(stubToken.callCount).to.be.equal(1);
-                expect(spyTokenRefresh.callCount).to.be.equal(1);
-                done();
-              });
+            })).to.be.rejected.then(function(response) {
+              expect(response.status).to.equals(401);
+              expect(requestStub.callCount).to.be.equal(3);
+              expect(spyRefresh.callCount).to.be.equal(1);
+              expect(stubToken.callCount).to.be.equal(1);
+              expect(spyTokenRefresh.callCount).to.be.equal(1);
+            }).should.notify(done);
 
           });
 
@@ -328,10 +322,10 @@ describe('corbel.Services', function() {
                 error: 'unauthorized'
               }));
 
-              service.request({
+              expect(service.request({
                 method: 'GET',
                 url: 'url'
-              }).catch(function(response) {
+              })).to.be.rejected.then(function(response) {
                 expect(spyRefresh.calledOnce).to.be.equal(true);
                 expect(spyRefresh.calledOnce).to.be.equal(true);
                 expect(stubToken.calledOnce).to.be.equal(true);
@@ -340,9 +334,7 @@ describe('corbel.Services', function() {
 
                 expect(response.status).to.be.equal(401);
                 expect(response.error).to.be.equal('unauthorized');
-
-                done();
-              });
+              }).should.notify(done);
 
             });
 
@@ -365,10 +357,10 @@ describe('corbel.Services', function() {
                   data: 'responseData'
                 }));
 
-                service.request({
+                expect(service.request({
                   method: 'GET',
                   url: 'url'
-                }).then(function() {
+                })).to.be.fulfilled.then(function() {
                   expect(spyRefresh.callCount).to.be.equal(1);
                   expect(spyDoRequest.callCount).to.be.equal(2);
                   expect(stubToken.calledOnce).to.be.equal(true);
@@ -385,14 +377,10 @@ describe('corbel.Services', function() {
                   expect(args0.dataType).to.be.equal(args1.dataType);
                   expect(args0.data).to.be.equal(args1.data);
 
-                  //@TODO: sinon mantains reference accross the args received on the calls
-                  //a deeper look probes that the first call receives the correct header "accessToken"
-                  //but sinon does not store it properly
-                  //expect(args0.headers.Authorization).to.be.equal('Bearer accessToken');
+                  expect(args0.headers.Authorization).to.be.equal('Bearer accessToken');
                   expect(args1.headers.Authorization).to.be.equal('Bearer newToken');
 
-                  done();
-                });
+                }).should.notify(done);
 
 
               });
@@ -407,15 +395,12 @@ describe('corbel.Services', function() {
                     data: 'responseData'
                   }));
 
-                  service.request({
+                  expect(service.request({
                     method: 'GET',
                     url: 'url'
-                  }).then(function(response) {
+                  })).to.be.fulfilled.then(function(response) {
                     expect(response.data).to.be.equal('responseData');
-
-                    done();
-                  });
-
+                  }).should.notify(done);
 
                 });
 
@@ -427,26 +412,22 @@ describe('corbel.Services', function() {
                     error: 'other-error'
                   }));
 
-                  service.request({
+                  expect(service.request({
                     method: 'GET',
                     url: 'url'
-                  }).catch(function(response) {
+                  })).to.be.rejected.then(function(response) {
                     expect(response.status).to.be.equal(401);
                     expect(response.error).to.be.equal('unauthorized');
-
-                    done();
-                  });
-
+                  }).should.notify(done);
 
                 });
-
 
               });
 
             });
 
-
           });
+
         });
 
         describe('with client authorization', function() {
@@ -528,23 +509,21 @@ describe('corbel.Services', function() {
                 data: 'responseData'
               }));
 
-              service.request({
+              expect(service.request({
                 method: 'GET',
                 url: 'url'
-              })
-                .then(function(response) {
-                  expect(response.status).to.equals(203);
-                  //It has setted in the config the new data
-                  expect(spyConfigSet.callCount).to.be.above(2);
-                  expect(spyConfigSet.calledWith(corbel.Iam.IAM_TOKEN)).to.be.equal(true);
-                  expect(spyConfigSet.calledWith(corbel.Iam.IAM_DOMAIN)).to.be.equal(true);
-                  expect(spyConfigSet.calledWith(corbel.Iam.IAM_TOKEN_SCOPES)).to.be.equal(true);
+              })).to.be.fulfilled.then(function(response) {
+                expect(response.status).to.equals(203);
+                //It has setted in the config the new data
+                expect(spyConfigSet.callCount).to.be.above(2);
+                expect(spyConfigSet.calledWith(corbel.Iam.IAM_TOKEN)).to.be.equal(true);
+                expect(spyConfigSet.calledWith(corbel.Iam.IAM_DOMAIN)).to.be.equal(true);
+                expect(spyConfigSet.calledWith(corbel.Iam.IAM_TOKEN_SCOPES)).to.be.equal(true);
 
-                  expect(spyRefreshHandler.callCount).to.be.equal(2);
-                  expect(stubToken.callCount).to.be.equal(2);
-                  expect(spyCreateToken.callCount).to.be.equal(2);
-                  done();
-                });
+                expect(spyRefreshHandler.callCount).to.be.equal(2);
+                expect(stubToken.callCount).to.be.equal(2);
+                expect(spyCreateToken.callCount).to.be.equal(2);
+              }).should.notify(done);
 
             });
           });
@@ -607,27 +586,25 @@ describe('corbel.Services', function() {
                 data: 'responseData'
               }));
 
-              service.request({
+              expect(service.request({
                 method: 'GET',
                 url: 'url'
-              })
-                .catch(function(response) {
-                  expect(response.status).to.equals(401);
-                  //It has setted in the config the new data
-                  expect(requestStub.callCount).to.be.equal(1);
-                  expect(spyConfigSet.callCount).to.be.equal(1);
-                  expect(spyConfigSet.calledWith(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)).to.be.equal(true);
-                  expect(spyRefreshHandler.callCount).to.be.equal(1);
-                  expect(stubToken.callCount).to.be.equal(1);
-                  expect(spyCreateToken.callCount).to.be.equal(1);
-                  done();
-                });
+              })).to.be.rejected.then(function(response) {
+                expect(response.status).to.equals(401);
+                //It has setted in the config the new data
+                expect(requestStub.callCount).to.be.equal(1);
+                expect(spyConfigSet.callCount).to.be.equal(1);
+                expect(spyConfigSet.calledWith(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)).to.be.equal(true);
+                expect(spyRefreshHandler.callCount).to.be.equal(1);
+                expect(stubToken.callCount).to.be.equal(1);
+                expect(spyCreateToken.callCount).to.be.equal(1);
+              }).should.notify(done);
 
             });
+
           });
 
         });
-
 
         describe('because of whatever, returns error response', function() {
 
