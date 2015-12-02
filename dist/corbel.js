@@ -1702,6 +1702,8 @@
              */
             request: function(args) {
 
+                this.driver.trigger('service:request:before', args);
+
                 var that = this;
 
                 function requestWithRetries() {
@@ -1714,29 +1716,40 @@
                         if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
 
                             var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+
                             //A 401 request within, refresh the token and retry the request.
                             return that._refreshHandler(tokenObject).then(function() {
                                 //Has refreshed the token, retry request
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
                                 //@TODO: see if we need to upgrade the token to access assets.
-                                return requestWithRetries();
+                                return requestWithRetries().catch(function(retryResponse) {
+                                    // rejects whole promise with the retry response
+                                    response = retryResponse;
+                                    throw response;
+                                });
                             }).catch(function() {
                                 //Has failed refreshing, reject request and reset the retries counter
                                 console.log('corbeljs:services:token:refresh:fail');
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                                return Promise.reject(response);
+                                throw response;
                             });
 
                         } else {
                             that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
                             console.log('corbeljs:services:token:no_refresh', response.status);
-                            return Promise.reject(response);
+                            throw response;
                         }
 
                     });
                 }
 
-                return requestWithRetries();
+                return requestWithRetries().then(function(response) {
+                    that.driver.trigger('service:request:after', response);
+                    return response;
+                }).catch(function(error) {
+                    that.driver.trigger('service:request:after', error);
+                    throw error;
+                });
 
             },
 
@@ -1753,7 +1766,7 @@
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
 
-                    return Promise.resolve(response);
+                    return response;
 
                 }).catch(function(response) {
 
@@ -1766,34 +1779,52 @@
                             retries++;
                             that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
 
-                            corbel.utils.reload(); //TODO nodejs
-                            // in node return rejected promise
-                            return Promise.reject(response);
+                            that.driver.trigger('force:update', response);
+
+                            throw response;
                         } else {
-                            return Promise.reject(response);
+                            throw response;
                         }
                     } else {
-                        return Promise.reject(response);
+                        throw response;
                     }
 
                 });
             },
 
+            _refreshHandlerPromise: null,
+
             /**
              * Default token refresh handler
+             * Only requested once at the same time
              * @return {Promise}
              */
             _refreshHandler: function(tokenObject) {
+                var that = this;
+
+                if (this._refreshHandlerPromise) {
+                    return this._refreshHandlerPromise;
+                }
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    return this.driver.iam.token().refresh(
+                    this._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
                         this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
                     );
+
                 } else {
                     console.log('corbeljs:services:token:create');
-                    return this.driver.iam.token().create();
+                    this._refreshHandlerPromise = this.driver.iam.token().create();
                 }
+
+                return this._refreshHandlerPromise.then(function(response) {
+                    that.driver.trigger('token:refresh', response.data);
+                    that._refreshHandlerPromise = null;
+                    return response;
+                }).catch(function(err) {
+                    that._refreshHandlerPromise = null;
+                    throw err;
+                });
             },
 
             /**
@@ -2701,7 +2732,6 @@
                 // we use the traditional POST verb to refresh access token.
                 return this._doPostTokenRequest(this.uri, params).then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                    that.driver.trigger('token:refresh', response.data);
                     return response;
                 });
             }
