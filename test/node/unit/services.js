@@ -314,6 +314,44 @@ describe('corbel.Services', function() {
           });
 
           describe('in refresh token handler', function() {
+
+            it('can be triggered only once at same time', function(done) {
+
+              var tokenObjectExample = {
+                accessToken: 'accessToken',
+                expiresAt: 123123
+              };
+
+              driver.config.set(corbel.Iam.IAM_TOKEN, tokenObjectExample);
+
+              driver.config.set('clientSecret', 'clientSecret');
+              driver.config.set('clientId', 'clientId');
+              driver.config.set('scopes', 'scopesExample');
+
+              // stub request
+              requestStub.returns(Promise.reject({
+                status: corbel.Services._UNAUTHORIZED_STATUS_CODE,
+                error: 'unauthorized'
+              }));
+
+              var promises = [];
+              for (var i = 0; i < 10; i++) {
+                promises.push(service.request({
+                  method: 'GET',
+                  url: 'url'
+                }));
+              }
+
+              expect(Promise.all(promises)).to.be.rejected.then(function() {
+                // number of refresh token requests
+                expect(spyRefresh.callCount).to.be.equal(10);
+                // number of token builder requests
+                expect(stubToken.callCount).to.be.equal(1);
+              }).should.notify(done);
+
+            });
+
+
             it('if fails, return original error', function(done) {
 
               // stub refresh token
@@ -455,7 +493,7 @@ describe('corbel.Services', function() {
                 expiresAt: 111111
               };
 
-            var tokenBuilder, spyRefreshHandler, spyCreateToken, stubToken;
+            var tokenBuilder, spyRefreshHandler, spyCreateToken, spyRefreshToken, stubToken;
             var spyConfigSet;
 
             beforeEach(function() {
@@ -468,6 +506,7 @@ describe('corbel.Services', function() {
 
               tokenBuilder = driver.iam.token();
               spyCreateToken = sandbox.spy(tokenBuilder, 'create');
+              spyRefreshToken = sandbox.spy(tokenBuilder, 'refresh');
 
               stubToken = sandbox.stub(driver.iam, 'token').returns(tokenBuilder);
 

@@ -2777,21 +2777,32 @@
                 });
             },
 
+            _refreshHandlerPromise: null,
+
             /**
              * Default token refresh handler
              * @return {Promise}
              */
             _refreshHandler: function(tokenObject) {
+                var that = this;
+                if (this._refreshHandlerPromise) {
+                    return this._refreshHandlerPromise;
+                }
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    return this.driver.iam.token().refresh(
+                    this._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
                         this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
                     );
+
                 } else {
                     console.log('corbeljs:services:token:create');
-                    return this.driver.iam.token().create();
+                    this._refreshHandlerPromise = this.driver.iam.token().create();
                 }
+                return this._refreshHandlerPromise.then(function(response) {
+                    that._refreshHandlerPromise = null;
+                    return response;
+                });
             },
 
             /**
