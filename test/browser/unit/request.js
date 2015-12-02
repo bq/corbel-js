@@ -52,14 +52,13 @@ describe('corbel-js browser', function() {
 
         fakeServer.respondWith(verb, url, fakeResponse);
 
-        request.send({
+        var promise = request.send({
           method: verb,
           url: url
-        }).then(function() {
-          done();
-        }).catch(function(error) {
-          done(error);
         });
+
+        expect(promise).to.be.fulfilled.and.should.notify(done);
+
       });
     });
 
@@ -95,12 +94,11 @@ describe('corbel-js browser', function() {
 
       fakeServer.respondWith('GET', url, fakeResponse);
 
-      request.send({
+      expect(request.send({
         method: 'GET',
         url: url
-      }).then(function() {
-        done();
-      });
+      })).to.be.fulfilled.and.should.notify(done);
+
     });
 
     it('send mehtod returns a promise and reject it', function(done) {
@@ -118,15 +116,15 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.catch(function(error) {
+      expect(promise).to.be.rejected.then(function(error) {
         expect(error.status).to.be.equal(404);
-        done();
-      });
+      }).should.notify(done);
+
     });
 
     it('send method returns a promise and it reject when client is disconnected', function(done) {
 
-      fakeServer.respondWith('GET', url, function(request){
+      fakeServer.respondWith('GET', url, function(request) {
         request.error = true;
         request.setResponseHeaders({
           'Content-Type': 'text/html',
@@ -140,15 +138,15 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.catch(function(error) {
+      expect(promise).to.be.rejected.then(function(error) {
         expect(error.status).to.be.equal(0);
-        done();
-      });
+      }).should.notify(done);
+
     });
 
     it('send method returns a promise and it returns status 200 when client status 0 but there is no disconnection error', function(done) {
 
-      fakeServer.respondWith('GET', url, function(request){
+      fakeServer.respondWith('GET', url, function(request) {
 
         request.setResponseHeaders({
           'Content-Type': 'text/html',
@@ -162,10 +160,10 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.then(function(error) {
-        expect(error.status).to.be.equal(200);
-        done();
-      });
+      expect(promise).to.be.fulfilled.then(function(response) {
+        expect(response.status).to.be.equal(200);
+      }).should.notify(done);
+
     });
 
     it('send mehtod accepts a success callback', function(done) {
