@@ -52,14 +52,13 @@ describe('corbel-js browser', function() {
 
         fakeServer.respondWith(verb, url, fakeResponse);
 
-        request.send({
+        var promise = request.send({
           method: verb,
           url: url
-        }).then(function() {
-          done();
-        }).catch(function(error) {
-          done(error);
         });
+
+        expect(promise).to.be.fulfilled.and.should.notify(done);
+
       });
     });
 
@@ -95,12 +94,11 @@ describe('corbel-js browser', function() {
 
       fakeServer.respondWith('GET', url, fakeResponse);
 
-      request.send({
+      expect(request.send({
         method: 'GET',
         url: url
-      }).then(function() {
-        done();
-      });
+      })).to.be.fulfilled.and.should.notify(done);
+
     });
 
     it('send mehtod returns a promise and reject it', function(done) {
@@ -118,15 +116,15 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.catch(function(error) {
+      expect(promise).to.be.rejected.then(function(error) {
         expect(error.status).to.be.equal(404);
-        done();
-      });
+      }).should.notify(done);
+
     });
 
     it('send method returns a promise and it reject when client is disconnected', function(done) {
 
-      fakeServer.respondWith('GET', url, function(request){
+      fakeServer.respondWith('GET', url, function(request) {
         request.error = true;
         request.setResponseHeaders({
           'Content-Type': 'text/html',
@@ -140,15 +138,15 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.catch(function(error) {
+      expect(promise).to.be.rejected.then(function(error) {
         expect(error.status).to.be.equal(0);
-        done();
-      });
+      }).should.notify(done);
+
     });
 
     it('send method returns a promise and it returns status 200 when client status 0 but there is no disconnection error', function(done) {
 
-      fakeServer.respondWith('GET', url, function(request){
+      fakeServer.respondWith('GET', url, function(request) {
 
         request.setResponseHeaders({
           'Content-Type': 'text/html',
@@ -162,10 +160,10 @@ describe('corbel-js browser', function() {
         url: url
       });
 
-      promise.then(function(error) {
-        expect(error.status).to.be.equal(200);
-        done();
-      });
+      expect(promise).to.be.fulfilled.then(function(response) {
+        expect(response.status).to.be.equal(200);
+      }).should.notify(done);
+
     });
 
     it('send mehtod accepts a success callback', function(done) {
@@ -211,8 +209,7 @@ describe('corbel-js browser', function() {
           expect(data).to.be.a('object');
           expect(data).to.deep.equal(responseData);
           expect(status).to.be.a('number');
-          // @TODO: weird assertion
-          expect(typeof httpResponse).to.be.equal('object');
+          expect(httpResponse).to.be.an('object');
           done();
         }
       });
@@ -238,7 +235,25 @@ describe('corbel-js browser', function() {
       });
     });
 
-    it('send too large GET rewrite to POST and active override method header', function(done) {
+    it('send mehtod encodes url parameters', function(done) {
+      var _browserAjaxStub = sinon.stub(request, '_browserAjax', function(params, resolver) {
+        resolver.resolve();
+      });
+      var queryArgs = 'param1=1&param2=2&param3=3';
+      var parsedQueryArgs = encodeURI(queryArgs);
+      url += '?';
+
+      expect(request.send({
+        method: 'GET',
+        url: url + queryArgs
+      })).to.be.fulfilled.then(function() {
+        expect(_browserAjaxStub.callCount).to.be.equal(1);
+        expect(_browserAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
+      }).should.notify(done);
+
+    });
+
+    it.skip('send too large GET rewrite to POST and active override method header', function(done) {
       var responseData = {
         DATA: 'DATA'
       };

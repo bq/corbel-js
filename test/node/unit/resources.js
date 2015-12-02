@@ -77,7 +77,8 @@ describe('corbel resources module', function() {
 
   var sandbox = sinon.sandbox.create(),
     corbelDriver,
-    resources;
+    resources,
+    request;
 
   before(function() {
     corbelDriver = corbel.getDriver(CONFIG);
@@ -87,7 +88,7 @@ describe('corbel resources module', function() {
   after(function() {});
 
   beforeEach(function() {
-    sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
+    request = sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
   });
 
   afterEach(function() {
@@ -155,6 +156,50 @@ describe('corbel resources module', function() {
       }]
     };
     expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
+  });
+
+  it('request the same condition in retry request', function(done) {
+    var params = {
+      conditions: [{
+        condition: [{
+          '$eq': {
+            test: 2
+          }
+        }]
+      }, {
+        condition: [{
+          '$eq': {
+            test: 3
+          }
+        }]
+      }]
+    };
+
+    var tokenObject = {
+      accessToken: 'accessToken',
+      expiresAt: 123123,
+      refreshToken: 'refreshToken'
+    };
+    resources.driver.config.set(corbel.Iam.IAM_TOKEN, tokenObject);
+    resources.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, 'scopes');
+
+    request.onCall(0).returns(Promise.reject({
+      status: 401
+    }));
+    request.onCall(1).returns(Promise.resolve({
+      status: 200,
+      data: tokenObject
+    }));
+    request.onCall(2).returns(Promise.resolve({
+      status: 200
+    }));
+
+    expect(resources.collection('resource:entity').get(params)).to.be.fulfilled.then(function() {
+      expect(request.callCount).to.be.equal(3);
+      expect(request.getCall(0).args[0].url).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
+      // call 1 is for token refresh
+      expect(request.getCall(2).args[0].url).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
+    }).should.notify(done);
   });
 
   it('generate resource query correctly', function() {
@@ -253,7 +298,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
-      distinct: ['text','field1'],
+      distinct: ['text', 'field1'],
       pagination: {
         page: 1,
         pageSize: 5
@@ -302,7 +347,7 @@ describe('corbel resources module', function() {
       search: {
         text: 'test'
       },
-      distinct: ['text','field1'],
+      distinct: ['text', 'field1'],
       pagination: {
         page: 1,
         pageSize: 5
