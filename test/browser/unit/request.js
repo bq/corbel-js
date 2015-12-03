@@ -239,8 +239,8 @@ describe('corbel-js browser', function() {
       var _browserAjaxStub = sinon.stub(request, '_browserAjax', function(params, resolver) {
         resolver.resolve();
       });
-      var queryArgs = 'param1=1&param2=2&param3=3';
-      var parsedQueryArgs = encodeURI(queryArgs);
+      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
+      var parsedQueryArgs = encodeURIComponent(queryArgs);
       url += '?';
 
       expect(request.send({

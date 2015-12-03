@@ -2494,7 +2494,7 @@
             url.split('&').forEach(function(formEntry) {
                 var formPair = formEntry.split('=');
                 //value require double encode in Override Method Filter
-                form[formPair[0]] = encodeURI(formPair[1]);
+                form[formPair[0]] = encodeURIComponent(formPair[1]);
             });
             return form;
         };
@@ -2504,7 +2504,7 @@
             if (urlComponents) {
                 return url
                     .replace(urlComponents[1],
-                        encodeURI(urlComponents[1]));
+                        encodeURIComponent(urlComponents[1]));
             }
 
             return url;

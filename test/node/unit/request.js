@@ -138,8 +138,8 @@ describe('corbel-js node', function() {
       var _nodeAjaxStub = sinon.stub(request, '_nodeAjax', function(params, resolver) {
         resolver.resolve();
       });
-      var queryArgs = 'param1=1&param2=2&param3=3';
-      var parsedQueryArgs = encodeURI(queryArgs);
+      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
+      var parsedQueryArgs = encodeURIComponent(queryArgs);
       url += '?';
 
       request.send({
