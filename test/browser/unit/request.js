@@ -240,7 +240,8 @@ describe('corbel-js browser', function() {
         resolver.resolve();
       });
       var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
-      var parsedQueryArgs = encodeURIComponent(queryArgs);
+      var parsedQueryArgs = encodeURI(queryArgs);
+      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
       url += '?';
 
       expect(request.send({

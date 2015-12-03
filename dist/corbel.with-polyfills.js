@@ -2373,7 +2373,7 @@
             };
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
-            params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
+            params.url = encodeQueryString(params.url);
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -2499,17 +2499,21 @@
             return form;
         };
 
-        var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
-            var urlComponents = url.split(/\?{1}/g);
-            if (urlComponents) {
-                return url
-                    .replace(urlComponents[1],
-                        encodeURIComponent(urlComponents[1]));
+        var encodeQueryString = function(url) {
+            if (!url) {
+                return url;
+            }
+            var urlComponents = url.split('?');
+            if (urlComponents.length > 1) {
+                return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {
+                    return operator.split('=');
+                }).map(function(splitted) {
+                    return [splitted[0], encodeURIComponent(splitted[1])].join('=');
+                }).join('&');
             }
 
             return url;
         };
-
 
         request._nodeAjax = function(params, resolver) {
 
@@ -2660,6 +2664,7 @@
         return request;
 
     })();
+
 
     (function() {
 
