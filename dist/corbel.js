@@ -1115,6 +1115,61 @@
                 });
 
                 return decoded[0];
+            },
+
+            /**
+             * JWT-HmacSHA256 generator without validations for specific corbel-test tokenCreateError
+             * http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
+             * @param  {Object}                                 claims Specific claims to include in the JWT (iss, aud, exp, scope, ...)
+             * @param  {String} secret                          String with the client assigned secret
+             * @param  {Object} [alg='corbel.jwt.ALGORITHM']    Object with the algorithm type
+             * @return {String} jwt                             JWT string
+             */
+            _generate: function(claims, secret, alg) {
+                claims = claims || {};
+                alg = alg || jwt.ALGORITHM;
+
+                claims.exp = claims.exp || jwt._generateExp();
+
+                // Ensure claims specific order
+                var claimsKeys = [
+                    'iss',
+                    'aud',
+                    'exp',
+                    'scope',
+                    'prn',
+                    'version',
+                    'refresh_token',
+                    'request_domain',
+
+                    'basic_auth.username',
+                    'basic_auth.password',
+
+                    'device_id'
+                ];
+
+                var finalClaims = {};
+                claimsKeys.forEach(function(key) {
+                    if (claims[key]) {
+                        finalClaims[key] = claims[key];
+                    }
+                });
+
+                corbel.utils.extend(finalClaims, claims);
+
+                if (Array.isArray(finalClaims.scope)) {
+                    finalClaims.scope = finalClaims.scope.join(' ');
+                }
+
+                var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
+                        typ: jwt.TYP,
+                        alg: alg
+                    }))),
+                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
+                    segment = bAlg + '.' + bClaims,
+                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
+
+                return segment + '.' + assertion;
             }
 
         };
@@ -1122,6 +1177,7 @@
         return jwt;
 
     })();
+
 
 
     (function() {
