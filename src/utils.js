@@ -373,7 +373,7 @@
    */
   utils.keysToLowerCase = function(obj) {
     var key;
-    var keys = Object.keys(obj);
+    var keys = obj!==undefined ? Object.keys(obj) : [];
     var n = keys.length;
     var newobj = {};
     while (n--) {
