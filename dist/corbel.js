@@ -1597,14 +1597,14 @@
 
             //response fail ()
             httpReq.onerror = function(xhr) {
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-
                 var error;
 
                 // Error flag to support disconnection errors
                 if (xhr.type === 'error') {
                     error = true;
                 }
+
+                xhr = xhr.target || xhr; // only for fake sinon response xhr
 
                 processResponse.call(this, {
                     responseObject: xhr,
