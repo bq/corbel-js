@@ -455,15 +455,19 @@
          * @return {Object}
          */
         utils.keysToLowerCase = function(obj) {
-            var key;
-            var keys = Object.keys(obj);
-            var n = keys.length;
-            var newobj = {};
-            while (n--) {
-                key = keys[n];
-                newobj[key.toLowerCase()] = obj[key];
+            if (obj === undefined || obj === null) {
+                return obj;
+            } else {
+                var key;
+                var keys = Object.keys(obj);
+                var n = keys.length;
+                var newobj = {};
+                while (n--) {
+                    key = keys[n];
+                    newobj[key.toLowerCase()] = obj[key];
+                }
+                return newobj;
             }
-            return newobj;
         };
 
         utils.isJSON = function(string) {
