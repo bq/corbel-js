@@ -475,14 +475,8 @@
 
     //response fail ()
     httpReq.onerror = function(xhr) {
+
       xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-      var error;
-
-      // Error flag to support disconnection errors
-      if (xhr.type === 'error') {
-          error = true;
-      }
 
       processResponse.call(this, {
         responseObject: xhr,
@@ -491,7 +485,7 @@
         response: xhr.response || xhr.responseText,
         status: xhr.status,
         responseObjectType: 'xhr',
-        error: xhr.error || error
+        error: true
       }, resolver, params.callbackSuccess, params.callbackError);
 
     }.bind(this);
