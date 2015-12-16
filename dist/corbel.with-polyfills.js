@@ -1451,15 +1451,19 @@
          * @return {Object}
          */
         utils.keysToLowerCase = function(obj) {
-            var key;
-            var keys = Object.keys(obj);
-            var n = keys.length;
-            var newobj = {};
-            while (n--) {
-                key = keys[n];
-                newobj[key.toLowerCase()] = obj[key];
+            if (obj === undefined || obj === null) {
+                return obj;
+            } else {
+                var key;
+                var keys = Object.keys(obj);
+                var n = keys.length;
+                var newobj = {};
+                while (n--) {
+                    key = keys[n];
+                    newobj[key.toLowerCase()] = obj[key];
+                }
+                return newobj;
             }
-            return newobj;
         };
 
         utils.isJSON = function(string) {
@@ -2593,14 +2597,8 @@
 
             //response fail ()
             httpReq.onerror = function(xhr) {
+
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-                var error;
-
-                // Error flag to support disconnection errors
-                if (xhr.type === 'error') {
-                    error = true;
-                }
 
                 processResponse.call(this, {
                     responseObject: xhr,
@@ -2609,7 +2607,7 @@
                     response: xhr.response || xhr.responseText,
                     status: xhr.status,
                     responseObjectType: 'xhr',
-                    error: xhr.error || error
+                    error: true
                 }, resolver, params.callbackSuccess, params.callbackError);
 
             }.bind(this);
