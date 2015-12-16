@@ -1570,14 +1570,14 @@
 
             //response fail ()
             httpReq.onerror = function(xhr) {
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-
                 var error;
 
                 // Error flag to support disconnection errors
                 if (xhr.type === 'error') {
                     error = true;
                 }
+
+                xhr = xhr.target || xhr; // only for fake sinon response xhr
 
                 processResponse.call(this, {
                     responseObject: xhr,
@@ -2592,11 +2592,11 @@
              *
              * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
              * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
-             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String
+             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
              * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
              * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
              * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
-             *
+             * 
              * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
              * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
              */
@@ -3939,6 +3939,7 @@
         return AssetsBuilder;
 
     })();
+
     (function() {
 
         corbel.Scheduler = corbel.Object.inherit({
@@ -4782,7 +4783,7 @@
          * @class
          *
          * @param {Object} params Initial params
-         *
+         * 
          * @memberOf corbel.Oauth.TokenBuilder
          */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
@@ -4795,9 +4796,9 @@
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             *
+             * 
              * @param  {String} code The code to exchange for the token
-             *
+             * 
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
@@ -4848,11 +4849,11 @@
         /**
          * A builder for a user management requests.
          * @class
-         *
+         * 
          * @param {Object} params           Parameters for initializing the builder
          * @param {String} [clientId]       Application client Id (required for creating user)
          * @param {String} [clientSecret]   Application client secret (required for creating user)
-         *
+         *    
          * @memberOf corbel.Oauth.UserBuilder
          */
         var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
@@ -4897,9 +4898,9 @@
              * Gets the user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
-             * @param  {Object} id      The user id/me
-             *
+             * 
+             * @param  {Object} id      The user id/me 
+             *  
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function(id) {
@@ -4914,7 +4915,7 @@
              * Get profile of some user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * @param  {Object} id      The user id/me
+             * @param  {Object} id      The user id/me 
              * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
              */
             getProfile: function(id) {
@@ -4929,10 +4930,10 @@
              * Updates the user or  the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id              The user id or me
              * @param  {Object} modification    Json object with the modificacion of the user
-             *
+             * 
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             update: function(id, modification) {
@@ -4947,9 +4948,9 @@
             /**
              * Deletes the user or the logged user
              * @memberOf corbel.Oauth.UserBuilder
-             *
+             * 
              * @param  {Object} id        The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             delete: function(id) {
@@ -4985,9 +4986,9 @@
              * Sends a email to the logged user or user to validate his email address
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id     The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
@@ -5003,9 +5004,9 @@
              * Validates the email of a user or the logged user
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             *
+             * 
              * @param  {Object} id   The user id or me
-             *
+             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
@@ -5244,9 +5245,9 @@
          * @constant
          * @type {String}
          * @default
-
+  
         FAILED: 'FAILED',
-
+  
         /**
          * IN_PAYMENT constant
          * @constant
@@ -5863,7 +5864,7 @@
            * @param {timestamp} license.expire       Expire date
            * @param {timestamp} licensee.start       Start date
            * @param {String} license.asset           Asigned to the resource
-
+  
            * @return {Promise} A promise with the id of the created a license or fails
            *                   with a {@link corbelError}.
            */
