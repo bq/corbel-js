@@ -24,6 +24,10 @@ describe('corbel resources module', function() {
   canvas.width = '626';
   canvas.height = '626';
 
+  var testElement =document.createElement('div');
+  testElement.setAttribute('id', 'test');
+  document.body.appendChild(testElement);
+
   document.getElementById('test').appendChild(canvas);
   var context = canvas.getContext('2d');
   var imageObj = new Image();

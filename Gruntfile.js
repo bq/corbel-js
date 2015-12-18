@@ -103,6 +103,27 @@ module.exports = function(grunt) {
         app: 'google-chrome'
       }
     },
+
+    karma: {
+      options: {
+        configFile: 'test/karma.conf.js',
+        client: {
+          mocha: {
+            timeout: 90000
+          }
+        }
+      },
+      unit: {
+        singleRun: true
+      },
+      serve: {
+        singleRun: false,
+        browsers: [
+            'Chrome'
+        ]
+      }
+    },
+
     'node-inspector': {
       options: {
         'web-port': 3001,
@@ -399,8 +420,9 @@ module.exports = function(grunt) {
     'copy:test-browser',
     'preprocess:test-browser',
     'express:load',
-    'connect:test_webserver',
-    'open:test',
+    //'connect:test_webserver',
+    //'open:test',
+    'karma:serve',
     'watch:test'
   ]);
 
