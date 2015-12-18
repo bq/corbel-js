@@ -86,7 +86,17 @@
     "serve-static": "1.10.0",
     "sinon": "1.17.2",
     "travis-cov": "0.2.5",
-    "underscore": "1.8.3"
+    "underscore": "1.8.3",
+     "grunt-karma": "^0.12.1",
+    "karma": "^0.13.9",
+    "karma-chai-plugins": "^0.6.0",
+    "karma-chrome-launcher": "^0.1.4",
+    "karma-mocha": "^0.2.0",
+    "karma-mocha-debug": "^0.1.2",
+    "karma-mocha-reporter": "^1.0.2",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-sinon": "^1.0.4",
+    "karma-tap-reporter": "0.0.4"
   },
   "scripts": {
     "prepublish": "bower install && grunt dist && git add dist/*",

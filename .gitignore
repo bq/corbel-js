@@ -7,3 +7,4 @@ doc
 .storage
 *.swp
 .idea
+.report

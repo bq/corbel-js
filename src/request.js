@@ -73,11 +73,11 @@
      * @param  {object} data
      * @return {string}
      */
-    json: function(data) {
+    json: function(data, cb) {
       if (typeof data !== 'string') {
-        return JSON.stringify(data);
+        cb(JSON.stringify(data));
       } else {
-        return data;
+        cb(data);
       }
     },
     /**
@@ -85,23 +85,23 @@
      * @param  {object} data
      * @return {string}
      */
-    'form-urlencoded': function(data) {
-      return corbel.utils.toURLEncoded(data);
+    'form-urlencoded': function(data, cb) {
+      cb(corbel.utils.toURLEncoded(data));
     },
     /**
      * dataURI serialize handler
      * @param  {object} data
      * @return {string}
      */
-    dataURI: function(data) {
+    dataURI: function(data, cb) {
       if (corbel.Config.isNode) {
         //var buffer = new Buffer(data.split('base64,')[1], 'base64');
       } else {
-        return corbel.utils.dataURItoBlob(data);
+        cb(corbel.utils.dataURItoBlob(data));
       }
       // if browser transform to blob
       // if node transform to stream
-      return corbel.utils.toURLEncoded(data);
+      cb(corbel.utils.toURLEncoded(data));
     },
     /**
      * blob serialize handler
@@ -109,11 +109,11 @@
      * @param  {object} data
      * @return {string}
      */
-    blob: function(data) {
+    blob: function(data, cb) {
       if (corbel.Config.isNode) {
         throw new Error('error:request:unsupported:data_type');
       }
-      return data;
+      cb(data);
     },
     /**
      * stream serialize handler
@@ -121,11 +121,11 @@
      * @param  {object} data
      * @return {string}
      */
-    stream: function(data) {
+    stream: function(data, cb) {
       if (corbel.Config.isBrowser) {
         throw new Error('error:request:unsupported:data_type');
       }
-      return data;
+      cb(data);
     }
     // @todo: 'url' support
     // 'url' type convert in stream in node, explode in browser
@@ -138,11 +138,11 @@
    * @param  {string} contentType
    * @return {Mixed}
    */
-  request.serialize = function(data, contentType) {
+  request.serialize = function(data, contentType, cb) {
     var serialized;
     Object.keys(request.serializeHandlers).forEach(function(type) {
       if (contentType.indexOf(type) !== -1) {
-        serialized = request.serializeHandlers[type](data);
+        serialized = request.serializeHandlers[type](data, cb);
       }
     });
     serialized = serialized || data;
@@ -188,6 +188,16 @@
     return parsed;
   };
 
+  function doRequest(module, params, resolver){
+    if (corbel.Config.isBrowser) {
+      //browser
+      request._browserAjax.call(module, params, resolver);
+    } else {
+      //nodejs
+      request._nodeAjax.call(module, params, resolver);
+    }
+  }
+
   /**
    * Public method to make ajax request
    * @param  {object} options                                     Object options for ajax request
@@ -204,6 +214,7 @@
    */
   request.send = function(options) {
     options = options || {};
+    var module = this;
 
     if (!options.url) {
       throw new Error('undefined:url');
@@ -229,25 +240,24 @@
     params.headers['content-type'] = options.contentType || 'application/json';
 
     var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
-    if (dataMethods.indexOf(params.method) !== -1) {
-      params.data = request.serialize(options.data, params.headers['content-type']);
-    }
 
+    var resolver;
     var promise = new Promise(function(resolve, reject) {
-
-      var resolver = {
+      resolver = {
         resolve: resolve,
         reject: reject
       };
+    });
 
-      if (corbel.Config.isBrowser) {
-        //browser
-        request._browserAjax.call(this, params, resolver);
-      } else {
-        //nodejs
-        request._nodeAjax.call(this, params, resolver);
-      }
-    }.bind(this));
+    if (dataMethods.indexOf(params.method) !== -1) {
+      request.serialize(options.data, params.headers['content-type'], function(serialized){
+        params.data = serialized;
+        doRequest(module, params, resolver);
+      });
+    }else{
+      doRequest(module, params, resolver);
+    }
+
 
     return promise;
   };
