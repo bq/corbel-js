@@ -95,40 +95,48 @@
      */
     dataURI: function(data, cb) {
       if (corbel.Config.isNode) {
-        //var buffer = new Buffer(data.split('base64,')[1], 'base64');
+        // in node transform to stream
+        cb(corbel.utils.toURLEncoded(data));
       } else {
+        // in browser transform to blob
         cb(corbel.utils.dataURItoBlob(data));
       }
-      // if browser transform to blob
-      // if node transform to stream
-      cb(corbel.utils.toURLEncoded(data));
     },
     /**
      * blob serialize handler
-     * 'blob' type do not require serialization for browser, expode in node
+     * 'blob' type do not require serialization for browser, explode in node
      * @param  {object} data
-     * @return {string}
+     * @return {ArrayBuffer || Blob}
      */
     blob: function(data, cb) {
       if (corbel.Config.isNode) {
-        throw new Error('error:request:unsupported:data_type');
+        //@TODO: check if is necessary to transform the input in node
+          var buffer = new ArrayBuffer(data.length);
+          data.forEach(function(byteCharacter, index){
+              buffer[index] = byteCharacter;
+          });
+          cb(buffer);
+      } else {
+          cb(data);
       }
-      cb(data);
     },
     /**
      * stream serialize handler
-     * 'stream' type do not require serialization for ndoe, expode in browser
+     * 'stream' type do not require serialization for node, explode in browser
      * @param  {object} data
-     * @return {string}
+     * @return {ArrayBuffer || data}
      */
     stream: function(data, cb) {
       if (corbel.Config.isBrowser) {
-        throw new Error('error:request:unsupported:data_type');
+          var buffer = new ArrayBuffer(data.length);
+          data.forEach(function(byteCharacter, index){
+              buffer[index] = byteCharacter;
+          });
+          cb(buffer);
+      } else {
+          cb(data);
       }
-      cb(data);
     }
-    // @todo: 'url' support
-    // 'url' type convert in stream in node, explode in browser
   };
 
   /**

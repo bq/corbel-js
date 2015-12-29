@@ -3,9 +3,7 @@
 describe('corbel-js browser', function() {
 
   var sandbox;
-
   this.timeout(4000);
-
   var fakeServer;
 
   beforeEach(function() {
@@ -285,9 +283,71 @@ describe('corbel-js browser', function() {
           done();
         }
       });
-
     });
+   
+    // Phantom creates problem in this test
+    if(window.chrome) {
+        it('send method parses stream to arrayBuffer', function(done) {
+            var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
+              resolver.resolve();
+            });
+            var testText = 'Test';
+            var byteText = [];
+            for(var i = 0; i < testText.length; i++){
+              byteText.push(testText.charCodeAt(i));
+            }
+            var byteStream = new Uint8Array(byteText);
+          
+            request.send({
+              method: 'POST',
+              url: url,
+              contentType : 'application/stream',
+              data: byteStream
+            })
+            .should.be.eventually.fulfilled
+            .then(function() {
+                var dataSended = _browserAjaxStub.getCall(0).args[0].data;
 
+                Object.keys(dataSended).map(function(key) {
+                    expect(dataSended[key]).to.be.equal(byteStream[key]);
+                });
+                expect(typeof(_browserAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+            })
+            .should.notify(done);
+
+        });
+    }
+
+    // Phantom creates problem in this test
+    if(window.chrome) {
+        it('send method sends a blob, parse not necessary', function(done) {
+            var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
+              resolver.resolve();
+            });
+            var testText = 'Test';
+            var byteText = [];
+            for(var i = 0; i < testText.length; i++){
+              byteText.push(testText.charCodeAt(i));
+            }
+            var blobText = new Blob(byteText);
+          
+            request.send({
+              method: 'POST',
+              url: url,
+              contentType : 'application/blob',
+              data: blobText
+            })
+            .should.be.eventually.fulfilled
+            .then(function() {
+                var dataSended = _browserAjaxStub.getCall(0).args[0].data;
+
+                Object.keys(dataSended).map(function(key) {
+                    expect(dataSended[key]).to.be.equal(blobText[key]);
+                });
+                expect(typeof(_browserAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+            })
+            .should.notify(done);
+        });
+    }
   });
-
 });
