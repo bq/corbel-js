@@ -397,6 +397,14 @@
     return true;
   };
 
+  utils.arrayToObj = function(array) {
+      var object = {};
+      array.map(function(element, index){
+          object[index] = element;
+      });
+      return object;
+  };
+
   /**
    * Convert data URI to Blob.
    * Only works in browser
