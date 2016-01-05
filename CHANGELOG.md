@@ -6,15 +6,6 @@
 #### Features
 
 * Added `blob`, `dataURI`, `stream` serializers to `request.js`
-* 
-
-#### Breaking changes
-
-
-    ```
-    
-    ```
-
 
 ### v0.2.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.9...v0.2.10)
 
