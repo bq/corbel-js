@@ -1,7 +1,7 @@
 {
   "name": "corbel-js",
   "description": "corbel SDK compatible with browser and nodejs",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "main": "dist/corbel.js",
   "license": "Apache-2.0",
   "keywords": [
@@ -10,11 +10,26 @@
     "ajax",
     "cors",
     "corbel",
-    "nodejs"
+    "nodejs",
+    "resources",
+    "iam",
+    "jwt"
   ],
   "contributors": [
     "Daniel García González <daniel.garcia@bq.com>",
-    "Anthanh Pham Trinh <@antaipt>"
+    "Anthanh Pham Trinh <@antaipt>",
+    "Iván Rodríguez <@ivanrod>",
+    "Rafael Pedrola Gimeno<@rafinskipg>",
+    "Francisco Sanchez <@francisco-sanchez-molina>",
+    "Ismael Madirolas <@ismadirolas>",
+    "Josep Arpi <@jarpi>",
+    "Victor Perez Rey <@vipereybq>",
+    "Ricardo Martinez Calvo <@rmartinezcalvo>",
+    "Samuel Martin <@samuelmartingc>",
+    "Laura Sada <@lauritaSada>",
+    "Rubén Segovia <@rubensegovia>",
+    "Cristian del Cerro <@cristiandelcerro>",
+    "Alex De Leon <@alexdeleon>"
   ],
   "homepage": "http://opensource.bq.com/corbel-js/",
   "repository": {
@@ -87,7 +102,7 @@
     "sinon": "1.17.2",
     "travis-cov": "0.2.5",
     "underscore": "1.8.3",
-     "grunt-karma": "^0.12.1",
+    "grunt-karma": "^0.12.1",
     "karma": "^0.13.9",
     "karma-chai-plugins": "^0.6.0",
     "karma-chrome-launcher": "^0.1.4",

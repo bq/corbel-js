@@ -1,7 +1,7 @@
 {
   "name": "corbel-js",
   "description": "corbel SDK compatible with browser and nodejs",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "main": "dist/corbel.js",
   "license": "Apache-2.0",
   "keywords": [
@@ -10,11 +10,26 @@
     "ajax",
     "cors",
     "corbel",
-    "nodejs"
+    "nodejs",
+    "resources",
+    "iam",
+    "jwt"
   ],
   "authors": [
     "Daniel García González <daniel.garcia@bq.com>",
-    "Anthanh Pham Trinh <@antaipt>"
+    "Anthanh Pham Trinh <@antaipt>",
+    "Iván Rodríguez <@ivanrod>",
+    "Rafael Pedrola Gimeno<@rafinskipg>",
+    "Francisco Sanchez <@francisco-sanchez-molina>",
+    "Ismael Madirolas <@ismadirolas>",
+    "Josep Arpi <@jarpi>",
+    "Victor Perez Rey <@vipereybq>",
+    "Ricardo Martinez Calvo <@rmartinezcalvo>",
+    "Samuel Martin <@samuelmartingc>",
+    "Laura Sada <@lauritaSada>",
+    "Rubén Segovia <@rubensegovia>",
+    "Cristian del Cerro <@cristiandelcerro>",
+    "Alex De Leon <@alexdeleon>"
   ],
   "homepage": "http://opensource.bq.com/corbel-js/",
   "repository": {

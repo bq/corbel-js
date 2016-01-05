@@ -252,17 +252,17 @@
     }
 
     if (params.search) {
-        result += result ? '&' : '';
-        result += 'api:search=' + JSON.stringify(params.search);
-        if (params.hasOwnProperty('binded')) {
-            result += result ? '&' : '';
-            result += 'api:binded=' + JSON.stringify(params.binded);
-        }
+      result += result ? '&' : '';
+      result += 'api:search=' + JSON.stringify(params.search);
+
+      if (params.hasOwnProperty('binded')) {
+        result += '&api:binded=' + JSON.stringify(params.binded);
+      }
     }
 
     if (params.distinct) {
       result += result ? '&' : '';
-      result += 'api:distinct=' + ( params.distinct instanceof Array ? params.distinct.join(',') : params.distinct);
+      result += 'api:distinct=' + (params.distinct instanceof Array ? params.distinct.join(',') : params.distinct);
     }
 
     if (params.sort) {
@@ -395,6 +395,14 @@
     }
 
     return true;
+  };
+
+  utils.arrayToObject = function(array) {
+      var object = {};
+      array.map(function(element, index){
+          object[index] = element;
+      });
+      return object;
   };
 
   /**

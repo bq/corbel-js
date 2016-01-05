@@ -95,40 +95,48 @@
      */
     dataURI: function(data, cb) {
       if (corbel.Config.isNode) {
-        //var buffer = new Buffer(data.split('base64,')[1], 'base64');
+        // in node transform to stream
+        cb(corbel.utils.toURLEncoded(data));
       } else {
+        // in browser transform to blob
         cb(corbel.utils.dataURItoBlob(data));
       }
-      // if browser transform to blob
-      // if node transform to stream
-      cb(corbel.utils.toURLEncoded(data));
     },
     /**
      * blob serialize handler
-     * 'blob' type do not require serialization for browser, expode in node
+     * 'blob' type do not require serialization for browser, explode in node
      * @param  {object} data
-     * @return {string}
+     * @return {ArrayBuffer || Blob}
      */
     blob: function(data, cb) {
       if (corbel.Config.isNode) {
-        throw new Error('error:request:unsupported:data_type');
+        //@TODO: check if is necessary to transform the input in node
+          var buffer = new ArrayBuffer(data.length);
+          data.forEach(function(byteCharacter, index){
+              buffer[index] = byteCharacter;
+          });
+          cb(buffer);
+      } else {
+          cb(data);
       }
-      cb(data);
     },
     /**
      * stream serialize handler
-     * 'stream' type do not require serialization for ndoe, expode in browser
+     * 'stream' type do not require serialization for node, explode in browser
      * @param  {object} data
-     * @return {string}
+     * @return {ArrayBuffer || data}
      */
     stream: function(data, cb) {
       if (corbel.Config.isBrowser) {
-        throw new Error('error:request:unsupported:data_type');
+          var buffer = new ArrayBuffer(data.length);
+          data.forEach(function(byteCharacter, index){
+              buffer[index] = byteCharacter;
+          });
+          cb(buffer);
+      } else {
+          cb(data);
       }
-      cb(data);
     }
-    // @todo: 'url' support
-    // 'url' type convert in stream in node, explode in browser
   };
 
   /**
@@ -234,11 +242,14 @@
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
       responseType: options.responseType,
-      withCredentials: options.withCredentials || true
+      withCredentials: options.withCredentials || true,
+      useCookies: options.useCookies || false
     };
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
-    params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
+
+    params.url = encodeQueryString(params.url);
+
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -292,47 +303,47 @@
 
     if (statusType <= 3 && !response.error) {
 
-        if (response.response) {
+      if (response.response) {
         data = request.parse(response.response, response.responseType, response.dataType);
-        }
+      }
 
-        if (callbackSuccess) {
-        callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-        }
+      if (callbackSuccess) {
+        callbackSuccess.call(this, data, statusCode, response.responseObject, headers);
+      }
 
-        promiseResponse = {
+      promiseResponse = {
         data: data,
         status: statusCode,
         headers: headers
-        };
+      };
 
-        promiseResponse[response.responseObjectType] = response.responseObject;
+      promiseResponse[response.responseObjectType] = response.responseObject;
 
-        resolver.resolve(promiseResponse);
-      } else {
-        var disconnected = response.error && response.status === 0;
-        statusCode = disconnected ? 0 : statusCode;
+      resolver.resolve(promiseResponse);
+    } else {
 
-        if (callbackError) {
-          callbackError.call(this, response.error, statusCode, response.responseObject, headers);
-        }
+      var disconnected = response.error && response.status === 0;
+      statusCode = disconnected ? 0 : statusCode;
 
-        if (response.response) {
-          data = request.parse(response.response, response.responseType, response.dataType);
-        }
-
-        promiseResponse = {
-          data: data,
-          status: statusCode,
-          error: response.error,
-          headers: headers
-        };
-
-        promiseResponse[response.responseObjectType] = response.responseObject;
-
-        resolver.reject(promiseResponse);
+      if (callbackError) {
+        callbackError.call(this, response.error, statusCode, response.responseObject, headers);
       }
 
+      if (response.response) {
+        data = request.parse(response.response, response.responseType, response.dataType);
+      }
+
+      promiseResponse = {
+        data: data,
+        status: statusCode,
+        error: response.error,
+        headers: headers
+      };
+
+      promiseResponse[response.responseObjectType] = response.responseObject;
+
+      resolver.reject(promiseResponse);
+    }
   };
 
   var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
@@ -352,34 +363,40 @@
     return params;
   };
 
-  var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
-    var urlComponents = url.split(/\?{1}/g);
-    if (urlComponents) {
-      return url
-        .replace(urlComponents[1],
-          encodeURI(urlComponents[1]));
-    }
-
-    return url;
-  };
-
   var encodeUrlToForm = function(url) {
     var form = {};
     url.split('&').forEach(function(formEntry) {
       var formPair = formEntry.split('=');
       //value require double encode in Override Method Filter
-      form[formPair[0]] = encodeURI(formPair[1]);
+      form[formPair[0]] = encodeURIComponent(formPair[1]);
     });
     return form;
   };
 
+  var encodeQueryString = function(url) {
+    if (!url) {
+      return url;
+    }
+    var urlComponents = url.split('?');
+    if (urlComponents.length > 1) {
+      return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {
+        return operator.split('=');
+      }).map(function(splitted) {
+        return [splitted[0], encodeURIComponent(splitted[1])].join('=');
+      }).join('&');
+    }
+
+    return url;
+  };
+
   request._nodeAjax = function(params, resolver) {
     var requestAjax = require('request');
-    if (request.isCrossDomain(params.url) && params.withCredentials) {
+    if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
       requestAjax = requestAjax.defaults({
         jar: true
       });
     }
+
     requestAjax({
       method: params.method,
       url: params.url,
@@ -388,7 +405,6 @@
     }, function(error, response, body) {
       var responseType;
       var status;
-
       if (error) {
         responseType = undefined;
         status = 0;
@@ -491,6 +507,8 @@
 
       xhr = xhr.target || xhr; // only for fake sinon response xhr
 
+      var error = xhr.error ? xhr.error : true;
+
       processResponse.call(this, {
         responseObject: xhr,
         dataType: xhr.dataType,
@@ -498,12 +516,18 @@
         response: xhr.response || xhr.responseText,
         status: xhr.status,
         responseObjectType: 'xhr',
-        error: true
+        error: error
       }, resolver, params.callbackSuccess, params.callbackError);
 
     }.bind(this);
 
-    httpReq.send(params.data);
+
+    if (params.data) {
+      httpReq.send(params.data);
+    } else {
+      //IE fix, send nothing (not null or undefined)
+      httpReq.send();
+    }
   };
 
   return request;
