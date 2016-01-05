@@ -2567,17 +2567,6 @@
             return params;
         };
 
-        var encodeURLQueryParamsIfContainsInvalidChars = function(url) {
-            var urlComponents = url.split(/\?{1}/g);
-            if (urlComponents) {
-                return url
-                    .replace(urlComponents[1],
-                        encodeURI(urlComponents[1]));
-            }
-
-            return url;
-        };
-
         var encodeUrlToForm = function(url) {
             var form = {};
             url.split('&').forEach(function(formEntry) {
