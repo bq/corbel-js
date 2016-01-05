@@ -1101,9 +1101,6 @@
              */
             generate: function(claims, secret, alg) {
                 claims = claims || {};
-                alg = alg || jwt.ALGORITHM;
-
-                claims.exp = claims.exp || jwt._generateExp();
 
                 if (!claims.iss) {
                     throw new Error('jwt:undefined:iss');
@@ -1114,6 +1111,14 @@
                 if (!claims.scope) {
                     throw new Error('jwt:undefined:scope');
                 }
+
+                return jwt._generate(claims, secret, alg);
+            },
+
+            _generate: function(claims, secret, alg) {
+                alg = alg || jwt.ALGORITHM;
+
+                claims.exp = claims.exp || jwt._generateExp();
 
                 // Ensure claims specific order
                 var claimsKeys = [
