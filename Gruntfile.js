@@ -358,8 +358,6 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.loadTasks('tasks');
-
   grunt.registerTask('serve:webapp', [
     'build',
     'express:load',
@@ -420,8 +418,6 @@ module.exports = function(grunt) {
     'copy:test-browser',
     'preprocess:test-browser',
     'express:load',
-    //'connect:test_webserver',
-    //'open:test',
     'karma:serve',
     'watch:test'
   ]);
