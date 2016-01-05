@@ -242,11 +242,14 @@
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
       responseType: options.responseType,
-      withCredentials: options.withCredentials || true
+      withCredentials: options.withCredentials || true,
+      useCookies: options.useCookies || false
     };
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
-    params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
+
+    params.url = encodeQueryString(params.url);
+
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -300,47 +303,47 @@
 
     if (statusType <= 3 && !response.error) {
 
-        if (response.response) {
+      if (response.response) {
         data = request.parse(response.response, response.responseType, response.dataType);
-        }
+      }
 
-        if (callbackSuccess) {
-        callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
-        }
+      if (callbackSuccess) {
+        callbackSuccess.call(this, data, statusCode, response.responseObject, headers);
+      }
 
-        promiseResponse = {
+      promiseResponse = {
         data: data,
         status: statusCode,
         headers: headers
-        };
+      };
 
-        promiseResponse[response.responseObjectType] = response.responseObject;
+      promiseResponse[response.responseObjectType] = response.responseObject;
 
-        resolver.resolve(promiseResponse);
-      } else {
-        var disconnected = response.error && response.status === 0;
-        statusCode = disconnected ? 0 : statusCode;
+      resolver.resolve(promiseResponse);
+    } else {
 
-        if (callbackError) {
-          callbackError.call(this, response.error, statusCode, response.responseObject, headers);
-        }
+      var disconnected = response.error && response.status === 0;
+      statusCode = disconnected ? 0 : statusCode;
 
-        if (response.response) {
-          data = request.parse(response.response, response.responseType, response.dataType);
-        }
-
-        promiseResponse = {
-          data: data,
-          status: statusCode,
-          error: response.error,
-          headers: headers
-        };
-
-        promiseResponse[response.responseObjectType] = response.responseObject;
-
-        resolver.reject(promiseResponse);
+      if (callbackError) {
+        callbackError.call(this, response.error, statusCode, response.responseObject, headers);
       }
 
+      if (response.response) {
+        data = request.parse(response.response, response.responseType, response.dataType);
+      }
+
+      promiseResponse = {
+        data: data,
+        status: statusCode,
+        error: response.error,
+        headers: headers
+      };
+
+      promiseResponse[response.responseObjectType] = response.responseObject;
+
+      resolver.reject(promiseResponse);
+    }
   };
 
   var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
@@ -376,18 +379,35 @@
     url.split('&').forEach(function(formEntry) {
       var formPair = formEntry.split('=');
       //value require double encode in Override Method Filter
-      form[formPair[0]] = encodeURI(formPair[1]);
+      form[formPair[0]] = encodeURIComponent(formPair[1]);
     });
     return form;
   };
 
+  var encodeQueryString = function(url) {
+    if (!url) {
+      return url;
+    }
+    var urlComponents = url.split('?');
+    if (urlComponents.length > 1) {
+      return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {
+        return operator.split('=');
+      }).map(function(splitted) {
+        return [splitted[0], encodeURIComponent(splitted[1])].join('=');
+      }).join('&');
+    }
+
+    return url;
+  };
+
   request._nodeAjax = function(params, resolver) {
     var requestAjax = require('request');
-    if (request.isCrossDomain(params.url) && params.withCredentials) {
+    if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
       requestAjax = requestAjax.defaults({
         jar: true
       });
     }
+
     requestAjax({
       method: params.method,
       url: params.url,
@@ -396,7 +416,6 @@
     }, function(error, response, body) {
       var responseType;
       var status;
-
       if (error) {
         responseType = undefined;
         status = 0;
@@ -499,6 +518,8 @@
 
       xhr = xhr.target || xhr; // only for fake sinon response xhr
 
+      var error = xhr.error ? xhr.error : true;
+
       processResponse.call(this, {
         responseObject: xhr,
         dataType: xhr.dataType,
@@ -506,12 +527,18 @@
         response: xhr.response || xhr.responseText,
         status: xhr.status,
         responseObjectType: 'xhr',
-        error: true
+        error: error
       }, resolver, params.callbackSuccess, params.callbackError);
 
     }.bind(this);
 
-    httpReq.send(params.data);
+
+    if (params.data) {
+      httpReq.send(params.data);
+    } else {
+      //IE fix, send nothing (not null or undefined)
+      httpReq.send();
+    }
   };
 
   return request;

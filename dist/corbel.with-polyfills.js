@@ -27,7 +27,7 @@
      * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
      * @license   Licensed under MIT license
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-     * @version   3.0.2
+     * @version   2.2.0
      */
 
     (function() {
@@ -60,7 +60,7 @@
         var lib$es6$promise$asap$$vertxNext;
         var lib$es6$promise$asap$$customSchedulerFn;
 
-        var lib$es6$promise$asap$$asap = function asap(callback, arg) {
+        function lib$es6$promise$asap$$asap(callback, arg) {
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
             lib$es6$promise$asap$$len += 2;
@@ -76,12 +76,10 @@
             }
         }
 
+        var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
+
         function lib$es6$promise$asap$$setScheduler(scheduleFn) {
             lib$es6$promise$asap$$customSchedulerFn = scheduleFn;
-        }
-
-        function lib$es6$promise$asap$$setAsap(asapFn) {
-            lib$es6$promise$asap$$asap = asapFn;
         }
 
         var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
@@ -96,10 +94,15 @@
 
         // node
         function lib$es6$promise$asap$$useNextTick() {
+            var nextTick = process.nextTick;
             // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-            // see https://github.com/cujojs/when/issues/410 for details
+            // setImmediate should be used instead instead
+            var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
+            if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
+                nextTick = setImmediate;
+            }
             return function() {
-                process.nextTick(lib$es6$promise$asap$$flush);
+                nextTick(lib$es6$promise$asap$$flush);
             };
         }
 
@@ -154,7 +157,7 @@
             lib$es6$promise$asap$$len = 0;
         }
 
-        function lib$es6$promise$asap$$attemptVertx() {
+        function lib$es6$promise$asap$$attemptVertex() {
             try {
                 var r = require;
                 var vertx = r('vertx');
@@ -174,7 +177,7 @@
         } else if (lib$es6$promise$asap$$isWorker) {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
         } else if (lib$es6$promise$asap$$browserWindow === undefined && typeof require === 'function') {
-            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertx();
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
         } else {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
         }
@@ -187,7 +190,7 @@
 
         var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
 
-        function lib$es6$promise$$internal$$selfFulfillment() {
+        function lib$es6$promise$$internal$$selfFullfillment() {
             return new TypeError("You cannot resolve a promise with itself");
         }
 
@@ -213,7 +216,7 @@
         }
 
         function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
-            lib$es6$promise$asap$$asap(function(promise) {
+            lib$es6$promise$asap$$default(function(promise) {
                 var sealed = false;
                 var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
                     if (sealed) {
@@ -275,7 +278,7 @@
 
         function lib$es6$promise$$internal$$resolve(promise, value) {
             if (promise === value) {
-                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFulfillment());
+                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
             } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
                 lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
             } else {
@@ -300,7 +303,7 @@
             promise._state = lib$es6$promise$$internal$$FULFILLED;
 
             if (promise._subscribers.length !== 0) {
-                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, promise);
+                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
             }
         }
 
@@ -311,7 +314,7 @@
             promise._state = lib$es6$promise$$internal$$REJECTED;
             promise._result = reason;
 
-            lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publishRejection, promise);
+            lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
         }
 
         function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
@@ -325,7 +328,7 @@
             subscribers[length + lib$es6$promise$$internal$$REJECTED] = onRejection;
 
             if (length === 0 && parent._state) {
-                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, parent);
+                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
             }
         }
 
@@ -588,7 +591,7 @@
         /**
         Promise objects represent the eventual result of an asynchronous operation. The
         primary way of interacting with a promise is through its `then` method, which
-        registers callbacks to receive either a promise's eventual value or the reason
+        registers callbacks to receive either a promise’s eventual value or the reason
         why the promise cannot be fulfilled.
   
         Terminology
@@ -712,8 +715,7 @@
         lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
         lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
         lib$es6$promise$promise$$Promise._setScheduler = lib$es6$promise$asap$$setScheduler;
-        lib$es6$promise$promise$$Promise._setAsap = lib$es6$promise$asap$$setAsap;
-        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$asap;
+        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$default;
 
         lib$es6$promise$promise$$Promise.prototype = {
             constructor: lib$es6$promise$promise$$Promise,
@@ -924,7 +926,7 @@
 
                 if (state) {
                     var callback = arguments[state - 1];
-                    lib$es6$promise$asap$$asap(function() {
+                    lib$es6$promise$asap$$default(function() {
                         lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
                     });
                 } else {
@@ -1031,6 +1033,7 @@
          * @return {CorbelDriver}
          */
         function CorbelDriver(config) {
+            this._events = [];
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
@@ -1054,6 +1057,72 @@
         CorbelDriver.prototype.clone = function() {
             return new CorbelDriver(this.config.getConfig());
         };
+
+        /**
+         * Adds an event handler for especific event
+         * @param {string}   name Event name
+         * @param {Function} fn   Function to call
+         */
+        CorbelDriver.prototype.addEventListener = function(name, fn) {
+            if (typeof fn !== 'function') {
+                throw new Error('corbel:error:invalid:type');
+            }
+            this._events[name] = this._events[name] || [];
+            if (this._events[name].indexOf(fn) === -1) {
+                this._events[name].push(fn);
+            }
+        };
+
+        /**
+         * Removes the handler from event list
+         * @param  {string}   name Event name
+         * @param  {Function} fn   Function to remove
+         */
+        CorbelDriver.prototype.removeEventListener = function(name, fn) {
+            if (this._events[name]) {
+                var index = this._events[name].indexOf(fn);
+                if (index !== -1) {
+                    this._events[name].splice(index, 1);
+                }
+            }
+        };
+
+        /**
+         * Fires all events handlers for an specific event name
+         * @param  {string} name    Event name
+         * @param  {Mixed} options  Data for event handlers
+         */
+        CorbelDriver.prototype.dispatch = function(name, options) {
+            if (this._events[name] && this._events[name].length) {
+                this._events[name].forEach(function(fn) {
+                    fn(options);
+                });
+            }
+        };
+
+        /**
+         * Adds an event handler for especific event
+         * @see CorbelDriver.prototype.addEventListener
+         * @param {string}   name Event name
+         * @param {Function} fn   Function to call
+         */
+        CorbelDriver.prototype.on = CorbelDriver.prototype.addEventListener;
+
+        /**
+         * Removes the handler from event list
+         * @see CorbelDriver.prototype.removeEventListener
+         * @param  {string}   name Event name
+         * @param  {Function} fn   Function to remove
+         */
+        CorbelDriver.prototype.off = CorbelDriver.prototype.removeEventListener;
+
+        /**
+         * Fires all events handlers for an specific event name
+         * @see CorbelDriver.prototype.dispatch
+         * @param  {string} name    Event name
+         * @param  {Mixed} options  Data for event handlers
+         */
+        CorbelDriver.prototype.trigger = CorbelDriver.prototype.dispatch;
 
         corbel.CorbelDriver = CorbelDriver;
 
@@ -1333,9 +1402,9 @@
             if (params.search) {
                 result += result ? '&' : '';
                 result += 'api:search=' + JSON.stringify(params.search);
+
                 if (params.hasOwnProperty('binded')) {
-                    result += result ? '&' : '';
-                    result += 'api:binded=' + JSON.stringify(params.binded);
+                    result += '&api:binded=' + JSON.stringify(params.binded);
                 }
             }
 
@@ -2225,12 +2294,12 @@
              */
             dataURI: function(data, cb) {
                 if (corbel.Config.isNode) {
+                    // in node transform to stream
                     cb(corbel.utils.toURLEncoded(data));
                 } else {
+                    // in browser transform to blob
                     cb(corbel.utils.dataURItoBlob(data));
                 }
-                // if browser transform to blob
-                // if node transform to stream
             },
             /**
              * blob serialize handler
@@ -2240,8 +2309,9 @@
              */
             blob: function(data, cb) {
                 if (corbel.Config.isNode) {
+                    //@TODO: check if is necessary to transform the input in node
                     var buffer = new ArrayBuffer(data.length);
-                    data.map(function(byteCharacter, index) {
+                    data.forEach(function(byteCharacter, index) {
                         buffer[index] = byteCharacter;
                     });
                     cb(buffer);
@@ -2258,7 +2328,7 @@
             stream: function(data, cb) {
                 if (corbel.Config.isBrowser) {
                     var buffer = new ArrayBuffer(data.length);
-                    data.map(function(byteCharacter, index) {
+                    data.forEach(function(byteCharacter, index) {
                         buffer[index] = byteCharacter;
                     });
                     cb(buffer);
@@ -2371,11 +2441,14 @@
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
                 responseType: options.responseType,
-                withCredentials: options.withCredentials || true
+                withCredentials: options.withCredentials || true,
+                useCookies: options.useCookies || false
             };
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
-            params.url = encodeURLQueryParamsIfContainsInvalidChars(params.url);
+
+            params.url = encodeQueryString(params.url);
+
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -2434,7 +2507,7 @@
                 }
 
                 if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject, response.headers);
+                    callbackSuccess.call(this, data, statusCode, response.responseObject, headers);
                 }
 
                 promiseResponse = {
@@ -2447,6 +2520,7 @@
 
                 resolver.resolve(promiseResponse);
             } else {
+
                 var disconnected = response.error && response.status === 0;
                 statusCode = disconnected ? 0 : statusCode;
 
@@ -2469,7 +2543,6 @@
 
                 resolver.reject(promiseResponse);
             }
-
         };
 
         var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
@@ -2505,18 +2578,35 @@
             url.split('&').forEach(function(formEntry) {
                 var formPair = formEntry.split('=');
                 //value require double encode in Override Method Filter
-                form[formPair[0]] = encodeURI(formPair[1]);
+                form[formPair[0]] = encodeURIComponent(formPair[1]);
             });
             return form;
         };
 
+        var encodeQueryString = function(url) {
+            if (!url) {
+                return url;
+            }
+            var urlComponents = url.split('?');
+            if (urlComponents.length > 1) {
+                return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {
+                    return operator.split('=');
+                }).map(function(splitted) {
+                    return [splitted[0], encodeURIComponent(splitted[1])].join('=');
+                }).join('&');
+            }
+
+            return url;
+        };
+
         request._nodeAjax = function(params, resolver) {
             var requestAjax = require('request');
-            if (request.isCrossDomain(params.url) && params.withCredentials) {
+            if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
                 requestAjax = requestAjax.defaults({
                     jar: true
                 });
             }
+
             requestAjax({
                 method: params.method,
                 url: params.url,
@@ -2525,7 +2615,6 @@
             }, function(error, response, body) {
                 var responseType;
                 var status;
-
                 if (error) {
                     responseType = undefined;
                     status = 0;
@@ -2628,6 +2717,8 @@
 
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
 
+                var error = xhr.error ? xhr.error : true;
+
                 processResponse.call(this, {
                     responseObject: xhr,
                     dataType: xhr.dataType,
@@ -2635,12 +2726,18 @@
                     response: xhr.response || xhr.responseText,
                     status: xhr.status,
                     responseObjectType: 'xhr',
-                    error: true
+                    error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
 
             }.bind(this);
 
-            httpReq.send(params.data);
+
+            if (params.data) {
+                httpReq.send(params.data);
+            } else {
+                //IE fix, send nothing (not null or undefined)
+                httpReq.send();
+            }
         };
 
         return request;
@@ -2687,46 +2784,54 @@
              */
             request: function(args) {
 
+                this.driver.trigger('service:request:before', args);
+
                 var that = this;
 
                 function requestWithRetries() {
-                    var params = that._buildParams(args);
 
-                    return that._doRequest(params)
-                        .catch(function(response) {
+                    return that._doRequest(that._buildParams(args)).catch(function(response) {
 
-                            var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                            var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
+                        var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                        var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
 
-                            if (retries < maxRetries &&
-                                response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
+                        if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
 
-                                var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-                                //A 401 request within, refresh the token and retry the request.
-                                return that._refreshHandler(tokenObject)
-                                    .then(function() {
-                                        //Has refreshed the token, retry request
-                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
-                                        //@TODO: see if we need to upgrade the token to access assets.
-                                        return requestWithRetries();
-                                    })
-                                    .catch(function() {
-                                        //Has failed refreshing, reject request and reset the retries counter
-                                        console.log('corbeljs:services:token:refresh:fail');
-                                        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                                        return Promise.reject(response);
-                                    });
+                            var tokenObject = that.driver.config.get(corbel.Iam.IAM_TOKEN, {});
 
-                            } else {
+                            //A 401 request within, refresh the token and retry the request.
+                            return that._refreshHandler(tokenObject).then(function() {
+                                //Has refreshed the token, retry request
+                                that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
+                                //@TODO: see if we need to upgrade the token to access assets.
+                                return requestWithRetries().catch(function(retryResponse) {
+                                    // rejects whole promise with the retry response
+                                    response = retryResponse;
+                                    throw response;
+                                });
+                            }).catch(function() {
+                                //Has failed refreshing, reject request and reset the retries counter
+                                console.log('corbeljs:services:token:refresh:fail');
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                                console.log('corbeljs:services:token:no_refresh', response.status);
-                                return Promise.reject(response);
-                            }
+                                throw response;
+                            });
 
-                        });
+                        } else {
+                            that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                            console.log('corbeljs:services:token:no_refresh', response.status);
+                            throw response;
+                        }
+
+                    });
                 }
 
-                return requestWithRetries();
+                return requestWithRetries().then(function(response) {
+                    that.driver.trigger('service:request:after', response);
+                    return response;
+                }).catch(function(error) {
+                    that.driver.trigger('service:request:after', error);
+                    throw error;
+                });
 
             },
 
@@ -2743,7 +2848,7 @@
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
 
-                    return Promise.resolve(response);
+                    return response;
 
                 }).catch(function(response) {
 
@@ -2756,32 +2861,52 @@
                             retries++;
                             that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
 
-                            corbel.utils.reload(); //TODO nodejs
-                            // in node return rejected promise
-                            return Promise.reject(response);
+                            that.driver.trigger('force:update', response);
+
+                            throw response;
                         } else {
-                            return Promise.reject(response);
+                            throw response;
                         }
                     } else {
-                        return Promise.reject(response);
+                        throw response;
                     }
 
                 });
             },
 
+            _refreshHandlerPromise: null,
+
             /**
              * Default token refresh handler
+             * Only requested once at the same time
              * @return {Promise}
              */
             _refreshHandler: function(tokenObject) {
+                var that = this;
+
+                if (this._refreshHandlerPromise) {
+                    return this._refreshHandlerPromise;
+                }
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    return this.driver.iam.token()
-                        .refresh(tokenObject.refreshToken, this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES));
+                    this._refreshHandlerPromise = this.driver.iam.token().refresh(
+                        tokenObject.refreshToken,
+                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
+                    );
+
                 } else {
                     console.log('corbeljs:services:token:create');
-                    return this.driver.iam.token().create();
+                    this._refreshHandlerPromise = this.driver.iam.token().create();
                 }
+
+                return this._refreshHandlerPromise.then(function(response) {
+                    that.driver.trigger('token:refresh', response.data);
+                    that._refreshHandlerPromise = null;
+                    return response;
+                }).catch(function(err) {
+                    that._refreshHandlerPromise = null;
+                    throw err;
+                });
             },
 
             /**
@@ -2822,7 +2947,10 @@
                     },
                     method: corbel.request.method.GET
                 };
-                var params = corbel.utils.defaults(args, defaults);
+
+                // do not modify args object
+                var params = corbel.utils.defaults({}, args);
+                params = corbel.utils.defaults(params, defaults);
 
                 if (!params.url) {
                     throw new Error('You must define an url');
@@ -2978,6 +3106,7 @@
         return Services;
 
     })();
+
 
     //----------corbel modules----------------
 

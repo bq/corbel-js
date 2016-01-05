@@ -25,6 +25,11 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
     - Driver options (with client/secret)
     - Driver options (with accessToken)
 - API
+  - IAM
+    - Create a token
+      - Client token
+      - User token
+      - Token refresh
   - Resources
     - Collection
     - Relations
@@ -102,6 +107,53 @@ var options = {
 ```
 
 ## API
+
+### IAM
+
+IAM is the corbel module to handle with client and user autentication, in order to access to the rest of corbel API, you should generate a client/user token first
+
+#### Create a token
+
+There is 2 types of tokens, client token for applications, and user token, for autenticated users
+
+##### Client token
+
+```
+var corbelDriver = corbel.getDriver(options);
+corbelDriver.iam.token).create().then(...);
+```
+
+##### User token (IAM Basic)
+
+```
+var corbelDriver = corbel.getDriver(options);
+corbelDriver.iam.token().create({
+  claims: {
+    'basic_auth.username': username,
+    'basic_auth.password': password
+  }
+}).then(...);
+```
+
+##### Token refresh token
+
+When a driver is authenticated as a user, its tries to refresh token automatically when a `401` response is detected.
+If your application needs to add some behavior when a token is updated with `tokenRefresh` (update localStorage for example), you can do it with:
+
+```
+var corbelDriver = corbel.getDriver(options);
+corbelDriver.iam.token().create({
+  claims: {
+    'basic_auth.username': username,
+    'basic_auth.password': password
+  }
+}).then(...);
+
+corbelDriver.on('token:refresh', yourTokenRefreshHandler);
+```
+
+
+
 ### Resources
 
 The Resources API is a flexible programming interface for retrieval of resource's representations. Using the patterns described by this API we can deploy any kind of resource in our Corbel ecosystem with minimal impact on clients and server code.
