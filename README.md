@@ -6,8 +6,8 @@ corbel-js
 [![npm version](https://badge.fury.io/js/corbel-js.svg)](http://badge.fury.io/js/corbel-js)
 [![Bower version](https://badge.fury.io/bo/corbel-js.svg)](http://badge.fury.io/bo/corbel-js)
 [![Coverage Status](https://coveralls.io/repos/bq/corbel-js/badge.svg?branch=master)](https://coveralls.io/r/bq/corbel-js?branch=master)
-[![Dependency status](https://david-dm.org/bq/corbel-js/status.png)](https://david-dm.org/bq/corbel-js#info=dependencies&view=table)
-[![Dev Dependency Status](https://david-dm.org/bq/corbel-js/dev-status.png)](https://david-dm.org/bq/corbel-js#info=devDependencies&view=table)
+[![Dependency status](https://david-dm.org/corbel-platform/corbel-js/status.png)](https://david-dm.org/corbel-platform/corbel-js#info=dependencies&view=table)
+[![Dev Dependency Status](https://david-dm.org/corbel-platform/corbel-js/dev-status.png)](https://david-dm.org/corbel-platform/corbel-js#info=devDependencies&view=table)
 [![Code Climate](https://codeclimate.com/github/bq/corbel-js/badges/gpa.svg)](https://codeclimate.com/github/bq/corbel-js)
 [![Test Coverage](https://codeclimate.com/github/bq/corbel-js/badges/coverage.svg)](https://codeclimate.com/github/bq/corbel-js/coverage)
 
@@ -28,8 +28,8 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
   - IAM
     - Create a token
       - Client token
-      - User token
-      - Token refresh
+      - User token (IAM Basic)
+      - Token refresh token
   - Resources
     - Collection
     - Relations
