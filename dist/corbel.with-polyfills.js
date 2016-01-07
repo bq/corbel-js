@@ -27,7 +27,7 @@
      * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
      * @license   Licensed under MIT license
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-     * @version   2.2.0
+     * @version   3.0.2
      */
 
     (function() {
@@ -60,7 +60,7 @@
         var lib$es6$promise$asap$$vertxNext;
         var lib$es6$promise$asap$$customSchedulerFn;
 
-        function lib$es6$promise$asap$$asap(callback, arg) {
+        var lib$es6$promise$asap$$asap = function asap(callback, arg) {
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
             lib$es6$promise$asap$$len += 2;
@@ -76,10 +76,12 @@
             }
         }
 
-        var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
-
         function lib$es6$promise$asap$$setScheduler(scheduleFn) {
             lib$es6$promise$asap$$customSchedulerFn = scheduleFn;
+        }
+
+        function lib$es6$promise$asap$$setAsap(asapFn) {
+            lib$es6$promise$asap$$asap = asapFn;
         }
 
         var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
@@ -94,15 +96,10 @@
 
         // node
         function lib$es6$promise$asap$$useNextTick() {
-            var nextTick = process.nextTick;
             // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-            // setImmediate should be used instead instead
-            var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
-            if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
-                nextTick = setImmediate;
-            }
+            // see https://github.com/cujojs/when/issues/410 for details
             return function() {
-                nextTick(lib$es6$promise$asap$$flush);
+                process.nextTick(lib$es6$promise$asap$$flush);
             };
         }
 
@@ -157,7 +154,7 @@
             lib$es6$promise$asap$$len = 0;
         }
 
-        function lib$es6$promise$asap$$attemptVertex() {
+        function lib$es6$promise$asap$$attemptVertx() {
             try {
                 var r = require;
                 var vertx = r('vertx');
@@ -177,7 +174,7 @@
         } else if (lib$es6$promise$asap$$isWorker) {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
         } else if (lib$es6$promise$asap$$browserWindow === undefined && typeof require === 'function') {
-            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertx();
         } else {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
         }
@@ -190,7 +187,7 @@
 
         var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
 
-        function lib$es6$promise$$internal$$selfFullfillment() {
+        function lib$es6$promise$$internal$$selfFulfillment() {
             return new TypeError("You cannot resolve a promise with itself");
         }
 
@@ -216,7 +213,7 @@
         }
 
         function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
-            lib$es6$promise$asap$$default(function(promise) {
+            lib$es6$promise$asap$$asap(function(promise) {
                 var sealed = false;
                 var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
                     if (sealed) {
@@ -278,7 +275,7 @@
 
         function lib$es6$promise$$internal$$resolve(promise, value) {
             if (promise === value) {
-                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
+                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFulfillment());
             } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
                 lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
             } else {
@@ -303,7 +300,7 @@
             promise._state = lib$es6$promise$$internal$$FULFILLED;
 
             if (promise._subscribers.length !== 0) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, promise);
             }
         }
 
@@ -314,7 +311,7 @@
             promise._state = lib$es6$promise$$internal$$REJECTED;
             promise._result = reason;
 
-            lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
+            lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publishRejection, promise);
         }
 
         function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
@@ -328,7 +325,7 @@
             subscribers[length + lib$es6$promise$$internal$$REJECTED] = onRejection;
 
             if (length === 0 && parent._state) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, parent);
             }
         }
 
@@ -591,7 +588,7 @@
         /**
         Promise objects represent the eventual result of an asynchronous operation. The
         primary way of interacting with a promise is through its `then` method, which
-        registers callbacks to receive either a promise’s eventual value or the reason
+        registers callbacks to receive either a promise's eventual value or the reason
         why the promise cannot be fulfilled.
   
         Terminology
@@ -715,7 +712,8 @@
         lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
         lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
         lib$es6$promise$promise$$Promise._setScheduler = lib$es6$promise$asap$$setScheduler;
-        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$default;
+        lib$es6$promise$promise$$Promise._setAsap = lib$es6$promise$asap$$setAsap;
+        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$asap;
 
         lib$es6$promise$promise$$Promise.prototype = {
             constructor: lib$es6$promise$promise$$Promise,
@@ -926,7 +924,7 @@
 
                 if (state) {
                     var callback = arguments[state - 1];
-                    lib$es6$promise$asap$$default(function() {
+                    lib$es6$promise$asap$$asap(function() {
                         lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
                     });
                 } else {
@@ -2868,8 +2866,6 @@
                 });
             },
 
-            _refreshHandlerPromise: null,
-
             /**
              * Default token refresh handler
              * Only requested once at the same time
@@ -2878,27 +2874,27 @@
             _refreshHandler: function(tokenObject) {
                 var that = this;
 
-                if (this._refreshHandlerPromise) {
-                    return this._refreshHandlerPromise;
+                if (this.driver._refreshHandlerPromise) {
+                    return this.driver._refreshHandlerPromise;
                 }
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    this._refreshHandlerPromise = this.driver.iam.token().refresh(
+                    this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
                         this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
                     );
 
                 } else {
                     console.log('corbeljs:services:token:create');
-                    this._refreshHandlerPromise = this.driver.iam.token().create();
+                    this.driver._refreshHandlerPromise = this.driver.iam.token().create();
                 }
 
-                return this._refreshHandlerPromise.then(function(response) {
+                return this.driver._refreshHandlerPromise.then(function(response) {
                     that.driver.trigger('token:refresh', response.data);
-                    that._refreshHandlerPromise = null;
+                    that.driver._refreshHandlerPromise = null;
                     return response;
                 }).catch(function(err) {
-                    that._refreshHandlerPromise = null;
+                    that.driver._refreshHandlerPromise = null;
                     throw err;
                 });
             },
