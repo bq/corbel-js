@@ -2795,8 +2795,6 @@
                 });
             },
 
-            _refreshHandlerPromise: null,
-
             /**
              * Default token refresh handler
              * Only requested once at the same time
@@ -2805,27 +2803,27 @@
             _refreshHandler: function(tokenObject) {
                 var that = this;
 
-                if (this._refreshHandlerPromise) {
-                    return this._refreshHandlerPromise;
+                if (this.driver._refreshHandlerPromise) {
+                    return this.driver._refreshHandlerPromise;
                 }
                 if (tokenObject.refreshToken) {
                     console.log('corbeljs:services:token:refresh');
-                    this._refreshHandlerPromise = this.driver.iam.token().refresh(
+                    this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
                         this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
                     );
 
                 } else {
                     console.log('corbeljs:services:token:create');
-                    this._refreshHandlerPromise = this.driver.iam.token().create();
+                    this.driver._refreshHandlerPromise = this.driver.iam.token().create();
                 }
 
-                return this._refreshHandlerPromise.then(function(response) {
+                return this.driver._refreshHandlerPromise.then(function(response) {
                     that.driver.trigger('token:refresh', response.data);
-                    that._refreshHandlerPromise = null;
+                    that.driver._refreshHandlerPromise = null;
                     return response;
                 }).catch(function(err) {
-                    that._refreshHandlerPromise = null;
+                    that.driver._refreshHandlerPromise = null;
                     throw err;
                 });
             },
