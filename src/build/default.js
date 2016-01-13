@@ -85,6 +85,8 @@
   //  @include ../composr/composr.js
   //  @include ../composr/phraseBuilder.js
   //  @include ../composr/requestBuilder.js
+  //  @include ../webfs/webfs.js
+  //  @include ../webfs/webfsBuilder.js
 
   return corbel;
 });
