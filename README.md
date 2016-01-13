@@ -10,6 +10,7 @@ corbel-js
 [![Dev Dependency Status](https://david-dm.org/corbel-platform/corbel-js/dev-status.png)](https://david-dm.org/corbel-platform/corbel-js#info=devDependencies&view=table)
 [![Code Climate](https://codeclimate.com/github/bq/corbel-js/badges/gpa.svg)](https://codeclimate.com/github/bq/corbel-js)
 [![Test Coverage](https://codeclimate.com/github/bq/corbel-js/badges/coverage.svg)](https://codeclimate.com/github/bq/corbel-js/coverage)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/295a5a767259422b955c4c8f28158d05)](https://www.codacy.com/app/antai-pt/corbel-js)
 
 A SDK for [corbel][corbel-url] compatible with browsers and node.
 
