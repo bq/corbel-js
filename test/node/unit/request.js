@@ -34,50 +34,24 @@ describe('corbel-js node', function() {
 
     it('should has own properties', function() {
       expect(request).to.include.keys('method');
-      expect(request.method).to.include.keys('GET');
-      expect(request.method).to.include.keys('POST');
-      expect(request.method).to.include.keys('PUT');
-      expect(request.method).to.include.keys('DELETE');
-      expect(request.method).to.include.keys('OPTIONS');
-      expect(request.method).to.include.keys('PATCH');
-      expect(request.method).to.include.keys('HEAD');
+      expect(request.method).to.include.keys('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD');
     });
 
     it('expected methods are available', function() {
       expect(request).to.respondTo('send');
     });
 
-    it('send method accepts all http verbs', function(done) {
+    ['GET', 'POST', 'PATCH', 'PUT', 'HEAD'].forEach(function(verb) {
+      it('send method accepts http ' + verb + ' verb', function(done) {
 
-      request.send({
-        method: 'GET',
-        url: url
-      }).then(function() {
-        return request.send({
-          method: 'POST',
+        var promise = request.send({
+          method: verb,
           url: url
         });
-      }).then(function() {
-        return request.send({
-          method: 'PATCH',
-          url: url
-        });
-      }).then(function() {
-        return request.send({
-          method: 'PUT',
-          url: url
-        });
-      }).then(function() {
-        return request.send({
-          method: 'HEAD',
-          url: url
-        });
-      }).then(function() {
-        done();
-      }).catch(function(error) {
-        done(error);
+
+        expect(promise).to.be.fulfilled.and.should.notify(done);
+
       });
-
     });
 
     it('send method throws an error if no url setting', function() {
@@ -102,14 +76,11 @@ describe('corbel-js node', function() {
     });
 
     it('send mehtod returns a promise and it resolves', function(done) {
-
-      request.send({
+      expect(request.send({
         method: 'GET',
         url: url
-      }).then(function() {
-        done();
-      });
-
+      }))
+      .to.be.fulfilled.and.should.notify(done);
     });
 
     it('send mehtod returns a promise and reject it', function(done) {
@@ -118,10 +89,11 @@ describe('corbel-js node', function() {
         url: url + '404'
       });
 
-      promise.catch(function(error) {
+      expect(promise).to.be.rejected
+      .then(function(error) {
         expect(error.status).to.be.equal(404);
-        done();
-      });
+      })
+      .should.notify(done);
 
     });
 
@@ -160,27 +132,30 @@ describe('corbel-js node', function() {
           done();
         }
       });
-
     });
 
     it('send mehtod encodes url parameters', function(done) {
       var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
         resolver.resolve();
       });
-      var queryArgs = 'param1=1&param2=2&param3=3';
+
+      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
       var parsedQueryArgs = encodeURI(queryArgs);
+      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
       url += '?'; 
 
-      request.send({
+      var promise = request.send({
         method: 'GET',
         url: url + queryArgs
-      })
+      });
+
+      expect(promise)
+        .to.be.fulfilled
         .then(function() {
           expect(_nodeAjaxStub.callCount).to.be.equal(1);
           expect(_nodeAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
-          done();
-        });
-
+        })
+        .should.notify(done);
     });
 
     it('send method sends an stream, parse not necessary', function(done) {

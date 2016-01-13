@@ -1,6 +1,19 @@
 
 # Changelog
 
+### v0.3.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.0...v0.2.10)
+
+#### Features
+
+* Added `blob`, `dataURI`, `stream` serializers to `request.js`
+
+### v0.2.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.9...v0.2.10)
+
+#### Features
+
+* Event handler support `addEventListener/on`, `removeEventListener/off` and `dispatch/trigger`
+
+
 ### v0.2.8 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.0...v0.2.8)
 
 #### Breaking changes
@@ -12,6 +25,7 @@
     corbelDriver.notifications(.*).get() -> corbelDriver.notifications.notification(.*).get()
 
     ```
+
 
 ### v0.2.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.1.2...v0.2.0)
 
