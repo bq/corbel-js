@@ -50,6 +50,7 @@
             this.borrow = corbel.Borrow.create(this);
             this.composr = corbel.CompoSR.create(this);
             this.scheduler = corbel.Scheduler.create(this);
+            this.webfs = corbel.Webfs.create(this);
         }
 
         /**
@@ -1229,12 +1230,12 @@
              */
             dataURI: function(data, cb) {
                 if (corbel.Config.isNode) {
+                    // in node transform to stream
                     cb(corbel.utils.toURLEncoded(data));
                 } else {
+                    // in browser transform to blob
                     cb(corbel.utils.dataURItoBlob(data));
                 }
-                // if browser transform to blob
-                // if node transform to stream
             },
             /**
              * blob serialize handler
@@ -1244,8 +1245,9 @@
              */
             blob: function(data, cb) {
                 if (corbel.Config.isNode) {
+                    //@TODO: check if is necessary to transform the input in node
                     var buffer = new ArrayBuffer(data.length);
-                    data.map(function(byteCharacter, index) {
+                    data.forEach(function(byteCharacter, index) {
                         buffer[index] = byteCharacter;
                     });
                     cb(buffer);
@@ -1262,7 +1264,7 @@
             stream: function(data, cb) {
                 if (corbel.Config.isBrowser) {
                     var buffer = new ArrayBuffer(data.length);
-                    data.map(function(byteCharacter, index) {
+                    data.forEach(function(byteCharacter, index) {
                         buffer[index] = byteCharacter;
                     });
                     cb(buffer);
@@ -6626,6 +6628,152 @@
 
             _buildUri: corbel.CompoSR._buildUri
         });
+    })();
+
+    (function() {
+
+        /**
+         * A webfs API factory
+         * @exports corbel.Webfs
+         * @namespace
+         * @extends corbel.Object
+         * @memberof corbel
+         */
+        corbel.Webfs = corbel.Object.inherit({
+
+            /**
+             * Creates a new WebfsBuilder
+             * @memberof corbel.Webfs.prototype
+             * @param  {string} id String with the resource id 
+             * @return {corbel.Webfs.WebfsBuilder}
+             */
+            constructor: function(driver) {
+                this.driver = driver;
+            },
+
+            webfs: function(id) {
+                return new corbel.Webfs.WebfsBuilder(this.driver, id);
+            }
+
+        }, {
+
+            /**
+             * moduleName constant
+             * @constant
+             * @memberof corbel.Webfs
+             * @type {string}
+             * @default
+             */
+            moduleName: 'webfs',
+
+            /**
+             * defaultPort constant
+             * @constant
+             * @memberof corbel.Webfs
+             * @type {Number}
+             * @default
+             */
+            defaultPort: 8096,
+
+            /**
+             * AssetsBuilder factory
+             * @memberof corbel.Webfs
+             * @param  {corbel} corbel instance driver
+             * @return {corbel.Webfs.WebfsBuilder}
+             */
+            create: function(driver) {
+                return new corbel.Webfs(driver);
+            }
+
+        });
+
+        return corbel.Webfs;
+
+    })();
+
+
+    (function() {
+
+        /**
+         * Module for retrieve content of S3
+         * @exports WebfsBuilder
+         * @namespace
+         * @extends corbel.Services
+         * @memberof corbel.Webfs
+         */
+        var WebfsBuilder = corbel.Webfs.WebfsBuilder = corbel.Services.inherit({
+
+            /**
+             * Creates a new WebfsBuilder
+             * @memberof corbel.Webfs.WebfsBuilder.prototype
+             * @return {corbel.Webfs.WebfsBuilder}
+             */
+            constructor: function(driver, id) {
+                this.driver = driver;
+                this.id = id;
+            },
+
+            /**
+             * Gets the content
+             * @memberof corbel.Webfs.WebfsBuilder.prototype
+             * @param  {object} [params]      Params of a {@link corbel.request}
+             * @return {Promise}              Promise that resolves with a resource or rejects with a {@link CorbelError}
+             */
+            get: function(params) {
+
+                corbel.validate.value('id', this.id);
+
+                var options = params ? corbel.utils.clone(params) : {};
+
+                var args = corbel.utils.extend(options, {
+                    url: this._buildUri(this.id),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+
+                return this.request(args);
+
+            },
+
+            _buildUri: function(id) {
+                var urlBase = this.driver.config.get('webfsEndpoint', null) ?
+                    this.driver.config.get('webfsEndpoint') :
+                    this.driver.config.get('urlBase')
+                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Webfs.moduleName)
+                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+
+                return urlBase + id;
+            },
+
+            _buildPort: function(config) {
+                return config.get('webfsPort', null) || corbel.Webfs.defaultPort;
+            }
+
+        }, {
+
+            /**
+             * GET constant
+             * @constant
+             * @memberof corbel.Webfs.WebfsBuilder
+             * @type {string}
+             * @default
+             */
+            moduleName: 'webfs',
+
+            /**
+             * Factory
+             * @memberof corbel.Webfs.WebfsBuilder
+             * @type {string}
+             * @default
+             */
+            create: function(driver) {
+                return new corbel.Webfs.WebfsBuilder(driver);
+            }
+
+        });
+
+        return WebfsBuilder;
+
     })();
 
 

@@ -26,6 +26,7 @@
         this.borrow = corbel.Borrow.create(this);
         this.composr = corbel.CompoSR.create(this);
         this.scheduler = corbel.Scheduler.create(this);
+        this.webfs = corbel.Webfs.create(this);
     }
 
     /**
