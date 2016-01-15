@@ -85,7 +85,7 @@
                 url: this.buildUri(this.type, this.id),
                 method: corbel.request.method.PUT,
                 data: acl,
-                Accept: 'application/json+acl'
+                Accept: 'application/corbel.acl+json'
             };
 
             return this.request(args);

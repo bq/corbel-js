@@ -25,3 +25,4 @@ require('./unit/evci.js');
 require('./unit/scheduler.js');
 require('./unit/borrow.js');
 require('./unit/composr.js');
+require('./unit/webfs.js');
