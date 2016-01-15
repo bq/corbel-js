@@ -71,6 +71,25 @@
 
             return this.request(args);
         },
+        
+
+        /**
+         * Updates the ACL of a resource
+         * @method
+         * @memberOf resources.Resource
+         * @param  {Object} acl                    Acl to be updated
+         * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
+         */
+        updateAcl: function(acl) {
+            var args = {
+                url: this.buildUri(this.type, this.id),
+                method: corbel.request.method.PUT,
+                data: acl,
+                Accept: 'application/json+acl'
+            };
+
+            return this.request(args);
+        },
 
         /**
          * Deletes a resource
@@ -92,7 +111,6 @@
 
             return this.request(args);
         }
-
     });
 
     return corbel.Resources.Resource;
