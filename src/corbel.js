@@ -11,7 +11,12 @@
      * @return {CorbelDriver}
      */
     function CorbelDriver(config, events) {
-        this._events = events || [];
+
+        if (events && typeof events === 'object'){
+            this._events = corbel.utils.clone(events);
+        }else{
+            this._events = {};
+        }
         // create instance config
         this.guid = corbel.utils.guid();
         this.config = corbel.Config.create(config);

@@ -376,6 +376,18 @@
   };
 
   /**
+    Createsa copy of Array with the same inner elements
+   */
+  utils.copyArray = function(list) {
+    var newList = new Array(list.length);
+    var i = list.length;
+    while(i--) { 
+      newList[i] = list[i]; 
+    }
+    return newList;
+  };
+
+  /**
    * Convert data URI to Blob.
    * Only works in browser
    * @param  {string} dataURI

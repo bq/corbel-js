@@ -34,7 +34,12 @@
          * @return {CorbelDriver}
          */
         function CorbelDriver(config, events) {
-            this._events = events || [];
+
+            if (events && typeof events === 'object') {
+                this._events = corbel.utils.clone(events);
+            } else {
+                this._events = {};
+            }
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
@@ -521,6 +526,18 @@
             }
 
             return true;
+        };
+
+        /**
+          Createsa copy of Array with the same inner elements
+         */
+        utils.copyArray = function(list) {
+            var newList = new Array(list.length);
+            var i = list.length;
+            while (i--) {
+                newList[i] = list[i];
+            }
+            return newList;
         };
 
         /**

@@ -183,6 +183,30 @@ describe('in corbel module', function() {
 
     });
 
+    it('does not remove the handler in the clone', function() {
+
+      var stub = sandbox.stub();
+
+      expect(corbelDriver._events['custom:event:name']).to.be.equal(undefined);
+      corbelDriver.addEventListener('custom:event:name', stub);
+
+      var clonedDriver = corbelDriver.clone();
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(1);
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      corbelDriver.removeEventListener('custom:event:name', stub);
+
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(0);
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      corbelDriver.dispatch('custom:event:name', {
+        params: true
+      });
+
+      expect(stub.callCount).to.be.equal(0);
+
+    });
+
     it('can remove a non existing handler', function() {
 
       var stub = sandbox.stub();
