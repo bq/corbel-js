@@ -94,6 +94,14 @@ describe('in corbel module', function() {
 
   });
 
+  it('can clone a new driver with the same guid', function() {
+
+    var clonedDriver = corbelDriver.clone();
+    expect(clonedDriver !== corbelDriver).to.be.equal(true);
+
+    expect(clonedDriver.guid).to.equals(corbelDriver.guid);
+  });
+
   describe('Event system', function() {
 
     it('can register new handler', function() {
@@ -113,6 +121,27 @@ describe('in corbel module', function() {
       expect(stub.getCall(0).args[0]).to.be.an('object');
       expect(stub.getCall(0).args[0].params).to.be.equal(true);
 
+    });
+
+    it('is cloned by the clone function', function() {
+
+      var stub = sandbox.stub();
+
+      expect(corbelDriver._events['custom:event:name']).to.be.equal(undefined);
+      corbelDriver.addEventListener('custom:event:name', stub);
+
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      var clonedDriver = corbelDriver.clone();
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      corbelDriver.dispatch('custom:event:name', true);
+
+      expect(stub.calledOnce).to.be.equal(true);
+
+      clonedDriver.dispatch('custom:event:name', true);
+
+      expect(stub.calledTwice).to.be.equal(true);
     });
 
     it('register same handler once', function() {
