@@ -22,7 +22,9 @@
                   .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
             var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
-            var uri = urlBase + domain +'/resource/' + srcType;
+            var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+            var uri = urlBase + customDomain +'/resource/' + srcType;
 
             if (srcId) {
                 uri += '/' + srcId;

@@ -1047,6 +1047,7 @@
             this.evci = corbel.Evci.create(this);
             this.borrow = corbel.Borrow.create(this);
             this.composr = corbel.CompoSR.create(this);
+            this.domain = corbel.Domain.create(this);
         }
 
         /**
@@ -5035,7 +5036,9 @@
                     .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
-                var uri = urlBase + domain + '/resource/' + srcType;
+                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                var uri = urlBase + customDomain + '/resource/' + srcType;
 
                 if (srcId) {
                     uri += '/' + srcId;
@@ -7404,6 +7407,70 @@
 
             _buildUri: corbel.CompoSR._buildUri
         });
+    })();
+
+    (function() {
+        /**
+         * A custom domain configuration
+         * @exports corbel.Domain
+         * @namespace
+         * @extends corbel.Object
+         * @memberof corbel
+         */
+        corbel.Domain = corbel.Object.inherit({
+
+            /**
+             * Creates a new instance of corbelDriver with a custom domain
+             * @memberof corbel.Domain.prototype
+             * @param  {string} id String with the custom domain value
+             * @return {corbelDriver}
+             */
+            constructor: function(driver) {
+                this.driver = driver;
+
+                return function(id) {
+                    var newDriver = driver.clone();
+                    newDriver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+
+                    return newDriver;
+                };
+            }
+
+
+        }, {
+
+            /**
+             * moduleName constant
+             * @constant
+             * @memberof corbel.Domain
+             * @type {string}
+             * @default
+             */
+            moduleName: 'domain',
+
+            /**
+             * customDomain constant
+             * @constant
+             * @memberof corbel.Domain
+             * @type {Number}
+             * @default
+             */
+            CUSTOM_DOMAIN: 'customDomain',
+
+            /**
+             * Domain factory
+             * @memberof corbel.Domain
+             * @param  {corbel} corbel instance driver
+             * @return {function}
+             */
+            create: function(driver) {
+                return new corbel.Domain(driver);
+            }
+
+        });
+
+        return corbel.Domain;
+
     })();
 
 
