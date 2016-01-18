@@ -529,7 +529,9 @@
         };
 
         /**
-          Createsa copy of Array with the same inner elements
+         * Creates a copy of Array with the same inner elements
+         * @param  {Array} list The original array to copy
+         * @return {Array}  A copy version of the array
          */
         utils.copyArray = function(list) {
             var newList = new Array(list.length);
