@@ -3,7 +3,6 @@
 
 var corbel = require('../../../dist/corbel.js'),
     chai = require('chai'),
-    sinon = require('sinon'),
     expect = chai.expect;
 
 describe('In utils module we', function() {
