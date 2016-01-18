@@ -441,6 +441,16 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
   });
 
+  it('update a resource acl', function() {
+    resources.resource('books:Book', '123').updateAcl({
+      name: 'test'
+    });
+    var callRequestParam = corbel.request.send.firstCall.args[0];
+    expect(callRequestParam.url).to.be.equal(TEST_ENDPOINT + 'resource/books:Book/123');
+    expect(callRequestParam.method).to.be.equal('PUT');
+    expect(callRequestParam.headers.Accept).to.be.equal('application/corbel.acl+json');
+  });
+
   it('resources.relation has mandatory parameters', function() {
     expect(function(){
       resources.relation();
