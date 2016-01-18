@@ -1031,8 +1031,13 @@
          * @param {object} config
          * @return {CorbelDriver}
          */
-        function CorbelDriver(config) {
-            this._events = [];
+        function CorbelDriver(config, events) {
+
+            if (events && typeof events === 'object') {
+                this._events = corbel.utils.clone(events);
+            } else {
+                this._events = {};
+            }
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
@@ -1054,7 +1059,7 @@
          * @return {CorbelDriver} A new instance of corbel driver with the same config
          */
         CorbelDriver.prototype.clone = function() {
-            return new CorbelDriver(this.config.getConfig());
+            return new CorbelDriver(this.config.getConfig(), this._events);
         };
 
         /**
@@ -1519,6 +1524,20 @@
             }
 
             return true;
+        };
+
+        /**
+         * Creates a copy of Array with the same inner elements
+         * @param  {Array} list The original array to copy
+         * @return {Array}  A copy version of the array
+         */
+        utils.copyArray = function(list) {
+            var newList = new Array(list.length);
+            var i = list.length;
+            while (i--) {
+                newList[i] = list[i];
+            }
+            return newList;
         };
 
         /**

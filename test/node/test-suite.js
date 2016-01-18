@@ -25,3 +25,4 @@ require('./unit/ec.js');
 require('./unit/evci.js');
 require('./unit/borrow.js');
 require('./unit/composr.js');
+require('./unit/utils.js');
