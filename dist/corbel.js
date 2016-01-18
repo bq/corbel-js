@@ -6428,7 +6428,6 @@
              * @return {corbelDriver}
              */
             constructor: function(driver) {
-                var that = this;
                 this.driver = driver;
 
                 return function(id) {
