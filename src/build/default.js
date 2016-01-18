@@ -83,6 +83,7 @@
   //  @include ../composr/composr.js
   //  @include ../composr/phraseBuilder.js
   //  @include ../composr/requestBuilder.js
+  //  @include ../domain/domain.js
 
   return corbel;
 });

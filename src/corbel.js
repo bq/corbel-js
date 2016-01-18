@@ -26,6 +26,7 @@
         this.evci = corbel.Evci.create(this);
         this.borrow = corbel.Borrow.create(this);
         this.composr = corbel.CompoSR.create(this);
+        this.domain = corbel.Domain.create(this);
     }
 
     /**
