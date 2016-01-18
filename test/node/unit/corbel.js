@@ -94,12 +94,12 @@ describe('in corbel module', function() {
 
   });
 
-  it('can clone a new driver with the same guid', function() {
+  it('clone a new driver with different guid', function() {
 
-    var clonedDriver = corbelDriver.clone();
+    var clonedDriver = corbelDriver.clone({ preserveGuid : true });
     expect(clonedDriver !== corbelDriver).to.be.equal(true);
 
-    expect(clonedDriver.guid).to.equals(corbelDriver.guid);
+    expect(clonedDriver.guid).not.to.equals(corbelDriver.guid);
   });
 
   describe('Event system', function() {

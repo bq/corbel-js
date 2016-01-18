@@ -33,10 +33,10 @@
          * @param {object} config
          * @return {CorbelDriver}
          */
-        function CorbelDriver(config, events, guid) {
+        function CorbelDriver(config, events) {
             this._events = events || [];
             // create instance config
-            this.guid = guid || corbel.utils.guid();
+            this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
 
             // create isntance modules with injected driver
@@ -56,7 +56,7 @@
          * @return {CorbelDriver} A new instance of corbel driver with the same config
          */
         CorbelDriver.prototype.clone = function() {
-            return new CorbelDriver(this.config.getConfig(), this._events, this.guid);
+            return new CorbelDriver(this.config.getConfig(), this._events);
         };
 
         /**
