@@ -2342,7 +2342,7 @@
          * Process the server response data to the specified object/array/blob/byteArray/text
          * @param  {mixed} data                             The server response
          * @param  {string} type='array'|'blob'|'json'      The class of the server response
-         * @param  {Stirng} datfype                        Is an extra param to form the blob object (if the type is blob)
+         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
          * @return {mixed}                                  Processed data
          */
         request.parse = function(data, responseType, dataType) {
@@ -2773,11 +2773,9 @@
                 }
 
                 return requestWithRetries().then(function(response) {
-                    that.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
                     that.driver.trigger('service:request:after', response);
                     return response;
                 }).catch(function(error) {
-                    that.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
                     that.driver.trigger('service:request:after', error);
                     throw error;
                 });
@@ -5064,6 +5062,8 @@
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
                 var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
 
                 var uri = urlBase + customDomain + '/resource/' + srcType;
 

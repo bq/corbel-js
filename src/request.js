@@ -174,7 +174,7 @@
    * Process the server response data to the specified object/array/blob/byteArray/text
    * @param  {mixed} data                             The server response
    * @param  {string} type='array'|'blob'|'json'      The class of the server response
-   * @param  {Stirng} datfype                        Is an extra param to form the blob object (if the type is blob)
+   * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
    * @return {mixed}                                  Processed data
    */
   request.parse = function(data, responseType, dataType) {
