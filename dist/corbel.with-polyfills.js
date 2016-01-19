@@ -2314,9 +2314,9 @@
                 if (corbel.Config.isNode) {
                     //@TODO: check if is necessary to transform the input in node
                     var buffer = new ArrayBuffer(data.length);
-                    data.forEach(function(byteCharacter, index) {
-                        buffer[index] = byteCharacter;
-                    });
+                    for (var index = 0; index < data.length; index++) {
+                        buffer[index] = data[index];
+                    }
                     cb(buffer);
                 } else {
                     cb(data);
@@ -2331,9 +2331,9 @@
             stream: function(data, cb) {
                 if (corbel.Config.isBrowser) {
                     var buffer = new ArrayBuffer(data.length);
-                    data.forEach(function(byteCharacter, index) {
-                        buffer[index] = byteCharacter;
-                    });
+                    for (var index = 0; index < data.length; index++) {
+                        buffer[index] = data[index];
+                    }
                     cb(buffer);
                 } else {
                     cb(data);
