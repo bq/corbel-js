@@ -255,25 +255,6 @@ describe('corbel-js browser', function() {
       });
     });
 
-    it('send mehtod encodes url parameters', function(done) {
-      var _browserAjaxStub = sinon.stub(request, '_browserAjax', function(params, resolver) {
-        resolver.resolve();
-      });
-      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
-      var parsedQueryArgs = encodeURI(queryArgs);
-      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
-      url += '?';
-
-      expect(request.send({
-        method: 'GET',
-        url: url + queryArgs
-      })).to.be.fulfilled.then(function() {
-        expect(_browserAjaxStub.callCount).to.be.equal(1);
-        expect(_browserAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
-      }).should.notify(done);
-
-    });
-
     it.skip('send too large GET rewrite to POST and active override method header', function(done) {
       var responseData = {
         DATA: 'DATA'
@@ -301,40 +282,37 @@ describe('corbel-js browser', function() {
       });
     });
    
-    // Phantom creates problem in this test
-    if(window.chrome) {
-        it('send method parses stream to arrayBuffer', function(done) {
-            var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
-              resolver.resolve();
-            });
-            var testText = 'Test';
-            var byteText = [];
-            for(var i = 0; i < testText.length; i++){
-              byteText.push(testText.charCodeAt(i));
-            }
-            var byteStream = new Uint8Array(byteText);
-          
-            request.send({
-              method: 'POST',
-              url: url,
-              contentType : 'application/stream',
-              data: byteStream
-            })
-            .should.be.eventually.fulfilled
-            .then(function() {
-                var dataSended = _browserAjaxStub.getCall(0).args[0].data;
-
-                Object.keys(dataSended).map(function(key) {
-                    expect(dataSended[key]).to.be.equal(byteStream[key]);
-                });
-                expect(typeof(_browserAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
-            })
-            .should.notify(done);
-
+    it('send method parses stream to arrayBuffer', function(done) {
+        var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
+          resolver.resolve();
         });
-    }
+        var testText = 'Test';
+        var byteText = [];
+        for(var i = 0; i < testText.length; i++){
+          byteText.push(testText.charCodeAt(i));
+        }
+        var byteStream = new Uint8Array(byteText);
+      
+        request.send({
+          method: 'POST',
+          url: url,
+          contentType : 'application/stream',
+          data: byteStream
+        })
+        .should.be.eventually.fulfilled
+        .then(function() {
+            var dataSended = _browserAjaxStub.getCall(0).args[0].data;
 
-    // Phantom creates problem in this test
+            Object.keys(dataSended).map(function(key) {
+                expect(dataSended[key]).to.be.equal(byteStream[key]);
+            });
+            expect(typeof(_browserAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+        })
+        .should.notify(done);
+
+    });
+
+    // Phantom creates problem in this test using new Blob() constructor
     if(window.chrome) {
         it('send method sends a blob, parse not necessary', function(done) {
             var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
@@ -365,5 +343,25 @@ describe('corbel-js browser', function() {
             .should.notify(done);
         });
     }
+
+    it('send mehtod encodes url parameters', function(done) {
+      var _browserAjaxStub = sinon.stub(request, '_browserAjax', function(params, resolver) {
+        resolver.resolve();
+      });
+      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
+      var parsedQueryArgs = encodeURI(queryArgs);
+      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
+      url += '?';
+
+      expect(request.send({
+        method: 'GET',
+        url: url + queryArgs
+      })).to.be.fulfilled.then(function() {
+        expect(_browserAjaxStub.callCount).to.be.equal(1);
+        expect(_browserAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
+      }).should.notify(done);
+
+    });
+
   });
 });
