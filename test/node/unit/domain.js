@@ -39,7 +39,7 @@ describe('With custom domain we can', function() {
         expect(corbelDriver.domain(customDomain).resources.collection(resource).getURL()).to.be.equal(url);
     });
 
-    it('does not persist the value on the configuration for consecutive calls', function(){
+    it('does not persist the value on the configuration for consecutive calls', function(done){
         var resource = 'resource:entity';
         var customDomain = 'oneTestDomainTwo';
 
@@ -47,6 +47,12 @@ describe('With custom domain we can', function() {
         var urlWithoutDomain = RESOURCE_COLLECTION_URL.replace('{{resource}}', resource).replace('{{domain}}', 'unauthenticated');
 
         expect(corbelDriver.domain(customDomain).resources.collection(resource).getURL()).to.be.equal(urlWithDomain);
-        expect(corbelDriver.resources.collection(resource).getURL()).to.be.equal(urlWithoutDomain);
+
+        corbelDriver.domain(customDomain).resources.collection(resource)
+            .get()
+            .then(function(){
+                expect(corbelDriver.resources.collection(resource).getURL()).to.be.equal(urlWithoutDomain);
+            })
+            .should.notify(done);
     });
 });

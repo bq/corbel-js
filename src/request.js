@@ -174,7 +174,7 @@
    * Process the server response data to the specified object/array/blob/byteArray/text
    * @param  {mixed} data                             The server response
    * @param  {string} type='array'|'blob'|'json'      The class of the server response
-   * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+   * @param  {Stirng} datfype                        Is an extra param to form the blob object (if the type is blob)
    * @return {mixed}                                  Processed data
    */
   request.parse = function(data, responseType, dataType) {
@@ -202,7 +202,7 @@
    * @param  {function} options.error                             Callback function for handle error in the request
    * @return {Promise}                                        Promise about the request status and response
    */
-  request.send = function(options) {
+  request.send = function(options, driver) {
     options = options || {};
 
     if (!options.url) {
@@ -240,6 +240,10 @@
         resolve: resolve,
         reject: reject
       };
+      
+      if(driver){
+        driver.trigger('request', params);
+      }
 
       if (corbel.Config.isBrowser) {
         //browser

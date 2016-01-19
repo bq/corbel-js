@@ -1344,7 +1344,7 @@
          * Process the server response data to the specified object/array/blob/byteArray/text
          * @param  {mixed} data                             The server response
          * @param  {string} type='array'|'blob'|'json'      The class of the server response
-         * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
+         * @param  {Stirng} datfype                        Is an extra param to form the blob object (if the type is blob)
          * @return {mixed}                                  Processed data
          */
         request.parse = function(data, responseType, dataType) {
@@ -1372,7 +1372,7 @@
          * @param  {function} options.error                             Callback function for handle error in the request
          * @return {Promise}                                        Promise about the request status and response
          */
-        request.send = function(options) {
+        request.send = function(options, driver) {
             options = options || {};
 
             if (!options.url) {
@@ -1410,6 +1410,10 @@
                     resolve: resolve,
                     reject: reject
                 };
+
+                if (driver) {
+                    driver.trigger('request', params);
+                }
 
                 if (corbel.Config.isBrowser) {
                     //browser
@@ -1755,7 +1759,9 @@
                             }).catch(function() {
                                 //Has failed refreshing, reject request and reset the retries counter
                                 console.log('corbeljs:services:token:refresh:fail');
+
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+
                                 throw response;
                             });
 
@@ -1769,9 +1775,11 @@
                 }
 
                 return requestWithRetries().then(function(response) {
+                    that.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
                     that.driver.trigger('service:request:after', response);
                     return response;
                 }).catch(function(error) {
+                    that.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
                     that.driver.trigger('service:request:after', error);
                     throw error;
                 });
@@ -1786,7 +1794,7 @@
              */
             _doRequest: function(params) {
                 var that = this;
-                return corbel.request.send(params).then(function(response) {
+                return corbel.request.send(params, that.driver).then(function(response) {
 
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
@@ -1794,7 +1802,6 @@
                     return response;
 
                 }).catch(function(response) {
-
                     // Force update
                     if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
@@ -1840,14 +1847,15 @@
                     this.driver._refreshHandlerPromise = this.driver.iam.token().create();
                 }
 
-                return this.driver._refreshHandlerPromise.then(function(response) {
-                    that.driver.trigger('token:refresh', response.data);
-                    that.driver._refreshHandlerPromise = null;
-                    return response;
-                }).catch(function(err) {
-                    that.driver._refreshHandlerPromise = null;
-                    throw err;
-                });
+                return this.driver._refreshHandlerPromise
+                    .then(function(response) {
+                        that.driver.trigger('token:refresh', response.data);
+                        that.driver._refreshHandlerPromise = null;
+                        return response;
+                    }).catch(function(err) {
+                        that.driver._refreshHandlerPromise = null;
+                        throw err;
+                    });
             },
 
             /**
@@ -6450,10 +6458,9 @@
                 this.driver = driver;
 
                 return function(id) {
-                    var newDriver = driver.clone();
-                    newDriver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+                    driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
 
-                    return newDriver;
+                    return driver;
                 };
             }
 
