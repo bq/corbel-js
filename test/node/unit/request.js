@@ -134,30 +134,6 @@ describe('corbel-js node', function() {
       });
     });
 
-    it('send mehtod encodes url parameters', function(done) {
-      var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
-        resolver.resolve();
-      });
-
-      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
-      var parsedQueryArgs = encodeURI(queryArgs);
-      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
-      url += '?'; 
-
-      var promise = request.send({
-        method: 'GET',
-        url: url + queryArgs
-      });
-
-      expect(promise)
-        .to.be.fulfilled
-        .then(function() {
-          expect(_nodeAjaxStub.callCount).to.be.equal(1);
-          expect(_nodeAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
-        })
-        .should.notify(done);
-    });
-
     it('send method sends an stream, parse not necessary', function(done) {
         var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
           resolver.resolve();
