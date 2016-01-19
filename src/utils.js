@@ -197,8 +197,12 @@
       throw new Error('expected params to be an Object type, but got ' + typeof params);
     }
 
+    function getJsonEncodedStringify(param) {
+      return encodeURIComponent(JSON.stringify(param));    
+    }
+
     if (params.aggregation) {
-      result = 'api:aggregation=' + JSON.stringify(params.aggregation);
+      result = 'api:aggregation=' + getJsonEncodedStringify(params.aggregation);
     }
 
     function queryObjectToString(params, key) {
@@ -212,11 +216,9 @@
         } else {
           //Clone the object we don't want to modify the original query object
           query = JSON.parse(JSON.stringify(params[key]));
-        }
+        }   
 
-        query = JSON.stringify(query);
-
-        result += query;
+        result += getJsonEncodedStringify(query);
 
         return result;
       } catch (e) {
@@ -253,21 +255,21 @@
 
     if (params.search) {
       result += result ? '&' : '';
-      result += 'api:search=' + JSON.stringify(params.search);
+      result += 'api:search=' + getJsonEncodedStringify(params.search);
 
       if (params.hasOwnProperty('binded')) {
-        result += '&api:binded=' + JSON.stringify(params.binded);
+        result += '&api:binded=' + getJsonEncodedStringify(params.binded);
       }
     }
 
     if (params.distinct) {
       result += result ? '&' : '';
-      result += 'api:distinct=' + (params.distinct instanceof Array ? params.distinct.join(',') : params.distinct);
+      result += 'api:distinct=' + encodeURIComponent((params.distinct instanceof Array ? params.distinct.join(',') : params.distinct));
     }
 
     if (params.sort) {
       result += result ? '&' : '';
-      result += 'api:sort=' + JSON.stringify(params.sort);
+      result += 'api:sort=' + getJsonEncodedStringify(params.sort);
     }
 
     if (params.pagination) {
@@ -285,7 +287,7 @@
     if (params.customQueryParams) {
       Object.keys(params.customQueryParams).forEach(function(param) {
         result += result ? '&' : '';
-        result += param + '=' + params.customQueryParams[param];
+        result += param + '=' + encodeURIComponent(params.customQueryParams[param]);
       });
     }
 

@@ -79,7 +79,7 @@ describe('In EC module', function() {
       expect(callRequestParam.url).to.be.include(EC_URL + 'product');
       expect(callRequestParam.method).to.be.equal('GET');
       console.log(callRequestParam);
-      expect(callRequestParam.url).to.contain('api:query=[{"$eq":{"field":"value"}}]&api:sort={"field":"asc"}&api:page=3&api:pageSize=2');
+      expect(callRequestParam.url).to.contain('api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2');
     });
 
     it('update one without an id', function() {

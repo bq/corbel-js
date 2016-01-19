@@ -255,25 +255,6 @@ describe('corbel-js browser', function() {
       });
     });
 
-    it('send mehtod encodes url parameters', function(done) {
-      var _browserAjaxStub = sinon.stub(request, '_browserAjax', function(params, resolver) {
-        resolver.resolve();
-      });
-      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
-      var parsedQueryArgs = encodeURI(queryArgs);
-      parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
-      url += '?';
-
-      expect(request.send({
-        method: 'GET',
-        url: url + queryArgs
-      })).to.be.fulfilled.then(function() {
-        expect(_browserAjaxStub.callCount).to.be.equal(1);
-        expect(_browserAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
-      }).should.notify(done);
-
-    });
-
     it.skip('send too large GET rewrite to POST and active override method header', function(done) {
       var responseData = {
         DATA: 'DATA'

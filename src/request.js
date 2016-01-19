@@ -248,8 +248,6 @@
 
     params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
 
-    params.url = encodeQueryString(params.url);
-
     // default content-type
     params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -372,25 +370,6 @@
     });
     return form;
   };
-
-  var encodeQueryString = function(url) {
-    if (!url) {
-      return url;
-    }
-    var urlComponents = url.split('?');
-    if (urlComponents.length > 1) {
-      return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {          
-        var equalSymbolPosition = operator.indexOf('=');
-        var splitted = [];
-        splitted.push(operator.substring(0,equalSymbolPosition));
-        splitted.push(operator.substring(equalSymbolPosition + 1, operator.length));
-        return [splitted[0], encodeURIComponent(splitted[1])].join('=');
-      }).join('&');
-    }
-
-    return url;
-  };
-
   
   request._nodeAjax = function(params, resolver) {
     var requestAjax = require('request');
