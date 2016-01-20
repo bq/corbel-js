@@ -134,7 +134,7 @@ describe('corbel-js node', function() {
       });
     });
 
-    it('send method sends an stream, parse not necessary', function(done) {
+    it('send method parses a binary to Uint8Array', function(done) {
         var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
           resolver.resolve();
         });
@@ -145,20 +145,49 @@ describe('corbel-js node', function() {
         }
 
         //@TODO: check if this is the proper way of sending a stream or we should send another thing
-        var byteStream = new Uint8Array(byteText);
       
         request.send({
           method: 'POST',
           url: url,
           contentType : 'application/stream',
-          data: byteStream
+          data: byteText
         })
         .should.be.eventually.fulfilled
         .then(function() {
             var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
 
             Object.keys(dataSended).map(function(key) {
-                expect(dataSended[key]).to.be.equal(byteStream[key]);
+                expect(dataSended[key]).to.be.equal(byteText[key]);
+            });
+            expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+        })
+        .should.notify(done);
+    });
+
+    it('send method parses an string to Uint8Array', function(done) {
+        var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
+          resolver.resolve();
+        });
+        var testText = 'Test';
+        var byteText = [];
+        for(var i = 0; i < testText.length; i++){
+          byteText.push(testText.charCodeAt(i));
+        }
+
+        //@TODO: check if this is the proper way of sending a stream or we should send another thing
+      
+        request.send({
+          method: 'POST',
+          url: url,
+          contentType : 'application/stream',
+          data: testText
+        })
+        .should.be.eventually.fulfilled
+        .then(function() {
+            var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
+
+            Object.keys(dataSended).map(function(key) {
+                expect(dataSended[key]).to.be.equal(byteText[key]);
             });
             expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
         })

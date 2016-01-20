@@ -1328,22 +1328,18 @@
                     cb(data);
                 }
             },
+
             /**
              * stream serialize handler
-             * 'stream' type do not require serialization for node, explode in browser
-             * @param  {object} data
-             * @return {ArrayBuffer || data}
+             * @param  {object || string} data
+             * @return {UintArray}
              */
             stream: function(data, cb) {
-                if (corbel.Config.isBrowser) {
-                    var buffer = new ArrayBuffer(data.length);
-                    for (var index = 0; index < data.length; index++) {
-                        buffer[index] = data[index];
-                    }
-                    cb(buffer);
-                } else {
-                    cb(data);
+                var ui8Data = new Uint8Array(data.length);
+                for (var index = 0; index < data.length; index++) {
+                    ui8Data[index] = typeof data === 'object' ? data[index] : data.charCodeAt(index);
                 }
+                cb(ui8Data);
             }
         };
 
@@ -1713,6 +1709,7 @@
 
 
             if (params.data) {
+                console.log(typeof params.data);
                 httpReq.send(params.data);
             } else {
                 //IE fix, send nothing (not null or undefined)
