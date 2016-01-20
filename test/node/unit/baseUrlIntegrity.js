@@ -8,7 +8,7 @@ var corbel = require('../../../dist/corbel.js'),
 
 var TEST_ENDPOINT = 'https://resources-mycorbel.com/v1.0/domain-example/',
 
-  URL_EXAMPLE_RESOURCES = TEST_ENDPOINT + 'resource/resource:entity?api:search={"text":"test"}';
+  URL_EXAMPLE_RESOURCES = TEST_ENDPOINT + 'resource/resource:entity?api:search=' + encodeURIComponent('{"text":"test"}');
 
 var CONFIG = {
   clientId: 'clientId',

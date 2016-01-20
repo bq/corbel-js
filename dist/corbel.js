@@ -348,8 +348,12 @@
                 throw new Error('expected params to be an Object type, but got ' + typeof params);
             }
 
+            function getJsonEncodedStringify(param) {
+                return encodeURIComponent(JSON.stringify(param));
+            }
+
             if (params.aggregation) {
-                result = 'api:aggregation=' + JSON.stringify(params.aggregation);
+                result = 'api:aggregation=' + getJsonEncodedStringify(params.aggregation);
             }
 
             function queryObjectToString(params, key) {
@@ -365,9 +369,7 @@
                         query = JSON.parse(JSON.stringify(params[key]));
                     }
 
-                    query = JSON.stringify(query);
-
-                    result += query;
+                    result += getJsonEncodedStringify(query);
 
                     return result;
                 } catch (e) {
@@ -404,21 +406,21 @@
 
             if (params.search) {
                 result += result ? '&' : '';
-                result += 'api:search=' + JSON.stringify(params.search);
+                result += 'api:search=' + getJsonEncodedStringify(params.search);
 
                 if (params.hasOwnProperty('binded')) {
-                    result += '&api:binded=' + JSON.stringify(params.binded);
+                    result += '&api:binded=' + getJsonEncodedStringify(params.binded);
                 }
             }
 
             if (params.distinct) {
                 result += result ? '&' : '';
-                result += 'api:distinct=' + (params.distinct instanceof Array ? params.distinct.join(',') : params.distinct);
+                result += 'api:distinct=' + encodeURIComponent((params.distinct instanceof Array ? params.distinct.join(',') : params.distinct));
             }
 
             if (params.sort) {
                 result += result ? '&' : '';
-                result += 'api:sort=' + JSON.stringify(params.sort);
+                result += 'api:sort=' + getJsonEncodedStringify(params.sort);
             }
 
             if (params.pagination) {
@@ -436,7 +438,7 @@
             if (params.customQueryParams) {
                 Object.keys(params.customQueryParams).forEach(function(param) {
                     result += result ? '&' : '';
-                    result += param + '=' + params.customQueryParams[param];
+                    result += param + '=' + encodeURIComponent(params.customQueryParams[param]);
                 });
             }
 
@@ -1450,8 +1452,6 @@
 
             params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
 
-            params.url = encodeQueryString(params.url);
-
             // default content-type
             params.headers['content-type'] = options.contentType || 'application/json';
 
@@ -1570,25 +1570,9 @@
             url.split('&').forEach(function(formEntry) {
                 var formPair = formEntry.split('=');
                 //value require double encode in Override Method Filter
-                form[formPair[0]] = encodeURIComponent(formPair[1]);
+                form[formPair[0]] = formPair[1];
             });
             return form;
-        };
-
-        var encodeQueryString = function(url) {
-            if (!url) {
-                return url;
-            }
-            var urlComponents = url.split('?');
-            if (urlComponents.length > 1) {
-                return urlComponents[0] + '?' + urlComponents[1].split('&').map(function(operator) {
-                    return operator.split('=');
-                }).map(function(splitted) {
-                    return [splitted[0], encodeURIComponent(splitted[1])].join('=');
-                }).join('&');
-            }
-
-            return url;
         };
 
         request._nodeAjax = function(params, resolver) {

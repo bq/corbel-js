@@ -79,7 +79,7 @@ describe('In Notifications module we can', function() {
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         var url = paramsRecived.url.split('?');
         expect(url).to.be.include(NOTIFICATION_URL);
-        expect(url).to.be.include('api:query=[{"$eq":{"type":"mail"}}]&api:sort={"field":"asc"}');
+        expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}'));
         expect(paramsRecived.method).to.be.equal('GET');
     });
 

@@ -1,7 +1,20 @@
 
 # Changelog
 
-### v0.3.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.0...v0.2.10)
+### v0.3.3 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.2...v0.3.3)
+
+#### Features
+
+* Refactor to encode query params in SerializeParams function
+
+### v0.3.2 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.0...v0.3.2)
+
+#### Features
+
+* Includes updates ACL
+* Webfs
+
+### v0.3.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.10...v0.3.0)
 
 #### Features
 
