@@ -1372,7 +1372,7 @@
          * @param  {function} options.error                             Callback function for handle error in the request
          * @return {Promise}                                        Promise about the request status and response
          */
-        request.send = function(options) {
+        request.send = function(options, driver) {
             options = options || {};
 
             if (!options.url) {
@@ -1410,6 +1410,10 @@
                     resolve: resolve,
                     reject: reject
                 };
+
+                if (driver) {
+                    driver.trigger('request', params);
+                }
 
                 if (corbel.Config.isBrowser) {
                     //browser
@@ -1755,7 +1759,9 @@
                             }).catch(function() {
                                 //Has failed refreshing, reject request and reset the retries counter
                                 console.log('corbeljs:services:token:refresh:fail');
+
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+
                                 throw response;
                             });
 
@@ -1786,7 +1792,7 @@
              */
             _doRequest: function(params) {
                 var that = this;
-                return corbel.request.send(params).then(function(response) {
+                return corbel.request.send(params, that.driver).then(function(response) {
 
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
@@ -1794,7 +1800,6 @@
                     return response;
 
                 }).catch(function(response) {
-
                     // Force update
                     if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
@@ -1840,14 +1845,15 @@
                     this.driver._refreshHandlerPromise = this.driver.iam.token().create();
                 }
 
-                return this.driver._refreshHandlerPromise.then(function(response) {
-                    that.driver.trigger('token:refresh', response.data);
-                    that.driver._refreshHandlerPromise = null;
-                    return response;
-                }).catch(function(err) {
-                    that.driver._refreshHandlerPromise = null;
-                    throw err;
-                });
+                return this.driver._refreshHandlerPromise
+                    .then(function(response) {
+                        that.driver.trigger('token:refresh', response.data);
+                        that.driver._refreshHandlerPromise = null;
+                        return response;
+                    }).catch(function(err) {
+                        that.driver._refreshHandlerPromise = null;
+                        throw err;
+                    });
             },
 
             /**
@@ -4058,6 +4064,8 @@
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
                 var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
 
                 var uri = urlBase + customDomain + '/resource/' + srcType;
 
@@ -6450,10 +6458,9 @@
                 this.driver = driver;
 
                 return function(id) {
-                    var newDriver = driver.clone();
-                    newDriver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+                    driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
 
-                    return newDriver;
+                    return driver;
                 };
             }
 

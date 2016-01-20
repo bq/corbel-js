@@ -22,10 +22,9 @@
       this.driver = driver;
 
       return function(id) {
-        var newDriver = driver.clone();
-        newDriver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+        driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
 
-        return newDriver;
+        return driver;
       };
     }
 

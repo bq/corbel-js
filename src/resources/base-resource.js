@@ -23,6 +23,8 @@
 
             var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
             var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+            
+            this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
 
             var uri = urlBase + customDomain +'/resource/' + srcType;
 

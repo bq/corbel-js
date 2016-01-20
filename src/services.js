@@ -68,7 +68,9 @@
             }).catch(function() {
               //Has failed refreshing, reject request and reset the retries counter
               console.log('corbeljs:services:token:refresh:fail');
+
               that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+
               throw response;
             });
 
@@ -99,7 +101,7 @@
      */
     _doRequest: function(params) {
       var that = this;
-      return corbel.request.send(params).then(function(response) {
+      return corbel.request.send(params, that.driver).then(function(response) {
 
         that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
         that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
@@ -107,7 +109,6 @@
         return response;
 
       }).catch(function(response) {
-
         // Force update
         if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
           response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
@@ -153,7 +154,8 @@
         this.driver._refreshHandlerPromise = this.driver.iam.token().create();
       }
 
-      return this.driver._refreshHandlerPromise.then(function(response) {
+      return this.driver._refreshHandlerPromise
+      .then(function(response) {
         that.driver.trigger('token:refresh', response.data);
         that.driver._refreshHandlerPromise = null;
         return response;
@@ -205,7 +207,7 @@
       // do not modify args object
       var params = corbel.utils.defaults({}, args);
       params = corbel.utils.defaults(params, defaults);
-
+      
       if (!params.url) {
         throw new Error('You must define an url');
       }
@@ -213,7 +215,7 @@
       if (params.query) {
         params.url += '?' + params.query;
       }
-
+      
       if (params.noRedirect) {
         params.headers['No-Redirect'] = true;
       }

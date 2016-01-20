@@ -65,7 +65,7 @@ describe('corbel-js node', function() {
       expect(fn).to.throw('undefined:url');
     });
 
-    it('send mehtod returns a promise', function() {
+    it('send method returns a promise', function() {
 
       var promise = request.send({
         method: 'GET',
@@ -75,7 +75,7 @@ describe('corbel-js node', function() {
       expect(promise).to.be.instanceof(Promise);
     });
 
-    it('send mehtod returns a promise and it resolves', function(done) {
+    it('send method returns a promise and it resolves', function(done) {
 
       expect(request.send({
         method: 'GET',
@@ -84,7 +84,7 @@ describe('corbel-js node', function() {
 
     });
 
-    it('send mehtod returns a promise and reject it', function(done) {
+    it('send method returns a promise and reject it', function(done) {
       var promise = request.send({
         method: 'GET',
         url: url + '404'
@@ -96,7 +96,7 @@ describe('corbel-js node', function() {
 
     });
 
-    it('send mehtod accepts a success callback', function(done) {
+    it('send method accepts a success callback', function(done) {
       request.send({
         method: 'GET',
         url: url,
@@ -122,7 +122,7 @@ describe('corbel-js node', function() {
       });
     });
 
-    it('send mehtod accepts an error callback', function(done) {
+    it('send method accepts an error callback', function(done) {
       request.send({
         method: 'GET',
         url: url + '404',
@@ -134,7 +134,7 @@ describe('corbel-js node', function() {
 
     });
 
-    it('send mehtod encodes url parameters', function(done) {
+    it('send method encodes url parameters', function(done) {
       var _nodeAjaxStub = sinon.stub(request, '_nodeAjax', function(params, resolver) {
         resolver.resolve();
       });
@@ -150,6 +150,23 @@ describe('corbel-js node', function() {
         expect(_nodeAjaxStub.callCount).to.be.equal(1);
         expect(_nodeAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
       }).should.notify(done);
+
+    });
+
+    it('throws an event if a driver is sent', function(done) {
+      var driver = corbel.getDriver({ 'urlBase' : 'demo' });
+      var stub = sinon.stub();
+      driver.on('request', stub);
+
+      request
+      .send({
+        method: 'GET',
+        url: url
+      }, driver)
+      .then(function(){
+        expect(stub.callCount).to.equals(1);
+      })
+      .should.notify(done);
 
     });
 

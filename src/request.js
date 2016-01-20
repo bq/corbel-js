@@ -202,7 +202,7 @@
    * @param  {function} options.error                             Callback function for handle error in the request
    * @return {Promise}                                        Promise about the request status and response
    */
-  request.send = function(options) {
+  request.send = function(options, driver) {
     options = options || {};
 
     if (!options.url) {
@@ -240,6 +240,10 @@
         resolve: resolve,
         reject: reject
       };
+      
+      if(driver){
+        driver.trigger('request', params);
+      }
 
       if (corbel.Config.isBrowser) {
         //browser
