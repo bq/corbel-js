@@ -2570,7 +2570,7 @@
             url.split('&').forEach(function(formEntry) {
                 var formPair = formEntry.split('=');
                 //value require double encode in Override Method Filter
-                form[formPair[0]] = encodeURIComponent(formPair[1]);
+                form[formPair[0]] = formPair[1];
             });
             return form;
         };
