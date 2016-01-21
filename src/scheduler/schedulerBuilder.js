@@ -54,12 +54,8 @@
         },
 
         _buildUri: function(path, id) {
-            var uri = '',
-                urlBase = this.driver.config.get('schedulerEndpoint', null) ?
-                this.driver.config.get('schedulerEndpoint') :
-                this.driver.config.get('urlBase')
-                  .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Scheduler.moduleName)
-                  .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+            var uri = '';
+            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, this._buildPort(this.driver.config));
 
             uri = urlBase + path;
             if (id) {

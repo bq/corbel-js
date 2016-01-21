@@ -77,10 +77,7 @@
           }
         });
 
-        var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-          this.driver.config.get('urlBase')
-            .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
-            .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
+        var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Borrow.moduleName, corbel.Borrow._buildPort(this.driver.config));
 
         if (urlBase.slice(-1) === '/') {
           urlBase = urlBase.substring(0, urlBase.length - 1);

@@ -2171,6 +2171,19 @@
         return this.config[field];
     };
 
+    Config.prototype.getCurrentEndpoint = function(moduleName, port) {
+        var moduleEndpoint = moduleName + 'Endpoint';
+        var endpoint = this.get(moduleEndpoint, null) ?
+            this.get(moduleEndpoint) :
+            this.get('urlBase');
+        endpoint = endpoint.replace(corbel.Config.URL_BASE_PLACEHOLDER, moduleName);
+        if (port) {
+            endpoint = endpoint.replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, port);
+        }
+        return endpoint;
+    };
+
+
     /**
      * Sets a new value for specific config param
      * @param {String} field Config param name
@@ -2223,11 +2236,7 @@
                 uri += '/' + id;
             }
 
-            var urlBase = this.driver.config.get('iamEndpoint', null) ?
-                this.driver.config.get('iamEndpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Iam._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -4048,12 +4057,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('assetsEndpoint', null) ?
-                    this.driver.config.get('assetsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -4175,12 +4180,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('schedulerEndpoint', null) ?
-                    this.driver.config.get('schedulerEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Scheduler.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -4282,11 +4283,7 @@
              */
             buildUri: function(srcType, srcId, destType, destId) {
 
-                var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
-                    this.driver.config.get('resourcesEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Resources.moduleName, this._buildPort(this.driver.config));
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
                 var uri = urlBase + domain + '/resource/' + srcType;
@@ -4731,11 +4728,7 @@
          */
         Oauth._buildUri = function(uri) {
 
-            var urlBase = this.driver.config.get('oauthEndpoint', null) ?
-                this.driver.config.get('oauthEndpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Oauth._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Oauth.moduleName, corbel.Oauth._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -5337,12 +5330,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('notificationsEndpoint', null) ?
-                    this.driver.config.get('notificationsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -5463,11 +5452,7 @@
             if (extra) {
                 uri += extra;
             }
-            var urlBase = this.driver.config.get('ecEndpoint', null) ?
-                this.driver.config.get('ecpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -5809,12 +5794,8 @@
             },
 
             _buildUri: function(path, eventType) {
-                var uri = '',
-                    urlBase = this.driver.config.get('evciEndpoint', null) ?
-                    this.driver.config.get('evciEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Evci.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (eventType) {
@@ -5916,10 +5897,7 @@
                     }
                 });
 
-                var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Borrow.moduleName, corbel.Borrow._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -6571,10 +6549,7 @@
             },
 
             _buildUri: function() {
-                var urlBase = this.driver.config.get('composrEndpoint', null) ||
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -6852,11 +6827,7 @@
             },
 
             _buildUri: function(id) {
-                var urlBase = this.driver.config.get('webfsEndpoint', null) ?
-                    this.driver.config.get('webfsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Webfs.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
 
                 return urlBase + id;
             },
