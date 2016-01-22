@@ -392,7 +392,7 @@ module.exports = function(grunt) {
     'preprocess:test-browser',
     'express:load',
     'connect:test_webserver',
-    'mocha_phantomjs:ci'
+    'karma:unit'
   ]);
 
   grunt.registerTask('test:node', [

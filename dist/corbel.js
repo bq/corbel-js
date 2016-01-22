@@ -34,8 +34,13 @@
          * @param {object} config
          * @return {CorbelDriver}
          */
-        function CorbelDriver(config) {
-            this._events = [];
+        function CorbelDriver(config, events) {
+
+            if (events && typeof events === 'object') {
+                this._events = corbel.utils.clone(events);
+            } else {
+                this._events = {};
+            }
             // create instance config
             this.guid = corbel.utils.guid();
             this.config = corbel.Config.create(config);
@@ -52,13 +57,14 @@
             this.composr = corbel.CompoSR.create(this);
             this.scheduler = corbel.Scheduler.create(this);
             this.webfs = corbel.Webfs.create(this);
+            this.domain = corbel.Domain.create(this);
         }
 
         /**
          * @return {CorbelDriver} A new instance of corbel driver with the same config
          */
         CorbelDriver.prototype.clone = function() {
-            return new CorbelDriver(this.config.getConfig());
+            return new CorbelDriver(this.config.getConfig(), this._events);
         };
 
         /**
@@ -556,6 +562,20 @@
                 object[index] = element;
             });
             return object;
+        };
+
+        /**
+         * Creates a copy of Array with the same inner elements
+         * @param  {Array} list The original array to copy
+         * @return {Array}  A copy version of the array
+         */
+        utils.copyArray = function(list) {
+            var newList = new Array(list.length);
+            var i = list.length;
+            while (i--) {
+                newList[i] = list[i];
+            }
+            return newList;
         };
 
         /**
@@ -1427,7 +1447,7 @@
          * @param  {function} options.error                             Callback function for handle error in the request
          * @return {Promise}                                        Promise about the request status and response
          */
-        request.send = function(options) {
+        request.send = function(options, driver) {
             options = options || {};
             var module = this;
 
@@ -1463,6 +1483,10 @@
                     resolve: resolve,
                     reject: reject
                 };
+
+                if (driver) {
+                    driver.trigger('request', params);
+                }
             });
 
             if (dataMethods.indexOf(params.method) !== -1) {
@@ -1473,7 +1497,6 @@
             } else {
                 doRequest(module, params, resolver);
             }
-
 
             return promise;
         };
@@ -1789,7 +1812,9 @@
                             }).catch(function() {
                                 //Has failed refreshing, reject request and reset the retries counter
                                 console.log('corbeljs:services:token:refresh:fail');
+
                                 that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+
                                 throw response;
                             });
 
@@ -1820,7 +1845,7 @@
              */
             _doRequest: function(params) {
                 var that = this;
-                return corbel.request.send(params).then(function(response) {
+                return corbel.request.send(params, that.driver).then(function(response) {
 
                     that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
                     that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
@@ -1828,7 +1853,6 @@
                     return response;
 
                 }).catch(function(response) {
-
                     // Force update
                     if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
@@ -1874,14 +1898,15 @@
                     this.driver._refreshHandlerPromise = this.driver.iam.token().create();
                 }
 
-                return this.driver._refreshHandlerPromise.then(function(response) {
-                    that.driver.trigger('token:refresh', response.data);
-                    that.driver._refreshHandlerPromise = null;
-                    return response;
-                }).catch(function(err) {
-                    that.driver._refreshHandlerPromise = null;
-                    throw err;
-                });
+                return this.driver._refreshHandlerPromise
+                    .then(function(response) {
+                        that.driver.trigger('token:refresh', response.data);
+                        that.driver._refreshHandlerPromise = null;
+                        return response;
+                    }).catch(function(err) {
+                        that.driver._refreshHandlerPromise = null;
+                        throw err;
+                    });
             },
 
             /**
@@ -4289,7 +4314,11 @@
                     .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
-                var uri = urlBase + domain + '/resource/' + srcType;
+                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
+
+                var uri = urlBase + customDomain + '/resource/' + srcType;
 
                 if (srcId) {
                     uri += '/' + srcId;
@@ -6889,6 +6918,70 @@
         });
 
         return WebfsBuilder;
+
+    })();
+
+    (function() {
+
+        /**
+         * A custom domain configuration
+         * @exports corbel.Domain
+         * @namespace
+         * @extends corbel.Object
+         * @memberof corbel
+         */
+        corbel.Domain = corbel.Object.inherit({
+
+            /**
+             * Creates a new instance of corbelDriver with a custom domain
+             * @memberof corbel.Domain.prototype
+             * @param  {string} id String with the custom domain value
+             * @return {corbelDriver}
+             */
+            constructor: function(driver) {
+                this.driver = driver;
+
+                return function(id) {
+                    driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+
+                    return driver;
+                };
+            }
+
+
+        }, {
+
+            /**
+             * moduleName constant
+             * @constant
+             * @memberof corbel.Domain
+             * @type {string}
+             * @default
+             */
+            moduleName: 'domain',
+
+            /**
+             * customDomain constant
+             * @constant
+             * @memberof corbel.Domain
+             * @type {Number}
+             * @default
+             */
+            CUSTOM_DOMAIN: 'customDomain',
+
+            /**
+             * Domain factory
+             * @memberof corbel.Domain
+             * @param  {corbel} corbel instance driver
+             * @return {function}
+             */
+            create: function(driver) {
+                return new corbel.Domain(driver);
+            }
+
+        });
+
+        return corbel.Domain;
 
     })();
 

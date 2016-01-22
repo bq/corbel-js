@@ -1,6 +1,12 @@
 
 # Changelog
 
+### v0.3.4 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.3...v0.3.4)
+
+#### Features
+
+* Merged with 0.2.X, adds `.domain` implementation
+
 ### v0.3.3 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.2...v0.3.3)
 
 #### Features
@@ -19,6 +25,19 @@
 #### Features
 
 * Added `blob`, `dataURI`, `stream` serializers to `request.js`
+
+### v0.2.21 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.10...v0.2.21)
+
+#### Fixes
+
+* Fixes bug with encoded urls
+* Support requests in IE 
+* Only 1 token refresh at the time
+* Fixed events hashmap
+
+#### Features
+
+* Added `.domain` implementation for custom domain requests
 
 ### v0.2.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.2.9...v0.2.10)
 

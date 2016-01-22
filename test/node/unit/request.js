@@ -65,7 +65,7 @@ describe('corbel-js node', function() {
       expect(fn).to.throw('undefined:url');
     });
 
-    it('send mehtod returns a promise', function() {
+    it('send method returns a promise', function() {
 
       var promise = request.send({
         method: 'GET',
@@ -75,7 +75,7 @@ describe('corbel-js node', function() {
       expect(promise).to.be.instanceof(Promise);
     });
 
-    it('send mehtod returns a promise and it resolves', function(done) {
+    it('send method returns a promise and it resolves', function(done) {
       expect(request.send({
         method: 'GET',
         url: url
@@ -83,7 +83,7 @@ describe('corbel-js node', function() {
       .to.be.fulfilled.and.should.notify(done);
     });
 
-    it('send mehtod returns a promise and reject it', function(done) {
+    it('send method returns a promise and reject it', function(done) {
       var promise = request.send({
         method: 'GET',
         url: url + '404'
@@ -97,7 +97,7 @@ describe('corbel-js node', function() {
 
     });
 
-    it('send mehtod accepts a success callback', function(done) {
+    it('send method accepts a success callback', function(done) {
       request.send({
         method: 'GET',
         url: url,
@@ -123,7 +123,7 @@ describe('corbel-js node', function() {
       });
     });
 
-    it('send mehtod accepts an error callback', function(done) {
+    it('send method accepts an error callback', function(done) {
       request.send({
         method: 'GET',
         url: url + '404',
@@ -132,6 +132,25 @@ describe('corbel-js node', function() {
           done();
         }
       });
+    });
+
+    it('send method encodes url parameters', function(done) {
+      var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
+        resolver.resolve();
+      });
+      var queryArgs = 'param1=1&param2=2&param3=3&combine=3+4';
+      var parsedQueryArgs = encodeURI(queryArgs);
+      //@TODO: the '+' character should be encoded?? I think yes. 
+      //parsedQueryArgs = parsedQueryArgs.replace('+', encodeURIComponent('+'));
+      url += '?';
+
+      expect(request.send({
+        method: 'GET',
+        url: url + queryArgs
+      })).to.be.fulfilled.then(function() {
+        expect(_nodeAjaxStub.callCount).to.be.equal(1);
+        expect(_nodeAjaxStub.getCall(0).args[0].url).to.be.equal(url + parsedQueryArgs);
+      }).should.notify(done);
     });
 
     it('send method parses a binary to Uint8Array', function(done) {
@@ -221,6 +240,23 @@ describe('corbel-js node', function() {
             expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
         })
         .should.notify(done);
+    });
+
+    it('throws an event if a driver is sent', function(done) {
+      var driver = corbel.getDriver({ 'urlBase' : 'demo' });
+      var stub = sandbox.stub();
+      driver.on('request', stub);
+
+      request
+      .send({
+        method: 'GET',
+        url: url
+      }, driver)
+      .then(function(){
+        expect(stub.callCount).to.equals(1);
+      })
+      .should.notify(done);
+
     });
 
   });
