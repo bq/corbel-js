@@ -95,6 +95,7 @@
   //  @include ../composr/requestBuilder.js
   //  @include ../webfs/webfs.js
   //  @include ../webfs/webfsBuilder.js
+  //  @include ../domain/domain.js
 
   return corbel;
 });

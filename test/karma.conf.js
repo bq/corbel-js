@@ -18,7 +18,7 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/corbel.js',
+            'dist/corbel.with-polyfills.js',
            '.tmp/test/browser/**/*.js',
             'bower_components/',
             'vendor/'

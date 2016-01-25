@@ -269,8 +269,17 @@ describe('corbel.Services module', function() {
             status: 200,
             data: tokenRefresh
           }));
+          //stub retry request
+          requestStub.onCall(4).returns(unAuthorizeResponse);
+
+          // stub refresh token
+          requestStub.onCall(5).returns(Promise.resolve({
+            status: 200,
+            data: tokenRefresh
+          }));
+
           // stub retry request
-          requestStub.onCall(4).returns(Promise.resolve({
+          requestStub.onCall(6).returns(Promise.resolve({
             status: 200,
             data: 'responseData'
           }));
@@ -289,6 +298,35 @@ describe('corbel.Services module', function() {
             expect(spyTrigger.withArgs('service:request:before').callCount).to.be.equal(1);
             expect(spyTrigger.withArgs('service:request:after').callCount).to.be.equal(1);
             expect(spyTrigger.withArgs('token:refresh').callCount).to.be.equal(1);
+          }).should.notify(done);
+
+        });
+
+        it('rejects after 1 retries, when the refresh token fails', function(done) {
+
+          // stub refresh token
+          requestStub.onCall(1).returns(unAuthorizeResponse);
+          // stub retry request
+          requestStub.onCall(2).returns(unAuthorizeResponse);
+          // stub refresh token
+          requestStub.onCall(3).returns(unAuthorizeResponse);
+          // stub retry request
+          requestStub.onCall(4).returns(unAuthorizeResponse);
+
+          expect(service.request({
+            method: 'GET',
+            url: 'url'
+          })).to.be.rejected.then(function(response) {
+            expect(response.status).to.equals(401);
+            expect(requestStub.callCount).to.be.equal(2);
+            expect(spyRefreshHandler.callCount).to.be.equal(1);
+            expect(stubTokenBuilder.callCount).to.be.equal(1);
+            expect(spyTokenRefresh.callCount).to.be.equal(1);
+
+            // events are triggered once
+            expect(spyTrigger.withArgs('service:request:before').callCount).to.be.equal(1);
+            expect(spyTrigger.withArgs('service:request:after').callCount).to.be.equal(1);
+            expect(spyTrigger.withArgs('token:refresh').callCount).to.be.equal(0);
           }).should.notify(done);
 
         });
