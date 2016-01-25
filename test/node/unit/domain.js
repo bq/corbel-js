@@ -13,7 +13,7 @@ describe('With custom domain we can', function() {
     var CONFIG = {
         clientId: 'clientId',
         clientSecret: 'clientSecret',
-        scopes: ['silkroad-qa:client'],
+        scopes: ['corbel-qa:client'],
         urlBase: 'https://{{module}}-corbel.io/'
     };
 
