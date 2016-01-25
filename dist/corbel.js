@@ -1822,7 +1822,7 @@
                                         response = retryResponse;
                                         throw response;
                                     });
-                                }).catch(function(e) {
+                                }).catch(function() {
                                     //Has failed refreshing, reject request
                                     console.log('corbeljs:services:token:refresh:fail');
 
