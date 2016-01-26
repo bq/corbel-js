@@ -1546,6 +1546,10 @@
             return true;
         };
 
+        utils.isStream = function(data) {
+            return data.pipe && typeof data.pipe === 'function';
+        };
+
         utils.arrayToObject = function(array) {
             var object = {};
             array.map(function(element, index) {
@@ -2313,29 +2317,23 @@
              * @return {ArrayBuffer || Blob}
              */
             blob: function(data, cb) {
-                if (corbel.Config.isNode) {
-                    //@TODO: check if is necessary to transform the input in node
-                    var buffer = new ArrayBuffer(data.length);
-                    for (var index = 0; index < data.length; index++) {
-                        buffer[index] = data[index];
-                    }
-                    cb(buffer);
+                if (data instanceof ArrayBuffer) {
+                    throw new Error('data sended must be a Blob, not an ArrayBuffer');
                 } else {
                     cb(data);
                 }
             },
-
             /**
              * stream serialize handler
              * @param  {object || string} data
              * @return {UintArray}
              */
             stream: function(data, cb) {
-                var ui8Data = new Uint8Array(data.length);
-                for (var index = 0; index < data.length; index++) {
-                    ui8Data[index] = typeof data === 'object' ? data[index] : data.charCodeAt(index);
+                if (data instanceof ArrayBuffer) {
+                    throw new Error('data sended must be a File, a Blob, or an ArrayBufferView');
+                } else {
+                    cb(data);
                 }
-                cb(ui8Data);
             }
         };
 
@@ -2572,6 +2570,7 @@
         };
 
         request._nodeAjax = function(params, resolver) {
+            var that = this;
             var requestAjax = require('request');
             if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
                 requestAjax = requestAjax.defaults({
@@ -2579,12 +2578,15 @@
                 });
             }
 
-            requestAjax({
+            var requestOptions = {
                 method: params.method,
                 url: params.url,
                 headers: params.headers,
-                body: params.data || ''
-            }, function(error, response, body) {
+            };
+
+            var data = params.data || '';
+
+            var callbackRequest = function(error, response, body) {
                 var responseType;
                 var status;
                 if (error) {
@@ -2595,7 +2597,7 @@
                     status = response.statusCode;
                 }
 
-                processResponse.call(this, {
+                that.processResponse({
                     responseObject: response,
                     dataType: params.dataType,
                     responseType: responseType,
@@ -2606,7 +2608,15 @@
                     error: error
                 }, resolver, params.callbackSuccess, params.callbackError);
 
-            }.bind(this));
+            };
+
+            if (corbel.utils.isStream(data)) {
+                params.pipe(requestAjax(requestOptions, callbackRequest));
+            } else {
+                requestOptions.body = data;
+                requestAjax(requestOptions, callbackRequest);
+            }
+
 
         };
 
@@ -2705,7 +2715,6 @@
 
 
             if (params.data) {
-                console.log(typeof params.data);
                 httpReq.send(params.data);
             } else {
                 //IE fix, send nothing (not null or undefined)

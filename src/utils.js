@@ -399,6 +399,10 @@
     return true;
   };
 
+  utils.isStream = function(data){
+   return data.pipe && typeof data.pipe === 'function';
+  };
+
   utils.arrayToObject = function(array) {
       var object = {};
       array.map(function(element, index){
