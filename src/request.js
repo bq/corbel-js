@@ -127,11 +127,11 @@
      * @return {UintArray}
      */
     stream: function(data, cb) {
-      var ui8Data = new Uint8Array(data.length);
-      for (var index = 0; index < data.length; index++) {
-        ui8Data[index] = typeof data === 'object' ? data[index] : data.charCodeAt(index);
-      }
-      cb(ui8Data);
+        if(ArrayBuffer.isView(data)) {
+            cb(data);
+        } else {
+            throw 'data must be an ArrayBufferView or Blob';
+        }
     }
   };
 
@@ -501,7 +501,6 @@
 
 
     if (params.data) {
-        console.log(typeof params.data);
       httpReq.send(params.data);
     } else {
       //IE fix, send nothing (not null or undefined)

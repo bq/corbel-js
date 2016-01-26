@@ -301,8 +301,6 @@ describe('corbel-js browser', function() {
         .should.be.eventually.fulfilled
         .then(function() {
             var dataSended = _browserAjaxStub.getCall(0).args[0].data;
-            console.log('enviado: ',dataSended);
-            console.dir('byteText: ',byteText);
 
             byteText.forEach(function(element, index) {
               expect(dataSended[index]).to.be.equal(element);
@@ -312,15 +310,15 @@ describe('corbel-js browser', function() {
         .should.notify(done);
     });
    
-    it('send method parses an string to Uint8Array', function(done) {
+    it('send method parses a string to Uint8Array', function(done) {
         var _browserAjaxStub = sandbox.stub(request, '_browserAjax', function(params, resolver) {
           resolver.resolve();
         });
         var testText = 'Test';
-        var byteText = [];
-        for(var i = 0; i < testText.length; i++){
-          byteText.push(testText.charCodeAt(i));
-        }
+        //var byteText = [];
+        //for(var i = 0; i < testText.length; i++){
+          //byteText.push(testText.charCodeAt(i));
+        //}
       
         request.send({
           method: 'POST',
@@ -332,11 +330,12 @@ describe('corbel-js browser', function() {
         .then(function() {
             var dataSended = _browserAjaxStub.getCall(0).args[0].data;
             console.log('enviado: ',dataSended);
-            console.dir('byteText: ',byteText);
+            //console.dir('byteText: ',byteText);
 
-            byteText.forEach(function(element, index) {
-              expect(dataSended[index]).to.be.equal(element);
-            });
+            //byteText.forEach(function(element, index) {
+              //expect(dataSended[index]).to.be.equal(element);
+            //});
+            expect(corbel.utils.utf8Decode(dataSended)).to.be.equal(testText);
             expect(typeof(_browserAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
         })
         .should.notify(done);
