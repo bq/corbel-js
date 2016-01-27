@@ -10,8 +10,13 @@
      * @param {object} config
      * @return {CorbelDriver}
      */
-    function CorbelDriver(config) {
-        this._events = [];
+    function CorbelDriver(config, events) {
+
+        if (events && typeof events === 'object'){
+            this._events = corbel.utils.clone(events);
+        }else{
+            this._events = {};
+        }
         // create instance config
         this.guid = corbel.utils.guid();
         this.config = corbel.Config.create(config);
@@ -28,13 +33,14 @@
         this.composr = corbel.CompoSR.create(this);
         this.scheduler = corbel.Scheduler.create(this);
         this.webfs = corbel.Webfs.create(this);
+        this.domain = corbel.Domain.create(this);
     }
 
     /**
      * @return {CorbelDriver} A new instance of corbel driver with the same config
-     */
+     */ 
     CorbelDriver.prototype.clone = function() {
-        return new CorbelDriver(this.config.getConfig());
+        return new CorbelDriver(this.config.getConfig(), this._events);
     };
 
     /**

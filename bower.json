@@ -1,7 +1,7 @@
 {
   "name": "corbel-js",
   "description": "corbel SDK compatible with browser and nodejs",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "main": "dist/corbel.js",
   "license": "Apache-2.0",
   "keywords": [
@@ -27,7 +27,7 @@
     "Ricardo Martinez Calvo <@rmartinezcalvo>",
     "Samuel Martin <@samuelmartingc>",
     "Laura Sada <@lauritaSada>",
-    "Rubén Segovia <@rubensegovia>",
+    "Rubén Carrasco <@rcfsegovia>",
     "Cristian del Cerro <@cristiandelcerro>",
     "Alex De Leon <@alexdeleon>"
   ],

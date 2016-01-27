@@ -37,6 +37,7 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
       - Relation model
     - Resources
     - Assets
+    - Domains
   - Chainable API
 - library static methods
 - Examples
@@ -680,7 +681,7 @@ corbelDriver.assets.asset().access();
 You can also request all the user assets if you want, for example, listing al the goods that a user has purchased:
 
 ```javascript
-corbelDriver.assets.asset().get();
+corbelDriver.assets.asset('all').get();
 ```
 
 **Assets API**
@@ -688,13 +689,13 @@ corbelDriver.assets.asset().get();
 * Factory method
 
   ```javascript
-  corbelDriver.assets.asset()
+  corbelDriver.assets.asset('all')
   ```
 
 * **get**: Get all the assets **(requestOptionsObject)**
 
   ```javascript
-  corbelDriver.assets.asset()
+  corbelDriver.assets.asset('all')
     .get(requestOptionsObject)
   ```
 
@@ -708,9 +709,19 @@ corbelDriver.assets.asset().get();
 * **delete**: Delete an asset **(assetId)**
 
   ```javascript
-   corbelDriver.assets.asset(assetId).delete();
+   corbelDriver.assets.asset(assetId)
+    .delete();
   ```
 
+#### Domains
+
+Corbel-js provides a mechanism for doing requests from a child domain to it's parents by using the `.domain` method.
+
+```javascript
+corbelDriver.domain('myParentDomain').resources.resource /*...*/
+```
+
+This will redirect the request from the client domain to `myParentDomain`, doing this will allow the client to access it's parents collections (if it has permissions).
 
 ### Chainable API
 

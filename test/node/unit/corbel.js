@@ -94,6 +94,14 @@ describe('in corbel module', function() {
 
   });
 
+  it('clone a new driver with different guid', function() {
+
+    var clonedDriver = corbelDriver.clone({ preserveGuid : true });
+    expect(clonedDriver !== corbelDriver).to.be.equal(true);
+
+    expect(clonedDriver.guid).not.to.equals(corbelDriver.guid);
+  });
+
   describe('Event system', function() {
 
     it('can register new handler', function() {
@@ -113,6 +121,27 @@ describe('in corbel module', function() {
       expect(stub.getCall(0).args[0]).to.be.an('object');
       expect(stub.getCall(0).args[0].params).to.be.equal(true);
 
+    });
+
+    it('is cloned by the clone function', function() {
+
+      var stub = sandbox.stub();
+
+      expect(corbelDriver._events['custom:event:name']).to.be.equal(undefined);
+      corbelDriver.addEventListener('custom:event:name', stub);
+
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      var clonedDriver = corbelDriver.clone();
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      corbelDriver.dispatch('custom:event:name', true);
+
+      expect(stub.calledOnce).to.be.equal(true);
+
+      clonedDriver.dispatch('custom:event:name', true);
+
+      expect(stub.calledTwice).to.be.equal(true);
     });
 
     it('register same handler once', function() {
@@ -145,6 +174,30 @@ describe('in corbel module', function() {
       corbelDriver.removeEventListener('custom:event:name', stub);
 
       expect(corbelDriver._events['custom:event:name'].length).to.be.equal(0);
+
+      corbelDriver.dispatch('custom:event:name', {
+        params: true
+      });
+
+      expect(stub.callCount).to.be.equal(0);
+
+    });
+
+    it('does not remove the handler in the clone', function() {
+
+      var stub = sandbox.stub();
+
+      expect(corbelDriver._events['custom:event:name']).to.be.equal(undefined);
+      corbelDriver.addEventListener('custom:event:name', stub);
+
+      var clonedDriver = corbelDriver.clone();
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(1);
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
+
+      corbelDriver.removeEventListener('custom:event:name', stub);
+
+      expect(corbelDriver._events['custom:event:name'].length).to.be.equal(0);
+      expect(clonedDriver._events['custom:event:name'].length).to.be.equal(1);
 
       corbelDriver.dispatch('custom:event:name', {
         params: true

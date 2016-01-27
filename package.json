@@ -1,7 +1,7 @@
 {
   "name": "corbel-js",
   "description": "corbel SDK compatible with browser and nodejs",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "main": "dist/corbel.js",
   "license": "Apache-2.0",
   "keywords": [
@@ -101,6 +101,7 @@
     "karma-chai-plugins": "^0.6.0",
     "karma-chrome-launcher": "0.2.2",
     "karma-mocha": "^0.2.0",
+    "karma-mocha-debug": "^0.1.2",
     "karma-mocha-reporter": "^1.0.2",
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-sinon": "^1.0.4",

@@ -213,7 +213,7 @@
    * @param  {function} options.error                             Callback function for handle error in the request
    * @return {Promise}                                        Promise about the request status and response
    */
-  request.send = function(options) {
+  request.send = function(options, driver) {
     options = options || {};
     var module = this;
 
@@ -249,6 +249,10 @@
         resolve: resolve,
         reject: reject
       };
+
+      if(driver){
+        driver.trigger('request', params);
+      }
     });
 
     if (dataMethods.indexOf(params.method) !== -1) {
@@ -259,7 +263,6 @@
     }else{
       doRequest(module, params, resolver);
     }
-
 
     return promise;
   };
