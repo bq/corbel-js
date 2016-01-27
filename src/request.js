@@ -389,7 +389,7 @@
         status = response.statusCode;
       }
 
-      that.processResponse({
+      processResponse.call(that, {
         responseObject: response,
         dataType: params.dataType,
         responseType: responseType,
@@ -403,7 +403,7 @@
     };
 
     if(corbel.utils.isStream(data)) {
-      params.pipe(requestAjax(requestOptions, callbackRequest));
+      params.data.pipe(requestAjax(requestOptions, callbackRequest));
     } else {
       requestOptions.body = data;
       requestAjax(requestOptions, callbackRequest);
