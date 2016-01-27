@@ -1615,7 +1615,7 @@
             };
 
             if (corbel.utils.isStream(data)) {
-                params.data.pipe(requestAjax(requestOptions, callbackRequest));
+                data.pipe(requestAjax(requestOptions, callbackRequest));
             } else {
                 requestOptions.body = data;
                 requestAjax(requestOptions, callbackRequest);

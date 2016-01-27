@@ -134,67 +134,26 @@ describe('corbel-js node', function() {
       });
     });
 
-    it('send method parses a binary to Uint8Array', function(done) {
+    it('send method sends a String as application/octet-stream', function(done) {
         var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
           resolver.resolve();
         });
         var testText = 'Test';
-        var byteText = [];
-        for(var i = 0; i < testText.length; i++){
-          byteText.push(testText.charCodeAt(i));
-        }
-
-        //@TODO: check if this is the proper way of sending a stream or we should send another thing
       
         request.send({
           method: 'POST',
           url: url,
-          contentType : 'application/stream',
-          data: byteText
-        })
-        .should.be.eventually.fulfilled
-        .then(function() {
-            var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
-
-            Object.keys(dataSended).map(function(key) {
-                expect(dataSended[key]).to.be.equal(byteText[key]);
-            });
-            expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
-        })
-        .should.notify(done);
-    });
-
-    it('send method parses an string to Uint8Array', function(done) {
-        var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
-          resolver.resolve();
-        });
-        var testText = 'Test';
-        var byteText = [];
-        for(var i = 0; i < testText.length; i++){
-          byteText.push(testText.charCodeAt(i));
-        }
-
-        //@TODO: check if this is the proper way of sending a stream or we should send another thing
-      
-        request.send({
-          method: 'POST',
-          url: url,
-          contentType : 'application/stream',
+          contentType : 'application/octet-stream',
           data: testText
         })
         .should.be.eventually.fulfilled
         .then(function() {
-            var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
-
-            Object.keys(dataSended).map(function(key) {
-                expect(dataSended[key]).to.be.equal(byteText[key]);
-            });
-            expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+            expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('string');
         })
         .should.notify(done);
     });
-
-    it('send method parses blob to arrayBuffer', function(done) {
+   
+    it('send method sends a byteArray as application/octet-stream', function(done) {
         var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
           resolver.resolve();
         });
@@ -203,24 +162,80 @@ describe('corbel-js node', function() {
         for(var i = 0; i < testText.length; i++){
           byteText.push(testText.charCodeAt(i));
         }
-        //@TODO: check if this is the proper way of sending a "blob" or we should send another thing
+      
         request.send({
           method: 'POST',
           url: url,
-          contentType : 'application/blob',
+          contentType : 'application/octet-stream',
           data: byteText
         })
         .should.be.eventually.fulfilled
         .then(function() {
             var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
-            var byteObject = corbel.utils.arrayToObject(byteText);
 
-            Object.keys(dataSended).map(function(key) {
-                expect(dataSended[key]).to.be.equal(byteObject[key]);
+            byteText.forEach(function(element, index) {
+              expect(dataSended[index]).to.be.equal(element);
             });
             expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
         })
         .should.notify(done);
+    });
+
+    it('send method sends an Uint8Array as application/octet-stream', function(done) {
+        var _nodeAjaxStub = sandbox.stub(request, '_nodeAjax', function(params, resolver) {
+          resolver.resolve();
+        });
+        var testText = 'Test';
+        var ui8arr = new Uint8Array(testText.length);
+        for(var i = 0; i < testText.length; i++){
+          ui8arr[i] = testText.charCodeAt(i);
+        }
+      
+        request.send({
+          method: 'POST',
+          url: url,
+          contentType : 'application/octet-stream',
+          data: ui8arr
+        })
+        .should.be.eventually.fulfilled
+        .then(function() {
+            var dataSended = _nodeAjaxStub.getCall(0).args[0].data;
+            for(var key in dataSended ) {
+              if (dataSended.hasOwnProperty(key)) {
+                expect(dataSended[key]).to.be.equal(ui8arr[key]);
+              }
+            }
+            expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('object');
+        })
+        .should.notify(done);
+    });
+
+    it('send method throws an error if try to send an ArrayBuffer as application/octet-stream', function() {
+        var testText = 'Test';
+        var buffer = new ArrayBuffer(testText.length);
+        
+        expect(function() {
+            request.send({
+              method: 'POST',
+              url: url,
+              contentType : 'application/octet-stream',
+              data: buffer
+            });
+        }).to.throw('data sended must be a File, a Blob, or an ArrayBufferView'); 
+    });
+
+    it('send method throws an error if try to send an ArrayBuffer as application/blob', function() {
+        var testText = 'Test';
+        var buffer = new ArrayBuffer(testText.length);
+        
+        expect(function() {
+            request.send({
+              method: 'POST',
+              url: url,
+              contentType : 'application/blob',
+              data: buffer
+            });
+        }).to.throw('data sended must be a Blob, not an ArrayBuffer'); 
     });
 
   });
