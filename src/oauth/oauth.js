@@ -29,11 +29,7 @@
      */
     Oauth._buildUri = function(uri) {
 
-        var urlBase = this.driver.config.get('oauthEndpoint', null) ?
-            this.driver.config.get('oauthEndpoint') :
-            this.driver.config.get('urlBase')
-              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
-              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Oauth._buildPort(this.driver.config));
+        var urlBase =  this.driver.config.getCurrentEndpoint(Oauth.moduleName, corbel.Oauth._buildPort(this.driver.config));
 
         return urlBase + uri;
     };

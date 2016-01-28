@@ -46,11 +46,7 @@
     },
 
     _buildUri: function(id) {
-        var urlBase = this.driver.config.get('webfsEndpoint', null) ?
-        this.driver.config.get('webfsEndpoint') :
-        this.driver.config.get('urlBase')
-        .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Webfs.moduleName)
-        .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+      var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
 
       return urlBase + id;
     },

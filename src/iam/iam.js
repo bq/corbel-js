@@ -44,11 +44,7 @@
             uri += '/' + id;
         }
 
-        var urlBase = this.driver.config.get('iamEndpoint', null) ?
-            this.driver.config.get('iamEndpoint') :
-            this.driver.config.get('urlBase')
-              .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
-              .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Iam._buildPort(this.driver.config));
+        var urlBase =  this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config));
 
         return urlBase + uri;
     };

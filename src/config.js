@@ -90,6 +90,19 @@ Config.prototype.get = function(field, defaultValue) {
     return this.config[field];
 };
 
+Config.prototype.getCurrentEndpoint = function(moduleName, port){
+    var moduleEndpoint = moduleName + 'Endpoint';
+    var endpoint = this.get(moduleEndpoint, null) ?
+        this.get(moduleEndpoint) :
+        this.get('urlBase');
+    endpoint = endpoint.replace(corbel.Config.URL_BASE_PLACEHOLDER, moduleName);
+    if (port) {
+        endpoint = endpoint.replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, port);
+    }
+    return endpoint;
+};
+
+
 /**
  * Sets a new value for specific config param
  * @param {String} field Config param name
