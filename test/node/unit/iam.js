@@ -80,7 +80,7 @@ describe('corbel IAM module', function() {
                 var driver = corbel.getDriver(config);
 
                 expect(function(){
-                    driver.iam.token()._getJwt()
+                    driver.iam.token()._getJwt();
                 }).to.throw('config:undefined:clientSecret');
             });
 
@@ -92,7 +92,7 @@ describe('corbel IAM module', function() {
                 var driver = corbel.getDriver(config);
 
                 expect(function(){
-                    driver.iam.token()._getJwt()
+                    driver.iam.token()._getJwt();
                 }).to.throw('config:undefined:clientId');
             });
 
@@ -105,10 +105,10 @@ describe('corbel IAM module', function() {
                 var driver = corbel.getDriver(config);
 
                 expect(function(){
-                    driver.iam.token()._getJwt()
+                    driver.iam.token()._getJwt();
                 }).not.to.throw(Error);
             });
-        })
+        });
 
         it('Using JWT correctly', function() {
             var testJwt = '_jwt_';
