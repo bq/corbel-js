@@ -44,12 +44,8 @@
         },
 
         _buildUri: function(path,eventType) {
-            var uri = '',
-                urlBase = this.driver.config.get('evciEndpoint', null) ?
-                this.driver.config.get('evciEndpoint') :
-                this.driver.config.get('urlBase')
-                  .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)
-                  .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+            var uri = '';
+            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Evci.moduleName, this._buildPort(this.driver.config));
 
             uri = urlBase + path;
             if (eventType) {

@@ -61,10 +61,7 @@
     },
 
     _buildUri: function() {
-      var urlBase = this.driver.config.get('composrEndpoint', null) ||
-        this.driver.config.get('urlBase')
-          .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
-          .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));
+      var urlBase =  this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config));
 
       if (urlBase.slice(-1) === '/') {
         urlBase = urlBase.substring(0, urlBase.length - 1);

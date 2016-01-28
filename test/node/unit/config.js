@@ -113,6 +113,74 @@ describe('In corbel.Config', function() {
 
         });
 
+
+        describe('get current endpoint', function() {
+            it('constructs the url correctly if no local endpoint is provided', function(){
+                var driver = corbel.getDriver({
+                    urlBase : 'https://{{module}}-int.bqws.io/v1.0/'    
+                });
+                var schedulerEndpoint = 'https://scheduler-int.bqws.io/v1.0/';
+                var schedulerConstructedEndpoint = driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName);
+                expect(schedulerConstructedEndpoint).to.equals(schedulerEndpoint);
+            });
+
+            it('constructs the url correctly with modulePort placeholder', function(){
+                var driver = corbel.getDriver({
+                    urlBase : 'https://{{module}}-int.bqws.io/{{modulePort}}/v1.0/'    
+                });
+                var schedulerPort = driver.scheduler.task()._buildPort(driver.config);
+                var schedulerEndpoint = 'https://scheduler-int.bqws.io/8094/v1.0/';
+                var schedulerConstructedEndpoint = driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, schedulerPort);
+                expect(schedulerConstructedEndpoint).to.equals(schedulerEndpoint);
+            });
+
+            it('returns the custom endpoint if it is provided', function(){
+                var schedulerEndpoint = 'http://www.schedulers.com';
+                var driver = corbel.getDriver({
+                    urlBase : 'https://{{module}}-int.bqws.io/{{modulePort}}/v1.0/',
+                    schedulerEndpoint : schedulerEndpoint 
+                });
+                var schedulerPort = driver.scheduler.task()._buildPort(driver.config);
+                var schedulerConstructedEndpoint = driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, schedulerPort);
+                expect(schedulerConstructedEndpoint).to.equals(schedulerEndpoint);
+            });
+
+            it('works for any module', function(){
+                var modules = {
+                    "resources": "http://localhost:8080/v1.0/",
+                    "oauth": "http://localhost:8084/v1.0/",
+                    "resources": "http://localhost:8080/v1.0/",
+                    "iam": "http://localhost:8082/v1.0/",
+                    "evci": "http://localhost:8086/v1.0/",
+                    "ec": "http://localhost:8088/v1.0/",
+                    "assets": "http://localhost:8092/v1.0/",
+                    "notifications": "http://localhost:8094/v1.0/",
+                    "bqpon": "http://localhost:8090/v1.0/",
+                    "webfs": "http://localhost:8096/v1.0/",
+                    "scheduler": "http://localhost:8098/v1.0/",
+                    "borrow": "http://localhost:8100/v1.0/",
+                    "composr": "http://localhost:3000/"
+                };
+
+                var driverConfig = {
+                    urlBase : 'https://{{module}}-int.bqws.io/{{modulePort}}/v1.0/'
+                };
+
+                Object.keys(modules).forEach(function(moduleName){
+                    driverConfig[moduleName+'Endpoint'] = modules[moduleName];
+                });
+
+                var driver = corbel.getDriver(driverConfig);
+
+                Object.keys(modules).forEach(function(moduleName){
+                    expect(driver.config.getCurrentEndpoint(moduleName)).to.equals(modules[moduleName]);
+                });
+
+            });
+
+
+        });
+
     });
 
 

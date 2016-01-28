@@ -15,11 +15,7 @@
          */
         buildUri: function(srcType, srcId, destType, destId) {
 
-            var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
-                this.driver.config.get('resourcesEndpoint') :
-                this.driver.config.get('urlBase')
-                  .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
-                  .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Resources.moduleName, this._buildPort(this.driver.config));
 
             var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
             var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);

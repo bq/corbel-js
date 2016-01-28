@@ -95,11 +95,7 @@
     if (extra) {
       uri += extra;
     }
-    var urlBase = this.driver.config.get('ecEndpoint', null) ?
-      this.driver.config.get('ecpoint') :
-      this.driver.config.get('urlBase')
-      .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
-      .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
+    var urlBase =  this.driver.config.getCurrentEndpoint( Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 
     return urlBase + uri;
   };
