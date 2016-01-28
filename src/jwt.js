@@ -30,7 +30,7 @@
             if (!claims.aud) {
                 throw new Error('jwt:undefined:aud');
             }
-            if (!claims.scope) {
+            if (typeof claims.scope === 'undefined') {
                 throw new Error('jwt:undefined:scope');
             }
 
