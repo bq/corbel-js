@@ -287,7 +287,7 @@
          * @param {Number} params.pagination.pageSize
          * @param {Object} params.sort
          * @param {String} params.search
-         * @param {Boolean} params.binded
+         * @param {Boolean} params.indexFieldsOnly
          * @return {String}
          * @example
          * var params = {
@@ -414,8 +414,8 @@
                 result += result ? '&' : '';
                 result += 'api:search=' + getJsonEncodedStringify(params.search);
 
-                if (params.hasOwnProperty('binded')) {
-                    result += '&api:binded=' + getJsonEncodedStringify(params.binded);
+                if (params.hasOwnProperty('indexFieldsOnly')) {
+                    result += '&api:indexFieldsOnly=' + getJsonEncodedStringify(params.indexFieldsOnly);
                 }
             }
 
