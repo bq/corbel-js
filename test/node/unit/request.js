@@ -3,7 +3,8 @@
 var corbel = require('../../../dist/corbel.js'),
   chai = require('chai'),
   expect = chai.expect,
-  sinon = require('sinon');
+  sinon = require('sinon'),
+  stream = require('stream');
 
 describe('corbel-js node', function() {
 
@@ -168,6 +169,45 @@ describe('corbel-js node', function() {
         .should.be.eventually.fulfilled
         .then(function() {
             expect(typeof(_nodeAjaxStub.getCall(0).args[0].data)).to.be.equal('string');
+            expect(_nodeAjaxStub.getCall(0).args[0].data).to.be.equal(testText);
+        })
+        .should.notify(done);
+    });
+
+    it('send method sends a stream as application/octet-stream', function(done) {
+        var requestStream;
+        var requestMockedFunction = function(options, callback){
+          requestStream = new stream.Transform();
+          requestStream._transform = function(chunk, encoding, done){
+            done();
+            callback();
+          };
+          return requestStream;
+        };
+        var getNodeRequestAjaxStub = sandbox.stub(request, '_getNodeRequestAjax').returns(requestMockedFunction);
+        var getNodeRequestCallback = sandbox.stub(request, '_getNodeRequestCallback', function(context, params, resolver){
+          return function(){
+            resolver.resolve();
+          };
+        });
+
+        var streamToSend = new stream.Readable();
+        streamToSend.push('Test Stream');
+        streamToSend.push(null);
+        var pipeSpy = sandbox.spy(streamToSend, 'pipe');
+     
+        request.send({
+          method: 'POST',
+          url: url,
+          contentType : 'application/octet-stream',
+          data: streamToSend
+        })
+        .should.be.eventually.fulfilled
+        .then(function() {
+          expect(pipeSpy.callCount).to.equals(1);
+          expect(pipeSpy.calledWith(requestStream)).to.equals(true);
+          expect(getNodeRequestAjaxStub.callCount).to.equals(1);
+          expect(getNodeRequestCallback.callCount).to.equals(1);
         })
         .should.notify(done);
     });
@@ -240,7 +280,7 @@ describe('corbel-js node', function() {
               contentType : 'application/octet-stream',
               data: buffer
             });
-        }).to.throw('data sended must be a File, a Blob, or an ArrayBufferView'); 
+        }).to.throw('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView'); 
     });
 
     it('send method throws an error if try to send an ArrayBuffer as application/blob', function() {
@@ -254,7 +294,7 @@ describe('corbel-js node', function() {
               contentType : 'application/blob',
               data: buffer
             });
-        }).to.throw('data sended must be a Blob, not an ArrayBuffer');
+        }).to.throw('ArrayBuffer is not supported, please use Blob'); 
     });
 
     it('throws an event if a driver is sent', function(done) {

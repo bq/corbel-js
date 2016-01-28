@@ -369,7 +369,7 @@ describe('corbel-js browser', function() {
               contentType : 'application/octet-stream',
               data: buffer
             });
-        }).to.throw('data sended must be a File, a Blob, or an ArrayBufferView'); 
+        }).to.throw('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView'); 
     });
 
     it('send method throws an error if try to send an ArrayBuffer as application/blob', function() {
@@ -383,7 +383,7 @@ describe('corbel-js browser', function() {
               contentType : 'application/blob',
               data: buffer
             });
-        }).to.throw('data sended must be a Blob, not an ArrayBuffer'); 
+        }).to.throw('ArrayBuffer is not supported, please use Blob'); 
     });
 
     // Phantom creates problem in this test using new Blob() constructor

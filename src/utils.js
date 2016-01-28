@@ -400,7 +400,11 @@
   };
 
   utils.isStream = function(data){
-   return data.pipe && typeof data.pipe === 'function';
+    if (data.pipe && typeof data.pipe === 'function') {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   utils.arrayToObject = function(array) {

@@ -557,7 +557,11 @@
         };
 
         utils.isStream = function(data) {
-            return data.pipe && typeof data.pipe === 'function';
+            if (data.pipe && typeof data.pipe === 'function') {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         utils.arrayToObject = function(array) {
@@ -1342,7 +1346,7 @@
              */
             blob: function(data, cb) {
                 if (data instanceof ArrayBuffer) {
-                    throw new Error('data sended must be a Blob, not an ArrayBuffer');
+                    throw new Error('ArrayBuffer is not supported, please use Blob');
                 } else {
                     cb(data);
                 }
@@ -1354,7 +1358,7 @@
              */
             stream: function(data, cb) {
                 if (data instanceof ArrayBuffer) {
-                    throw new Error('data sended must be a File, a Blob, or an ArrayBufferView');
+                    throw new Error('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView');
                 } else {
                     cb(data);
                 }
@@ -1596,24 +1600,18 @@
             return form;
         };
 
-        request._nodeAjax = function(params, resolver) {
-            var that = this;
+        request._getNodeRequestAjax = function(params) {
             var requestAjax = require('request');
             if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
                 requestAjax = requestAjax.defaults({
                     jar: true
                 });
             }
+            return requestAjax;
+        };
 
-            var requestOptions = {
-                method: params.method,
-                url: params.url,
-                headers: params.headers,
-            };
-
-            var data = params.data || '';
-
-            var callbackRequest = function(error, response, body) {
+        request._getNodeRequestCallback = function(context, params, resolver) {
+            return function(error, response, body) {
                 var responseType;
                 var status;
                 if (error) {
@@ -1624,7 +1622,7 @@
                     status = response.statusCode;
                 }
 
-                processResponse.call(that, {
+                processResponse.call(context, {
                     responseObject: response,
                     dataType: params.dataType,
                     responseType: responseType,
@@ -1636,6 +1634,20 @@
                 }, resolver, params.callbackSuccess, params.callbackError);
 
             };
+        };
+
+        request._nodeAjax = function(params, resolver) {
+            var requestAjax = request._getNodeRequestAjax(params);
+
+            var requestOptions = {
+                method: params.method,
+                url: params.url,
+                headers: params.headers,
+            };
+
+            var data = params.data || '';
+
+            var callbackRequest = request._getNodeRequestCallback(this, params, resolver);
 
             if (corbel.utils.isStream(data)) {
                 data.pipe(requestAjax(requestOptions, callbackRequest));
