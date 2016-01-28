@@ -331,6 +331,46 @@ describe('corbel.Services module', function() {
 
         });
 
+        it('works correctly when the driver has no clientSecret', function(done) {
+          var corbelDriver = corbel.getDriver({
+            urlBase: 'urlBase/'
+          });
+          var serviceDriver = new corbel.Services(corbelDriver);
+          var spyRefHandler = sandbox.spy(serviceDriver, '_refreshHandler');
+
+          var tokenBuilder = corbelDriver.iam.token();
+          var spyTokenCreate = sandbox.spy(tokenBuilder, 'create');
+          var stubTokenBuilder = sandbox.stub(corbelDriver.iam, 'token').returns(tokenBuilder);
+
+           // stub refresh token
+          requestStub.onCall(1).returns(Promise.resolve({
+            status: 200,
+            data: tokenRefresh
+          }));
+          // stub retry request
+          requestStub.onCall(2).returns(unAuthorizeResponse);
+          // stub refresh token
+          requestStub.onCall(3).returns(Promise.resolve({
+            status: 200,
+            data: tokenRefresh
+          }));
+          //stub retry request
+          requestStub.onCall(4).returns(unAuthorizeResponse);
+
+          expect(serviceDriver.request({
+            method: 'GET',
+            url: 'url'
+          })).to.be.rejected.then(function(response) {
+            expect(response.status).to.equals(401);
+            expect(requestStub.callCount).to.be.equal(1);
+            expect(spyRefHandler.callCount).to.be.equal(1);
+            expect(stubTokenBuilder.callCount).to.be.equal(1);
+            expect(spyTokenCreate.callCount).to.be.equal(1);
+
+          }).should.notify(done);
+
+        });
+
         describe('in refresh token handler', function() {
 
           it('can be triggered only once at same time', function(done) {
