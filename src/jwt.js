@@ -30,9 +30,6 @@
             if (!claims.aud) {
                 throw new Error('jwt:undefined:aud');
             }
-            if (typeof claims.scope === 'undefined') {
-                throw new Error('jwt:undefined:scope');
-            }
 
             return jwt._generate(claims, secret, alg);
         },

@@ -2138,9 +2138,6 @@
                 if (!claims.aud) {
                     throw new Error('jwt:undefined:aud');
                 }
-                if (typeof claims.scope === 'undefined') {
-                    throw new Error('jwt:undefined:scope');
-                }
 
                 return jwt._generate(claims, secret, alg);
             },
@@ -3750,7 +3747,7 @@
                 var secret = params.secret || this.driver.config.get('clientSecret');
                 params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
                 params.claims.aud = params.claims.aud || this.driver.config.get('audience', corbel.Iam.AUD);
-                params.claims.scope = typeof params.claims.scope !== 'undefined' ? params.claims.scope : this.driver.config.get('scopes');
+                params.claims.scope = params.claims.scope || this.driver.config.get('scopes', '');
                 return corbel.jwt.generate(params.claims, secret);
             },
 

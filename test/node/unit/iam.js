@@ -96,25 +96,11 @@ describe('corbel IAM module', function() {
                 }).to.throw('config:undefined:clientId');
             });
 
-            it('expects scopes to be defined', function(){
-                var config = { 
-                    urlBase : 'http://test.com', 
-                    clientSecret : 'test',
-                    clientId : 'test'
-                };
-                var driver = corbel.getDriver(config);
-
-                expect(function(){
-                    driver.iam.token()._getJwt()
-                }).to.throw('config:undefined:scopes');
-            });
-
             it('passes if all mandatory values are provided', function(){
                 var config = { 
                     urlBase : 'http://test.com', 
                     clientSecret : 'test',
-                    clientId : 'test',
-                    scopes : ''
+                    clientId : 'test'
                 };
                 var driver = corbel.getDriver(config);
 
