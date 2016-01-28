@@ -147,19 +147,18 @@ describe('In corbel.Config', function() {
 
             it('works for any module', function(){
                 var modules = {
-                    "resources": "http://localhost:8080/v1.0/",
-                    "oauth": "http://localhost:8084/v1.0/",
-                    "resources": "http://localhost:8080/v1.0/",
-                    "iam": "http://localhost:8082/v1.0/",
-                    "evci": "http://localhost:8086/v1.0/",
-                    "ec": "http://localhost:8088/v1.0/",
-                    "assets": "http://localhost:8092/v1.0/",
-                    "notifications": "http://localhost:8094/v1.0/",
-                    "bqpon": "http://localhost:8090/v1.0/",
-                    "webfs": "http://localhost:8096/v1.0/",
-                    "scheduler": "http://localhost:8098/v1.0/",
-                    "borrow": "http://localhost:8100/v1.0/",
-                    "composr": "http://localhost:3000/"
+                    'oauth': 'http://localhost:8084/v1.0/',
+                    'resources': 'http://localhost:8080/v1.0/',
+                    'iam': 'http://localhost:8082/v1.0/',
+                    'evci': 'http://localhost:8086/v1.0/',
+                    'ec': 'http://localhost:8088/v1.0/',
+                    'assets': 'http://localhost:8092/v1.0/',
+                    'notifications': 'http://localhost:8094/v1.0/',
+                    'bqpon': 'http://localhost:8090/v1.0/',
+                    'webfs': 'http://localhost:8096/v1.0/',
+                    'scheduler': 'http://localhost:8098/v1.0/',
+                    'borrow': 'http://localhost:8100/v1.0/',
+                    'composr': 'http://localhost:3000/'
                 };
 
                 var driverConfig = {
