@@ -1404,7 +1404,13 @@
 
             if (params.search) {
                 result += result ? '&' : '';
-                result += 'api:search=' + getJsonEncodedStringify(params.search);
+
+                result += 'api:search=';
+                if (isJSON(params.search)) {
+                    result += getJsonEncodedStringify(params.search);
+                } else {
+                    result += encodeURIComponent(params.search);
+                }
 
                 if (params.hasOwnProperty('indexFieldsOnly')) {
                     result += '&api:indexFieldsOnly=' + getJsonEncodedStringify(params.indexFieldsOnly);
