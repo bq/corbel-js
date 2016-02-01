@@ -257,7 +257,7 @@
       result += result ? '&' : '';
 
       result += 'api:search=';
-      if (this.isJSON(params.search)) {
+      if (params.search instanceof Object) {
         result += getJsonEncodedStringify(params.search);
       } else {
         result += encodeURIComponent(params.search);
