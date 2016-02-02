@@ -1915,7 +1915,7 @@
                     console.log('corbeljs:services:token:refresh');
                     this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
-                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
+                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, '')
                     );
 
                 } else {
@@ -2867,8 +2867,15 @@
                     }
                 };
                 var that = this;
+                var promise;
+                try {
+                    promise = this._doPostTokenRequest(this.uri, params);
+                } catch (e) {
+                    console.log('error', e);
+                    return Promise.reject(e);
+                }
                 // we use the traditional POST verb to refresh access token.
-                return this._doPostTokenRequest(this.uri, params).then(function(response) {
+                return promise.then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
                     return response;
                 });
