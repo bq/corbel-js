@@ -153,7 +153,7 @@
         console.log('corbeljs:services:token:refresh');
         this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
           tokenObject.refreshToken,
-          this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
+          this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, '')
         );
 
       } else {
