@@ -72,6 +72,44 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.data.grant_type).to.be.equal(corbel.Iam.GRANT_TYPE);
         });
 
+        describe('mandatory values in config', function(){
+            it('expects clientSecret to be defined', function(){
+                var config = { 
+                    urlBase : 'http://test.com' 
+                };
+                var driver = corbel.getDriver(config);
+
+                expect(function(){
+                    driver.iam.token()._getJwt();
+                }).to.throw('config:undefined:clientSecret');
+            });
+
+            it('expects clientId to be defined', function(){
+                var config = { 
+                    urlBase : 'http://test.com', 
+                    clientSecret : 'test'
+                };
+                var driver = corbel.getDriver(config);
+
+                expect(function(){
+                    driver.iam.token()._getJwt();
+                }).to.throw('config:undefined:clientId');
+            });
+
+            it('passes if all mandatory values are provided', function(){
+                var config = { 
+                    urlBase : 'http://test.com', 
+                    clientSecret : 'test',
+                    clientId : 'test'
+                };
+                var driver = corbel.getDriver(config);
+
+                expect(function(){
+                    driver.iam.token()._getJwt();
+                }).not.to.throw(Error);
+            });
+        });
+
         it('Using JWT correctly', function() {
             var testJwt = '_jwt_';
             corbelDriver.iam.token().create({

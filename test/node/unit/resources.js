@@ -254,7 +254,7 @@ describe('corbel resources module', function() {
       }
     };
 
-    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace('api:search=' + encodeURIComponent('{"text":"test"}'), 'api:search=' + encodeURIComponent('"test"')));
+    expect(resources.collection('resource:entity').getURL(requestParams)).to.be.equal(URL_COLLECTION_DECODED.replace('api:search=' + encodeURIComponent('{"text":"test"}'), 'api:search=' + encodeURIComponent('test')));
   });
 
   it('generate resource query correctly with custom query string', function() {

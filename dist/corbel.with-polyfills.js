@@ -27,7 +27,7 @@
      * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
      * @license   Licensed under MIT license
      *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-     * @version   2.2.0
+     * @version   3.0.2
      */
 
     (function() {
@@ -60,7 +60,7 @@
         var lib$es6$promise$asap$$vertxNext;
         var lib$es6$promise$asap$$customSchedulerFn;
 
-        function lib$es6$promise$asap$$asap(callback, arg) {
+        var lib$es6$promise$asap$$asap = function asap(callback, arg) {
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
             lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
             lib$es6$promise$asap$$len += 2;
@@ -76,10 +76,12 @@
             }
         }
 
-        var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
-
         function lib$es6$promise$asap$$setScheduler(scheduleFn) {
             lib$es6$promise$asap$$customSchedulerFn = scheduleFn;
+        }
+
+        function lib$es6$promise$asap$$setAsap(asapFn) {
+            lib$es6$promise$asap$$asap = asapFn;
         }
 
         var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
@@ -94,15 +96,10 @@
 
         // node
         function lib$es6$promise$asap$$useNextTick() {
-            var nextTick = process.nextTick;
             // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-            // setImmediate should be used instead instead
-            var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
-            if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
-                nextTick = setImmediate;
-            }
+            // see https://github.com/cujojs/when/issues/410 for details
             return function() {
-                nextTick(lib$es6$promise$asap$$flush);
+                process.nextTick(lib$es6$promise$asap$$flush);
             };
         }
 
@@ -157,7 +154,7 @@
             lib$es6$promise$asap$$len = 0;
         }
 
-        function lib$es6$promise$asap$$attemptVertex() {
+        function lib$es6$promise$asap$$attemptVertx() {
             try {
                 var r = require;
                 var vertx = r('vertx');
@@ -177,7 +174,7 @@
         } else if (lib$es6$promise$asap$$isWorker) {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
         } else if (lib$es6$promise$asap$$browserWindow === undefined && typeof require === 'function') {
-            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
+            lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertx();
         } else {
             lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
         }
@@ -190,7 +187,7 @@
 
         var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
 
-        function lib$es6$promise$$internal$$selfFullfillment() {
+        function lib$es6$promise$$internal$$selfFulfillment() {
             return new TypeError("You cannot resolve a promise with itself");
         }
 
@@ -216,7 +213,7 @@
         }
 
         function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
-            lib$es6$promise$asap$$default(function(promise) {
+            lib$es6$promise$asap$$asap(function(promise) {
                 var sealed = false;
                 var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
                     if (sealed) {
@@ -278,7 +275,7 @@
 
         function lib$es6$promise$$internal$$resolve(promise, value) {
             if (promise === value) {
-                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
+                lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFulfillment());
             } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
                 lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
             } else {
@@ -303,7 +300,7 @@
             promise._state = lib$es6$promise$$internal$$FULFILLED;
 
             if (promise._subscribers.length !== 0) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, promise);
             }
         }
 
@@ -314,7 +311,7 @@
             promise._state = lib$es6$promise$$internal$$REJECTED;
             promise._result = reason;
 
-            lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
+            lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publishRejection, promise);
         }
 
         function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
@@ -328,7 +325,7 @@
             subscribers[length + lib$es6$promise$$internal$$REJECTED] = onRejection;
 
             if (length === 0 && parent._state) {
-                lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
+                lib$es6$promise$asap$$asap(lib$es6$promise$$internal$$publish, parent);
             }
         }
 
@@ -591,7 +588,7 @@
         /**
         Promise objects represent the eventual result of an asynchronous operation. The
         primary way of interacting with a promise is through its `then` method, which
-        registers callbacks to receive either a promise’s eventual value or the reason
+        registers callbacks to receive either a promise's eventual value or the reason
         why the promise cannot be fulfilled.
   
         Terminology
@@ -715,7 +712,8 @@
         lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
         lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
         lib$es6$promise$promise$$Promise._setScheduler = lib$es6$promise$asap$$setScheduler;
-        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$default;
+        lib$es6$promise$promise$$Promise._setAsap = lib$es6$promise$asap$$setAsap;
+        lib$es6$promise$promise$$Promise._asap = lib$es6$promise$asap$$asap;
 
         lib$es6$promise$promise$$Promise.prototype = {
             constructor: lib$es6$promise$promise$$Promise,
@@ -926,7 +924,7 @@
 
                 if (state) {
                     var callback = arguments[state - 1];
-                    lib$es6$promise$asap$$default(function() {
+                    lib$es6$promise$asap$$asap(function() {
                         lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
                     });
                 } else {
@@ -1410,7 +1408,13 @@
 
             if (params.search) {
                 result += result ? '&' : '';
-                result += 'api:search=' + getJsonEncodedStringify(params.search);
+
+                result += 'api:search=';
+                if (params.search instanceof Object) {
+                    result += getJsonEncodedStringify(params.search);
+                } else {
+                    result += encodeURIComponent(params.search);
+                }
 
                 if (params.hasOwnProperty('indexFieldsOnly')) {
                     result += '&api:indexFieldsOnly=' + getJsonEncodedStringify(params.indexFieldsOnly);
@@ -2137,9 +2141,6 @@
                 }
                 if (!claims.aud) {
                     throw new Error('jwt:undefined:aud');
-                }
-                if (!claims.scope) {
-                    throw new Error('jwt:undefined:scope');
                 }
 
                 return jwt._generate(claims, secret, alg);
@@ -2916,7 +2917,7 @@
                     console.log('corbeljs:services:token:refresh');
                     this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
-                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES)
+                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, '')
                     );
 
                 } else {
@@ -3222,6 +3223,19 @@
         return this.config[field];
     };
 
+    Config.prototype.getCurrentEndpoint = function(moduleName, port) {
+        var moduleEndpoint = moduleName + 'Endpoint';
+        var endpoint = this.get(moduleEndpoint, null) ?
+            this.get(moduleEndpoint) :
+            this.get('urlBase');
+        endpoint = endpoint.replace(corbel.Config.URL_BASE_PLACEHOLDER, moduleName);
+        if (port) {
+            endpoint = endpoint.replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, port);
+        }
+        return endpoint;
+    };
+
+
     /**
      * Sets a new value for specific config param
      * @param {String} field Config param name
@@ -3274,11 +3288,7 @@
                 uri += '/' + id;
             }
 
-            var urlBase = this.driver.config.get('iamEndpoint', null) ?
-                this.driver.config.get('iamEndpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Iam.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Iam._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -3741,7 +3751,7 @@
                 var secret = params.secret || this.driver.config.get('clientSecret');
                 params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
                 params.claims.aud = params.claims.aud || this.driver.config.get('audience', corbel.Iam.AUD);
-                params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
+                params.claims.scope = params.claims.scope || this.driver.config.get('scopes', '');
                 return corbel.jwt.generate(params.claims, secret);
             },
 
@@ -3859,11 +3869,20 @@
                     }
                 };
                 var that = this;
-                // we use the traditional POST verb to refresh access token.
-                return this._doPostTokenRequest(this.uri, params).then(function(response) {
-                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                    return response;
-                });
+
+                try {
+
+                    return this._doPostTokenRequest(this.uri, params)
+                        .then(function(response) {
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                            return response;
+                        });
+
+                } catch (e) {
+                    console.log('error', e);
+                    return Promise.reject(e);
+                }
+
             }
 
         });
@@ -4838,12 +4857,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('assetsEndpoint', null) ?
-                    this.driver.config.get('assetsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Assets.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -4965,12 +4980,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('schedulerEndpoint', null) ?
-                    this.driver.config.get('schedulerEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Scheduler.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -5333,11 +5344,7 @@
              */
             buildUri: function(srcType, srcId, destType, destId) {
 
-                var urlBase = this.driver.config.get('resourcesEndpoint', null) ?
-                    this.driver.config.get('resourcesEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Resources.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Resources.moduleName, this._buildPort(this.driver.config));
 
                 var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
                 var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
@@ -5786,11 +5793,7 @@
          */
         Oauth._buildUri = function(uri) {
 
-            var urlBase = this.driver.config.get('oauthEndpoint', null) ?
-                this.driver.config.get('oauthEndpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Oauth.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Oauth._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Oauth.moduleName, corbel.Oauth._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -6392,12 +6395,8 @@
             },
 
             _buildUri: function(path, id) {
-                var uri = '',
-                    urlBase = this.driver.config.get('notificationsEndpoint', null) ?
-                    this.driver.config.get('notificationsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Notifications.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (id) {
@@ -6518,11 +6517,7 @@
             if (extra) {
                 uri += extra;
             }
-            var urlBase = this.driver.config.get('ecEndpoint', null) ?
-                this.driver.config.get('ecpoint') :
-                this.driver.config.get('urlBase')
-                .replace(corbel.Config.URL_BASE_PLACEHOLDER, Ec.moduleName)
-                .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, Ec._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 
             return urlBase + uri;
         };
@@ -6864,12 +6859,8 @@
             },
 
             _buildUri: function(path, eventType) {
-                var uri = '',
-                    urlBase = this.driver.config.get('evciEndpoint', null) ?
-                    this.driver.config.get('evciEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Evci.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var uri = '';
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Evci.moduleName, this._buildPort(this.driver.config));
 
                 uri = urlBase + path;
                 if (eventType) {
@@ -6971,10 +6962,7 @@
                     }
                 });
 
-                var urlBase = this.driver.config.get('borrowEndpoint', null) ||
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Borrow.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.Borrow._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Borrow.moduleName, corbel.Borrow._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -7626,10 +7614,7 @@
             },
 
             _buildUri: function() {
-                var urlBase = this.driver.config.get('composrEndpoint', null) ||
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.CompoSR.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, corbel.CompoSR._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config));
 
                 if (urlBase.slice(-1) === '/') {
                     urlBase = urlBase.substring(0, urlBase.length - 1);
@@ -7907,11 +7892,7 @@
             },
 
             _buildUri: function(id) {
-                var urlBase = this.driver.config.get('webfsEndpoint', null) ?
-                    this.driver.config.get('webfsEndpoint') :
-                    this.driver.config.get('urlBase')
-                    .replace(corbel.Config.URL_BASE_PLACEHOLDER, corbel.Webfs.moduleName)
-                    .replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, this._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
 
                 return urlBase + id;
             },

@@ -99,16 +99,6 @@ describe('JWT module', function() {
 
     });
 
-    it('scope are required', function() {
-
-      expect(function() {
-        corbel.jwt.generate({
-          iss: 'myiss',
-          aud: 'aud'
-        });
-      }).to.throw('jwt:undefined:scope');
-
-    });
 
   });
 

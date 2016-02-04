@@ -48,7 +48,7 @@
             var secret = params.secret || this.driver.config.get('clientSecret');
             params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
             params.claims.aud = params.claims.aud || this.driver.config.get('audience', corbel.Iam.AUD);
-            params.claims.scope = params.claims.scope || this.driver.config.get('scopes');
+            params.claims.scope = params.claims.scope || this.driver.config.get('scopes', '');
             return corbel.jwt.generate(params.claims, secret);
         },
 
@@ -68,7 +68,7 @@
                     RequestCookie: 'true'
                 };
             }
-
+            
             return corbel.request.send(args);
         },
 
@@ -166,11 +166,20 @@
                 }
             };
             var that = this;
-            // we use the traditional POST verb to refresh access token.
-            return this._doPostTokenRequest(this.uri, params).then(function(response) {
-                that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                return response;
-            });
+            
+            try {
+                
+                return this._doPostTokenRequest(this.uri, params)
+                .then(function(response) {
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                    return response;
+                });
+
+            } catch(e) {
+                console.log('error', e);
+                return Promise.reject(e);
+            }
+            
         }
 
     });
