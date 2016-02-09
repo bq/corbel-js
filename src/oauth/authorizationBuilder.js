@@ -2,7 +2,7 @@
 'use strict';
 //@endexclude
 
-(function() {
+(function () {
     /**
      * Create a AuthorizationBuilder for resource managing requests.
      *
@@ -10,7 +10,7 @@
      *
      * @return {corbel.Oauth.AuthorizationBuilder}
      */
-    corbel.Oauth.prototype.authorization = function(clientParams) {
+    corbel.Oauth.prototype.authorization = function (clientParams) {
         console.log('oauthInterface.authorization', clientParams);
 
         corbel.Oauth._checkProp(clientParams, ['responseType'], 'Invalid client parameters');
@@ -41,30 +41,38 @@
      */
     var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.inherit({
 
-        constructor: function(params) {
+        constructor: function (params) {
             this.params = params;
             this.uri = 'oauth';
         },
-        
+
         /**
          * Does a login with stored cookie in oauth server
          * @method
          * @memberOf corbel.Oauth.AuthorizationBuilder
          * @return {Promise} Q promise that resolves to a redirection to redirectUri or rejects with a 404 {@link CorbelError}
          */
-        loginWithCookie: function() {
+        loginWithCookie: function () {
             console.log('oauthInterface.authorization.dialog');
+            var that = this;
+
             // make request, generate oauth cookie, then redirect manually
             return this.request({
-                url: this._buildUri(this.uri + '/authorize'),
-                method: corbel.request.method.GET,
-                dataType: 'text',
-                withCredentials: true,
-                data: this.params,
-                query: this.params.data ? corbel.utils.serializeParams(this.params.data) : null
-            }).then(function(res) {
-                return corbel.Services.getLocationId(res);
-            });
+                    url: this._buildUri(this.uri + '/authorize'),
+                    method: corbel.request.method.GET,
+                    dataType: 'text',
+                    withCredentials: true,
+                    data: this.params.data,
+                    noRedirect: true,
+                    contentType: corbel.Oauth._URL_ENCODED
+                })
+                .then(function (res) {
+                    var params = {
+                        url: res.xhr.getResponseHeader('Location'),
+                        withCredentials: true
+                    };
+                    return that.request(params);
+                });
         },
         /**
          * Does a login in oauth server
@@ -72,39 +80,51 @@
          * @memberOf corbel.Oauth.AuthorizationBuilder
          * @param  {String} username The username of the user to log in
          * @param  {String} password The password of the user
+         * @param  {Boolean} setCookie Sends 'RequestCookie' to the server
          * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
          */
-        login: function(username, password, setCookie) {
+        login: function (username, password, setCookie, redirect) {
             console.log('oauthInterface.authorization.login', username + ':' + password);
-            
-            this.params.data.username = username;
-            this.params.data.password = password;
+
+            if (username) {
+                this.params.data.username = username;
+            }
+
+            if (password) {
+                this.params.data.password = password;
+            }
+
             this.params.withCredentials = true;
+            var that = this;
+
             // make request, generate oauth cookie, then redirect manually
             return this.request({
-                url: this._buildUri(this.uri + '/authorize'),
-                method: corbel.request.method.POST,
-                data: this.params.data,
-                contentType: this.params.contentType
-            }).then(function(res) {
-                if (res.jqXHR.getResponseHeader('Location')) {
-                    var params = {
-                        url: corbel.Services.getLocationId(res)
-                    };
+                    url: this._buildUri(this.uri + '/authorize'),
+                    method: corbel.request.method.POST,
+                    data: this.params.data,
+                    contentType: this.params.contentType,
+                    noRedirect: redirect ? redirect : true
+                })
+                .then(function (res) {
+                    if (res.xhr.getResponseHeader('Location')) {
 
-                    if (setCookie) {
-                        params.headers = {
-                            RequestCookie: 'true'
+                        var req = {
+                            url: res.xhr.getResponseHeader('Location')
                         };
-                        params.withCredentials = true;
-                    }
 
-                    return this.request(params);
-                }
-                else {
-                    return res.data;
-                }
-            });
+                        if (setCookie) {
+                            req.headers = {
+                                RequestCookie: 'true'
+                            };
+                            req.withCredentials = true;
+                        }
+
+                        return that.request(req);
+                    }
+                    else {
+                        return res.data;
+                    }
+                });
         },
 
         /**
@@ -113,14 +133,14 @@
          * @memberOf corbel.Oauth.SignOutBuilder
          * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link CorbelError}
          */
-        signout: function() {
+        signout: function () {
             console.log('oauthInterface.authorization.signOut');
             delete this.params.data;
             return this.request({
                 url: this._buildUri(this.uri + '/signout'),
                 method: corbel.request.method.GET,
                 withCredentials: true
-            }).then(function(res) {
+            }).then(function (res) {
                 return corbel.Services.getLocationId(res);
             });
         },

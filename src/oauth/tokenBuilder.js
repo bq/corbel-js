@@ -18,14 +18,18 @@
 
         corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters');
         corbel.Oauth._validateGrantType(clientParams.grantType);
-        clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
-        clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret');
+
+        clientParams.clientId = clientParams.clientId || corbel.Config.get('OAUTH_DEFAULT.clientId');
+        clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('OAUTH_DEFAULT.clientSecret');
+
         var params = {
             contentType: corbel.Oauth._URL_ENCODED,
             data: corbel.Oauth._trasformParams(clientParams)
         };
+
         var token = new TokenBuilder(params);
         token.driver = this.driver;
+
         return token;
     };
     /**
@@ -54,10 +58,12 @@
         get: function(code) {
             console.log('oauthInterface.token.get');
             this.params.data.code = code;
+
             return this.request({
                 url: this._buildUri(this.uri),
                 method: corbel.request.method.POST,
-                data: this.params
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: this.params.data
             });
         },
 
