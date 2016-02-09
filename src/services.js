@@ -177,17 +177,6 @@
          * @param {object} params request builded params
          */
         _addAuthorization: function (params) {
-
-            //if (!params.headers.Authorization) {
-            //    var accessToken = params.accessToken ? params.accessToken
-            //        : this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
-            //
-            //    params.headers.Authorization = 'Bearer ' + accessToken;
-            //    params.withCredentials = true;
-            //}
-            //
-            //return params;
-
             var accessToken = params.accessToken ? params.accessToken : this.driver.config
                 .get(corbel.Iam.IAM_TOKEN, {}).accessToken;
 
