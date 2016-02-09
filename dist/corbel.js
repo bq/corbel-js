@@ -1343,7 +1343,6 @@
             },
             /**
              * blob serialize handler
-             * 'blob' type do not require serialization for browser, explode in node
              * @param  {object} data
              * @return {ArrayBuffer || Blob}
              */
@@ -1497,20 +1496,11 @@
             if (dataMethods.indexOf(params.method) !== -1) {
                 request.serialize(options.data, params.headers['content-type'], function(serialized) {
                     params.data = serialized;
+                    doRequest(module, params, resolver);
                 });
-            } else if (params.method === request.method.GET) {
-                if (options.data) {
-                    if (options.data instanceof Object) {
-                        params.url = params.url + '?' + corbel.utils.toURLEncoded(options.data);
-                    } else {
-                        request.serialize(options.data, params.headers['content-type'], function(serialized) {
-                            params.url = params.url + '?' + serialized;
-                        });
-                    }
-                }
+            } else {
+                doRequest(module, params, resolver);
             }
-
-            doRequest(module, params, resolver);
 
             return promise;
         };
@@ -1954,24 +1944,16 @@
              * @param {object} params request builded params
              */
             _addAuthorization: function(params) {
-
-                //if (!params.headers.Authorization) {
-                //    var accessToken = params.accessToken ? params.accessToken
-                //        : this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
-                //
-                //    params.headers.Authorization = 'Bearer ' + accessToken;
-                //    params.withCredentials = true;
-                //}
-                //
-                //return params;
-
                 var accessToken = params.accessToken ? params.accessToken : this.driver.config
                     .get(corbel.Iam.IAM_TOKEN, {}).accessToken;
 
                 if (accessToken && !params.headers.Authorization) {
                     params.headers.Authorization = 'Bearer ' + accessToken;
                     params.withCredentials = true;
+                } else if (params.headers.Authorization) {
+                    params.withCredentials = true;
                 }
+
                 return params;
             },
 
@@ -2132,7 +2114,7 @@
                 var location;
 
                 if (responseObject.xhr) {
-                    location = responseObject.xhr.getResponseHeader('location');
+                    location = responseObject.xhr.getResponseHeader('Location');
                 } else if (responseObject.response && responseObject.response.headers.location) {
                     location = responseObject.response.headers.location;
                 }
@@ -4936,7 +4918,7 @@
                         method: corbel.request.method.GET,
                         dataType: 'text',
                         withCredentials: true,
-                        data: this.params.data,
+                        query: corbel.utils.toURLEncoded(this.params.data),
                         noRedirect: true,
                         contentType: corbel.Oauth._URL_ENCODED
                     })
@@ -4955,6 +4937,7 @@
              * @param  {String} username The username of the user to log in
              * @param  {String} password The password of the user
              * @param  {Boolean} setCookie Sends 'RequestCookie' to the server
+             * @param  {Boolean} redirect The user when he does the login
              * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
              */
             login: function(username, password, setCookie, redirect) {
@@ -5205,11 +5188,11 @@
                 console.log('oauthInterface.user.getProfile');
                 this.uri += '/' + id + '/profile';
 
-                var req = this.params;
-                req.method = corbel.request.method.GET;
-                req.url = this._buildUri(this.uri);
+                var params = this.params;
+                params.method = corbel.request.method.GET;
+                params.url = this._buildUri(this.uri);
 
-                return this.request(req);
+                return this.request(params);
             },
             /**
              * Updates the user or  the logged user
@@ -5225,12 +5208,12 @@
                 console.log('oauthInterface.user.update', modification);
                 this.uri += '/' + id;
 
-                var req = this.params;
-                req.url = this._buildUri(this.uri);
-                req.method = corbel.request.method.PUT;
-                req.data = modification;
+                var params = this.params;
+                params.url = this._buildUri(this.uri);
+                params.method = corbel.request.method.PUT;
+                params.data = modification;
 
-                return this.request(req);
+                return this.request(params);
             },
             /**
              * Deletes the user or the logged user
@@ -5244,11 +5227,11 @@
                 console.log('oauthInterface.user.delete');
                 this.uri += '/' + id;
 
-                var req = this.params;
-                req.url = this._buildUri(this.uri);
-                req.method = corbel.request.method.DELETE;
+                var params = this.params;
+                params.url = this._buildUri(this.uri);
+                params.method = corbel.request.method.DELETE;
 
-                return this.request(req);
+                return this.request(params);
             },
             /**
              * Sends a reset password email to the email address recived.
@@ -5286,12 +5269,12 @@
                 console.log('oauthInterface.user.sendValidateEmail');
                 this.uri += '/' + id + '/validate';
 
-                var req = this.params;
-                req.url = this._buildUri(this.uri);
-                req.method = corbel.request.method.GET;
-                req.withAuth = true;
+                var params = this.params;
+                params.url = this._buildUri(this.uri);
+                params.method = corbel.request.method.GET;
+                params.withAuth = true;
 
-                return this.request(req);
+                return this.request(params);
             },
             /**
              * Validates the email of a user or the logged user
@@ -5306,12 +5289,12 @@
                 console.log('oauthInterface.user.emailConfirmation');
                 this.uri += '/' + id + '/emailConfirmation';
 
-                var req = this.params;
-                req.url = this._buildUri(this.uri, id);
-                req.method = corbel.request.method.PUT;
-                req.noRetry = true;
+                var params = this.params;
+                params.url = this._buildUri(this.uri, id);
+                params.method = corbel.request.method.PUT;
+                params.noRetry = true;
 
-                return this.request(req);
+                return this.request(params);
             },
 
             /**
@@ -5326,11 +5309,11 @@
             username: function(name) {
                 console.log('oauthInterface.user.username');
 
-                var req = this.params;
-                req.url = this._buildUri('username/' + name);
-                req.method = corbel.request.method.GET;
+                var params = this.params;
+                params.url = this._buildUri('username/' + name);
+                params.method = corbel.request.method.GET;
 
-                return this.request(req);
+                return this.request(params);
             },
 
             getSerializer: function() {

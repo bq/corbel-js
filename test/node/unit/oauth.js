@@ -43,14 +43,17 @@ describe('In OAUTH module', function() {
                 responseType: 'code'
             };
 
-            oauth.authorization(clientParams).login('testUser', 'testPassword');
+            oauth.authorization(clientParams).login('testUser', 'testPassword', false, false);
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
             expect(callRequestParam.method).to.be.equal('POST');
+
             var response = callRequestParam.data;
             expect(response).to.have.a.property('username', 'testUser');
             expect(response).to.have.a.property('password', 'testPassword');
+
+
         });
 
         it('do the login with cookie request correctly', function() {
@@ -63,14 +66,19 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).loginWithCookie();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
+            console.log('YEHA ' + JSON.stringify(callRequestParam));
+            var url = corbel.utils.toURLEncoded(corbel.Oauth._trasformParams(clientParams));
+
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize?' + url);
             expect(callRequestParam.method).to.be.equal('GET');
             expect(callRequestParam.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
 
-            var response = callRequestParam.data;
-            expect(response).to.have.a.property('client_id', 'testClient');
-            expect(response).to.have.a.property('response_type', 'code');
-            expect(response).to.have.a.property('redirect_uri', 'redirectUri');
+
+            //var response = callRequestParam.query;
+            //expect(response).to.equals(corbel.utils.serializeParams(clientParams));
+            //expect(response).to.have.a.property('client_id', 'testClient');
+            //expect(response).to.have.a.property('response_type', 'code');
+            //expect(response).to.have.a.property('redirect_uri', 'redirectUri');
         });
 
         it('do not allow a response type disctint to "code"', function() {

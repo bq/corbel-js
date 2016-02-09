@@ -104,7 +104,6 @@
         },
         /**
          * blob serialize handler
-         * 'blob' type do not require serialization for browser, explode in node
          * @param  {object} data
          * @return {ArrayBuffer || Blob}
          */
@@ -258,20 +257,11 @@
         if (dataMethods.indexOf(params.method) !== -1) {
             request.serialize(options.data, params.headers['content-type'], function (serialized) {
                 params.data = serialized;
+                doRequest(module, params, resolver);
             });
-        } else if (params.method === request.method.GET) {
-            if (options.data) {
-                if (options.data instanceof Object) {
-                    params.url = params.url + '?' + corbel.utils.toURLEncoded(options.data);
-                } else {
-                    request.serialize(options.data, params.headers['content-type'], function (serialized) {
-                        params.url = params.url + '?' + serialized;
-                    });
-                }
-            }
+        } else {
+            doRequest(module, params, resolver);
         }
-
-        doRequest(module, params, resolver);
 
         return promise;
     };

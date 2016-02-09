@@ -113,11 +113,11 @@
             console.log('oauthInterface.user.getProfile');
             this.uri += '/' + id + '/profile';
 
-            var req = this.params;
-            req.method = corbel.request.method.GET;
-            req.url = this._buildUri(this.uri);
+            var params = this.params;
+            params.method = corbel.request.method.GET;
+            params.url = this._buildUri(this.uri);
 
-            return this.request(req);
+            return this.request(params);
         },
         /**
          * Updates the user or  the logged user
@@ -133,12 +133,12 @@
             console.log('oauthInterface.user.update', modification);
             this.uri += '/' + id;
 
-            var req = this.params;
-            req.url = this._buildUri(this.uri);
-            req.method = corbel.request.method.PUT;
-            req.data = modification;
+            var params = this.params;
+            params.url = this._buildUri(this.uri);
+            params.method = corbel.request.method.PUT;
+            params.data = modification;
 
-            return this.request(req);
+            return this.request(params);
         },
         /**
          * Deletes the user or the logged user
@@ -152,11 +152,11 @@
             console.log('oauthInterface.user.delete');
             this.uri += '/' + id;
 
-            var req = this.params;
-            req.url = this._buildUri(this.uri);
-            req.method = corbel.request.method.DELETE;
+            var params = this.params;
+            params.url = this._buildUri(this.uri);
+            params.method = corbel.request.method.DELETE;
 
-            return this.request(req);
+            return this.request(params);
         },
         /**
          * Sends a reset password email to the email address recived.
@@ -194,12 +194,12 @@
             console.log('oauthInterface.user.sendValidateEmail');
             this.uri += '/' + id + '/validate';
 
-            var req = this.params;
-            req.url = this._buildUri(this.uri);
-            req.method = corbel.request.method.GET;
-            req.withAuth = true;
+            var params = this.params;
+            params.url = this._buildUri(this.uri);
+            params.method = corbel.request.method.GET;
+            params.withAuth = true;
 
-            return this.request(req);
+            return this.request(params);
         },
         /**
          * Validates the email of a user or the logged user
@@ -214,12 +214,12 @@
             console.log('oauthInterface.user.emailConfirmation');
             this.uri += '/' + id + '/emailConfirmation';
 
-            var req = this.params;
-            req.url = this._buildUri(this.uri, id);
-            req.method = corbel.request.method.PUT;
-            req.noRetry = true;
+            var params = this.params;
+            params.url = this._buildUri(this.uri, id);
+            params.method = corbel.request.method.PUT;
+            params.noRetry = true;
 
-            return this.request(req);
+            return this.request(params);
         },
 
         /**
@@ -234,11 +234,11 @@
         username: function (name) {
             console.log('oauthInterface.user.username');
 
-            var req = this.params;
-            req.url = this._buildUri('username/' + name);
-            req.method = corbel.request.method.GET;
+            var params = this.params;
+            params.url = this._buildUri('username/' + name);
+            params.method = corbel.request.method.GET;
 
-            return this.request(req);
+            return this.request(params);
         },
 
         getSerializer: function () {

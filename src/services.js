@@ -177,24 +177,16 @@
          * @param {object} params request builded params
          */
         _addAuthorization: function (params) {
-
-            //if (!params.headers.Authorization) {
-            //    var accessToken = params.accessToken ? params.accessToken
-            //        : this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
-            //
-            //    params.headers.Authorization = 'Bearer ' + accessToken;
-            //    params.withCredentials = true;
-            //}
-            //
-            //return params;
-
-            var accessToken = params.accessToken ? params.accessToken : this.driver.config
+            var accessToken = params.accessToken? params.accessToken : this.driver.config
                 .get(corbel.Iam.IAM_TOKEN, {}).accessToken;
 
             if (accessToken && !params.headers.Authorization) {
                 params.headers.Authorization = 'Bearer ' + accessToken;
                 params.withCredentials = true;
+            }else if(params.headers.Authorization){
+                params.withCredentials = true;
             }
+
             return params;
         },
 
@@ -355,7 +347,7 @@
             var location;
 
             if (responseObject.xhr) {
-                location = responseObject.xhr.getResponseHeader('location');
+                location = responseObject.xhr.getResponseHeader('Location');
             } else if (responseObject.response && responseObject.response.headers.location) {
                 location = responseObject.response.headers.location;
             }

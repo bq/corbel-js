@@ -62,7 +62,7 @@
                     method: corbel.request.method.GET,
                     dataType: 'text',
                     withCredentials: true,
-                    data: this.params.data,
+                    query: corbel.utils.toURLEncoded(this.params.data),
                     noRedirect: true,
                     contentType: corbel.Oauth._URL_ENCODED
                 })
@@ -81,6 +81,7 @@
          * @param  {String} username The username of the user to log in
          * @param  {String} password The password of the user
          * @param  {Boolean} setCookie Sends 'RequestCookie' to the server
+         * @param  {Boolean} redirect The user when he does the login
          * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
          */
         login: function (username, password, setCookie, redirect) {
