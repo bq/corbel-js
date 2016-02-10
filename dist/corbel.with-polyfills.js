@@ -4364,8 +4364,6 @@
                     url: this._buildUri(this.uri + '/resetPassword'),
                     method: corbel.request.method.GET,
                     query: query
-                }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
                 });
             },
 
