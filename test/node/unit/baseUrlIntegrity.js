@@ -1,14 +1,14 @@
-/*jshint newcap: false */
-'use strict';
+/* jshint newcap: false */
+'use strict'
+/* globals describe it before after beforeEach afterEach */
 
-var corbel = require('../../../dist/corbel.js'),
-  chai = require('chai'),
-  sinon = require('sinon'),
-  expect = chai.expect;
+var corbel = require('../../../dist/corbel.js')
+var chai = require('chai')
+var sinon = require('sinon')
+var expect = chai.expect
 
-var TEST_ENDPOINT = 'https://resources-mycorbel.com/v1.0/domain-example/',
-
-  URL_EXAMPLE_RESOURCES = TEST_ENDPOINT + 'resource/resource:entity?api:search=' + encodeURIComponent('{"text":"test"}');
+var TEST_ENDPOINT = 'https://resources-mycorbel.com/v1.0/domain-example/'
+var URL_EXAMPLE_RESOURCES = TEST_ENDPOINT + 'resource/resource:entity?api:search=' + encodeURIComponent('{"text":"test"}')
 
 var CONFIG = {
   clientId: 'clientId',
@@ -16,54 +16,52 @@ var CONFIG = {
   scopes: 'scopes',
   domain: 'domain-example',
   urlBase: 'https://{{module}}-mycorbel.com/v1.0/'
-};
+}
 
-describe('corbel resources module', function() {
+describe('corbel resources module', function () {
+  var sandbox = sinon.sandbox.create()
+  var corbelDriver
+  var resources
 
-  var sandbox = sinon.sandbox.create(),
-    corbelDriver,
-    resources;
+  before(function () {
+    corbelDriver = corbel.getDriver(CONFIG)
+    resources = corbelDriver.resources
+  })
 
-  before(function() {
-    corbelDriver = corbel.getDriver(CONFIG);
-    resources = corbelDriver.resources;
-  });
+  after(function () {})
 
-  after(function() {});
+  beforeEach(function () {
+    sandbox.stub(corbel.request, 'send').returns(Promise.resolve())
+  })
 
-  beforeEach(function() {
-    sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
-  });
+  afterEach(function () {
+    sandbox.restore()
+  })
 
-  afterEach(function() {
-    sandbox.restore();
-  });
+  describe('url integrity', function () {
+    this.timeout(10000)
 
-  describe('url integrity', function() {
-    this.timeout(10000);
-
-    it('does not stack multiple api:definitions', function(done) {
+    it('does not stack multiple api:definitions', function (done) {
       var params = {
-        search : {
+        search: {
           text: 'test'
         }
-      };
+      }
 
-      expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_EXAMPLE_RESOURCES);
-      
-      //After N calls the params object does not get modified by reference.
-      var promises = [resources.collection('resource:entity').get(params), resources.collection('resource:entity').get(params)];
+      expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_EXAMPLE_RESOURCES)
+
+      // After N calls the params object does not get modified by reference.
+      var promises = [resources.collection('resource:entity').get(params), resources.collection('resource:entity').get(params)]
 
       Promise.all(promises)
-        .then(function(){
-          expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_EXAMPLE_RESOURCES);
-          done();
+        .then(function () {
+          expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_EXAMPLE_RESOURCES)
+          done()
         })
-        .catch(function(err){
-          console.log(err);
-          done(err);
-        });
-    });
-
-  });
-});
+        .catch(function (err) {
+          console.log(err)
+          done(err)
+        })
+    })
+  })
+})

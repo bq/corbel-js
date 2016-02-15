@@ -1,197 +1,180 @@
-'use strict';
+'use strict'
 /* jshint camelcase:false */
+/* globals describe it beforeEach afterEach */
 
-var corbel = require('../../../dist/corbel.js'),
-    chai = require('chai'),
-    sinon = require('sinon'),
-    expect = chai.expect;
+var corbel = require('../../../dist/corbel.js')
+var chai = require('chai')
+var sinon = require('sinon')
+var expect = chai.expect
 
-describe('corbel compoSR module', function() {
+describe('corbel compoSR module', function () {
+  var sandbox = sinon.sandbox.create()
+  var CONFIG = {
+    clientId: 'clientId',
+    clientSecret: 'clientSecret',
+    scopes: ['silkroad-qa:client'],
+    urlBase: 'https://{{module}}-corbel.io/'
+  }
 
-    var sandbox = sinon.sandbox.create();
-    var CONFIG = {
+  var COMPOSR_END_POINT = CONFIG.urlBase.replace('{{module}}', 'composr')
+  var corbelDriver = corbel.getDriver(CONFIG)
+  var corbelRequestStub
+  var composr
 
-        clientId: 'clientId',
-        clientSecret: 'clientSecret',
+  beforeEach(function () {
+    corbelDriver = corbel.getDriver(CONFIG)
+    composr = corbelDriver.composr
+    corbelRequestStub = sandbox.stub(corbel.request, 'send').returns(Promise.resolve())
 
-        scopes: ['silkroad-qa:client'],
+    this.options = {
+      headers: '',
+      // body: '',
+      // data: '',
+      queryParams: ''
+    }
+  })
 
-        urlBase: 'https://{{module}}-corbel.io/'
+  afterEach(function () {
+    sandbox.restore()
+  })
 
-    };
+  describe('With compoSR module', function () {
+    describe('request', function () {
+      it('the client can do request to some phrase with POST method', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-    var COMPOSR_END_POINT = CONFIG.urlBase.replace('{{module}}', 'composr');
+        var body = {
+          att: 1,
+          att2: 'stringValue'
+        }
 
-    var corbelDriver = corbel.getDriver(CONFIG);
+        composr.request('phrase/Id').post(body, this.options)
 
-    var corbelRequestStub;
-    var composr;
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id')
+        expect(paramsReceived.method).to.be.equal('POST')
+        expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body))
+      })
 
-    beforeEach(function() {
-        corbelDriver = corbel.getDriver(CONFIG);
-        composr = corbelDriver.composr;
-        corbelRequestStub = sandbox.stub(corbel.request, 'send').returns(Promise.resolve());
+      it('the client can do request to some phrase with POST method, path and query params', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-        this.options = {
-            headers: '',
-            // body: '',
-            // data: '',
-            queryParams: ''
-        };
+        var body = {
+          att: 1,
+          att2: 'stringValue'
+        }
 
-    });
+        this.options.queryParams = {
+          att: 1
+        }
 
-    afterEach(function() {
-        sandbox.restore();
-    });
+        composr.request('phrase/Id', 'param1', 'param2').post(body, this.options)
 
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1')
+        expect(paramsReceived.method).to.be.equal('POST')
+        expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body))
+      })
 
+      it('the client can do request to some phrase with GET method', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-    describe('With compoSR module', function() {
+        composr.request('phrase/Id?att=1&att2="stringValue"').get(this.options)
 
-        describe('request', function() {
-            it('the client can do request to some phrase with POST method', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id?att=1&att2="stringValue"')
+        expect(paramsReceived.method).to.be.equal('GET')
+      })
 
-                var body = {
-                    att: 1,
-                    att2: 'stringValue'
-                };
+      it('the client can do request to some phrase with PUT method', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-                composr.request('phrase/Id').post(body, this.options);
+        var body = {
+          att: 1,
+          att2: 'stringValue'
+        }
 
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
-                expect(paramsReceived.method).to.be.equal('POST');
-                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
-            });
+        composr.request('phrase/Id').put(body, this.options)
 
-            it('the client can do request to some phrase with POST method, path and query params', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id')
+        expect(paramsReceived.method).to.be.equal('PUT')
+        expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body))
+      })
 
-                var body = {
-                    att: 1,
-                    att2: 'stringValue'
-                };
+      it('the client can do request to some phrase with DELETE method', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-                this.options.queryParams = {
-                    att: 1
-                };
+        composr.request('phrase/Id').delete(this.options)
 
-                composr.request('phrase/Id', 'param1', 'param2').post(body, this.options);
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id')
+        expect(paramsReceived.method).to.be.equal('DELETE')
+      })
+    })
 
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id/param1/param2?att=1');
-                expect(paramsReceived.method).to.be.equal('POST');
-                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
-            });
+    describe('phrases', function () {
+      it('its possible add phrases', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-            it('the client can do request to some phrase with GET method', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
+        var phrase = {
+          id: 'id',
+          method: 'GET',
+          code: 'test code',
+          url: 'http//:test'
+        }
 
-                composr.request('phrase/Id?att=1&att2="stringValue"').get(this.options);
+        composr.phrase().put(phrase)
 
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id?att=1&att2="stringValue"');
-                expect(paramsReceived.method).to.be.equal('GET');
-            });
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase')
+        expect(paramsReceived.method).to.be.equal('PUT')
+        expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(phrase))
+      })
 
-            it('the client can do request to some phrase with PUT method', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
+      it('it is not possible to get phrases without an id', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
+        expect(function () {
+          composr.phrase().get()
+        }).to.throw('id value is mandatory and cannot be undefined')
+      })
 
-                var body = {
-                    att: 1,
-                    att2: 'stringValue'
-                };
+      it('its possible get phrases', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-                composr.request('phrase/Id').put(body, this.options);
+        composr.phrase('phrase/Id').get()
 
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
-                expect(paramsReceived.method).to.be.equal('PUT');
-                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(body));
-            });
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/phrase/Id')
+        expect(paramsReceived.method).to.be.equal('GET')
+      })
 
-            it('the client can do request to some phrase with DELETE method', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
+      it('its possible get all phrases by domain', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-                composr.request('phrase/Id').delete(this.options);
+        composr.phrase().getAll()
 
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/Id');
-                expect(paramsReceived.method).to.be.equal('DELETE');
-            });
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase')
+        expect(paramsReceived.method).to.be.equal('GET')
+      })
 
+      it('it is not possible to delete phrases without an id', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
+        expect(function () {
+          composr.phrase().delete()
+        }).to.throw('id value is mandatory and cannot be undefined')
+      })
 
-        });
+      it('its possible delete phrases', function () {
+        corbelRequestStub.returns(Promise.resolve('OK'))
 
-        describe('phrases', function() {
+        composr.phrase('phrase/Id').delete()
 
-            it('its possible add phrases', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-
-                var phrase = {
-                    id: 'id',
-                    method: 'GET',
-                    code: 'test code',
-                    url: 'http//:test'
-                };
-
-                composr.phrase().put(phrase);
-
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase');
-                expect(paramsReceived.method).to.be.equal('PUT');
-                expect(JSON.stringify(paramsReceived.data)).to.be.equal(JSON.stringify(phrase));
-            });
-
-            it('it is not possible to get phrases without an id', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-                expect(function(){
-                  composr.phrase().get();
-                }).to.throw('id value is mandatory and cannot be undefined');
-            });
-
-            it('its possible get phrases', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-
-                composr.phrase('phrase/Id').get();
-
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/phrase/Id');
-                expect(paramsReceived.method).to.be.equal('GET');
-            });
-
-            it('its possible get all phrases by domain', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-
-                composr.phrase().getAll();
-
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase');
-                expect(paramsReceived.method).to.be.equal('GET');
-            });
-
-            it('it is not possible to delete phrases without an id', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-                expect(function(){
-                  composr.phrase().delete();
-                }).to.throw('id value is mandatory and cannot be undefined');
-            });
-
-            it('its possible delete phrases', function() {
-                corbelRequestStub.returns(Promise.resolve('OK'));
-
-                composr.phrase('phrase/Id').delete();
-
-                var paramsReceived = corbel.request.send.firstCall.args[0];
-                expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/phrase/Id');
-                expect(paramsReceived.method).to.be.equal('DELETE');
-            });
-        });
-
-
-    });
-
-
-});
+        var paramsReceived = corbel.request.send.firstCall.args[0]
+        expect(paramsReceived.url).to.be.equal(COMPOSR_END_POINT + 'phrase/phrase/Id')
+        expect(paramsReceived.method).to.be.equal('DELETE')
+      })
+    })
+  })
+})

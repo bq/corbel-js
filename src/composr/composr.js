@@ -1,9 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
-(function() {
-
+;(function () {
   /**
    * A module to make CompoSR requests.
    * @exports CompoSR
@@ -12,9 +12,8 @@
    */
 
   corbel.CompoSR = corbel.Object.inherit({
-
-    constructor: function(driver) {
-      this.driver = driver;
+    constructor: function (driver) {
+      this.driver = driver
     },
 
     /**
@@ -24,10 +23,10 @@
      *
      * @return {corbel.CompoSR.PhraseBuilder}
      */
-    phrase: function(id) {
-      var phraseBuilder = new corbel.CompoSR.PhraseBuilder(id);
-      phraseBuilder.driver = this.driver;
-      return phraseBuilder;
+    phrase: function (id) {
+      var phraseBuilder = new corbel.CompoSR.PhraseBuilder(id)
+      phraseBuilder.driver = this.driver
+      return phraseBuilder
     },
 
     /**
@@ -40,44 +39,41 @@
      *
      * @return {corbel.CompoSR.RequestBuilder}
      */
-    request: function() {
-      var requestBuilder = new corbel.CompoSR.RequestBuilder(Array.prototype.slice.call(arguments));
-      requestBuilder.driver = this.driver;
-      return requestBuilder;
+    request: function () {
+      var requestBuilder = new corbel.CompoSR.RequestBuilder(Array.prototype.slice.call(arguments))
+      requestBuilder.driver = this.driver
+      return requestBuilder
     }
 
-
   }, {
-
     moduleName: 'composr',
     defaultPort: 3000,
 
-    create: function(driver) {
-      return new corbel.CompoSR(driver);
+    create: function (driver) {
+      return new corbel.CompoSR(driver)
     },
 
-    _buildPort: function(config) {
-      return config.get('composrPort', null) || corbel.CompoSR.defaultPort;
+    _buildPort: function (config) {
+      return config.get('composrPort', null) || corbel.CompoSR.defaultPort
     },
 
-    _buildUri: function() {
-      var urlBase =  this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config));
+    _buildUri: function () {
+      var urlBase = this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config))
 
       if (urlBase.slice(-1) === '/') {
-        urlBase = urlBase.substring(0, urlBase.length - 1);
+        urlBase = urlBase.substring(0, urlBase.length - 1)
       }
 
-      var uri = '';
-      Array.prototype.slice.call(arguments).forEach(function(argument) {
+      var uri = ''
+      Array.prototype.slice.call(arguments).forEach(function (argument) {
         if (argument) {
-          uri += '/' + argument;
+          uri += '/' + argument
         }
-      });
-      return urlBase + uri;
+      })
+      return urlBase + uri
     }
 
-  });
+  })
 
-  return corbel.CompoSR;
-
-})();
+  return corbel.CompoSR
+})()

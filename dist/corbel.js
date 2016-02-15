@@ -1,19 +1,20 @@
+;
 (function(root, factory) {
-    'use strict';
+    'use strict'
     /* jshint unused: false */
+    /* global define */
 
     if (typeof define === 'function' && define.amd) {
         define([], function() {
-            return factory(root);
-        });
+            return factory(root)
+        })
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory.call(root, root, process || undefined);
+        module.exports = factory.call(root, root, process || undefined)
     } else if (root !== undefined) {
-        root.corbel = factory(root);
+        root.corbel = factory(root)
     }
-
 })(this, function(root, process) {
-    'use strict';
+    'use strict'
     /* jshint unused: false */
 
     /**
@@ -21,13 +22,14 @@
      * @exports corbel
      * @namespace
      */
-    var corbel = {};
+    var corbel = {}
 
-    //-----------Utils and libraries (exports into corbel namespace)---------------------------
+    // -----------Utils and libraries (exports into corbel namespace)---------------------------
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * @namespace
          * @memberOf corbel
@@ -35,37 +37,36 @@
          * @return {CorbelDriver}
          */
         function CorbelDriver(config, events) {
-
             if (events && typeof events === 'object') {
-                this._events = corbel.utils.clone(events);
+                this._events = corbel.utils.clone(events)
             } else {
-                this._events = {};
+                this._events = {}
             }
             // create instance config
-            this.guid = corbel.utils.guid();
-            this.config = corbel.Config.create(config);
+            this.guid = corbel.utils.guid()
+            this.config = corbel.Config.create(config)
 
             // create isntance modules with injected driver
-            this.iam = corbel.Iam.create(this);
-            this.resources = corbel.Resources.create(this);
-            this.assets = corbel.Assets.create(this);
-            this.oauth = corbel.Oauth.create(this);
-            this.notifications = corbel.Notifications.create(this);
-            this.ec = corbel.Ec.create(this);
-            this.evci = corbel.Evci.create(this);
-            this.borrow = corbel.Borrow.create(this);
-            this.composr = corbel.CompoSR.create(this);
-            this.scheduler = corbel.Scheduler.create(this);
-            this.webfs = corbel.Webfs.create(this);
-            this.domain = corbel.Domain.create(this);
+            this.iam = corbel.Iam.create(this)
+            this.resources = corbel.Resources.create(this)
+            this.assets = corbel.Assets.create(this)
+            this.oauth = corbel.Oauth.create(this)
+            this.notifications = corbel.Notifications.create(this)
+            this.ec = corbel.Ec.create(this)
+            this.evci = corbel.Evci.create(this)
+            this.borrow = corbel.Borrow.create(this)
+            this.composr = corbel.CompoSR.create(this)
+            this.scheduler = corbel.Scheduler.create(this)
+            this.webfs = corbel.Webfs.create(this)
+            this.domain = corbel.Domain.create(this)
         }
 
         /**
          * @return {CorbelDriver} A new instance of corbel driver with the same config
          */
         CorbelDriver.prototype.clone = function() {
-            return new CorbelDriver(this.config.getConfig(), this._events);
-        };
+            return new CorbelDriver(this.config.getConfig(), this._events)
+        }
 
         /**
          * Adds an event handler for especific event
@@ -74,13 +75,13 @@
          */
         CorbelDriver.prototype.addEventListener = function(name, fn) {
             if (typeof fn !== 'function') {
-                throw new Error('corbel:error:invalid:type');
+                throw new Error('corbel:error:invalid:type')
             }
-            this._events[name] = this._events[name] || [];
+            this._events[name] = this._events[name] || []
             if (this._events[name].indexOf(fn) === -1) {
-                this._events[name].push(fn);
+                this._events[name].push(fn)
             }
-        };
+        }
 
         /**
          * Removes the handler from event list
@@ -89,12 +90,12 @@
          */
         CorbelDriver.prototype.removeEventListener = function(name, fn) {
             if (this._events[name]) {
-                var index = this._events[name].indexOf(fn);
+                var index = this._events[name].indexOf(fn)
                 if (index !== -1) {
-                    this._events[name].splice(index, 1);
+                    this._events[name].splice(index, 1)
                 }
             }
-        };
+        }
 
         /**
          * Fires all events handlers for an specific event name
@@ -104,10 +105,10 @@
         CorbelDriver.prototype.dispatch = function(name, options) {
             if (this._events[name] && this._events[name].length) {
                 this._events[name].forEach(function(fn) {
-                    fn(options);
-                });
+                    fn(options)
+                })
             }
-        };
+        }
 
         /**
          * Adds an event handler for especific event
@@ -115,7 +116,7 @@
          * @param {string}   name Event name
          * @param {Function} fn   Function to call
          */
-        CorbelDriver.prototype.on = CorbelDriver.prototype.addEventListener;
+        CorbelDriver.prototype.on = CorbelDriver.prototype.addEventListener
 
         /**
          * Removes the handler from event list
@@ -123,7 +124,7 @@
          * @param  {string}   name Event name
          * @param  {Function} fn   Function to remove
          */
-        CorbelDriver.prototype.off = CorbelDriver.prototype.removeEventListener;
+        CorbelDriver.prototype.off = CorbelDriver.prototype.removeEventListener
 
         /**
          * Fires all events handlers for an specific event name
@@ -131,9 +132,9 @@
          * @param  {string} name    Event name
          * @param  {Mixed} options  Data for event handlers
          */
-        CorbelDriver.prototype.trigger = CorbelDriver.prototype.dispatch;
+        CorbelDriver.prototype.trigger = CorbelDriver.prototype.dispatch
 
-        corbel.CorbelDriver = CorbelDriver;
+        corbel.CorbelDriver = CorbelDriver
 
         /**
          * Instanciates new corbel driver
@@ -146,28 +147,28 @@
          * @return {corbel.CorbelDriver}
          */
         corbel.getDriver = function(config) {
-            config = config || {};
+            config = config || {}
 
             if (!config.urlBase) {
-                throw new Error('error:undefined:urlbase');
+                throw new Error('error:undefined:urlbase')
             }
 
-            return new CorbelDriver(config);
-        };
-
-    })();
-
+            return new CorbelDriver(config)
+        }
+    })()
 
 
+    /*globals corbel */
+
+    ;
     (function() {
-
         /**
          * A module to some library corbel.utils
          * @exports utils
          * @namespace
          * @memberof corbel
          */
-        var utils = corbel.utils = {};
+        var utils = corbel.utils = {}
 
         /**
          * Extend a given object with all the properties in passed-in object(s).
@@ -175,17 +176,16 @@
          * @return {Object}
          */
         utils.extend = function(obj) {
-
             Array.prototype.slice.call(arguments, 1).forEach(function(source) {
                 if (source) {
                     for (var prop in source) {
-                        obj[prop] = source[prop];
+                        obj[prop] = source[prop]
                     }
                 }
-            });
+            })
 
-            return obj;
-        };
+            return obj
+        }
 
         /**
          * Set up the prototype chain, for subclasses. Uses a hash of prototype properties and class properties to be extended.
@@ -194,61 +194,57 @@
          * @return {Object} Return a new object that inherit from the context object
          */
         utils.inherit = function(prototypeProperties, staticProperties) {
-            var parent = this,
-                child;
-
+            var parent = this
+            var child
 
             if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
-                child = prototypeProperties.constructor;
+                child = prototypeProperties.constructor
             } else {
                 child = function() {
-                    return parent.apply(this, arguments);
-                };
+                    return parent.apply(this, arguments)
+                }
             }
 
-            utils.extend(child, parent, staticProperties);
+            utils.extend(child, parent, staticProperties)
 
             var Surrogate = function() {
-                this.constructor = child;
-            };
-
-            Surrogate.prototype = parent.prototype;
-            child.prototype = new Surrogate; // jshint ignore:line
-
-            if (prototypeProperties) {
-                utils.extend(child.prototype, prototypeProperties);
+                this.constructor = child
             }
 
-            child.__super__ = parent.prototype;
+            Surrogate.prototype = parent.prototype
+            child.prototype = new Surrogate()
 
-            return child;
+            if (prototypeProperties) {
+                utils.extend(child.prototype, prototypeProperties)
+            }
 
-        };
+            child.__super__ = parent.prototype
 
+            return child
+        }
 
         /**
          * Generate a uniq random GUID
          */
         utils.guid = function() {
-
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
-                    .substring(1);
+                    .substring(1)
             }
 
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                s4() + '-' + s4() + s4() + s4();
-        };
+                s4() + '-' + s4() + s4() + s4()
+        }
 
         /**
          * Reload browser
          */
         utils.reload = function() {
             if (window !== undefined) {
-                window.location.reload();
+                window.location.reload()
             }
-        };
+        }
 
         /**
          * Serialize a plain object to query string
@@ -256,25 +252,24 @@
          * @return {String}
          */
         utils.param = function(obj) {
-            var str = [];
+            var str = []
             for (var p in obj) {
                 if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
                 }
             }
-            return str.join('&');
-        };
-
+            return str.join('&')
+        }
 
         utils.toURLEncoded = function(obj) {
-            var str = [];
+            var str = []
             for (var p in obj) {
                 if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
                 }
             }
-            return str.join('&');
-        };
+            return str.join('&')
+        }
 
         /**
          * Translate this full exampe query to a Corbel Compliant QueryString
@@ -341,175 +336,175 @@
          *     aggregation: {
          *         '$count': '*'
          *     }
-         * };
+         * }
          */
         utils.serializeParams = function(params) {
-            var result = '';
+            var result = ''
 
             if (params === undefined || params === null) {
-                return result;
+                return result
             }
 
             if (!(params instanceof Object) && (typeof params !== 'object')) {
-                throw new Error('expected params to be an Object type, but got ' + typeof params);
+                throw new Error('expected params to be an Object type, but got ' + typeof params)
             }
 
             function getJsonEncodedStringify(param) {
-                return encodeURIComponent(JSON.stringify(param));
+                return encodeURIComponent(JSON.stringify(param))
             }
 
             if (params.aggregation) {
-                result = 'api:aggregation=' + getJsonEncodedStringify(params.aggregation);
+                result = 'api:aggregation=' + getJsonEncodedStringify(params.aggregation)
             }
 
             function queryObjectToString(params, key) {
-                var result = '';
-                var query;
-                params.queryDomain = params.queryDomain || 'api';
-                result += params.queryDomain + ':' + key + '=';
+                var result = ''
+                var query
+                params.queryDomain = params.queryDomain || 'api'
+                result += params.queryDomain + ':' + key + '='
                 try {
                     if (typeof params[key] === 'string') {
-                        query = JSON.parse(params[key]);
+                        query = JSON.parse(params[key])
                     } else {
-                        //Clone the object we don't want to modify the original query object
-                        query = JSON.parse(JSON.stringify(params[key]));
+                        // Clone the object we don't want to modify the original query object
+                        query = JSON.parse(JSON.stringify(params[key]))
                     }
 
-                    result += getJsonEncodedStringify(query);
+                    result += getJsonEncodedStringify(query)
 
-                    return result;
+                    return result
                 } catch (e) {
-                    //Return the query even if it is not a valid object
-                    return result + params[key];
+                    // Return the query even if it is not a valid object
+                    return result + params[key]
                 }
             }
 
             if (params.query) {
-                params.queryDomain = params.queryDomain || 'api';
-                result += result ? '&' : '';
-                result += queryObjectToString(params, 'query');
+                params.queryDomain = params.queryDomain || 'api'
+                result += result ? '&' : ''
+                result += queryObjectToString(params, 'query')
             }
 
             if (params.queries) {
                 params.queries.forEach(function(query) {
-                    result += result ? '&' : '';
-                    result += queryObjectToString(query, 'query');
-                });
+                    result += result ? '&' : ''
+                    result += queryObjectToString(query, 'query')
+                })
             }
 
             if (params.condition) {
-                params.queryDomain = params.queryDomain || 'api';
-                result += result ? '&' : '';
-                result += queryObjectToString(params, 'condition');
+                params.queryDomain = params.queryDomain || 'api'
+                result += result ? '&' : ''
+                result += queryObjectToString(params, 'condition')
             }
 
             if (params.conditions) {
                 params.conditions.forEach(function(condition) {
-                    result += result ? '&' : '';
-                    result += queryObjectToString(condition, 'condition');
-                });
+                    result += result ? '&' : ''
+                    result += queryObjectToString(condition, 'condition')
+                })
             }
 
             if (params.search) {
-                result += result ? '&' : '';
+                result += result ? '&' : ''
 
-                result += 'api:search=';
+                result += 'api:search='
                 if (params.search instanceof Object) {
-                    result += getJsonEncodedStringify(params.search);
+                    result += getJsonEncodedStringify(params.search)
                 } else {
-                    result += encodeURIComponent(params.search);
+                    result += encodeURIComponent(params.search)
                 }
 
                 if (params.hasOwnProperty('indexFieldsOnly')) {
-                    result += '&api:indexFieldsOnly=' + getJsonEncodedStringify(params.indexFieldsOnly);
+                    result += '&api:indexFieldsOnly=' + getJsonEncodedStringify(params.indexFieldsOnly)
                 }
             }
 
             if (params.distinct) {
-                result += result ? '&' : '';
-                result += 'api:distinct=' + encodeURIComponent((params.distinct instanceof Array ? params.distinct.join(',') : params.distinct));
+                result += result ? '&' : ''
+                result += 'api:distinct=' + encodeURIComponent((params.distinct instanceof Array ? params.distinct.join(',') : params.distinct))
             }
 
             if (params.sort) {
-                result += result ? '&' : '';
-                result += 'api:sort=' + getJsonEncodedStringify(params.sort);
+                result += result ? '&' : ''
+                result += 'api:sort=' + getJsonEncodedStringify(params.sort)
             }
 
             if (params.pagination) {
                 if (params.pagination.page || params.pagination.page === 0) {
-                    result += result ? '&' : '';
-                    result += 'api:page=' + params.pagination.page;
+                    result += result ? '&' : ''
+                    result += 'api:page=' + params.pagination.page
                 }
 
                 if (params.pagination.pageSize || params.pagination.pageSize === 0) {
-                    result += result ? '&' : '';
-                    result += 'api:pageSize=' + params.pagination.pageSize;
+                    result += result ? '&' : ''
+                    result += 'api:pageSize=' + params.pagination.pageSize
                 }
             }
 
             if (params.customQueryParams) {
                 Object.keys(params.customQueryParams).forEach(function(param) {
-                    result += result ? '&' : '';
-                    result += param + '=' + encodeURIComponent(params.customQueryParams[param]);
-                });
+                    result += result ? '&' : ''
+                    result += param + '=' + encodeURIComponent(params.customQueryParams[param])
+                })
             }
 
-            return result;
-        };
+            return result
+        }
 
         utils.defaults = function(destiny, defaults) {
             Object.keys(defaults).forEach(function(key) {
                 if (typeof(destiny[key]) === 'undefined') {
-                    destiny[key] = defaults[key];
+                    destiny[key] = defaults[key]
                 }
-            });
+            })
 
-            return destiny;
-        };
+            return destiny
+        }
 
         utils.pick = function(object, keys) {
-            var destiny = {};
+            var destiny = {}
 
             keys.forEach(function(key) {
-                destiny[key] = object[key];
-            });
+                destiny[key] = object[key]
+            })
 
-            return destiny;
-        };
+            return destiny
+        }
 
         utils.clone = function clone(item) {
             if (!item) {
-                return item;
+                return item
             } // null, undefined values check
 
-            var types = [Number, String, Boolean],
-                result;
+            var types = [Number, String, Boolean]
+            var result
 
-            // normalizing primitives if someone did new String('aaa'), or new Number('444');
+            // normalizing primitives if someone did new String('aaa'), or new Number('444')
             types.forEach(function(type) {
                 if (item instanceof type) {
-                    result = type(item);
+                    result = type(item)
                 }
-            });
+            })
 
             if (typeof result === 'undefined') {
                 if (Object.prototype.toString.call(item) === '[object Array]') {
-                    result = [];
+                    result = []
                     item.forEach(function(child, index) {
-                        result[index] = clone(child);
-                    });
+                        result[index] = clone(child)
+                    })
                 } else if (typeof item === 'object') {
                     // testing that this is DOM
                     if (item.nodeType && typeof item.cloneNode === 'function') {
-                        result = item.cloneNode(true);
+                        result = item.cloneNode(true)
                     } else if (!item.prototype) { // check that this is a literal
                         if (item instanceof Date) {
-                            result = new Date(item);
+                            result = new Date(item)
                         } else {
                             // it is an object literal
-                            result = {};
+                            result = {}
                             for (var i in item) {
-                                result[i] = clone(item[i]);
+                                result[i] = clone(item[i])
                             }
                         }
                     } else {
@@ -517,18 +512,18 @@
                         // just keep the reference, or create new object
                         if (false && item.constructor) {
                             // would not advice to do that, reason? Read below
-                            result = new item.constructor();
+                            result = new item.constructor()
                         } else {
-                            result = item;
+                            result = item
                         }
                     }
                 } else {
-                    result = item;
+                    result = item
                 }
             }
 
-            return result;
-        };
+            return result
+        }
 
         /**
          * Change the keys of the object to lowercase due to
@@ -538,45 +533,45 @@
          */
         utils.keysToLowerCase = function(obj) {
             if (obj === undefined || obj === null) {
-                return obj;
+                return obj
             } else {
-                var key;
-                var keys = Object.keys(obj);
-                var n = keys.length;
-                var newobj = {};
+                var key
+                var keys = Object.keys(obj)
+                var n = keys.length
+                var newobj = {}
                 while (n--) {
-                    key = keys[n];
-                    newobj[key.toLowerCase()] = obj[key];
+                    key = keys[n]
+                    newobj[key.toLowerCase()] = obj[key]
                 }
-                return newobj;
+                return newobj
             }
-        };
+        }
 
         utils.isJSON = function(string) {
             try {
-                JSON.parse(string);
+                JSON.parse(string)
             } catch (e) {
-                return false;
+                return false
             }
 
-            return true;
-        };
+            return true
+        }
 
         utils.isStream = function(data) {
             if (data.pipe && typeof data.pipe === 'function') {
-                return true;
+                return true
             } else {
-                return false;
+                return false
             }
-        };
+        }
 
         utils.arrayToObject = function(array) {
-            var object = {};
+            var object = {}
             array.map(function(element, index) {
-                object[index] = element;
-            });
-            return object;
-        };
+                object[index] = element
+            })
+            return object
+        }
 
         /**
          * Creates a copy of Array with the same inner elements
@@ -584,13 +579,13 @@
          * @return {Array}  A copy version of the array
          */
         utils.copyArray = function(list) {
-            var newList = new Array(list.length);
-            var i = list.length;
+            var newList = new Array(list.length)
+            var i = list.length
             while (i--) {
-                newList[i] = list[i];
+                newList[i] = list[i]
             }
-            return newList;
-        };
+            return newList
+        }
 
         /**
          * Convert data URI to Blob.
@@ -599,15 +594,14 @@
          * @return {Blob}
          */
         utils.dataURItoBlob = function(dataURI) {
-
-            var serialize;
+            var serialize
             if (corbel.Config.isNode) {
-                console.log('NODE');
-                // node environment
-                serialize = require('atob');
+                console.log('NODE')
+                    // node environment
+                serialize = require('atob')
             } else {
-                console.log('BROWSER');
-                serialize = root.atob;
+                console.log('BROWSER')
+                serialize = root.atob
             }
 
             /*
@@ -618,71 +612,68 @@
              * Phrantom has ton Blob() constructor support,
              * use BlobBuilder instead.
              */
-            var BlobBuilder;
-            var BlobConstructor;
+            var BlobBuilder
+            var BlobConstructor
             if (corbel.Config.isBrowser) {
                 BlobBuilder = window.BlobBuilder = window.BlobBuilder ||
                     window.WebKitBlobBuilder ||
                     window.MozBlobBuilder ||
-                    window.MSBlobBuilder;
-                BlobConstructor = window.Blob;
+                    window.MSBlobBuilder
+                BlobConstructor = window.Blob
             }
 
             // convert base64 to raw binary data held in a string
-            var byteString = serialize(dataURI.split(',')[1]);
+            var byteString = serialize(dataURI.split(',')[1])
 
             // separate out the mime component
-            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
             // write the bytes of the string to an ArrayBuffer
-            var arrayBuffer = new ArrayBuffer(byteString.length);
-            var _ia = new Uint8Array(arrayBuffer);
+            var arrayBuffer = new ArrayBuffer(byteString.length)
+            var _ia = new Uint8Array(arrayBuffer)
             for (var i = 0; i < byteString.length; i++) {
-                _ia[i] = byteString.charCodeAt(i);
+                _ia[i] = byteString.charCodeAt(i)
             }
-            var blob;
+            var blob
             if (BlobBuilder) {
-                blob = new BlobBuilder();
-                blob.append(arrayBuffer);
-                blob = blob.getBlob(mimeString);
+                blob = new BlobBuilder()
+                blob.append(arrayBuffer)
+                blob = blob.getBlob(mimeString)
             } else {
                 blob = new BlobConstructor([_ia], {
                     type: mimeString
-                });
+                })
             }
-            return blob;
-        };
+            return blob
+        }
 
-        return utils;
-
-    })();
-
+        return utils
+    })()
 
 
+    /*globals corbel */
+
+    ;
     (function() {
-
-
-
         /**
          * A module to make values validation.
          * @exports validate
          * @namespace
          * @memberof app
          */
-        corbel.validate = {};
+        corbel.validate = {}
 
         corbel.validate.values = function(keys, obj) {
-            var that = this;
+            var that = this
             keys.forEach(function(key) {
-                that.value(key, obj[key]);
-            });
-            return true;
-        };
+                that.value(key, obj[key])
+            })
+            return true
+        }
 
         corbel.validate.value = function(key, value) {
-            return this.isDefined(value, key + ' value is mandatory and cannot be undefined');
-        };
-
+            return this.isDefined(value, key + ' value is mandatory and cannot be undefined')
+        }
 
         /**
          * Checks if some value is not undefined
@@ -692,13 +683,13 @@
          * @return {Boolean}
          */
         corbel.validate.isDefined = function(value, message) {
-            var isUndefined = value === undefined;
+            var isUndefined = value === undefined
 
             if (isUndefined && message) {
-                throw new Error(message);
+                throw new Error(message)
             }
-            return !isUndefined;
-        };
+            return !isUndefined
+        }
 
         /**
          * Checks if some value is defined and throw error
@@ -709,13 +700,13 @@
          */
 
         corbel.validate.failIfIsDefined = function(value, message) {
-            var isDefined = value !== undefined;
+            var isDefined = value !== undefined
 
             if (isDefined && message) {
-                throw new Error(message);
+                throw new Error(message)
             }
-            return !isDefined;
-        };
+            return !isDefined
+        }
 
         /**
          * Checks whenever value are null or not
@@ -725,13 +716,13 @@
          * @return {Boolean}
          */
         corbel.validate.isNotNull = function(value, message) {
-            var isNull = value === null;
+            var isNull = value === null
 
             if (isNull && message) {
-                throw new Error(message);
+                throw new Error(message)
             }
-            return !isNull;
-        };
+            return !isNull
+        }
 
         /**
          * Checks whenever a value is not null and not undefined
@@ -741,8 +732,8 @@
          * @return {Boolean}
          */
         corbel.validate.isValue = function(value, message) {
-            return this.isDefined(value, message) && this.isNotNull(value, message);
-        };
+            return this.isDefined(value, message) && this.isNotNull(value, message)
+        }
 
         /**
          * Checks if a variable is a type of object
@@ -750,8 +741,8 @@
          * @return {Boolean}
          */
         corbel.validate.isObject = function(obj) {
-            return typeof obj === 'object';
-        };
+            return typeof obj === 'object'
+        }
 
         /**
          * Checks whenever a value is greater than other
@@ -762,13 +753,13 @@
          * @return {Boolean}
          */
         corbel.validate.isGreaterThan = function(value, greaterThan, message) {
-            var gt = this.isValue(value) && value > greaterThan;
+            var gt = this.isValue(value) && value > greaterThan
 
             if (!gt && message) {
-                throw new Error(message);
+                throw new Error(message)
             }
-            return gt;
-        };
+            return gt
+        }
 
         /**
          * Checks whenever a value is greater or equal than other
@@ -779,19 +770,20 @@
          * @return {Boolean}
          */
         corbel.validate.isGreaterThanOrEqual = function(value, isGreaterThanOrEqual, message) {
-            var gte = this.isValue(value) && value >= isGreaterThanOrEqual;
+            var gte = this.isValue(value) && value >= isGreaterThanOrEqual
 
             if (!gte && message) {
-                throw new Error(message);
+                throw new Error(message)
             }
-            return gte;
-        };
+            return gte
+        }
+    })()
 
-    })();
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * Base object with
          * @class
@@ -800,8 +792,8 @@
          * @memberof corbel
          */
         corbel.Object = function() {
-            return this;
-        };
+            return this
+        }
 
         /**
          * Gets my user assets
@@ -809,15 +801,15 @@
          * @see corbel.utils.inherit
          * @return {Object}
          */
-        corbel.Object.inherit = corbel.utils.inherit;
+        corbel.Object.inherit = corbel.utils.inherit
 
-        return corbel.Object;
+        return corbel.Object
+    })()
 
-    })();
 
 
+    ;
     (function() {
-
         /* jshint camelcase:false */
         corbel.cryptography = (function() {
             /*
@@ -834,31 +826,31 @@
              * Configurable variables. You may need to tweak these to be compatible with
              * the server-side, but the defaults work in most cases.
              */
-            var hexcase = 0; /* hex output format. 0 - lowercase; 1 - uppercase        */
-            var b64pad = ''; /* base-64 pad character. "=" for strict RFC compliance   */
+            // var hexcase = 0  hex output format. 0 - lowercase; 1 - uppercase
+            var b64pad = '' /* base-64 pad character. "=" for strict RFC compliance   */
 
             function b64_hmac_sha256(k, d) {
-                return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));
+                return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)))
             }
 
             /*
              * Calculate the HMAC-sha256 of a key and some data (raw strings)
              */
             function rstr_hmac_sha256(key, data) {
-                var bkey = rstr2binb(key);
+                var bkey = rstr2binb(key)
                 if (bkey.length > 16) {
-                    bkey = binb_sha256(bkey, key.length * 8);
+                    bkey = binb_sha256(bkey, key.length * 8)
                 }
 
-                var ipad = Array(16),
-                    opad = Array(16);
+                var ipad = Array(16)
+                var opad = Array(16)
                 for (var i = 0; i < 16; i++) {
-                    ipad[i] = bkey[i] ^ 0x36363636;
-                    opad[i] = bkey[i] ^ 0x5C5C5C5C;
+                    ipad[i] = bkey[i] ^ 0x36363636
+                    opad[i] = bkey[i] ^ 0x5C5C5C5C
                 }
 
-                var hash = binb_sha256(ipad.concat(rstr2binb(data)), 512 + data.length * 8);
-                return binb2rstr(binb_sha256(opad.concat(hash), 512 + 256));
+                var hash = binb_sha256(ipad.concat(rstr2binb(data)), 512 + data.length * 8)
+                return binb2rstr(binb_sha256(opad.concat(hash), 512 + 256))
             }
 
             /*
@@ -868,19 +860,19 @@
                 try {
                     b64pad
                 } catch (e) {
-                    b64pad = '';
+                    b64pad = ''
                 }
-                var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-                var output = '';
-                var len = input.length;
+                var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+                var output = ''
+                var len = input.length
                 for (var i = 0; i < len; i += 3) {
-                    var triplet = (input.charCodeAt(i) << 16) | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0) | (i + 2 < len ? input.charCodeAt(i + 2) : 0);
+                    var triplet = (input.charCodeAt(i) << 16) | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0) | (i + 2 < len ? input.charCodeAt(i + 2) : 0)
                     for (var j = 0; j < 4; j++) {
-                        if (i * 8 + j * 6 > input.length * 8) output += b64pad;
-                        else output += tab.charAt((triplet >>> 6 * (3 - j)) & 0x3F);
+                        if (i * 8 + j * 6 > input.length * 8) output += b64pad
+                        else output += tab.charAt((triplet >>> 6 * (3 - j)) & 0x3F)
                     }
                 }
-                return output;
+                return output
             }
 
             /*
@@ -888,36 +880,36 @@
              * For efficiency, this assumes the input is valid utf-16.
              */
             function str2rstr_utf8(input) {
-                var output = '';
-                var i = -1;
-                var x, y;
+                var output = ''
+                var i = -1
+                var x, y
 
                 while (++i < input.length) {
                     /* Decode utf-16 surrogate pairs */
-                    x = input.charCodeAt(i);
-                    y = i + 1 < input.length ? input.charCodeAt(i + 1) : 0;
-                    if (0xD800 <= x && x <= 0xDBFF && 0xDC00 <= y && y <= 0xDFFF) {
-                        x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF);
-                        i++;
+                    x = input.charCodeAt(i)
+                    y = i + 1 < input.length ? input.charCodeAt(i + 1) : 0
+                    if (x > 0xD800 && x <= 0xDBFF && y > 0xDC00 && y <= 0xDFFF) {
+                        x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF)
+                        i++
                     }
 
                     /* Encode output as utf-8 */
-                    if (x <= 0x7F)
-                        output += String.fromCharCode(x);
-                    else if (x <= 0x7FF)
-                        output += String.fromCharCode(0xC0 | ((x >>> 6) & 0x1F),
-                            0x80 | (x & 0x3F));
-                    else if (x <= 0xFFFF)
+                    if (x <= 0x7F) {
+                        output += String.fromCharCode(x)
+                    } else if (x <= 0x7FF) {
+                        output += String.fromCharCode(0xC0 | ((x >>> 6) & 0x1F), 0x80 | (x & 0x3F))
+                    } else if (x <= 0xFFFF) {
                         output += String.fromCharCode(0xE0 | ((x >>> 12) & 0x0F),
                             0x80 | ((x >>> 6) & 0x3F),
-                            0x80 | (x & 0x3F));
-                    else if (x <= 0x1FFFFF)
+                            0x80 | (x & 0x3F))
+                    } else if (x <= 0x1FFFFF) {
                         output += String.fromCharCode(0xF0 | ((x >>> 18) & 0x07),
                             0x80 | ((x >>> 12) & 0x3F),
                             0x80 | ((x >>> 6) & 0x3F),
-                            0x80 | (x & 0x3F));
+                            0x80 | (x & 0x3F))
+                    }
                 }
-                return output;
+                return output
             }
 
             /*
@@ -925,60 +917,63 @@
              * Characters >255 have their high-byte silently ignored.
              */
             function rstr2binb(input) {
-                var output = Array(input.length >> 2);
-                for (var i = 0; i < output.length; i++)
-                    output[i] = 0;
-                for (var i = 0; i < input.length * 8; i += 8)
-                    output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (24 - i % 32);
-                return output;
+                var output = Array(input.length >> 2)
+                for (var i = 0; i < output.length; i++) {
+                    output[i] = 0
+                }
+                for (var j = 0; j < input.length * 8; j += 8) {
+                    output[j >> 5] |= (input.charCodeAt(j / 8) & 0xFF) << (24 - j % 32)
+                }
+                return output
             }
 
             /*
              * Convert an array of big-endian words to a string
              */
             function binb2rstr(input) {
-                var output = '';
-                for (var i = 0; i < input.length * 32; i += 8)
-                    output += String.fromCharCode((input[i >> 5] >>> (24 - i % 32)) & 0xFF);
-                return output;
+                var output = ''
+                for (var i = 0; i < input.length * 32; i += 8) {
+                    output += String.fromCharCode((input[i >> 5] >>> (24 - i % 32)) & 0xFF)
+                }
+                return output
             }
 
             /*
              * Main sha256 function, with its support functions
              */
             function sha256_S(X, n) {
-                return (X >>> n) | (X << (32 - n));
+                return (X >>> n) | (X << (32 - n))
             }
 
             function sha256_R(X, n) {
-                return (X >>> n);
+                return (X >>> n)
             }
 
             function sha256_Ch(x, y, z) {
-                return ((x & y) ^ ((~x) & z));
+                return ((x & y) ^ ((~x) & z))
             }
 
             function sha256_Maj(x, y, z) {
-                return ((x & y) ^ (x & z) ^ (y & z));
+                return ((x & y) ^ (x & z) ^ (y & z))
             }
 
             function sha256_Sigma0256(x) {
-                return (sha256_S(x, 2) ^ sha256_S(x, 13) ^ sha256_S(x, 22));
+                return (sha256_S(x, 2) ^ sha256_S(x, 13) ^ sha256_S(x, 22))
             }
 
             function sha256_Sigma1256(x) {
-                return (sha256_S(x, 6) ^ sha256_S(x, 11) ^ sha256_S(x, 25));
+                return (sha256_S(x, 6) ^ sha256_S(x, 11) ^ sha256_S(x, 25))
             }
 
             function sha256_Gamma0256(x) {
-                return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ sha256_R(x, 3));
+                return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ sha256_R(x, 3))
             }
 
             function sha256_Gamma1256(x) {
-                return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ sha256_R(x, 10));
+                return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ sha256_R(x, 10))
             }
 
-            var sha256_K = new Array(
+            var sha256_K = [
                 1116352408, 1899447441, -1245643825, -373957723, 961987163, 1508970993, -1841331548, -1424204075, -670586216, 310598401, 607225278, 1426881987,
                 1925078388, -2132889090, -1680079193, -1046744716, -459576895, -272742522,
                 264347078, 604807628, 770255983, 1249150122, 1555081692, 1996064986, -1740746414, -1473132947, -1341970488, -1084653625, -958395405, -710438585,
@@ -986,63 +981,67 @@
                 1695183700, 1986661051, -2117940946, -1838011259, -1564481375, -1474664885, -1035236496, -949202525, -778901479, -694614492, -200395387, 275423344,
                 430227734, 506948616, 659060556, 883997877, 958139571, 1322822218,
                 1537002063, 1747873779, 1955562222, 2024104815, -2067236844, -1933114872, -1866530822, -1538233109, -1090935817, -965641998
-            );
+            ]
 
             function binb_sha256(m, l) {
-                var HASH = new Array(1779033703, -1150833019, 1013904242, -1521486534,
-                    1359893119, -1694144372, 528734635, 1541459225);
-                var W = new Array(64);
-                var a, b, c, d, e, f, g, h;
-                var i, j, T1, T2;
+                var HASH = [1779033703, -1150833019, 1013904242, -1521486534,
+                    1359893119, -1694144372, 528734635, 1541459225
+                ]
+                var W = new Array(64)
+                var a, b, c, d, e, f, g, h
+                var i, j, T1, T2
 
                 /* append padding */
-                m[l >> 5] |= 0x80 << (24 - l % 32);
-                m[((l + 64 >> 9) << 4) + 15] = l;
+                m[l >> 5] |= 0x80 << (24 - l % 32)
+                m[((l + 64 >> 9) << 4) + 15] = l
 
                 for (i = 0; i < m.length; i += 16) {
-                    a = HASH[0];
-                    b = HASH[1];
-                    c = HASH[2];
-                    d = HASH[3];
-                    e = HASH[4];
-                    f = HASH[5];
-                    g = HASH[6];
-                    h = HASH[7];
+                    a = HASH[0]
+                    b = HASH[1]
+                    c = HASH[2]
+                    d = HASH[3]
+                    e = HASH[4]
+                    f = HASH[5]
+                    g = HASH[6]
+                    h = HASH[7]
 
                     for (j = 0; j < 64; j++) {
-                        if (j < 16) W[j] = m[j + i];
-                        else W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]),
-                            sha256_Gamma0256(W[j - 15])), W[j - 16]);
+                        if (j < 16) {
+                            W[j] = m[j + i]
+                        } else {
+                            W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]),
+                                sha256_Gamma0256(W[j - 15])), W[j - 16])
+                        }
 
                         T1 = safe_add(safe_add(safe_add(safe_add(h, sha256_Sigma1256(e)), sha256_Ch(e, f, g)),
-                            sha256_K[j]), W[j]);
-                        T2 = safe_add(sha256_Sigma0256(a), sha256_Maj(a, b, c));
-                        h = g;
-                        g = f;
-                        f = e;
-                        e = safe_add(d, T1);
-                        d = c;
-                        c = b;
-                        b = a;
-                        a = safe_add(T1, T2);
+                            sha256_K[j]), W[j])
+                        T2 = safe_add(sha256_Sigma0256(a), sha256_Maj(a, b, c))
+                        h = g
+                        g = f
+                        f = e
+                        e = safe_add(d, T1)
+                        d = c
+                        c = b
+                        b = a
+                        a = safe_add(T1, T2)
                     }
 
-                    HASH[0] = safe_add(a, HASH[0]);
-                    HASH[1] = safe_add(b, HASH[1]);
-                    HASH[2] = safe_add(c, HASH[2]);
-                    HASH[3] = safe_add(d, HASH[3]);
-                    HASH[4] = safe_add(e, HASH[4]);
-                    HASH[5] = safe_add(f, HASH[5]);
-                    HASH[6] = safe_add(g, HASH[6]);
-                    HASH[7] = safe_add(h, HASH[7]);
+                    HASH[0] = safe_add(a, HASH[0])
+                    HASH[1] = safe_add(b, HASH[1])
+                    HASH[2] = safe_add(c, HASH[2])
+                    HASH[3] = safe_add(d, HASH[3])
+                    HASH[4] = safe_add(e, HASH[4])
+                    HASH[5] = safe_add(f, HASH[5])
+                    HASH[6] = safe_add(g, HASH[6])
+                    HASH[7] = safe_add(h, HASH[7])
                 }
-                return HASH;
+                return HASH
             }
 
             function safe_add(x, y) {
-                var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-                var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-                return (msw << 16) | (lsw & 0xFFFF);
+                var lsw = (x & 0xFFFF) + (y & 0xFFFF)
+                var msw = (x >> 16) + (y >> 16) + (lsw >> 16)
+                return (msw << 16) | (lsw & 0xFFFF)
             }
 
             /*! base64x-1.1.3 (c) 2012-2014 Kenji Urushima | kjur.github.com/jsjws/license
@@ -1088,7 +1087,8 @@
              * @see <a href="http://kjur.github.com/jsjws/">'jwjws'(JWS JavaScript Library) home page http://kjur.github.com/jsjws/</a>
              * @see <a href="http://kjur.github.com/jsrsasigns/">'jwrsasign'(RSA Sign JavaScript Library) home page http://kjur.github.com/jsrsasign/</a>
              */
-            function Base64x() {}
+
+            // function Base64x () {}
 
             // ==== base64 / base64url ================================
             /**
@@ -1098,13 +1098,14 @@
              * @return {String} Base64URL encoded string
              */
             function b64tob64u(s) {
-                s = s.replace(/\=/g, '');
-                s = s.replace(/\+/g, '-');
-                s = s.replace(/\//g, '_');
-                return s;
+                s = s.replace(/\=/g, '')
+                s = s.replace(/\+/g, '-')
+                s = s.replace(/\//g, '_')
+                return s
             }
 
-            var utf8tob64u, b64utoutf8;
+            // var utf8tob64u
+            // var b64utoutf8
 
             return {
                 rstr2b64: rstr2b64,
@@ -1112,17 +1113,16 @@
                 b64_hmac_sha256: b64_hmac_sha256,
                 b64tob64u: b64tob64u
             }
-        })();
-
-    })();
+        })()
+    })()
 
 
     /* jshint camelcase:false */
+    /* global corbel */
 
+    ;
     (function() {
-
         var jwt = corbel.jwt = {
-
             EXPIRATION: 3500,
             ALGORITHM: 'HS256',
             TYP: 'JWT',
@@ -1137,21 +1137,21 @@
              * @return {String} jwt                             JWT string
              */
             generate: function(claims, secret, alg) {
-                claims = claims || {};
-                claims.exp = claims.exp || jwt._generateExp();
+                claims = claims || {}
+                claims.exp = claims.exp || jwt._generateExp()
 
                 if (!claims.iss) {
-                    throw new Error('jwt:undefined:iss');
+                    throw new Error('jwt:undefined:iss')
                 }
                 if (!claims.aud) {
-                    throw new Error('jwt:undefined:aud');
+                    throw new Error('jwt:undefined:aud')
                 }
 
-                return jwt._generate(claims, secret, alg);
+                return jwt._generate(claims, secret, alg)
             },
 
             _generate: function(claims, secret, alg) {
-                alg = alg || jwt.ALGORITHM;
+                alg = alg || jwt.ALGORITHM
 
                 // Ensure claims specific order
                 var claimsKeys = [
@@ -1168,81 +1168,82 @@
                     'basic_auth.password',
 
                     'device_id'
-                ];
+                ]
 
-                var finalClaims = {};
+                var finalClaims = {}
                 claimsKeys.forEach(function(key) {
                     if (claims[key]) {
-                        finalClaims[key] = claims[key];
+                        finalClaims[key] = claims[key]
                     }
-                });
+                })
 
-                corbel.utils.extend(finalClaims, claims);
+                corbel.utils.extend(finalClaims, claims)
 
                 if (Array.isArray(finalClaims.scope)) {
-                    finalClaims.scope = finalClaims.scope.join(' ');
+                    finalClaims.scope = finalClaims.scope.join(' ')
                 }
 
                 var bAlg = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify({
-                        typ: jwt.TYP,
-                        alg: alg
-                    }))),
-                    bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims))),
-                    segment = bAlg + '.' + bClaims,
-                    assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment));
+                    typ: jwt.TYP,
+                    alg: alg
+                })))
+                var bClaims = corbel.cryptography.rstr2b64(corbel.cryptography.str2rstr_utf8(JSON.stringify(finalClaims)))
+                var segment = bAlg + '.' + bClaims
+                var assertion = corbel.cryptography.b64tob64u(corbel.cryptography.b64_hmac_sha256(secret, segment))
 
-                return segment + '.' + assertion;
+                return segment + '.' + assertion
             },
 
             _generateExp: function() {
-                return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION;
+                return Math.round((new Date().getTime() / 1000)) + jwt.EXPIRATION
             },
 
             decode: function(assertion) {
-                var serialize;
+                var serialize
                 if (corbel.Config.isNode) {
                     // node environment
-                    serialize = require('atob');
+                    serialize = require('atob')
                 } else {
-                    serialize = root.atob;
+                    serialize = root.atob
                 }
-                var decoded = assertion.split('.');
+                var decoded = assertion.split('.')
 
                 try {
-                    decoded[0] = JSON.parse(serialize(decoded[0]));
+                    decoded[0] = JSON.parse(serialize(decoded[0]))
                 } catch (e) {
-                    decoded[0] = false;
+                    decoded[0] = false
                 }
 
                 try {
-                    decoded[1] = JSON.parse(serialize(decoded[1]));
+                    decoded[1] = JSON.parse(serialize(decoded[1]))
                 } catch (e) {
-                    decoded[1] = false;
+                    decoded[1] = false
                 }
 
                 if (!decoded[0] && !decoded[1]) {
-                    throw new Error('corbel:jwt:decode:invalid_assertion');
+                    throw new Error('corbel:jwt:decode:invalid_assertion')
                 }
 
-                decoded[0] = decoded[0] || {};
-                decoded[1] = decoded[1] || {};
+                decoded[0] = decoded[0] || {}
+                decoded[1] = decoded[1] || {}
 
                 Object.keys(decoded[1]).forEach(function(key) {
-                    decoded[0][key] = decoded[1][key];
-                });
+                    decoded[0][key] = decoded[1][key]
+                })
 
-                return decoded[0];
+                return decoded[0]
             }
 
-        };
+        }
 
-        return jwt;
+        return jwt
+    })()
 
-    })();
 
+    /* global corbel XMLHttpRequest*/
 
+    ;
     (function() {
-
         /**
          * Request object available for brwoser and node environment
          * @exports request
@@ -1255,7 +1256,6 @@
              * @namespace
              */
             method: {
-
                 /**
                  * GET constant
                  * @constant
@@ -1300,7 +1300,7 @@
                  */
                 HEAD: 'HEAD'
             }
-        };
+        }
 
         /**
          * Serialize handlers
@@ -1314,9 +1314,9 @@
              */
             json: function(data, cb) {
                 if (typeof data !== 'string') {
-                    cb(JSON.stringify(data));
+                    cb(JSON.stringify(data))
                 } else {
-                    cb(data);
+                    cb(data)
                 }
             },
             /**
@@ -1325,7 +1325,7 @@
              * @return {string}
              */
             'form-urlencoded': function(data, cb) {
-                cb(corbel.utils.toURLEncoded(data));
+                cb(corbel.utils.toURLEncoded(data))
             },
             /**
              * dataURI serialize handler
@@ -1335,10 +1335,10 @@
             dataURI: function(data, cb) {
                 if (corbel.Config.isNode) {
                     // in node transform to stream
-                    cb(corbel.utils.toURLEncoded(data));
+                    cb(corbel.utils.toURLEncoded(data))
                 } else {
                     // in browser transform to blob
-                    cb(corbel.utils.dataURItoBlob(data));
+                    cb(corbel.utils.dataURItoBlob(data))
                 }
             },
             /**
@@ -1349,9 +1349,9 @@
              */
             blob: function(data, cb) {
                 if (data instanceof ArrayBuffer) {
-                    throw new Error('ArrayBuffer is not supported, please use Blob');
+                    throw new Error('ArrayBuffer is not supported, please use Blob')
                 } else {
-                    cb(data);
+                    cb(data)
                 }
             },
             /**
@@ -1361,12 +1361,12 @@
              */
             stream: function(data, cb) {
                 if (data instanceof ArrayBuffer) {
-                    throw new Error('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView');
+                    throw new Error('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView')
                 } else {
-                    cb(data);
+                    cb(data)
                 }
             }
-        };
+        }
 
         /**
          * Serialize hada with according contentType handler
@@ -1378,16 +1378,16 @@
         request.serialize = function(data, contentType, cb) {
             var contentTypeSerializable = Object.keys(request.serializeHandlers).filter(function(type) {
                 if (contentType.indexOf(type) !== -1) {
-                    return type;
+                    return type
                 }
-            });
+            })
 
             if (contentTypeSerializable.length > 0) {
-                request.serializeHandlers[contentTypeSerializable[0]](data, cb);
+                request.serializeHandlers[contentTypeSerializable[0]](data, cb)
             } else {
-                cb(data);
+                cb(data)
             }
-        };
+        }
 
         /**
          * Parse handlers
@@ -1400,15 +1400,15 @@
              * @return {mixed}
              */
             json: function(data) {
-                    data = data || '{}';
+                    data = data || '{}'
                     if (typeof data === 'string') {
-                        data = JSON.parse(data);
+                        data = JSON.parse(data)
                     }
-                    return data;
+                    return data
                 }
                 // 'blob' type do not require any process
                 // @todo: xml
-        };
+        }
 
         /**
          * Process the server response data to the specified object/array/blob/byteArray/text
@@ -1418,23 +1418,23 @@
          * @return {mixed}                                  Processed data
          */
         request.parse = function(data, responseType, dataType) {
-            var parsed;
+            var parsed
             Object.keys(request.parseHandlers).forEach(function(type) {
                 if (responseType && responseType.indexOf(type) !== -1) {
-                    parsed = request.parseHandlers[type](data, dataType);
+                    parsed = request.parseHandlers[type](data, dataType)
                 }
-            });
-            parsed = parsed || data;
-            return parsed;
-        };
+            })
+            parsed = parsed || data
+            return parsed
+        }
 
         function doRequest(module, params, resolver) {
             if (corbel.Config.isBrowser) {
-                //browser
-                request._browserAjax.call(module, params, resolver);
+                // browser
+                request._browserAjax.call(module, params, resolver)
             } else {
-                //nodejs
-                request._nodeAjax.call(module, params, resolver);
+                // nodejs
+                request._nodeAjax.call(module, params, resolver)
             }
         }
 
@@ -1453,15 +1453,15 @@
          * @return {Promise}                                        Promise about the request status and response
          */
         request.send = function(options, driver) {
-            options = options || {};
-            var module = this;
+            options = options || {}
+            var module = this
 
             if (!options.url) {
-                throw new Error('undefined:url');
+                throw new Error('undefined:url')
             }
 
             if (typeof(options.url) !== 'string') {
-                throw new Error('invalid:url', options.url);
+                throw new Error('invalid:url', options.url)
             }
 
             var params = {
@@ -1473,38 +1473,38 @@
                 responseType: options.responseType,
                 withCredentials: options.withCredentials || true,
                 useCookies: options.useCookies || false
-            };
+            }
 
-            params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params);
+            params = rewriteRequestToPostIfUrlLengthIsTooLarge(options, params)
 
             // default content-type
-            params.headers['content-type'] = options.contentType || 'application/json';
+            params.headers['content-type'] = options.contentType || 'application/json'
 
-            var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
+            var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH]
 
-            var resolver;
+            var resolver
             var promise = new Promise(function(resolve, reject) {
                 resolver = {
                     resolve: resolve,
                     reject: reject
-                };
+                }
 
                 if (driver) {
-                    driver.trigger('request', params);
+                    driver.trigger('request', params)
                 }
-            });
+            })
 
             if (dataMethods.indexOf(params.method) !== -1) {
                 request.serialize(options.data, params.headers['content-type'], function(serialized) {
-                    params.data = serialized;
-                    doRequest(module, params, resolver);
-                });
+                    params.data = serialized
+                    doRequest(module, params, resolver)
+                })
             } else {
-                doRequest(module, params, resolver);
+                doRequest(module, params, resolver)
             }
 
-            return promise;
-        };
+            return promise
+        }
 
         var xhrSuccessStatus = {
             // file protocol always yields status code 0, assume 200
@@ -1512,7 +1512,7 @@
             // Support: IE9
             // #1450: sometimes IE returns 1223 when it should be 204
             1223: 204
-        };
+        }
 
         /**
          * Process server response
@@ -1522,45 +1522,42 @@
          * @param  {function} callbackError
          */
         var processResponse = function(response, resolver, callbackSuccess, callbackError) {
+            // xhr = xhr.target || xhr || {}
+            var statusCode = xhrSuccessStatus[response.status] || response.status
+            var statusType = Number(response.status.toString()[0])
+            var promiseResponse
 
-            //xhr = xhr.target || xhr || {};
-            var statusCode = xhrSuccessStatus[response.status] || response.status,
-                statusType = Number(response.status.toString()[0]),
-                promiseResponse;
-
-            var data = response.response;
-            var headers = corbel.utils.keysToLowerCase(response.headers);
+            var data = response.response
+            var headers = corbel.utils.keysToLowerCase(response.headers)
 
             if (statusType <= 3 && !response.error) {
-
                 if (response.response) {
-                    data = request.parse(response.response, response.responseType, response.dataType);
+                    data = request.parse(response.response, response.responseType, response.dataType)
                 }
 
                 if (callbackSuccess) {
-                    callbackSuccess.call(this, data, statusCode, response.responseObject, headers);
+                    callbackSuccess.call(this, data, statusCode, response.responseObject, headers)
                 }
 
                 promiseResponse = {
                     data: data,
                     status: statusCode,
                     headers: headers
-                };
+                }
 
-                promiseResponse[response.responseObjectType] = response.responseObject;
+                promiseResponse[response.responseObjectType] = response.responseObject
 
-                resolver.resolve(promiseResponse);
+                resolver.resolve(promiseResponse)
             } else {
-
-                var disconnected = response.error && response.status === 0;
-                statusCode = disconnected ? 0 : statusCode;
+                var disconnected = response.error && response.status === 0
+                statusCode = disconnected ? 0 : statusCode
 
                 if (callbackError) {
-                    callbackError.call(this, response.error, statusCode, response.responseObject, headers);
+                    callbackError.call(this, response.error, statusCode, response.responseObject, headers)
                 }
 
                 if (response.response) {
-                    data = request.parse(response.response, response.responseType, response.dataType);
+                    data = request.parse(response.response, response.responseType, response.dataType)
                 }
 
                 promiseResponse = {
@@ -1568,61 +1565,61 @@
                     status: statusCode,
                     error: response.error,
                     headers: headers
-                };
+                }
 
-                promiseResponse[response.responseObjectType] = response.responseObject;
+                promiseResponse[response.responseObjectType] = response.responseObject
 
-                resolver.reject(promiseResponse);
+                resolver.reject(promiseResponse)
             }
-        };
+        }
 
         var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
-            var AUTOMATIC_HTTP_METHOD_OVERRIDE = corbel.Config.AUTOMATIC_HTTP_METHOD_OVERRIDE || true;
-            var HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN = corbel.Config.HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN || 2048;
+            var AUTOMATIC_HTTP_METHOD_OVERRIDE = corbel.Config.AUTOMATIC_HTTP_METHOD_OVERRIDE || true
+            var HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN = corbel.Config.HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN || 2048
 
             if (AUTOMATIC_HTTP_METHOD_OVERRIDE &&
                 params.method === request.method.GET &&
                 params.url.length > HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN) {
-                var url = params.url.split('?');
-                params.method = request.method.POST;
-                params.headers['X-HTTP-Method-Override'] = request.method.GET;
-                params.url = url[0];
-                options.data = encodeUrlToForm(url[1]);
-                options.contentType = 'application/x-www-form-urlencoded';
+                var url = params.url.split('?')
+                params.method = request.method.POST
+                params.headers['X-HTTP-Method-Override'] = request.method.GET
+                params.url = url[0]
+                options.data = encodeUrlToForm(url[1])
+                options.contentType = 'application/x-www-form-urlencoded'
             }
-            return params;
-        };
+            return params
+        }
 
         var encodeUrlToForm = function(url) {
-            var form = {};
+            var form = {}
             url.split('&').forEach(function(formEntry) {
-                var formPair = formEntry.split('=');
-                //value require double encode in Override Method Filter
-                form[formPair[0]] = formPair[1];
-            });
-            return form;
-        };
+                var formPair = formEntry.split('=')
+                    // value require double encode in Override Method Filter
+                form[formPair[0]] = formPair[1]
+            })
+            return form
+        }
 
         request._getNodeRequestAjax = function(params) {
-            var requestAjax = require('request');
+            var requestAjax = require('request')
             if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
                 requestAjax = requestAjax.defaults({
                     jar: true
-                });
+                })
             }
-            return requestAjax;
-        };
+            return requestAjax
+        }
 
         request._getNodeRequestCallback = function(context, params, resolver) {
             return function(error, response, body) {
-                var responseType;
-                var status;
+                var responseType
+                var status
                 if (error) {
-                    responseType = undefined;
-                    status = 0;
+                    responseType = undefined
+                    status = 0
                 } else {
-                    responseType = response.responseType || response.headers['content-type'];
-                    status = response.statusCode;
+                    responseType = response.responseType || response.headers['content-type']
+                    status = response.statusCode
                 }
 
                 processResponse.call(context, {
@@ -1634,33 +1631,30 @@
                     headers: response ? response.headers : {},
                     responseObjectType: 'response',
                     error: error
-                }, resolver, params.callbackSuccess, params.callbackError);
-
-            };
-        };
+                }, resolver, params.callbackSuccess, params.callbackError)
+            }
+        }
 
         request._nodeAjax = function(params, resolver) {
-            var requestAjax = request._getNodeRequestAjax(params);
+            var requestAjax = request._getNodeRequestAjax(params)
 
             var requestOptions = {
                 method: params.method,
                 url: params.url,
-                headers: params.headers,
-            };
-
-            var data = params.data || '';
-
-            var callbackRequest = request._getNodeRequestCallback(this, params, resolver);
-
-            if (corbel.utils.isStream(data)) {
-                data.pipe(requestAjax(requestOptions, callbackRequest));
-            } else {
-                requestOptions.body = data;
-                requestAjax(requestOptions, callbackRequest);
+                headers: params.headers
             }
 
+            var data = params.data || ''
 
-        };
+            var callbackRequest = request._getNodeRequestCallback(this, params, resolver)
+
+            if (corbel.utils.isStream(data)) {
+                data.pipe(requestAjax(requestOptions, callbackRequest))
+            } else {
+                requestOptions.body = data
+                requestAjax(requestOptions, callbackRequest)
+            }
+        }
 
         /**
          * Check if an url should be process as a crossdomain resource.
@@ -1669,11 +1663,11 @@
          */
         request.isCrossDomain = function(url) {
             if (url && typeof(url) === 'string' && url.indexOf('http') !== -1) {
-                return true;
+                return true
             } else {
-                return false;
+                return false
             }
-        };
+        }
 
         /**
          * https://gist.github.com/monsur/706839
@@ -1681,46 +1675,46 @@
          * @return {Object}
          */
         request._parseResponseHeaders = function(headerStr) {
-            var headers = {};
+            var headers = {}
             if (!headerStr) {
-                return headers;
+                return headers
             }
-            var headerPairs = headerStr.split('\u000d\u000a');
+            var headerPairs = headerStr.split('\u000d\u000a')
             for (var i = 0; i < headerPairs.length; i++) {
-                var headerPair = headerPairs[i];
-                // Can't use split() here because it does the wrong thing
-                // if the header value has the string ": " in it.
-                var index = headerPair.indexOf('\u003a\u0020');
+                var headerPair = headerPairs[i]
+                    // Can't use split() here because it does the wrong thing
+                    // if the header value has the string ": " in it.
+                var index = headerPair.indexOf('\u003a\u0020')
                 if (index > 0) {
-                    var key = headerPair.substring(0, index);
-                    var val = headerPair.substring(index + 2);
-                    headers[key] = val;
+                    var key = headerPair.substring(0, index)
+                    var val = headerPair.substring(index + 2)
+                    headers[key] = val
                 }
             }
-            return headers;
-        };
+            return headers
+        }
 
         request._browserAjax = function(params, resolver) {
-            var httpReq = new XMLHttpRequest();
+            var httpReq = new XMLHttpRequest() // jshint ignore:line
 
-            httpReq.open(params.method, params.url, true);
+            httpReq.open(params.method, params.url, true)
 
             if (request.isCrossDomain(params.url) && params.withCredentials) {
-                httpReq.withCredentials = true;
+                httpReq.withCredentials = true
             }
 
             /* add request headers */
             for (var header in params.headers) {
                 if (params.headers.hasOwnProperty(header)) {
-                    httpReq.setRequestHeader(header, params.headers[header]);
+                    httpReq.setRequestHeader(header, params.headers[header])
                 }
             }
 
             // 'blob' support
-            httpReq.responseType = params.responseType || httpReq.responseType;
+            httpReq.responseType = params.responseType || httpReq.responseType
 
             httpReq.onload = function(xhr) {
-                xhr = xhr.target || xhr; // only for mock testing purpose
+                xhr = xhr.target || xhr // only for mock testing purpose
 
                 processResponse.call(this, {
                     responseObject: xhr,
@@ -1731,17 +1725,16 @@
                     headers: request._parseResponseHeaders(xhr.getAllResponseHeaders()),
                     responseObjectType: 'xhr',
                     error: xhr.error
-                }, resolver, params.callbackSuccess, params.callbackError);
+                }, resolver, params.callbackSuccess, params.callbackError)
 
-                //delete callbacks
-            }.bind(this);
+                // delete callbacks
+            }.bind(this)
 
-            //response fail ()
+            // response fail ()
             httpReq.onerror = function(xhr) {
+                xhr = xhr.target || xhr // only for fake sinon response xhr
 
-                xhr = xhr.target || xhr; // only for fake sinon response xhr
-
-                var error = xhr.error ? xhr.error : true;
+                var error = xhr.error ? xhr.error : true
 
                 processResponse.call(this, {
                     responseObject: xhr,
@@ -1751,26 +1744,25 @@
                     status: xhr.status,
                     responseObjectType: 'xhr',
                     error: error
-                }, resolver, params.callbackSuccess, params.callbackError);
-
-            }.bind(this);
-
+                }, resolver, params.callbackSuccess, params.callbackError)
+            }.bind(this)
 
             if (params.data) {
-                httpReq.send(params.data);
+                httpReq.send(params.data)
             } else {
-                //IE fix, send nothing (not null or undefined)
-                httpReq.send();
+                // IE fix, send nothing (not null or undefined)
+                httpReq.send()
             }
-        };
+        }
 
-        return request;
+        return request
+    })()
 
-    })();
 
+    /*globals corbel */
 
+    ;
     (function() {
-
         /**
          * A base object to inherit from for make corbel-js requests with custom behavior.
          * @exports Services
@@ -1778,8 +1770,7 @@
          * @extends corbel.Object
          * @memberof corbel
          */
-        var Services = corbel.Services = corbel.Object.inherit({ //instance props
-
+        var Services = corbel.Services = corbel.Object.inherit({ // instance props
             /**
              * Creates a new Services
              * @memberof corbel.Services.prototype
@@ -1787,13 +1778,13 @@
              * @return {corbel.Services}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             extractLocationId: function(res) {
-                console.log('corbel-js:service:extractLocationId', res);
-                var uri = res.jqXHR.getResponseHeader('Location');
-                return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
+                console.log('corbel-js:service:extractLocationId', res)
+                var uri = res.jqXHR.getResponseHeader('Location')
+                return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined
             },
 
             /**
@@ -1807,58 +1798,52 @@
              * @param  {object} args    The request arguments.
              */
             request: function(args) {
+                this.driver.trigger('service:request:before', args)
 
-                this.driver.trigger('service:request:before', args);
-
-                var that = this;
+                var that = this
 
                 return this._requestWithRetries(args).then(function(response) {
-                    that.driver.trigger('service:request:after', response);
-                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                    return response;
+                    that.driver.trigger('service:request:after', response)
+                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
+                    return response
                 }).catch(function(error) {
-                    that.driver.trigger('service:request:after', error);
-                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-                    throw error;
-                });
-
+                    that.driver.trigger('service:request:after', error)
+                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
+                    throw error
+                })
             },
 
             _requestWithRetries: function(args) {
-                var that = this;
-                var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
-                var requestParameters = that._buildParams(args);
+                var that = this
+                var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES
+                var requestParameters = that._buildParams(args)
 
                 return that._doRequest(requestParameters)
                     .catch(function(response) {
-
-                        var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+                        var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
                         if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
-
-                            //A 401 request within, refresh the token and retry the request.
+                            // A 401 request within, refresh the token and retry the request.
                             return that._refreshToken()
                                 .then(function() {
-
-                                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
-                                    //@TODO: see if we need to upgrade the token to access assets.
+                                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1)
+                                        // @TODO: see if we need to upgrade the token to access assets.
                                     return that._requestWithRetries(args).catch(function(retryResponse) {
                                         // rejects whole promise with the retry response
-                                        response = retryResponse;
-                                        throw response;
-                                    });
-                                }).catch(function() {
-                                    //Has failed refreshing, reject request
-                                    console.log('corbeljs:services:token:refresh:fail');
+                                        response = retryResponse
+                                        throw response
+                                    })
+                                })
+                                .catch(function() {
+                                    // Has failed refreshing, reject request
+                                    console.log('corbeljs:services:token:refresh:fail')
 
-                                    throw response;
-                                });
-
+                                    throw response
+                                })
                         } else {
-                            console.log('corbeljs:services:token:no_refresh', response.status);
-                            throw response;
+                            console.log('corbeljs:services:token:no_refresh', response.status)
+                            throw response
                         }
-
-                    });
+                    })
             },
 
             /**
@@ -1868,42 +1853,37 @@
              * @return {Promise}
              */
             _doRequest: function(params) {
-                var that = this;
+                var that = this
                 return corbel.request.send(params, that.driver).then(function(response) {
+                    that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0)
+                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
 
-                    that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
-                    that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-
-                    return response;
-
+                    return response
                 }).catch(function(response) {
                     // Force update
                     if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
                         response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
-
-                        var retries = that.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
+                        var retries = that.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0)
                         if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
-                            retries++;
-                            that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
+                            retries++
+                            that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries)
 
-                            that.driver.trigger('force:update', response);
+                            that.driver.trigger('force:update', response)
 
-                            throw response;
+                            throw response
                         } else {
-                            throw response;
+                            throw response
                         }
                     } else {
-                        throw response;
+                        throw response
                     }
-
-                });
+                })
             },
 
-
             _refreshToken: function() {
-                var tokenObject = this.driver.config.get(corbel.Iam.IAM_TOKEN, {});
+                var tokenObject = this.driver.config.get(corbel.Iam.IAM_TOKEN, {})
 
-                return this._refreshHandler(tokenObject);
+                return this._refreshHandler(tokenObject)
             },
             /**
              * Default token refresh handler
@@ -1911,33 +1891,32 @@
              * @return {Promise}
              */
             _refreshHandler: function(tokenObject) {
-                var that = this;
+                var that = this
 
                 if (this.driver._refreshHandlerPromise) {
-                    return this.driver._refreshHandlerPromise;
+                    return this.driver._refreshHandlerPromise
                 }
 
                 if (tokenObject.refreshToken) {
-                    console.log('corbeljs:services:token:refresh');
+                    console.log('corbeljs:services:token:refresh')
                     this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
                         tokenObject.refreshToken,
-                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, '')
-                    );
-
+                        this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, ''))
                 } else {
-                    console.log('corbeljs:services:token:create');
-                    this.driver._refreshHandlerPromise = this.driver.iam.token().create();
+                    console.log('corbeljs:services:token:create')
+                    this.driver._refreshHandlerPromise = this.driver.iam.token().create()
                 }
 
                 return this.driver._refreshHandlerPromise
                     .then(function(response) {
-                        that.driver.trigger('token:refresh', response.data);
-                        that.driver._refreshHandlerPromise = null;
-                        return response;
-                    }).catch(function(err) {
-                        that.driver._refreshHandlerPromise = null;
-                        throw err;
-                    });
+                        that.driver.trigger('token:refresh', response.data)
+                        that.driver._refreshHandlerPromise = null
+                        return response
+                    })
+                    .catch(function(err) {
+                        that.driver._refreshHandlerPromise = null
+                        throw err
+                    })
             },
 
             /**
@@ -1946,14 +1925,14 @@
              */
             _addAuthorization: function(params) {
                 // @todo: support to oauth token and custom handlers
-                var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
+                var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken
 
                 // Use access access token if exists
                 if (accessToken) {
-                    params.headers.Authorization = 'Bearer ' + accessToken;
-                    params.withCredentials = true;
+                    params.headers.Authorization = 'Bearer ' + accessToken
+                    params.withCredentials = true
                 }
-                return params;
+                return params
             },
 
             /**
@@ -1967,7 +1946,6 @@
              * @return {object}
              */
             _buildParams: function(args) {
-
                 // Default values
                 var defaults = {
                     dataType: 'json',
@@ -1977,42 +1955,42 @@
                         Accept: 'application/json'
                     },
                     method: corbel.request.method.GET
-                };
+                }
 
                 // do not modify args object
-                var params = corbel.utils.defaults({}, args);
-                params = corbel.utils.defaults(params, defaults);
+                var params = corbel.utils.defaults({}, args)
+                params = corbel.utils.defaults(params, defaults)
 
                 if (!params.url) {
-                    throw new Error('You must define an url');
+                    throw new Error('You must define an url')
                 }
 
                 if (params.query) {
-                    params.url += '?' + params.query;
+                    params.url += '?' + params.query
                 }
 
                 if (params.noRedirect) {
-                    params.headers['No-Redirect'] = true;
+                    params.headers['No-Redirect'] = true
                 }
 
                 if (params.Accept) {
-                    params.headers.Accept = params.Accept;
-                    params.dataType = undefined; // Accept & dataType are incompatibles
+                    params.headers.Accept = params.Accept
+                    params.dataType = undefined // Accept & dataType are incompatibles
                 }
 
                 // set correct accept & contentType in case of blob
                 // @todo: remove contentType+accept same-type constraint
                 if (params.dataType === 'blob') {
                     if (corbel.Config.isBrowser) {
-                        params.headers.Accept = params.data.type;
-                        params.contentType = params.data.type;
-                        params.dataType = undefined; // Accept & dataType are incompatibles
+                        params.headers.Accept = params.data.type
+                        params.contentType = params.data.type
+                        params.dataType = undefined // Accept & dataType are incompatibles
                     }
                 }
 
-                params = this._addAuthorization(params);
+                params = this._addAuthorization(params)
 
-                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
+                return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error'])
             },
 
             /**
@@ -2020,26 +1998,24 @@
              * @return {string}
              */
             _buildUri: function() {
-
-                var uri = '';
+                var uri = ''
                 if (this.urlBase.slice(-1) !== '/') {
-                    uri += '/';
+                    uri += '/'
                 }
 
                 Array.prototype.slice.call(arguments).forEach(function(argument) {
                     if (argument) {
-                        uri += argument + '/';
+                        uri += argument + '/'
                     }
-                });
+                })
 
                 // remove last '/'
-                uri = uri.slice(0, -1);
+                uri = uri.slice(0, -1)
 
-                return this.urlBase + uri;
+                return this.urlBase + uri
             }
 
         }, {
-
             /**
              * _FORCE_UPDATE_TEXT constant
              * @constant
@@ -2109,15 +2085,15 @@
              * @return {String}  id from the Location
              */
             getLocationId: function(responseObject) {
-                responseObject = responseObject || {};
-                var location;
+                responseObject = responseObject || {}
+                var location
 
                 if (responseObject.xhr) {
-                    location = responseObject.xhr.getResponseHeader('location');
+                    location = responseObject.xhr.getResponseHeader('location')
                 } else if (responseObject.response && responseObject.response.headers.location) {
-                    location = responseObject.response.headers.location;
+                    location = responseObject.response.headers.location
                 }
-                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined
             },
 
             /**
@@ -2128,60 +2104,57 @@
              */
             addEmptyJson: function(response, type) {
                 if (!response && type === 'json') {
-                    response = '{}';
+                    response = '{}'
                 }
-                return response;
+                return response
             }
-        });
+        })
 
-        return Services;
+        return Services
+    })()
 
-    })();
 
-
-    //----------corbel modules----------------
+    // ----------corbel modules----------------
 
 
     function Config(config) {
-        config = config || {};
-        // config default values
-        this.config = {};
+        config = config || {}
+            // config default values
+        this.config = {}
 
-        corbel.utils.extend(this.config, config);
+        corbel.utils.extend(this.config, config)
     }
 
-    Config.URL_BASE_PLACEHOLDER = '{{module}}';
-    Config.URL_BASE_PORT_PLACEHOLDER = '{{modulePort}}';
+    Config.URL_BASE_PLACEHOLDER = '{{module}}'
+    Config.URL_BASE_PORT_PLACEHOLDER = '{{modulePort}}'
 
-    corbel.Config = Config;
+    corbel.Config = Config
 
     var processExist = function() {
-        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]';
-    };
-
-
-    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
-        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node';
-    } else {
-        Config.__env__ = 'browser';
+        return typeof(process) !== 'undefined' || {}.toString.call(process) === '[object process]'
     }
 
+    if (typeof module !== 'undefined' && module.exports && processExist() && typeof window === 'undefined') {
+        Config.__env__ = process.env.NODE_ENV === 'browser' ? 'browser' : 'node'
+    } else {
+        Config.__env__ = 'browser'
+    }
 
-    Config.isNode = Config.__env__ === 'node';
+    Config.isNode = Config.__env__ === 'node'
 
-    Config.isBrowser = Config.__env__ === 'browser';
+    Config.isBrowser = Config.__env__ === 'browser'
 
     /**
      * Client type
      * @type {String}
      * @default
      */
-    Config.clientType = Config.isNode ? 'NODE' : 'WEB';
+    Config.clientType = Config.isNode ? 'NODE' : 'WEB'
 
     if (Config.isNode) {
-        Config.wwwRoot = 'localhost';
+        Config.wwwRoot = 'localhost'
     } else {
-        Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
+        Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname
     }
 
     /**
@@ -2189,25 +2162,25 @@
      * @return {Object}
      */
     Config.create = function(config) {
-        return new Config(config);
-    };
+        return new Config(config)
+    }
 
     /**
      * Returns all application config params
      * @return {Object}
      */
     Config.prototype.getConfig = function() {
-        return this.config;
-    };
+        return this.config
+    }
 
     /**
      * Overrides current config with params object config
      * @param {Object} config An object with params to set as new config
      */
     Config.prototype.setConfig = function(config) {
-        this.config = corbel.utils.extend(this.config, config);
-        return this;
-    };
+        this.config = corbel.utils.extend(this.config, config)
+        return this
+    }
 
     /**
      * Gets a specific config param
@@ -2218,27 +2191,24 @@
     Config.prototype.get = function(field, defaultValue) {
         if (this.config[field] === undefined) {
             if (defaultValue === undefined) {
-                throw new Error('config:undefined:' + field + '');
+                throw new Error('config:undefined:' + field + '')
             } else {
-                return defaultValue;
+                return defaultValue
             }
         }
 
-        return this.config[field];
-    };
+        return this.config[field]
+    }
 
     Config.prototype.getCurrentEndpoint = function(moduleName, port) {
-        var moduleEndpoint = moduleName + 'Endpoint';
-        var endpoint = this.get(moduleEndpoint, null) ?
-            this.get(moduleEndpoint) :
-            this.get('urlBase');
-        endpoint = endpoint.replace(corbel.Config.URL_BASE_PLACEHOLDER, moduleName);
+        var moduleEndpoint = moduleName + 'Endpoint'
+        var endpoint = this.get(moduleEndpoint, null) ? this.get(moduleEndpoint) : this.get('urlBase')
+        endpoint = endpoint.replace(corbel.Config.URL_BASE_PLACEHOLDER, moduleName)
         if (port) {
-            endpoint = endpoint.replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, port);
+            endpoint = endpoint.replace(corbel.Config.URL_BASE_PORT_PLACEHOLDER, port)
         }
-        return endpoint;
-    };
-
+        return endpoint
+    }
 
     /**
      * Sets a new value for specific config param
@@ -2246,12 +2216,13 @@
      * @param {Mixed} value Config param value
      */
     Config.prototype.set = function(field, value) {
-        this.config[field] = value;
-    };
+        this.config[field] = value
+    }
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * A module to make iam requests.
          * @exports iam
@@ -2260,21 +2231,21 @@
          */
 
         var Iam = corbel.Iam = function(driver) {
-            this.driver = driver;
-        };
+            this.driver = driver
+        }
 
-        Iam.moduleName = 'iam';
-        Iam.defaultPort = 8082;
+        Iam.moduleName = 'iam'
+        Iam.defaultPort = 8082
 
         Iam.create = function(driver) {
-            return new Iam(driver);
-        };
+            return new Iam(driver)
+        }
 
-        Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
-        Iam.AUD = 'http://iam.bqws.io';
-        Iam.IAM_TOKEN = 'iamToken';
-        Iam.IAM_TOKEN_SCOPES = 'iamScopes';
-        Iam.IAM_DOMAIN = 'domain';
+        Iam.GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
+        Iam.AUD = 'http://iam.bqws.io'
+        Iam.IAM_TOKEN = 'iamToken'
+        Iam.IAM_TOKEN_SCOPES = 'iamScopes'
+        Iam.IAM_DOMAIN = 'domain'
 
         /**
          * COMMON MIXINS
@@ -2289,23 +2260,23 @@
          */
         Iam._buildUri = function(uri, id) {
             if (id) {
-                uri += '/' + id;
+                uri += '/' + id
             }
 
-            var urlBase = this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config))
 
-            return urlBase + uri;
-        };
+            return urlBase + uri
+        }
 
         Iam._buildPort = function(config) {
-            return config.get('iamPort', null) || corbel.Iam.defaultPort;
-        };
+            return config.get('iamPort', null) || corbel.Iam.defaultPort
+        }
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Creates a ClientBuilder for client managing requests.
          *
@@ -2315,10 +2286,10 @@
          * @return {corbel.Iam.ClientBuilder}
          */
         corbel.Iam.prototype.client = function(domainId, clientId) {
-            var client = new ClientBuilder(domainId, clientId);
-            client.driver = this.driver;
-            return client;
-        };
+            var client = new ClientBuilder(domainId, clientId)
+            client.driver = this.driver
+            return client
+        }
 
         /**
          * A builder for client management requests.
@@ -2330,11 +2301,10 @@
          * @memberOf iam
          */
         var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
-
             constructor: function(domainId, clientId) {
-                this.domainId = domainId;
-                this.clientId = clientId;
-                this.uri = 'domain';
+                this.domainId = domainId
+                this.clientId = clientId
+                this.uri = 'domain'
             },
 
             /**
@@ -2358,15 +2328,15 @@
              *                   with a {@link corbelError}.
              */
             create: function(client) {
-                console.log('iamInterface.domain.create', client);
-                corbel.validate.value('domainId', this.domainId);
+                console.log('iamInterface.domain.create', client)
+                corbel.validate.value('domainId', this.domainId)
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
                     method: corbel.request.method.POST,
                     data: client
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -2380,12 +2350,12 @@
              * @return {Promise} A promise with the client or fails with a {@link corbelError}.
              */
             get: function() {
-                console.log('iamInterface.domain.get', this.clientId);
-                corbel.validate.values(['domainId', 'clientId'], this);
+                console.log('iamInterface.domain.get', this.clientId)
+                corbel.validate.values(['domainId', 'clientId'], this)
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -2398,14 +2368,14 @@
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             getAll: function(params) {
-                corbel.validate.failIfIsDefined(this.clientId, 'This function not allowed client identifier');
-                corbel.validate.value('domainId', this.domainId);
-                console.log('iamInterface.domain.getAll');
+                corbel.validate.failIfIsDefined(this.clientId, 'This function not allowed client identifier')
+                corbel.validate.value('domainId', this.domainId)
+                console.log('iamInterface.domain.getAll')
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             /**
@@ -2427,13 +2397,13 @@
              * @return {Promise} A promise or fails with a {@link corbelError}.
              */
             update: function(client) {
-                console.log('iamInterface.domain.update', client);
-                corbel.validate.values(['domainId', 'clientId'], this);
+                console.log('iamInterface.domain.update', client)
+                corbel.validate.values(['domainId', 'clientId'], this)
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
                     method: corbel.request.method.PUT,
                     data: client
-                });
+                })
             },
 
             /**
@@ -2447,24 +2417,24 @@
              * @return {Promise} A promise or fails with a {@link corbelError}.
              */
             remove: function() {
-                console.log('iamInterface.domain.remove', this.domainId, this.clientId);
-                corbel.validate.values(['domainId', 'clientId'], this);
+                console.log('iamInterface.domain.remove', this.domainId, this.clientId)
+                corbel.validate.values(['domainId', 'clientId'], this)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             _buildUri: corbel.Iam._buildUri
 
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Creates a DomainBuilder for domain managing requests.
          *
@@ -2473,10 +2443,10 @@
          * @return {corbel.Iam.DomainBuilder}
          */
         corbel.Iam.prototype.domain = function(domainId) {
-            var domain = new DomainBuilder(domainId);
-            domain.driver = this.driver;
-            return domain;
-        };
+            var domain = new DomainBuilder(domainId)
+            domain.driver = this.driver
+            return domain
+        }
 
         /**
          * A builder for domain management requests.
@@ -2487,10 +2457,9 @@
          * @memberOf iam
          */
         var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
-
             constructor: function(domainId) {
-                this.domainId = domainId;
-                this.uri = 'domain';
+                this.domainId = domainId
+                this.uri = 'domain'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -2514,14 +2483,14 @@
              *                   with a {@link corbelError}.
              */
             create: function(domain) {
-                console.log('iamInterface.domain.create', domain);
+                console.log('iamInterface.domain.create', domain)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: domain
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -2533,15 +2502,14 @@
              * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
              */
             get: function() {
-                console.log('iamInterface.domain.get', this.domainId);
-                corbel.validate.value('domainId', this.domainId);
+                console.log('iamInterface.domain.get', this.domainId)
+                corbel.validate.value('domainId', this.domainId)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId),
                     method: corbel.request.method.GET
-                });
+                })
             },
-
 
             /**
              * Gets all domains.
@@ -2553,13 +2521,13 @@
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             getAll: function(params) {
-                corbel.validate.failIfIsDefined(this.domainId, 'This function not allowed domain identifier');
-                console.log('iamInterface.domain.getAll');
+                corbel.validate.failIfIsDefined(this.domainId, 'This function not allowed domain identifier')
+                console.log('iamInterface.domain.getAll')
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             /**
@@ -2580,14 +2548,14 @@
              * @return {Promise} A promise or fails with a {@link corbelError}.
              */
             update: function(domain) {
-                console.log('iamInterface.domain.update', domain);
-                corbel.validate.value('domainId', this.domainId);
+                console.log('iamInterface.domain.update', domain)
+                corbel.validate.value('domainId', this.domainId)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId),
                     method: corbel.request.method.PUT,
                     data: domain
-                });
+                })
             },
 
             /**
@@ -2601,31 +2569,31 @@
              * @return {Promise} A promise or fails with a {@link corbelError}.
              */
             remove: function() {
-                console.log('iamInterface.domain.remove', this.domainId);
-                corbel.validate.value('domainId', this.domainId);
+                console.log('iamInterface.domain.remove', this.domainId)
+                corbel.validate.value('domainId', this.domainId)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.domainId),
                     method: corbel.request.method.DELETE
-                });
+                })
             }
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Creates a ScopeBuilder for scope managing requests.
          * @param {String} id Scope id.
          * @return {corbel.Iam.ScopeBuilder}
          */
         corbel.Iam.prototype.scope = function(id) {
-            var scope = new ScopeBuilder(id);
-            scope.driver = this.driver;
-            return scope;
-        };
+            var scope = new ScopeBuilder(id)
+            scope.driver = this.driver
+            return scope
+        }
 
         /**
          * A builder for scope management requests.
@@ -2636,10 +2604,9 @@
          * @memberOf iam
          */
         var ScopeBuilder = corbel.Iam.ScopeBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.id = id;
-                this.uri = 'scope';
+                this.id = id
+                this.uri = 'scope'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -2659,14 +2626,14 @@
              *                   with a {@link corbelError}.
              */
             create: function(scope) {
-                console.log('iamInterface.scope.create', scope);
+                console.log('iamInterface.scope.create', scope)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: scope
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -2678,13 +2645,13 @@
              * @return {Promise} A promise with the scope or fails with a {@link corbelError}.
              */
             get: function() {
-                console.log('iamInterface.scope.get', this.id);
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.scope.get', this.id)
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.id),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -2695,31 +2662,31 @@
              * @return {Promise} A promise user or fails with a {@link corbelError}.
              */
             remove: function() {
-                console.log('iamInterface.scope.remove', this.id);
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.scope.remove', this.id)
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri + '/' + this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             }
 
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Creates a TokenBuilder for token requests
          * @return {corbel.Iam.TokenBuilder}
          */
         corbel.Iam.prototype.token = function() {
-            var tokenBuilder = new TokenBuilder(this.driver);
-            tokenBuilder.driver = this.driver;
-            return tokenBuilder;
-        };
+            var tokenBuilder = new TokenBuilder(this.driver)
+            tokenBuilder.driver = this.driver
+            return tokenBuilder
+        }
 
         /**
          * A builder for token requests
@@ -2727,9 +2694,8 @@
          * @memberOf Iam
          */
         var TokenBuilder = corbel.Iam.TokenBuilder = corbel.Services.inherit({
-
             constructor: function() {
-                this.uri = 'oauth/token';
+                this.uri = 'oauth/token'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -2745,18 +2711,18 @@
              * @return {String} JWT assertion
              */
             _getJwt: function(params) {
-                params = params || {};
-                params.claims = params.claims || {};
+                params = params || {}
+                params.claims = params.claims || {}
 
                 if (params.jwt) {
-                    return params.jwt;
+                    return params.jwt
                 }
 
-                var secret = params.secret || this.driver.config.get('clientSecret');
-                params.claims.iss = params.claims.iss || this.driver.config.get('clientId');
-                params.claims.aud = params.claims.aud || this.driver.config.get('audience', corbel.Iam.AUD);
-                params.claims.scope = params.claims.scope || this.driver.config.get('scopes', '');
-                return corbel.jwt.generate(params.claims, secret);
+                var secret = params.secret || this.driver.config.get('clientSecret')
+                params.claims.iss = params.claims.iss || this.driver.config.get('clientId')
+                params.claims.aud = params.claims.aud || this.driver.config.get('audience', corbel.Iam.AUD)
+                params.claims.scope = params.claims.scope || this.driver.config.get('scopes', '')
+                return corbel.jwt.generate(params.claims, secret)
             },
 
             _doGetTokenRequest: function(uri, params, setCookie) {
@@ -2768,15 +2734,15 @@
                         'grant_type': corbel.Iam.GRANT_TYPE
                     }, params.oauth)),
                     withCredentials: true
-                };
+                }
 
                 if (setCookie) {
                     args.headers = {
                         RequestCookie: 'true'
-                    };
+                    }
                 }
 
-                return corbel.request.send(args);
+                return corbel.request.send(args)
             },
 
             _doPostTokenRequest: function(uri, params, setCookie) {
@@ -2789,14 +2755,14 @@
                     },
                     contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                     withCredentials: true
-                };
+                }
 
                 if (setCookie) {
                     args.headers = {
                         RequestCookie: 'true'
-                    };
+                    }
                 }
-                return corbel.request.send(args);
+                return corbel.request.send(args)
             },
 
             /**
@@ -2810,47 +2776,45 @@
              *
              * @param {string} params["oauth.service"]         Service that will provide the authorization, e.g. facebook  String  *
              * @param {string} params["oauth.code"]            Code used in OAuth2 for exanging for a token    String  only if OAuth2
-             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead.  String  
+             * @param {string} params["oauth.access_token"]    Access token used in OAuth2 for authentication. WARNING!! It is not recommended to pass an access token directly from the client, the oauth.code claim should be used instead String
              * @param {string} params["oauth.redirect_uri"]    URI used by the client in OAuth2 to redirect the user when he does the login    String  only if OAuth2
              * @param {string} params["oauth.token"]           Token returned by OAuth1 server to the client when the user does the login  String  only if OAuth1
              * @param {string} params["oauth.verifier"]        Verifier returned by OAuth1 server to the client when the user does the login
-             * 
              * @param {Boolean} [setCookie]     Sends 'RequestCookie' to server
              * @return {Promise}                Q promise that resolves to an AccessToken {Object} or rejects with a {@link corbelError}
              */
             create: function(params, setCookie) {
-                params = params || {};
-                // if there are oauth params this mean we should do use the GET verb
-                var promise;
+                params = params || {}
+                    // if there are oauth params this mean we should do use the GET verb
+                var promise
                 try {
                     if (params.oauth) {
-                        promise = this._doGetTokenRequest(this.uri, params, setCookie);
+                        promise = this._doGetTokenRequest(this.uri, params, setCookie)
                     }
 
                     // otherwise we use the traditional POST verb.
-                    promise = this._doPostTokenRequest(this.uri, params, setCookie);
-
+                    promise = this._doPostTokenRequest(this.uri, params, setCookie)
                 } catch (e) {
-                    console.log('error', e);
-                    return Promise.reject(e);
+                    console.log('error', e)
+                    return Promise.reject(e)
                 }
 
-                var that = this;
+                var that = this
                 return promise.then(function(response) {
-                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                    that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domainId);
+                    that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data)
+                    that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(response.data.accessToken).domainId)
                     if (params.jwt) {
-                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope);
+                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(params.jwt).scope)
                     }
                     if (params.claims) {
                         if (params.claims.scope) {
-                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope);
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, params.claims.scope)
                         } else {
-                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, that.driver.config.get('scopes', ''));
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, that.driver.config.get('scopes', ''))
                         }
                     }
-                    return response;
-                });
+                    return response
+                })
             },
 
             /**
@@ -2862,48 +2826,45 @@
              * @return {Promise}                 Q promise that resolves to an AccesToken {Object} or rejects with a {@link corbelError}
              */
             refresh: function(refreshToken, scopes) {
-                // console.log('iamInterface.token.refresh', refreshToken);
+                // console.log('iamInterface.token.refresh', refreshToken)
                 // we need refresh token to refresh access token
-                corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token');
-                // we need create default claims to refresh access token
+                corbel.validate.isValue(refreshToken, 'Refresh access token request must contains refresh token')
+                    // we need create default claims to refresh access token
                 var params = {
                     claims: {
                         'scope': scopes,
                         'refresh_token': refreshToken
                     }
-                };
-                var that = this;
+                }
+                var that = this
 
                 try {
-
                     return this._doPostTokenRequest(this.uri, params)
                         .then(function(response) {
-                            that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
-                            return response;
-                        });
-
+                            that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data)
+                            return response
+                        })
                 } catch (e) {
-                    console.log('error', e);
-                    return Promise.reject(e);
+                    console.log('error', e)
+                    return Promise.reject(e)
                 }
-
             }
+        })
+    })()
 
-        });
+    /* global corbel */
 
-    })();
-
+    ;
     (function() {
-
         /**
          * Starts a username request
          * @return {corbel.Iam.UsernameBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.username = function() {
-            var username = new UsernameBuilder();
-            username.driver = this.driver;
-            return username;
-        };
+            var username = new UsernameBuilder()
+            username.driver = this.driver
+            return username
+        }
 
         /**
          * Builder for creating requests of users name
@@ -2911,9 +2872,8 @@
          * @memberOf iam
          */
         var UsernameBuilder = corbel.Iam.UsernameBuilder = corbel.Services.inherit({
-
             constructor: function() {
-                this.uri = 'username';
+                this.uri = 'username'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -2926,20 +2886,20 @@
              * @return {Promise}     A promise which resolves into usename availability boolean state.
              */
             availability: function(username) {
-                console.log('iamInterface.username.availability', username);
-                corbel.validate.value('username', username);
+                console.log('iamInterface.username.availability', username)
+                corbel.validate.value('username', username)
                 return this.request({
                     url: this._buildUri(this.uri, username),
                     method: corbel.request.method.HEAD
                 }).then(function() {
-                    return false;
+                    return false
                 }).catch(function(response) {
                     if (response.status === 404) {
-                        return true;
+                        return true
                     } else {
-                        return Promise.reject(response);
+                        return Promise.reject(response)
                     }
-                });
+                })
             },
 
             /**
@@ -2953,50 +2913,50 @@
              * @return {Promise} A promise with the user or fails with a {@link corbelError}.
              */
             getUserId: function(username) {
-                console.log('iamInterface.username.getUserId', username);
-                corbel.validate.value('username', username);
+                console.log('iamInterface.username.getUserId', username)
+                corbel.validate.value('username', username)
 
                 return this.request({
                     url: this._buildUri(this.uri, username),
                     method: corbel.request.method.GET
-                });
+                })
             }
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
-        /**
+        /*
          * Starts a user request
          * @param  {string} [id=id|'me'] Id of the user to perform the request
          * @return {corbel.Iam.UserBuilder|corbel.Iam.UserMeBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.user = function(id) {
-            var builder;
+            var builder
             if (id === 'me') {
-                builder = new UserBuilder('me');
+                builder = new UserBuilder('me')
             } else if (id) {
-                builder = new UserBuilder(id);
+                builder = new UserBuilder(id)
             } else {
-                builder = new UserMeBuilder('me');
+                builder = new UserMeBuilder('me')
             }
 
-            builder.driver = this.driver;
-            return builder;
-        };
+            builder.driver = this.driver
+            return builder
+        }
 
         /**
          * Starts a users request
          * @return {corbel.Iam.UserBuilder|corbel.Iam.UsersBuilder}    The builder to create the request
          */
         corbel.Iam.prototype.users = function() {
-            var builder = new UsersBuilder();
+            var builder = new UsersBuilder()
 
-            builder.driver = this.driver;
-            return builder;
-        };
+            builder.driver = this.driver
+            return builder
+        }
 
         /**
          * getUser mixin for UserBuilder & UsersBuilder
@@ -3006,12 +2966,12 @@
          * @return {Promise}
          */
         corbel.Iam._getUser = function(method, uri, id, postfix) {
-            var url = (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id));
+            var url = (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id))
             return this.request({
                 url: url,
                 method: corbel.request.method.GET
-            });
-        };
+            })
+        }
 
         /**
          * Builder for a specific user requests
@@ -3020,10 +2980,9 @@
          * @param {string} id The id of the user
          */
         var CommonUserBuilder = corbel.Iam.CommonUserBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.uri = 'user';
-                this.id = id;
+                this.uri = 'user'
+                this.id = id
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -3036,27 +2995,27 @@
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function() {
-                console.log('iamInterface.user.get');
-                corbel.validate.value('id', this.id);
-                return this._getUser(corbel.request.method.GET, this.uri, this.id);
+                console.log('iamInterface.user.get')
+                corbel.validate.value('id', this.id)
+                return this._getUser(corbel.request.method.GET, this.uri, this.id)
             },
 
             /**
              * Updates the user
              * @method
              * @memberOf corbel.Iam.UserBuilder
-             * @param  {Object} data    The data to update
-             * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+             * @param  {Object} The data to update
+             * @return {Promise} promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             _update: function(data) {
-                console.log('iamInterface.user.update', data);
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.update', data)
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: data
-                });
+                })
             },
 
             /**
@@ -3066,31 +3025,31 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             _delete: function() {
-                console.log('iamInterface.user.delete');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.delete')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             /**
              * Sign Out the logged user.
              * @example
-             * iam().user('me').signOut();
+             * iam().user('me').signOut()
              * @method
              * @memberOf corbel.Iam.UsersBuilder
              * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             _signOut: function() {
-                console.log('iamInterface.users.signOutMe');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.users.signOutMe')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/signout',
                     method: corbel.request.method.PUT
-                });
+                })
             },
 
             /**
@@ -3100,13 +3059,13 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             _disconnect: function() {
-                console.log('iamInterface.user.disconnect');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.disconnect')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/disconnect',
                     method: corbel.request.method.PUT
-                });
+                })
             },
 
             /**
@@ -3119,15 +3078,15 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             addIdentity: function(identity) {
-                // console.log('iamInterface.user.addIdentity', identity);
-                corbel.validate.isValue(identity, 'Missing identity');
-                corbel.validate.value('id', this.id);
+                // console.log('iamInterface.user.addIdentity', identity)
+                corbel.validate.isValue(identity, 'Missing identity')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/identity',
                     method: corbel.request.method.POST,
                     data: identity
-                });
+                })
             },
 
             /**
@@ -3137,13 +3096,13 @@
              * @return {Promise}  Q promise that resolves to {Array} of Identity or rejects with a {@link corbelError}
              */
             _getIdentities: function() {
-                console.log('iamInterface.user.getIdentities');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.getIdentities')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/identity',
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * User device register
@@ -3156,16 +3115,16 @@
              * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             _registerDevice: function(data) {
-                console.log('iamInterface.user.registerDevice');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.registerDevice')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices',
                     method: corbel.request.method.PUT,
                     data: data
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -3176,16 +3135,16 @@
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
             _getDevice: function(deviceId) {
-                console.log('iamInterface.user.getDevice');
+                console.log('iamInterface.user.getDevice')
                 corbel.validate.values(['id', 'deviceId'], {
                     'id': this.id,
                     'deviceId': deviceId
-                });
+                })
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -3195,12 +3154,12 @@
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
             _getDevices: function() {
-                console.log('iamInterface.user.getDevices');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.getDevices')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/',
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -3211,12 +3170,12 @@
              * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
              */
             _deleteDevice: function(deviceId) {
-                console.log('iamInterface.user.deleteDevice');
-                corbel.validate.value('deviceId', deviceId);
+                console.log('iamInterface.user.deleteDevice')
+                corbel.validate.value('deviceId', deviceId)
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Get user profiles
@@ -3225,13 +3184,13 @@
              * @return {Promise}  Q promise that resolves to a User Profile or rejects with a {@link corbelError}
              */
             _getProfile: function() {
-                console.log('iamInterface.user.getProfile');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.getProfile')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/profile',
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -3242,14 +3201,14 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             addGroups: function(groups) {
-                console.log('iamInterface.user.addGroups');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.user.addGroups')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/groups',
                     method: corbel.request.method.PUT,
                     data: groups
-                });
+                })
             },
 
             /**
@@ -3260,90 +3219,90 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             _deleteGroup: function(group) {
-                console.log('iamInterface.user.deleteGroup');
+                console.log('iamInterface.user.deleteGroup')
                 corbel.validate.values(['id', 'group'], {
                     'id': this.id,
                     'group': group
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/groups/' + group,
                     method: corbel.request.method.DELETE
-                });
+                })
             }
 
-        });
+        })
 
-        var UserBuilder = corbel.Iam.CommonUserBuilder.inherit({
+        var UserBuilder = CommonUserBuilder.inherit({
             deleteGroup: function() {
-                return this._deleteGroup.apply(this, arguments);
+                return this._deleteGroup.apply(this, arguments)
             },
             update: function() {
-                return this._update.apply(this, arguments);
+                return this._update.apply(this, arguments)
             },
             delete: function() {
-                return this._delete.apply(this, arguments);
+                return this._delete.apply(this, arguments)
             },
             registerDevice: function() {
-                return this._registerDevice.apply(this, arguments);
+                return this._registerDevice.apply(this, arguments)
             },
             getDevices: function() {
-                return this._getDevices.apply(this, arguments);
+                return this._getDevices.apply(this, arguments)
             },
             getDevice: function() {
-                return this._getDevice.apply(this, arguments);
+                return this._getDevice.apply(this, arguments)
             },
             deleteDevice: function() {
-                return this._deleteDevice.apply(this, arguments);
+                return this._deleteDevice.apply(this, arguments)
             },
             signOut: function() {
-                return this._signOut.apply(this, arguments);
+                return this._signOut.apply(this, arguments)
             },
             disconnect: function() {
-                return this._disconnect.apply(this, arguments);
+                return this._disconnect.apply(this, arguments)
             },
             getIdentities: function() {
-                return this._getIdentities.apply(this, arguments);
+                return this._getIdentities.apply(this, arguments)
             },
             getProfile: function() {
-                return this._getProfile.apply(this, arguments);
+                return this._getProfile.apply(this, arguments)
             }
-        });
+        })
 
-        var UserMeBuilder = corbel.Iam.CommonUserBuilder.inherit({
+        var UserMeBuilder = CommonUserBuilder.inherit({
             deleteMyGroup: function() {
-                return this._deleteGroup.apply(this, arguments);
+                return this._deleteGroup.apply(this, arguments)
             },
             updateMe: function() {
-                return this._update.apply(this, arguments);
+                return this._update.apply(this, arguments)
             },
             deleteMe: function() {
-                return this._delete.apply(this, arguments);
+                return this._delete.apply(this, arguments)
             },
             registerMyDevice: function() {
-                return this._registerDevice.apply(this, arguments);
+                return this._registerDevice.apply(this, arguments)
             },
             getMyDevices: function() {
-                return this._getDevices.apply(this, arguments);
+                return this._getDevices.apply(this, arguments)
             },
             getMyDevice: function() {
-                return this._getDevice.apply(this, arguments);
+                return this._getDevice.apply(this, arguments)
             },
             deleteMyDevice: function() {
-                return this._deleteDevice.apply(this, arguments);
+                return this._deleteDevice.apply(this, arguments)
             },
             signOutMe: function() {
-                return this._signOut.apply(this, arguments);
+                return this._signOut.apply(this, arguments)
             },
             disconnectMe: function() {
-                return this._disconnect.apply(this, arguments);
+                return this._disconnect.apply(this, arguments)
             },
             getMyIdentities: function() {
-                return this._getIdentities.apply(this, arguments);
+                return this._getIdentities.apply(this, arguments)
             },
             getMyProfile: function() {
-                return this._getProfile.apply(this, arguments);
+                return this._getProfile.apply(this, arguments)
             }
-        });
+        })
 
         /**
          * Builder for creating requests of users collection
@@ -3351,9 +3310,8 @@
          * @memberOf iam
          */
         var UsersBuilder = corbel.Iam.UsersBuilder = corbel.Services.inherit({
-
             constructor: function() {
-                this.uri = 'user';
+                this.uri = 'user'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -3366,15 +3324,15 @@
              * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             sendResetPasswordEmail: function(userEmailToReset) {
-                console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
-                var query = 'email=' + userEmailToReset;
+                console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset)
+                var query = 'email=' + userEmailToReset
                 return this.request({
                     url: this._buildUri(this.uri + '/resetPassword'),
                     method: corbel.request.method.GET,
                     query: query
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -3385,14 +3343,14 @@
              * @return {Promise}     A promise which resolves into the ID of the created user or fails with a {@link corbelError}.
              */
             create: function(data) {
-                console.log('iamInterface.users.create', data);
+                console.log('iamInterface.users.create', data)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: data
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -3402,45 +3360,46 @@
              * @return {Promise} Q promise that resolves to an {Array} of Users or rejects with a {@link corbelError}
              */
             get: function(params) {
-                console.log('iamInterface.users.get', params);
+                console.log('iamInterface.users.get', params)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             getProfiles: function(params) {
-                console.log('iamInterface.users.getProfiles', params);
+                console.log('iamInterface.users.getProfiles', params)
                 return this.request({
                     url: this._buildUri(this.uri) + '/profile',
                     method: corbel.request.method.GET,
-                    query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
-                });
+                    query: params ? corbel.utils.serializeParams(params) : null // TODO cambiar por util e implementar dicho metodo
+                })
             }
-        });
-    })();
+        })
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * Creates a GroupBuilder for group requests
          *
          * @return {iam.GroupBuilder | iam.GroupsBuilder}
          */
         corbel.Iam.prototype.group = function(id) {
-            var builder;
+            var builder
 
             if (id) {
-                builder = new GroupBuilder(id);
+                builder = new GroupBuilder(id)
             } else {
-                builder = new GroupsBuilder();
+                builder = new GroupsBuilder()
             }
 
-            builder.driver = this.driver;
-            return builder;
-        };
+            builder.driver = this.driver
+            return builder
+        }
 
         /**
          * A builder for group requests without id (getAll and creation).
@@ -3449,9 +3408,8 @@
          * @memberOf iam
          */
         var GroupsBuilder = corbel.Iam.GroupsBuilder = corbel.Services.inherit({
-
             constructor: function() {
-                this.uri = 'group';
+                this.uri = 'group'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -3467,13 +3425,13 @@
              * @return {Promise} Q promise that resolves to an array of groups.
              */
             getAll: function(params) {
-                console.log('iamInterface.groups.getAll');
+                console.log('iamInterface.groups.getAll')
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null,
                     withAuth: true
-                });
+                })
             },
 
             /**
@@ -3490,18 +3448,18 @@
              * @return {Promise} A promise which resolves into the ID of the created group or fails with a {@link SilkRoadError}.
              */
             create: function(data) {
-                console.log('iamInterface.groups.create', data);
+                console.log('iamInterface.groups.create', data)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: data,
                     withAuth: true
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             }
 
-        });
+        })
 
         /**
          * A builder for group requests.
@@ -3511,10 +3469,9 @@
          * @param {String} id The id of the group.
          */
         var GroupBuilder = corbel.Iam.GroupBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.uri = 'group';
-                this.id = id;
+                this.uri = 'group'
+                this.id = id
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -3527,13 +3484,13 @@
              * @return {Promise} Q promise that resolves to a group or rejects with a {@link SilkRoadError}.
              */
             get: function() {
-                console.log('iamInterface.group.get');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.group.get')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     withAuth: true
-                });
+                })
             },
 
             /**
@@ -3547,15 +3504,15 @@
              * @return {Promise} A promise which resolves to undefined(void) or fails with a {@link SilkRoadError}.
              */
             addScopes: function(scopes) {
-                console.log('iamInterface.group.addScopes', scopes);
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.group.addScopes', scopes)
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/scopes',
                     method: corbel.request.method.PUT,
                     data: scopes,
                     withAuth: true
-                });
+                })
             },
 
             /**
@@ -3569,14 +3526,14 @@
              * @return {Promise} A promise which resolves to undefined(void) or fails with a {@link SilkRoadError}.
              */
             removeScope: function(scope) {
-                console.log('iamInterface.group.removeScope', scope);
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.group.removeScope', scope)
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/scopes/' + scope,
                     method: corbel.request.method.DELETE,
                     withAuth: true
-                });
+                })
             },
 
             /**
@@ -3587,33 +3544,33 @@
              * @return {Promise} A promise which resolves to undefined(void) or fails with a {@link SilkRoadError}.
              */
             delete: function() {
-                console.log('iamInterface.group.delete');
-                corbel.validate.value('id', this.id);
+                console.log('iamInterface.group.delete')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE,
                     withAuth: true
-                });
+                })
             }
 
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Creates a EmailBuilder for email requests
          * @return {corbel.Iam.EmailBuilder}
          */
         corbel.Iam.prototype.email = function() {
-            var builder;
-            builder = new EmailBuilder();
-            builder.driver = this.driver;
-            return builder;
-        };
+            var builder
+            builder = new EmailBuilder()
+            builder.driver = this.driver
+            return builder
+        }
 
         /**
          * Builder for creating requests of email
@@ -3621,9 +3578,8 @@
          * @memberOf iam
          */
         var EmailBuilder = corbel.Iam.EmailBuilder = corbel.Services.inherit({
-
             constructor: function() {
-                this.uri = 'email';
+                this.uri = 'email'
             },
 
             _buildUri: corbel.Iam._buildUri,
@@ -3639,13 +3595,13 @@
              * @return {Promise} A promise with the user or fails with a {@link corbelError}.
              */
             getUserId: function(email) {
-                console.log('iamInterface.email.getUserId', email);
-                corbel.validate.value('email', email);
+                console.log('iamInterface.email.getUserId', email)
+                corbel.validate.value('email', email)
 
                 return this.request({
                     url: this._buildUri(this.uri, email),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -3656,33 +3612,31 @@
              * @return {Promise}     A promise which resolves into email availability boolean state.
              */
             availability: function(email) {
-                console.log('iamInterface.email.availability', email);
-                corbel.validate.value('email', email);
+                console.log('iamInterface.email.availability', email)
+                corbel.validate.value('email', email)
 
                 return this.request({
                     url: this._buildUri(this.uri, email),
                     method: corbel.request.method.HEAD
                 }).then(
                     function() {
-                        return false;
+                        return false
                     },
                     function(response) {
                         if (response.status === 404) {
-                            return true;
+                            return true
                         } else {
-                            return Promise.reject(response);
+                            return Promise.reject(response)
                         }
                     }
-                );
+                )
             }
-        });
-    })();
-
+        })
+    })()
 
 
     var aggregationBuilder = (function() {
-
-        var aggregationBuilder = {};
+        var aggregationBuilder = {}
 
         /**
          * Adds a count operation to aggregation
@@ -3690,19 +3644,19 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         aggregationBuilder.count = function(field) {
-            this.params.aggregation = this.params.aggregation || {};
-            this.params.aggregation.$count = field;
-            return this;
-        };
+            this.params.aggregation = this.params.aggregation || {}
+            this.params.aggregation.$count = field
+            return this
+        }
 
-        return aggregationBuilder;
+        return aggregationBuilder
+    })()
 
-    })();
+    module.exports = aggregationBuilder
 
 
     var queryBuilder = (function() {
-
-        var queryBuilder = {};
+        var queryBuilder = {}
 
         /**
          * Adds an Equal criteria to query
@@ -3711,9 +3665,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.eq = function(field, value) {
-            this.addCriteria('$eq', field, value);
-            return this;
-        };
+            this.addCriteria('$eq', field, value)
+            return this
+        }
 
         /**
          * Adds a Greater Than criteria to query
@@ -3722,9 +3676,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.gt = function(field, value) {
-            this.addCriteria('$gt', field, value);
-            return this;
-        };
+            this.addCriteria('$gt', field, value)
+            return this
+        }
 
         /**
          * Adds a Greater Than Or Equal criteria to query
@@ -3733,9 +3687,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.gte = function(field, value) {
-            this.addCriteria('$gte', field, value);
-            return this;
-        };
+            this.addCriteria('$gte', field, value)
+            return this
+        }
 
         /**
          * Adds a Less Than criteria to query
@@ -3744,9 +3698,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.lt = function(field, value) {
-            this.addCriteria('$lt', field, value);
-            return this;
-        };
+            this.addCriteria('$lt', field, value)
+            return this
+        }
 
         /**
          * Adds a Less Than Or Equal criteria to query
@@ -3755,9 +3709,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.lte = function(field, value) {
-            this.addCriteria('$lte', field, value);
-            return this;
-        };
+            this.addCriteria('$lte', field, value)
+            return this
+        }
 
         /**
          * Adds a Not Equal criteria to query
@@ -3766,9 +3720,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.ne = function(field, value) {
-            this.addCriteria('$ne', field, value);
-            return this;
-        };
+            this.addCriteria('$ne', field, value)
+            return this
+        }
 
         /**
          * Adds a Like criteria to query
@@ -3777,9 +3731,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.like = function(field, value) {
-            this.addCriteria('$like', field, value);
-            return this;
-        };
+            this.addCriteria('$like', field, value)
+            return this
+        }
 
         /**
          * Adds an In criteria to query
@@ -3788,9 +3742,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.in = function(field, values) {
-            this.addCriteria('$in', field, values);
-            return this;
-        };
+            this.addCriteria('$in', field, values)
+            return this
+        }
 
         /**
          * Adds an All criteria to query
@@ -3799,9 +3753,9 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.all = function(field, values) {
-            this.addCriteria('$all', field, values);
-            return this;
-        };
+            this.addCriteria('$all', field, values)
+            return this
+        }
 
         /**
          * Adds an Element Match criteria to query
@@ -3810,36 +3764,36 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         queryBuilder.elemMatch = function(field, query) {
-            this.addCriteria('$elem_match', field, query);
-            return this;
-        };
+            this.addCriteria('$elem_match', field, query)
+            return this
+        }
 
         /**
          * Sets an specific queryDomain, by default 'api'.
          * @param {String} queryDomain query domain name, 'api' and '7digital' supported
          */
         queryBuilder.setQueryDomain = function(queryDomain) {
-            this.params.queryDomain = queryDomain;
-            return this;
-        };
+            this.params.queryDomain = queryDomain
+            return this
+        }
 
         queryBuilder.addCriteria = function(operator, field, value) {
-            var criteria = {};
-            criteria[operator] = {};
-            criteria[operator][field] = value;
-            this.params.query = this.params.query || [];
-            this.params.query.push(criteria);
-            return this;
-        };
+            var criteria = {}
+            criteria[operator] = {}
+            criteria[operator][field] = value
+            this.params.query = this.params.query || []
+            this.params.query.push(criteria)
+            return this
+        }
 
-        return queryBuilder;
+        return queryBuilder
+    })()
 
-    })();
+    module.exports = queryBuilder
 
 
     var pageBuilder = (function() {
-
-        var pageBuilder = {};
+        var pageBuilder = {}
 
         /**
          * Sets the page number of the page param
@@ -3847,10 +3801,10 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         pageBuilder.page = function(page) {
-            this.params.pagination = this.params.pagination || {};
-            this.params.pagination.page = page;
-            return this;
-        };
+            this.params.pagination = this.params.pagination || {}
+            this.params.pagination.page = page
+            return this
+        }
 
         /**
          * Sets the page size of the page param
@@ -3858,10 +3812,10 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         pageBuilder.pageSize = function(pageSize) {
-            this.params.pagination = this.params.pagination || {};
-            this.params.pagination.pageSize = pageSize;
-            return this;
-        };
+            this.params.pagination = this.params.pagination || {}
+            this.params.pagination.pageSize = pageSize
+            return this
+        }
 
         /**
          * Sets the page number and page size of the page param
@@ -3869,51 +3823,54 @@
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         pageBuilder.pageParam = function(page, pageSize) {
-            this.params.pagination = this.params.pagination || {};
-            this.params.pagination.page = page;
-            this.params.pagination.pageSize = pageSize;
-            return this;
-        };
+            this.params.pagination = this.params.pagination || {}
+            this.params.pagination.page = page
+            this.params.pagination.pageSize = pageSize
+            return this
+        }
 
-        return pageBuilder;
+        return pageBuilder
+    })()
 
+    module.exports = pageBuilder
 
-    })();
-
-
+    /* global corbel */
 
     var sortBuilder = (function() {
-
-        var sortBuilder = {};
+        var sortBuilder = {}
 
         /**
          * Sets ascending direction to sort param
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         sortBuilder.asc = function(field) {
-            this.params.sort = this.params.sort || {};
-            this.params.sort[field] = corbel.Resources.sort.ASC;
-            return this;
-        };
+            this.params.sort = this.params.sort || {}
+            this.params.sort[field] = corbel.Resources.sort.ASC
+            return this
+        }
 
         /**
          * Sets descending direction to sort param
          * @return {RequestParamsBuilder} RequestParamsBuilder
          */
         sortBuilder.desc = function(field) {
-            this.params.sort = this.params.sort || {};
-            this.params.sort[field] = corbel.Resources.sort.DESC;
-            return this;
-        };
+            this.params.sort = this.params.sort || {}
+            this.params.sort[field] = corbel.Resources.sort.DESC
+            return this
+        }
 
-        return sortBuilder;
-    })();
+        return sortBuilder
+    })()
 
+    module.exports = sortBuilder
 
+    var aggregationBuilder = require('./aggregationBuilder')
+    var pageBuilder = require('./pageBuilder')
+    var queryBuilder = require('./queryBuilder')
+    var sortBuilder = require('./sortBuilder')
+
+    ;
     (function(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder) {
-
-
-
         /**
          * A module to build Request Params
          * @exports requestParamsBuilder
@@ -3922,25 +3879,26 @@
          */
         corbel.requestParamsBuilder = corbel.Object.inherit({
             constructor: function() {
-                this.params = {};
+                this.params = {}
             },
             /**
              * Returns the JSON representation of the params
              * @return {JSON} representation of the params
              */
             build: function() {
-                return this.params;
+                return this.params
             }
-        });
+        })
 
+        corbel.utils.extend(corbel.requestParamsBuilder.prototype, queryBuilder, sortBuilder, aggregationBuilder, pageBuilder)
 
-        corbel.utils.extend(corbel.requestParamsBuilder.prototype, queryBuilder, sortBuilder, aggregationBuilder, pageBuilder);
+        return corbel.requestParamsBuilder
+    })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder)
 
-        return corbel.requestParamsBuilder;
+    /* global corbel */
 
-    })(aggregationBuilder, queryBuilder, sortBuilder, pageBuilder);
+    ;
     (function() {
-
         /**
          * An assets API factory
          * @exports corbel.Assets
@@ -3949,7 +3907,6 @@
          * @memberof corbel
          */
         corbel.Assets = corbel.Object.inherit({
-
             /**
              * Creates a new AssetsBuilder
              * @memberof corbel.Assets.prototype
@@ -3957,15 +3914,14 @@
              * @return {corbel.Assets.AssetsBuilder}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             asset: function(id) {
-                return new corbel.Assets.AssetsBuilder(this.driver, id);
+                return new corbel.Assets.AssetsBuilder(this.driver, id)
             }
 
         }, {
-
             /**
              * moduleName constant
              * @constant
@@ -3991,18 +3947,18 @@
              * @return {corbel.Assets.AssetsBuilder}
              */
             create: function(driver) {
-                return new corbel.Assets(driver);
+                return new corbel.Assets(driver)
             }
 
-        });
+        })
 
-        return corbel.Assets;
+        return corbel.Assets
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Module for organize user assets
          * @exports AssetsBuilder
@@ -4011,7 +3967,6 @@
          * @memberof corbel.Assets
          */
         var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.inherit({
-
             /**
              * Creates a new AssetsBuilder
              * @memberof corbel.Assets.AssetsBuilder.prototype
@@ -4019,9 +3974,9 @@
              * @return {corbel.Assets.AssetsBuilder}
              */
             constructor: function(driver, id) {
-                this.driver = driver;
-                this.uri = 'asset';
-                this.id = id;
+                this.driver = driver
+                this.uri = 'asset'
+                this.id = id
             },
 
             /**
@@ -4031,17 +3986,15 @@
              * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
              */
             get: function(params) {
-
-                var options = params ? corbel.utils.clone(params) : {};
+                var options = params ? corbel.utils.clone(params) : {}
 
                 var args = corbel.utils.extend(options, {
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
 
-                return this.request(args);
-
+                return this.request(args)
             },
 
             /**
@@ -4051,14 +4004,14 @@
              * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
              */
             getAll: function(params) {
-                var options = params ? corbel.utils.clone(params) : {};
+                var options = params ? corbel.utils.clone(params) : {}
 
                 var args = corbel.utils.extend(options, {
                     url: this._buildUri(this.uri, 'all'),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
-                return this.request(args);
+                })
+                return this.request(args)
             },
 
             /**
@@ -4067,11 +4020,11 @@
              * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function() {
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             /**
@@ -4090,10 +4043,9 @@
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: data
-                }).
-                then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                }).then(function(res) {
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -4102,42 +4054,40 @@
              * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link CorbelError}
              */
             access: function(params) {
-                var args = params ? corbel.utils.clone(params) : {};
-                args.url = this._buildUri(this.uri + '/access');
-                args.method = corbel.request.method.GET;
-                args.noRedirect = true;
+                var args = params ? corbel.utils.clone(params) : {}
+                args.url = this._buildUri(this.uri + '/access')
+                args.method = corbel.request.method.GET
+                args.noRedirect = true
 
-                var that = this;
+                var that = this
 
-                return this.request(args).
-                then(function(response) {
+                return this.request(args).then(function(response) {
                     return that.request({
                         noRetry: args.noRetry,
                         method: corbel.request.method.POST,
                         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                         data: response.data,
                         url: response.headers.location
-                    });
-                });
+                    })
+                })
             },
 
             _buildUri: function(path, id) {
-                var uri = '';
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config));
+                var uri = ''
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config))
 
-                uri = urlBase + path;
+                uri = urlBase + path
                 if (id) {
-                    uri += '/' + id;
+                    uri += '/' + id
                 }
-                return uri;
+                return uri
             },
 
             _buildPort: function(config) {
-                return config.get('assetsPort', null) || corbel.Assets.defaultPort;
+                return config.get('assetsPort', null) || corbel.Assets.defaultPort
             }
 
         }, {
-
             /**
              * GET constant
              * @constant
@@ -4154,152 +4104,145 @@
              * @default
              */
             create: function(driver) {
-                return new corbel.Assets.AssetsBuilder(driver);
+                return new corbel.Assets.AssetsBuilder(driver)
             }
 
-        });
+        })
 
-        return AssetsBuilder;
+        return AssetsBuilder
+    })()
 
-    })();
-
+    ;
     (function() {
 
         corbel.Scheduler = corbel.Object.inherit({
-
             /**
              * Create a new SchedulerBuilder
              * @param  {String} type String
              * @return {Scheduler}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             task: function(id) {
-                return new corbel.Scheduler.TaskBuilder(this.driver, id);
+                return new corbel.Scheduler.TaskBuilder(this.driver, id)
             }
         }, {
-
             moduleName: 'scheduler',
             defaultPort: 8098,
 
             create: function(driver) {
-                return new corbel.Scheduler(driver);
+                return new corbel.Scheduler(driver)
             }
-        });
+        })
 
-        return corbel.Scheduler;
-    })();
+        return corbel.Scheduler
+    })()
 
+    /*globals corbel */
 
+    ;
     (function() {
-
         var TaskBuilder = corbel.Scheduler.TaskBuilder = corbel.Services.inherit({
-
             constructor: function(driver, id) {
-                this.uri = 'tasks';
-                this.driver = driver;
-                this.id = id;
+                this.uri = 'tasks'
+                this.driver = driver
+                this.id = id
             },
 
             create: function(task) {
-                console.log('schedulerInterface.task.create', task);
+                console.log('schedulerInterface.task.create', task)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: task
-                }).
-                then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                }).then(function(res) {
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             get: function(params) {
-                console.log('schedulerInterface.task.get', params);
-                corbel.validate.value('id', this.id);
+                console.log('schedulerInterface.task.get', params)
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             update: function(task) {
-                console.log('schedulerInterface.task.update', task);
-                corbel.validate.value('id', this.id);
+                console.log('schedulerInterface.task.update', task)
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: task
-                });
+                })
             },
 
             delete: function() {
-                console.log('schedulerInterface.task.delete');
-                corbel.validate.value('id', this.id);
+                console.log('schedulerInterface.task.delete')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             _buildUri: function(path, id) {
-                var uri = '';
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, this._buildPort(this.driver.config));
+                var uri = ''
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Scheduler.moduleName, this._buildPort(this.driver.config))
 
-                uri = urlBase + path;
+                uri = urlBase + path
                 if (id) {
-                    uri += '/' + id;
+                    uri += '/' + id
                 }
-                return uri;
+                return uri
             },
 
             _buildPort: function(config) {
-                return config.get('schedulerPort', null) || corbel.Notifications.defaultPort;
+                return config.get('schedulerPort', null) || corbel.Notifications.defaultPort
             }
 
         }, {
-
             moduleName: 'tasks',
 
             create: function(driver) {
-                return new corbel.TaskBuilder(driver);
+                return new corbel.TaskBuilder(driver)
             }
 
-        });
+        })
 
-        return TaskBuilder;
+        return TaskBuilder
+    })()
 
-    })();
-
+    ;
     (function() {
 
         corbel.Resources = corbel.Object.inherit({
-
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             collection: function(type) {
-                return new corbel.Resources.Collection(type, this.driver);
+                return new corbel.Resources.Collection(type, this.driver)
             },
 
             resource: function(type, id) {
-                return new corbel.Resources.Resource(type, id, this.driver);
+                return new corbel.Resources.Resource(type, id, this.driver)
             },
 
             relation: function(srcType, srcId, destType) {
-                return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
+                return new corbel.Resources.Relation(srcType, srcId, destType, this.driver)
             }
 
         }, {
-
             moduleName: 'resources',
             defaultPort: 8080,
 
             sort: {
-
                 /**
                  * Ascending sort
                  * @type {String}
@@ -4325,19 +4268,19 @@
             ALL: '_',
 
             create: function(driver) {
-                return new corbel.Resources(driver);
+                return new corbel.Resources(driver)
             }
 
-        });
+        })
 
-        return corbel.Resources;
+        return corbel.Resources
+    })()
 
-    })();
+    /* global corbel */
 
+    ;
     (function() {
-
         corbel.Resources.BaseResource = corbel.Services.inherit({
-
             /**
              * Helper function to build the request uri
              * @param  {String} srcType     Type of the resource
@@ -4347,63 +4290,62 @@
              * @return {String}             Uri to perform the request
              */
             buildUri: function(srcType, srcId, destType, destId) {
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Resources.moduleName, this._buildPort(this.driver.config))
 
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Resources.moduleName, this._buildPort(this.driver.config));
+                var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated')
+                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain)
 
-                var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
-                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined)
 
-                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
-
-                var uri = urlBase + customDomain + '/resource/' + srcType;
+                var uri = urlBase + customDomain + '/resource/' + srcType
 
                 if (srcId) {
-                    uri += '/' + srcId;
+                    uri += '/' + srcId
                     if (destType) {
-                        uri += '/' + destType;
+                        uri += '/' + destType
                         if (destId) {
-                            uri += ';r=' + destType + '/' + destId;
+                            uri += ';r=' + destType + '/' + destId
                         }
                     }
                 }
 
-                return uri;
+                return uri
             },
 
             _buildPort: function(config) {
-                return config.get('resourcesPort', null) || corbel.Resources.defaultPort;
+                return config.get('resourcesPort', null) || corbel.Resources.defaultPort
             },
 
             request: function(args) {
-                var params = corbel.utils.extend(this.params, args);
+                var params = corbel.utils.extend(this.params, args)
 
-                this.params = {}; //reset instance params
+                this.params = {} // reset instance params
 
-                args.query = corbel.utils.serializeParams(params);
+                args.query = corbel.utils.serializeParams(params)
 
-                //call service request implementation
-                return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1)));
+                // call service request implementation
+                return corbel.Services.prototype.request.apply(this, [args].concat(Array.prototype.slice.call(arguments, 1)))
             },
 
             getURL: function(params) {
-                return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '');
+                return this.buildUri(this.type, this.srcId, this.destType) + (params ? '?' + corbel.utils.serializeParams(params) : '')
             },
 
             getDefaultOptions: function(options) {
-                var defaultOptions = options ? corbel.utils.clone(options) : {};
+                var defaultOptions = options ? corbel.utils.clone(options) : {}
 
-                return defaultOptions;
+                return defaultOptions
             }
 
-        });
+        })
 
         // extend for inherit requestParamsBuilder methods extensible for all Resources object
-        corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype);
+        corbel.utils.extend(corbel.Resources.BaseResource.prototype, corbel.requestParamsBuilder.prototype)
 
-        return corbel.Resources.BaseResource;
+        return corbel.Resources.BaseResource
+    })()
 
-    })();
-
+    ;
     (function() {
 
         /**
@@ -4415,14 +4357,13 @@
          * @param  {String} destType    The destination resource type
          */
         corbel.Resources.Relation = corbel.Resources.BaseResource.inherit({
-
             constructor: function(srcType, srcId, destType, driver, params) {
-                this.type = srcType;
-                this.srcId = srcId;
-                this.destType = destType;
-                corbel.validate.values(['type', 'srcId', 'destType'], this);
-                this.driver = driver;
-                this.params = params || {};
+                this.type = srcType
+                this.srcId = srcId
+                this.destType = destType
+                corbel.validate.values(['type', 'srcId', 'destType'], this)
+                this.driver = driver
+                this.params = params || {}
             },
 
             /**
@@ -4436,14 +4377,14 @@
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             get: function(destId, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
                     method: corbel.request.method.GET,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4456,17 +4397,17 @@
              * @example uri = '555'
              */
             add: function(destId, relationData, options) {
-                options = this.getDefaultOptions(options);
-                corbel.validate.value('destId', destId);
+                options = this.getDefaultOptions(options)
+                corbel.validate.value('destId', destId)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
                     contentType: 'application/json',
                     data: relationData,
                     method: corbel.request.method.PUT
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4478,16 +4419,16 @@
              * @example uri = '555'
              */
             addAnonymous: function(relationData, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.srcId, this.destType),
                     contentType: 'application/json',
                     data: relationData,
                     method: corbel.request.method.POST
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4498,13 +4439,13 @@
              * @return {Promise}              ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             move: function(destId, pos, options) {
-                corbel.validate.value('destId', destId);
-                var positionStartId = destId.indexOf('/');
+                corbel.validate.value('destId', destId)
+                var positionStartId = destId.indexOf('/')
                 if (positionStartId !== -1) {
-                    destId = destId.substring(positionStartId + 1);
+                    destId = destId.substring(positionStartId + 1)
                 }
 
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
@@ -4513,9 +4454,9 @@
                         '_order': '$pos(' + pos + ')'
                     },
                     method: corbel.request.method.PUT
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4528,24 +4469,23 @@
              * destId = 'music:Track/555'
              */
             delete: function(destId, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.srcId, this.destType, destId),
                     method: corbel.request.method.DELETE
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             }
-        });
+        })
 
-        return corbel.Resources.Relation;
+        return corbel.Resources.Relation
+    })()
 
-    })();
 
+    ;
     (function() {
-
-
         /**
          * Collection requests
          * @class
@@ -4554,12 +4494,11 @@
          * @param {CorbelDriver} corbel instance
          */
         corbel.Resources.Collection = corbel.Resources.BaseResource.inherit({
-
             constructor: function(type, driver, params) {
-                this.type = type;
-                corbel.validate.value('type', this.type);
-                this.driver = driver;
-                this.params = params || {};
+                this.type = type
+                corbel.validate.value('type', this.type)
+                this.driver = driver
+                this.params = params || {}
             },
 
             /**
@@ -4571,15 +4510,15 @@
              * @see {@link corbel.util.serializeParams} to see a example of the params
              */
             get: function(options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
                     method: corbel.request.method.GET,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4591,7 +4530,7 @@
              * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
              */
             add: function(data, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
@@ -4599,11 +4538,11 @@
                     contentType: options.dataType,
                     Accept: options.dataType,
                     data: data
-                });
+                })
 
                 return this.request(args).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -4615,7 +4554,7 @@
              * @return {Promise}                 ES6 promise that resolves to an {Array} of resources or rejects with a {@link CorbelError}
              */
             update: function(data, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
@@ -4623,9 +4562,9 @@
                     contentType: options.dataType,
                     Accept: options.dataType,
                     data: data
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4636,24 +4575,24 @@
              * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
              */
             delete: function(options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type),
                     method: corbel.request.method.DELETE,
                     contentType: options.dataType,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             }
 
-        });
+        })
 
-        return corbel.Resources.Collection;
+        return corbel.Resources.Collection
+    })()
 
-    })();
-
+    ;
     (function() {
 
         /**
@@ -4664,14 +4603,13 @@
          * @param  {String} id      The resource id
          */
         corbel.Resources.Resource = corbel.Resources.BaseResource.inherit({
-
             constructor: function(type, id, driver, params) {
-                this.type = type;
-                this.id = id;
-                corbel.validate.values(['type', 'id'], this);
+                this.type = type
+                this.id = id
+                corbel.validate.values(['type', 'id'], this)
 
-                this.driver = driver;
-                this.params = params || {};
+                this.driver = driver
+                this.params = params || {}
             },
 
             /**
@@ -4685,19 +4623,17 @@
              * @see {@link services.request} to see a example of the params
              */
             get: function(options) {
-                options = this.getDefaultOptions(options);
-
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.GET,
                     contentType: options.dataType,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
-
 
             /**
              * Updates a resource
@@ -4711,7 +4647,7 @@
              * @see {@link services.request} to see a example of the params
              */
             update: function(data, options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.id),
@@ -4719,11 +4655,10 @@
                     data: data,
                     contentType: options.dataType,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             },
-
 
             /**
              * Updates the ACL of a resource
@@ -4738,9 +4673,9 @@
                     method: corbel.request.method.PUT,
                     data: acl,
                     Accept: 'application/corbel.acl+json'
-                };
+                }
 
-                return this.request(args);
+                return this.request(args)
             },
 
             /**
@@ -4752,26 +4687,26 @@
              * @return {Promise}                        ES6 promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function(options) {
-                options = this.getDefaultOptions(options);
+                options = this.getDefaultOptions(options)
 
                 var args = corbel.utils.extend(options, {
                     url: this.buildUri(this.type, this.id),
                     method: corbel.request.method.DELETE,
                     contentType: options.dataType,
                     Accept: options.dataType
-                });
+                })
 
-                return this.request(args);
+                return this.request(args)
             }
-        });
+        })
 
-        return corbel.Resources.Resource;
+        return corbel.Resources.Resource
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * A module to make Oauth requests.
          * @exports Oauth
@@ -4780,83 +4715,83 @@
          */
 
         var Oauth = corbel.Oauth = function(driver) {
-            this.driver = driver;
-        };
+            this.driver = driver
+        }
 
-        Oauth.moduleName = 'oauth';
-        Oauth.defaultPort = 8084;
+        Oauth.moduleName = 'oauth'
+        Oauth.defaultPort = 8084
 
         Oauth.create = function(driver) {
-            return new Oauth(driver);
-        };
-        /**
-         * Private method to build a string uri
-         * @private
-         * @param  {String} uri
-         * @return {String}
-         */
+                return new Oauth(driver)
+            }
+            /**
+             * Private method to build a string uri
+             * @private
+             * @param  {String} uri
+             * @return {String}
+             */
         Oauth._buildUri = function(uri) {
+            var urlBase = this.driver.config.getCurrentEndpoint(Oauth.moduleName, corbel.Oauth._buildPort(this.driver.config))
 
-            var urlBase = this.driver.config.getCurrentEndpoint(Oauth.moduleName, corbel.Oauth._buildPort(this.driver.config));
-
-            return urlBase + uri;
-        };
+            return urlBase + uri
+        }
 
         Oauth._buildPort = function(config) {
-            return config.get('oauthPort', null) || corbel.Oauth.defaultPort;
-        };
+            return config.get('oauthPort', null) || corbel.Oauth.defaultPort
+        }
 
         /**
          * Default encoding
          * @type {String}
          * @default application/x-www-form-urlencoded; charset=UTF-8
          */
-        Oauth._URL_ENCODED = 'application/x-www-form-urlencoded; charset=UTF-8';
+        Oauth._URL_ENCODED = 'application/x-www-form-urlencoded; charset=UTF-8'
 
         Oauth._checkProp = function(dict, keys, excep) {
-            var error = excep ? excep : 'Error validating arguments';
+            var error = !excep ? 'Error validating arguments' : excep
             if (!dict) {
-                throw new Error(error);
+                throw new Error(error)
             }
             for (var i in keys) {
                 if (!(keys[i] in dict)) {
-                    throw new Error(error);
+                    throw new Error(error)
                 }
             }
-        };
+        }
 
         Oauth._validateResponseType = function(responseType) {
             if (['code', 'token'].indexOf(responseType) < 0) {
-                throw new Error('Only "code" or "token" response type allowed');
+                throw new Error('Only "code" or "token" response type allowed')
             }
-        };
+        }
 
         Oauth._validateGrantType = function(grantType) {
             if (grantType !== 'authorization_code') {
-                throw new Error('Only "authorization_code" grant type is allowed');
+                throw new Error('Only "authorization_code" grant type is allowed')
             }
-        };
+        }
 
         Oauth._trasformParams = function(clientParams) {
-
             for (var key in clientParams) {
-                var keyWithUnderscores = this._toUnderscore(key);
+                var keyWithUnderscores = this._toUnderscore(key)
                 if (key !== keyWithUnderscores) {
-                    clientParams[keyWithUnderscores] = clientParams[key];
-                    delete clientParams[key];
+                    clientParams[keyWithUnderscores] = clientParams[key]
+                    delete clientParams[key]
                 }
             }
-            return clientParams;
-        };
+            return clientParams
+        }
 
         Oauth._toUnderscore = function(string) {
             return string.replace(/([A-Z])/g, function($1) {
-                return '_' + $1.toLowerCase();
-            });
-        };
-    })();
+                return '_' + $1.toLowerCase()
+            })
+        }
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
         /**
          * Create a AuthorizationBuilder for resource managing requests.
@@ -4866,25 +4801,25 @@
          * @return {corbel.Oauth.AuthorizationBuilder}
          */
         corbel.Oauth.prototype.authorization = function(clientParams) {
-            console.log('oauthInterface.authorization', clientParams);
+            console.log('oauthInterface.authorization', clientParams)
 
-            corbel.Oauth._checkProp(clientParams, ['responseType'], 'Invalid client parameters');
-            clientParams.responseType = clientParams.responseType.toLowerCase();
-            corbel.Oauth._validateResponseType(clientParams.responseType);
+            corbel.Oauth._checkProp(clientParams, ['responseType'], 'Invalid client parameters')
+            clientParams.responseType = clientParams.responseType.toLowerCase()
+            corbel.Oauth._validateResponseType(clientParams.responseType)
             if (clientParams.responseType.toLowerCase() === 'code') {
-                corbel.Oauth._checkProp(clientParams, ['redirectUri'], 'Invalid client parameters');
+                corbel.Oauth._checkProp(clientParams, ['redirectUri'], 'Invalid client parameters')
             }
-            clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
+            clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId')
             var params = {
                 contentType: corbel.Oauth._URL_ENCODED,
                 data: corbel.Oauth._trasformParams(clientParams),
                 // http://stackoverflow.com/questions/1557602/jquery-and-ajax-response-header
                 noRedirect: true
-            };
-            var authorization = new AuthorizationBuilder(params);
-            authorization.driver = this.driver;
-            return authorization;
-        };
+            }
+            var authorization = new AuthorizationBuilder(params)
+            authorization.driver = this.driver
+            return authorization
+        }
 
         /**
          * A builder for authorization management requests.
@@ -4895,10 +4830,9 @@
          * @memberOf corbel.Oauth.AuthorizationBuilder
          */
         var AuthorizationBuilder = corbel.Oauth.AuthorizationBuilder = corbel.Services.inherit({
-
             constructor: function(params) {
-                this.params = params;
-                this.uri = 'oauth';
+                this.params = params
+                this.uri = 'oauth'
             },
 
             /**
@@ -4908,8 +4842,8 @@
              * @return {Promise} Q promise that resolves to a redirection to redirectUri or rejects with a 404 {@link CorbelError}
              */
             loginWithCookie: function() {
-                console.log('oauthInterface.authorization.dialog');
-                // make request, generate oauth cookie, then redirect manually
+                console.log('oauthInterface.authorization.dialog')
+                    // make request, generate oauth cookie, then redirect manually
                 return this.request({
                     url: this._buildUri(this.uri + '/authorize'),
                     method: corbel.request.method.GET,
@@ -4918,8 +4852,8 @@
                     data: this.params,
                     query: this.params.data ? corbel.utils.serializeParams(this.params.data) : null
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Does a login in oauth server
@@ -4930,12 +4864,12 @@
              * @return {Promise}         Q promise that resolves to a redirection to redirectUri or rejects with a {@link CorbelError}
              */
             login: function(username, password, setCookie) {
-                console.log('oauthInterface.authorization.login', username + ':' + password);
+                console.log('oauthInterface.authorization.login', username + ':' + password)
 
-                this.params.data.username = username;
-                this.params.data.password = password;
-                this.params.withCredentials = true;
-                // make request, generate oauth cookie, then redirect manually
+                this.params.data.username = username
+                this.params.data.password = password
+                this.params.withCredentials = true
+                    // make request, generate oauth cookie, then redirect manually
                 return this.request({
                     url: this._buildUri(this.uri + '/authorize'),
                     method: corbel.request.method.POST,
@@ -4945,20 +4879,20 @@
                     if (res.jqXHR.getResponseHeader('Location')) {
                         var params = {
                             url: corbel.Services.getLocationId(res)
-                        };
+                        }
 
                         if (setCookie) {
                             params.headers = {
                                 RequestCookie: 'true'
-                            };
-                            params.withCredentials = true;
+                            }
+                            params.withCredentials = true
                         }
 
-                        return this.request(params);
+                        return this.request(params)
                     } else {
-                        return res.data;
+                        return res.data
                     }
-                });
+                })
             },
 
             /**
@@ -4968,23 +4902,24 @@
              * @return {Promise}     promise that resolves empty when the sign out process completes or rejects with a {@link CorbelError}
              */
             signout: function() {
-                console.log('oauthInterface.authorization.signOut');
-                delete this.params.data;
+                console.log('oauthInterface.authorization.signOut')
+                delete this.params.data
                 return this.request({
                     url: this._buildUri(this.uri + '/signout'),
                     method: corbel.request.method.GET,
                     withCredentials: true
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             _buildUri: corbel.Oauth._buildUri
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
         /**
          * Create a TokenBuilder for token managing requests.
@@ -4997,58 +4932,55 @@
          * @return {corbel.Oauth.TokenBuilder}
          */
         corbel.Oauth.prototype.token = function(clientParams) {
-            console.log('oauthInterface.token');
+                console.log('oauthInterface.token')
 
-            corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters');
-            corbel.Oauth._validateGrantType(clientParams.grantType);
-            clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
-            clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret');
-            var params = {
-                contentType: corbel.Oauth._URL_ENCODED,
-                data: corbel.Oauth._trasformParams(clientParams)
-            };
-            var token = new TokenBuilder(params);
-            token.driver = this.driver;
-            return token;
-        };
-        /**
-         * A builder for a token management requests.
-         * @class
-         *
-         * @param {Object} params Initial params
-         * 
-         * @memberOf corbel.Oauth.TokenBuilder
-         */
+                corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters')
+                corbel.Oauth._validateGrantType(clientParams.grantType)
+                clientParams.clientId = clientParams.clientId || corbel.Config.get('oauthClientId')
+                clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret')
+                var params = {
+                    contentType: corbel.Oauth._URL_ENCODED,
+                    data: corbel.Oauth._trasformParams(clientParams)
+                }
+                var token = new TokenBuilder(params)
+                token.driver = this.driver
+                return token
+            }
+            /**
+             * A builder for a token management requests.
+             * @class
+             * @param {Object} params Initial params
+             * @memberOf corbel.Oauth.TokenBuilder
+             */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
-
             constructor: function(params) {
-                this.params = params;
-                this.uri = 'oauth/token';
+                this.params = params
+                this.uri = 'oauth/token'
             },
             /**
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             * 
              * @param  {String} code The code to exchange for the token
-             * 
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
-                console.log('oauthInterface.token.get');
-                this.params.data.code = code;
+                console.log('oauthInterface.token.get')
+                this.params.data.code = code
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: this.params
-                });
+                })
             },
 
             _buildUri: corbel.Oauth._buildUri
-        });
-    })();
+        })
+    })()
 
+    /* global corbel btoa */
 
+    ;
     (function() {
         /**
          * Create a UserBuilder for user managing requests.
@@ -5061,41 +4993,38 @@
          * @return {corbel.Oauth.UserBuilder}
          */
         corbel.Oauth.prototype.user = function(clientParams, accessToken) {
-            console.log('oauthInterface.user');
+                console.log('oauthInterface.user')
 
-            var params = {};
+                var params = {}
 
-            if (accessToken) {
-                params.accessToken = accessToken;
-                params.headers = {};
-                params.headers.Accept = 'application/json';
+                if (accessToken) {
+                    params.accessToken = accessToken
+                    params.headers = {}
+                    params.headers.Accept = 'application/json'
+                }
+
+                clientParams = clientParams || {}
+                var clientId = clientParams.clientId || corbel.Config.get('oauthClientId')
+                var clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret')
+
+                var user = new UserBuilder(params, clientId, clientSecret)
+                user.driver = this.driver
+                return user
             }
-
-            clientParams = clientParams || {};
-            var clientId = clientParams.clientId || corbel.Config.get('oauthClientId');
-            var clientSecret = clientParams.clientSecret || corbel.Config.get('oauthSecret');
-
-            var user = new UserBuilder(params, clientId, clientSecret);
-            user.driver = this.driver;
-            return user;
-        };
-        /**
-         * A builder for a user management requests.
-         * @class
-         * 
-         * @param {Object} params           Parameters for initializing the builder
-         * @param {String} [clientId]       Application client Id (required for creating user)
-         * @param {String} [clientSecret]   Application client secret (required for creating user)
-         *    
-         * @memberOf corbel.Oauth.UserBuilder
-         */
+            /**
+             * A builder for a user management requests.
+             * @class
+             * @param {Object} params           Parameters for initializing the builder
+             * @param {String} [clientId]       Application client Id (required for creating user)
+             * @param {String} [clientSecret]   Application client secret (required for creating user)
+             * @memberOf corbel.Oauth.UserBuilder
+             */
         var UserBuilder = corbel.Oauth.UserBuilder = corbel.Services.inherit({
-
             constructor: function(params, clientId, clientSecret) {
-                this.params = params;
-                this.clientSecret = clientSecret;
-                this.clientId = clientId;
-                this.uri = 'user';
+                this.params = params
+                this.clientSecret = clientSecret
+                this.clientId = clientId
+                this.uri = 'user'
             },
             _buildUri: corbel.Oauth._buildUri,
             /**
@@ -5113,7 +5042,7 @@
              *                   with a {@link corbelError}.
              */
             create: function(user) {
-                console.log('oauthInterface.user.create', user);
+                console.log('oauthInterface.user.create', user)
 
                 return this.request({
                     url: this._buildUri(this.uri),
@@ -5124,75 +5053,69 @@
                     dataType: 'text',
                     data: user
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Gets the user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * 
-             * @param  {Object} id      The user id/me 
-             *  
+             * @param  {Object} id      The user id/me
              * @return {Promise}  Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
              */
             get: function(id) {
-                console.log('oauthInterface.user.get');
-                this.uri += '/' + id;
+                console.log('oauthInterface.user.get')
+                this.uri += '/' + id
                 return this.request({
                     url: this._buildUri(this.uri, this.uri),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Get profile of some user or the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * @param  {Object} id      The user id/me 
+             * @param  {Object} id      The user id/me
              * @return {Promise}        Q promise that resolves to the profile from User {Object} or rejects with a {@link corbelError}
              */
             getProfile: function(id) {
-                console.log('oauthInterface.user.getProfile');
-                this.uri += '/' + id + '/profile';
+                console.log('oauthInterface.user.getProfile')
+                this.uri += '/' + id + '/profile'
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Updates the user or  the logged user
              * @method
              * @memberOf corbel.Oauth.UserBuilder
-             * 
              * @param  {Object} id              The user id or me
              * @param  {Object} modification    Json object with the modificacion of the user
-             * 
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             update: function(id, modification) {
-                console.log('oauthInterface.user.update', modification);
-                this.uri += '/' + id;
+                console.log('oauthInterface.user.update', modification)
+                this.uri += '/' + id
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.PUT,
                     data: modification
-                });
+                })
             },
             /**
              * Deletes the user or the logged user
              * @memberOf corbel.Oauth.UserBuilder
-             * 
              * @param  {Object} id        The user id or me
-             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             delete: function(id) {
-                console.log('oauthInterface.user.delete');
-                this.uri += '/' + id;
+                console.log('oauthInterface.user.delete')
+                this.uri += '/' + id
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Sends a reset password email to the email address recived.
@@ -5202,7 +5125,7 @@
              * @return {Promise}                 Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendResetPasswordEmail: function(userEmailToReset) {
-                console.log('oauthInterface.user.SendResetPasswordEmail', userEmailToReset);
+                console.log('oauthInterface.user.SendResetPasswordEmail', userEmailToReset)
                 return this.request({
                     url: this._buildUri(this.uri + '/resetPassword'),
                     method: corbel.request.method.GET,
@@ -5212,102 +5135,96 @@
                     },
                     noRetry: true
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Sends a email to the logged user or user to validate his email address
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             * 
              * @param  {Object} id     The user id or me
-             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendValidateEmail: function(id) {
-                console.log('oauthInterface.user.sendValidateEmail');
-                this.uri += '/' + id + '/validate';
+                console.log('oauthInterface.user.sendValidateEmail')
+                this.uri += '/' + id + '/validate'
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
                     withAuth: true
-                });
+                })
             },
             /**
              * Validates the email of a user or the logged user
              * @method
              * @memberOf corbel.Oauth.UsersBuilder
-             * 
              * @param  {Object} id   The user id or me
-             * 
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             emailConfirmation: function(id) {
-                console.log('oauthInterface.user.emailConfirmation');
-                this.uri += '/' + id + '/emailConfirmation';
+                console.log('oauthInterface.user.emailConfirmation')
+                this.uri += '/' + id + '/emailConfirmation'
                 return this.request({
                     url: this._buildUri(this.uri, id),
                     method: corbel.request.method.PUT,
                     noRetry: true
-                });
+                })
             },
 
             getSerializer: function() {
                 if (corbel.Config.isNode) {
-                    return require('btoa');
+                    return require('btoa')
                 } else {
-                    return btoa;
+                    return btoa
                 }
             }
-        });
-    })();
+        })
+    })()
 
+    ;
     (function() {
 
         corbel.Notifications = corbel.Object.inherit({
-
             /**
              * Creates a new NotificationsBuilder
              * @param  {String} id String with the asset id or 'all' key
              * @return {Notifications}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             notification: function(id) {
-                return new corbel.Notifications.NotificationsBuilder(this.driver, id);
+                return new corbel.Notifications.NotificationsBuilder(this.driver, id)
             }
 
         }, {
-
             moduleName: 'notifications',
             defaultPort: 8094,
 
             create: function(driver) {
-                return new corbel.Notifications(driver);
+                return new corbel.Notifications(driver)
             }
 
-        });
+        })
 
-        return corbel.Notifications;
+        return corbel.Notifications
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.inherit({
-
             /**
              * Creates a new NotificationsBuilder
              * @param  {String} id String with the asset id or 'all' key
              * @return {Assets}
              */
             constructor: function(driver, id) {
-                this.driver = driver;
-                this.uri = 'notification';
-                this.id = id;
+                this.driver = driver
+                this.uri = 'notification'
+                this.id = id
             },
             /*
              * Creates a new notification
@@ -5322,15 +5239,14 @@
              * @return {Promise}                    Promise that resolves in the new notification id or rejects with a {@link CorbelError}
              */
             create: function(notification) {
-                console.log('notificationsInterface.notification.create', notification);
+                console.log('notificationsInterface.notification.create', notification)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: notification
-                }).
-                then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                }).then(function(res) {
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Gets a notification
@@ -5340,12 +5256,12 @@
              * @return {Promise}              Promise that resolves to a Notification {Object} or rejects with a {@link CorbelError}
              */
             get: function(params) {
-                console.log('notificationsInterface.notification.get', params);
+                console.log('notificationsInterface.notification.get', params)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
             /**
              * Updates a notification
@@ -5356,13 +5272,13 @@
              * @return {Promise}                        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             update: function(data) {
-                console.log('notificationsInterface.notification.update', data);
-                corbel.validate.value('id', this.id);
+                console.log('notificationsInterface.notification.update', data)
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: data
-                });
+                })
             },
             /**
              * Deletes a notification
@@ -5371,12 +5287,12 @@
              * @return {Promise}        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             delete: function() {
-                console.log('notificationsInterface.notification.delete');
-                corbel.validate.value('id', this.id);
+                console.log('notificationsInterface.notification.delete')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Send a notification
@@ -5389,47 +5305,46 @@
              * @return {Promise}        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
             sendNotification: function(notification) {
-                console.log('notificationsInterface.notification.sendNotification', notification);
-                this.uri += '/send';
+                console.log('notificationsInterface.notification.sendNotification', notification)
+                this.uri += '/send'
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: notification
-                });
+                })
             },
 
             _buildUri: function(path, id) {
-                var uri = '';
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
+                var uri = ''
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config))
 
-                uri = urlBase + path;
+                uri = urlBase + path
                 if (id) {
-                    uri += '/' + id;
+                    uri += '/' + id
                 }
-                return uri;
+                return uri
             },
 
             _buildPort: function(config) {
-                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
+                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort
             }
 
         }, {
-
             moduleName: 'notifications',
 
             create: function(driver) {
-                return new corbel.NotificationsBuilder(driver);
+                return new corbel.NotificationsBuilder(driver)
             }
 
-        });
+        })
 
-        return NotificationsBuilder;
+        return NotificationsBuilder
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * A module to make Ec requests.
          * @exports Ec
@@ -5438,15 +5353,15 @@
          */
 
         var Ec = corbel.Ec = function(driver) {
-            this.driver = driver;
-        };
+            this.driver = driver
+        }
 
-        Ec.moduleName = 'ec';
-        Ec.defaultPort = 8088;
+        Ec.moduleName = 'ec'
+        Ec.defaultPort = 8088
 
         Ec.create = function(driver) {
-            return new Ec(driver);
-        };
+            return new Ec(driver)
+        }
 
         Ec._ec = {
             /**
@@ -5493,7 +5408,7 @@
                  */
                 CANCELLED: 'CANCELLED'
             }
-        };
+        }
 
         /**
          * COMMON MIXINS
@@ -5503,8 +5418,8 @@
         //     return {
         //         name: data.name,
         //         data: cse.encrypt(data.number, data.holderName, data.cvc, data.expiryMonth, data.expiryYear)
-        //     };
-        // };
+        //     }
+        // }
 
         /**
          * Private method to build a string uri
@@ -5516,25 +5431,25 @@
          */
         Ec._buildUri = function(uri, id, extra) {
             if (id) {
-                uri += '/' + id;
+                uri += '/' + id
             }
             if (extra) {
-                uri += extra;
+                uri += extra
             }
-            var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
+            var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config))
 
-            return urlBase + uri;
-        };
+            return urlBase + uri
+        }
 
         Ec._buildPort = function(config) {
-            return config.get('ecPort', null) || corbel.Ec.defaultPort;
-        };
+            return config.get('ecPort', null) || corbel.Ec.defaultPort
+        }
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Create a OrderBuilder for order managing requests.
          *
@@ -5543,10 +5458,10 @@
          * @return {corbel.Ec.OrderBuilder}
          */
         corbel.Ec.prototype.order = function(id) {
-            var order = new OrderBuilder(id);
-            order.driver = this.driver;
-            return order;
-        };
+            var order = new OrderBuilder(id)
+            order.driver = this.driver
+            return order
+        }
 
         /**
          * A builder for order requests.
@@ -5557,12 +5472,11 @@
          * @memberOf corbel.Ec.OrderBuilder
          */
         var OrderBuilder = corbel.Ec.OrderBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
                 if (id) {
-                    this.id = id;
+                    this.id = id
                 }
-                this.uri = 'order';
+                this.uri = 'order'
             },
 
             /**
@@ -5572,11 +5486,11 @@
              * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
              */
             get: function() {
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             /**
@@ -5588,12 +5502,12 @@
              * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             update: function(order) {
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: order
-                });
+                })
             },
 
             /**
@@ -5603,11 +5517,11 @@
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             delete: function() {
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             /**
@@ -5618,12 +5532,12 @@
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             prepare: function(couponIds) {
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, '/prepare'),
                     method: corbel.request.method.POST,
                     data: couponIds
-                });
+                })
             },
 
             /**
@@ -5637,19 +5551,19 @@
              */
             checkout: function(data) {
                 if (!data.paymentMethodIds) {
-                    return Promise.reject(new Error('paymentMethodIds lists needed'));
+                    return Promise.reject(new Error('paymentMethodIds lists needed'))
                 }
                 if (!data.paymentMethodIds.length) {
-                    return Promise.reject(new Error('One payment method is needed at least'));
+                    return Promise.reject(new Error('One payment method is needed at least'))
                 }
-                corbel.validate.value('id', this.id);
+                corbel.validate.value('id', this.id)
                 return this.request({
                     method: corbel.request.method.POST,
                     url: this._buildUri(this.uri, this.id, '/checkout'),
                     data: data
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -5660,13 +5574,13 @@
              */
             _buildUri: corbel.Ec._buildUri
 
-        });
+        })
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         /**
          * Create a ProductBuilder for product managing requests.
          *
@@ -5675,25 +5589,24 @@
          * @return {corbel.Ec.ProductBuilder}
          */
         corbel.Ec.prototype.product = function(id) {
-            var product = new ProductBuilder(id);
-            product.driver = this.driver;
-            return product;
-        };
-        /**
-         * A builder for products management requests.
-         *
-         * @param {String}  id product ID.
-         *
-         * @class
-         * @memberOf corbel.Ec.ProductBuilder
-         */
+                var product = new ProductBuilder(id)
+                product.driver = this.driver
+                return product
+            }
+            /**
+             * A builder for products management requests.
+             *
+             * @param {String}  id product ID.
+             *
+             * @class
+             * @memberOf corbel.Ec.ProductBuilder
+             */
         var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
                 if (id) {
-                    this.id = id;
+                    this.id = id
                 }
-                this.uri = 'product';
+                this.uri = 'product'
             },
 
             /**
@@ -5717,14 +5630,14 @@
              *                   with a {@link corbelError}.
              */
             create: function(product) {
-                console.log('ecInterface.product.create', product);
+                console.log('ecInterface.product.create', product)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: product
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
 
             /**
@@ -5738,12 +5651,12 @@
              * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
              */
             get: function(params) {
-                console.log('ecInterface.product.get');
+                console.log('ecInterface.product.get')
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             /**
@@ -5757,16 +5670,16 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             update: function(product) {
-                console.log('ecInterface.product.update');
-                corbel.validate.value('id', this.id);
+                console.log('ecInterface.product.update')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: product
-                });
+                })
             },
 
-            /**Delete a product.
+            /* Delete a product.
              *
              * @method
              * @memberOf corbel.Ec.EcBuilder
@@ -5774,55 +5687,53 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             delete: function() {
-                console.log('ecInterface.product.delete');
-                corbel.validate.value('id', this.id);
+                console.log('ecInterface.product.delete')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             _buildUri: corbel.Ec._buildUri
 
-        });
+        })
+    })()
 
-    })();
-
+    ;
     (function() {
 
         corbel.Evci = corbel.Object.inherit({
-
             /**
              * Create a new EventBuilder
              * @param  {String} type String
              * @return {Events}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             event: function(type) {
-                return new corbel.Evci.EventBuilder(type, this.driver);
+                return new corbel.Evci.EventBuilder(type, this.driver)
             }
 
         }, {
-
             moduleName: 'evci',
             defaultPort: 8086,
 
             create: function(driver) {
-                return new corbel.Evci(driver);
+                return new corbel.Evci(driver)
             }
 
-        });
+        })
 
-        return corbel.Evci;
+        return corbel.Evci
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
         var EventBuilder = corbel.Evci.EventBuilder = corbel.Services.inherit({
             /**
              * Creates a new EventBuilder
@@ -5830,9 +5741,9 @@
              * @return {Events}
              */
             constructor: function(type, driver) {
-                this.uri = 'event';
-                this.eventType = type;
-                this.driver = driver;
+                this.uri = 'event'
+                this.eventType = type
+                this.driver = driver
             },
 
             /**
@@ -5848,51 +5759,51 @@
              */
             publish: function(eventData) {
                 if (!eventData) {
-                    throw new Error('Send event require data');
+                    throw new Error('Send event require data')
                 }
-                console.log('evciInterface.publish', eventData);
-                corbel.validate.value('eventType', this.eventType);
+                console.log('evciInterface.publish', eventData)
+                corbel.validate.value('eventType', this.eventType)
                 return this.request({
                     url: this._buildUri(this.uri, this.eventType),
                     method: corbel.request.method.POST,
                     data: eventData
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
-                    return res;
-                });
+                    res.data = corbel.Services.getLocationId(res)
+                    return res
+                })
             },
 
             _buildUri: function(path, eventType) {
-                var uri = '';
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Evci.moduleName, this._buildPort(this.driver.config));
+                var uri = ''
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Evci.moduleName, this._buildPort(this.driver.config))
 
-                uri = urlBase + path;
+                uri = urlBase + path
                 if (eventType) {
-                    uri += '/' + eventType;
+                    uri += '/' + eventType
                 }
-                return uri;
+                return uri
             },
 
             _buildPort: function(config) {
-                return config.get('evciPort', null) || corbel.Evci.defaultPort;
+                return config.get('evciPort', null) || corbel.Evci.defaultPort
             }
 
         }, {
-
             moduleName: 'evci',
 
             create: function(driver) {
-                return new corbel.EventBuilder(driver);
+                return new corbel.EventBuilder(driver)
             }
 
-        });
+        })
 
-        return EventBuilder;
-    })();
+        return EventBuilder
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * A module to make Borrow requests.
          * @exports Borrow
@@ -5901,12 +5812,9 @@
          */
 
         corbel.Borrow = corbel.Object.inherit({
-
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
-
-
 
             /**
              * Create a BorrowBuilder for resource managing requests.
@@ -5916,9 +5824,9 @@
              * @return {corbel.Borrow.BorrowBuilder}
              */
             resource: function(id) {
-                var resource = new corbel.Borrow.BorrowBuilder(id);
-                resource.driver = this.driver;
-                return resource;
+                var resource = new corbel.Borrow.BorrowBuilder(id)
+                resource.driver = this.driver
+                return resource
             },
 
             /**
@@ -5929,9 +5837,9 @@
              * @return {corbel.Borrow.LenderBuilder}
              */
             lender: function(id) {
-                var lender = new corbel.Borrow.LenderBuilder(id);
-                lender.driver = this.driver;
-                return lender;
+                var lender = new corbel.Borrow.LenderBuilder(id)
+                lender.driver = this.driver
+                return lender
             },
 
             /**
@@ -5942,56 +5850,48 @@
              * @return {corbel.Borrow.UserBuilder}
              */
             user: function(id) {
-                var user = new corbel.Borrow.UserBuilder(id);
-                user.driver = this.driver;
-                return user;
+                var user = new corbel.Borrow.UserBuilder(id)
+                user.driver = this.driver
+                return user
             }
-
-
-
 
         }, {
             moduleName: 'borrow',
             defaultPort: 8100,
 
             create: function(driver) {
-                return new corbel.Borrow(driver);
+                return new corbel.Borrow(driver)
             },
 
             _buildUri: function() {
-                var uri = '';
+                var uri = ''
                 Array.prototype.slice.call(arguments).forEach(function(argument) {
                     if (argument) {
-                        uri += '/' + argument;
+                        uri += '/' + argument
                     }
-                });
+                })
 
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Borrow.moduleName, corbel.Borrow._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Borrow.moduleName, corbel.Borrow._buildPort(this.driver.config))
 
                 if (urlBase.slice(-1) === '/') {
-                    urlBase = urlBase.substring(0, urlBase.length - 1);
+                    urlBase = urlBase.substring(0, urlBase.length - 1)
                 }
 
-                return urlBase + uri;
+                return urlBase + uri
             },
 
             _buildPort: function(config) {
-                return config.get('borrowPort', null) || corbel.Borrow.defaultPort;
+                return config.get('borrowPort', null) || corbel.Borrow.defaultPort
             }
-        });
+        })
 
-        return corbel.Borrow;
+        return corbel.Borrow
+    })()
 
+    /* global corbel */
 
-
-
-
-    })();
-
-
+    ;
     (function() {
-
-
         /**
          * A builder for borrowed management requests.
          *
@@ -6001,10 +5901,9 @@
          * @memberOf corbel.Borrow.BorrowBuilder
          */
         corbel.Borrow.BorrowBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.id = id;
-                this.uri = 'resource';
+                this.id = id
+                this.uri = 'resource'
             },
             /**
              * Adds the loanable resource.
@@ -6027,14 +5926,14 @@
              *                   with a {@link corbelError}.
              */
             add: function(loanableResource) {
-                console.log('borrowInterface.resource.add', loanableResource);
+                console.log('borrowInterface.resource.add', loanableResource)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: loanableResource
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Get a loanable resource.
@@ -6045,12 +5944,12 @@
              * @return {Promise} A promise with loanable resource {Object} or fails with a {@link corbelError}.
              */
             get: function() {
-                console.log('borrowInterface.resource.get');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.get')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Delete a loanable resource.
@@ -6061,41 +5960,41 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             delete: function() {
-                console.log('borrowInterface.resource.delete');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.delete')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
-           * Add license to loanable resource.
-           *
-           * @method
-           * @memberOf corbel.Borrow.BorrowBuilder
-           *
-           * @param {Object} data   licenses data.
-           * @param {Object} license                 The license data.
-           * @param {String} license.resourceId      Identifier of resource
-           * @param {number} licensee.availableUses  Amount of uses that the resource is available
-           * @param {number} license.availableLoans  Amount of concurrent loans are available for the resource
-           * @param {timestamp} license.expire       Expire date
-           * @param {timestamp} licensee.start       Start date
-           * @param {String} license.asset           Asigned to the resource
+       * Add license to loanable resource.
+       *
+       * @method
+       * @memberOf corbel.Borrow.BorrowBuilder
+       *
+       * @param {Object} data   licenses data.
+       * @param {Object} license                 The license data.
+       * @param {String} license.resourceId      Identifier of resource
+       * @param {number} licensee.availableUses  Amount of uses that the resource is available
+       * @param {number} license.availableLoans  Amount of concurrent loans are available for the resource
+       * @param {timestamp} license.expire       Expire date
+       * @param {timestamp} licensee.start       Start date
+       * @param {String} license.asset           Asigned to the resource
   
-           * @return {Promise} A promise with the id of the created a license or fails
-           *                   with a {@link corbelError}.
-           */
+       * @return {Promise} A promise with the id of the created a license or fails
+       *                   with a {@link corbelError}.
+       */
             addLicense: function(license) {
-                console.log('borrowInterface.resource.addLicense', license);
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.addLicense', license)
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'license'),
                     method: corbel.request.method.POST,
                     data: license
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Apply loan.
@@ -6108,15 +6007,15 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             applyFor: function(userId) {
-                console.log('borrowInterface.resource.applyFor', userId);
+                console.log('borrowInterface.resource.applyFor', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Apply loan for user logged.
@@ -6127,12 +6026,12 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             applyForMe: function() {
-                console.log('borrowInterface.resource.applyForMe');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.applyForMe')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Get lent.
@@ -6145,15 +6044,15 @@
              * @return {Promise} A promise with user lents {Object} or fails with a {@link corbelError}.
              */
             getLentOf: function(userId) {
-                console.log('borrowInterface.resource.getLentOf', userId);
+                console.log('borrowInterface.resource.getLentOf', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Get lent of user logged.
@@ -6163,12 +6062,12 @@
              * @return {Promise} A promise with user logged lents {Object} or fails with a {@link corbelError}.
              */
             getMyLent: function() {
-                console.log('borrowInterface.resource.getMyLent');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.getMyLent')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Return lent.
@@ -6181,15 +6080,15 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             returnLoanOf: function(userId) {
-                console.log('borrowInterface.resource.returnLoanOf', userId);
+                console.log('borrowInterface.resource.returnLoanOf', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/' + userId),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Return loan of user logged.
@@ -6200,12 +6099,12 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             returnMyLoan: function() {
-                console.log('borrowInterface.resource.returnMyLoan');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.returnMyLoan')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan/me'),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Renew loan.
@@ -6218,15 +6117,15 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             renewFor: function(userId) {
-                console.log('borrowInterface.resource.renewFor', userId);
+                console.log('borrowInterface.resource.renewFor', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'renewal/' + userId),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Renew loan for user logged.
@@ -6237,12 +6136,12 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             renewForMe: function() {
-                console.log('borrowInterface.resource.renewForMe');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.renewForMe')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'renewal/me'),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Reserve a resource.
@@ -6255,15 +6154,15 @@
              * @return {Promise} A promise  resolves to undefined (void) or fails with a {@link corbelError}.
              */
             reserveFor: function(userId) {
-                console.log('borrowInterface.resource.reserveFor', userId);
+                console.log('borrowInterface.resource.reserveFor', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Reserve a resource for user logged.
@@ -6274,12 +6173,12 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             reserveForMe: function() {
-                console.log('borrowInterface.resource.reserveForMe');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.reserveForMe')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/me'),
                     method: corbel.request.method.PUT
-                });
+                })
             },
             /**
              * Cancel reservation.
@@ -6292,15 +6191,15 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             cancelReservationFor: function(userId) {
-                console.log('borrowInterface.resource.cancelReservationFor', userId);
+                console.log('borrowInterface.resource.cancelReservationFor', userId)
                 corbel.validate.values(['id', 'userId'], {
                     'id': this.id,
                     'userId': userId
-                });
+                })
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/' + userId),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Cancel reservation for user logged.
@@ -6311,12 +6210,12 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             cancelMyReservation: function() {
-                console.log('borrowInterface.resource.cancelMyReservation');
-                corbel.validate.value('id', this.id);
+                console.log('borrowInterface.resource.cancelMyReservation')
+                corbel.validate.value('id', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation/me'),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * get the user borrowed history.
@@ -6329,12 +6228,12 @@
              * @return {Promise} A promise with user borowed {Object} history or fails with a {@link corbelError}.
              */
             getHistoryOf: function(userId) {
-                console.log('borrowInterface.resource.getHistoryOf', userId);
-                corbel.validate.value('userId', userId);
+                console.log('borrowInterface.resource.getHistoryOf', userId)
+                corbel.validate.value('userId', userId)
                 return this.request({
                     url: this._buildUri(this.uri, 'history/' + userId),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Get lent of user logged.
@@ -6344,11 +6243,11 @@
              * @return {Promise} A promise with user logged borrowed {Object} history or fails with a {@link corbelError}.
              */
             getMyHistory: function() {
-                console.log('borrowInterface.resource.getMyHistory');
+                console.log('borrowInterface.resource.getMyHistory')
                 return this.request({
                     url: this._buildUri(this.uri, 'history/me'),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * get full resources borrowed history.
@@ -6359,22 +6258,22 @@
              * @return {Promise} A promise with borowed full {Object} history or fails with a {@link corbelError}.
              */
             getFullHistory: function(params) {
-                console.log('borrowInterface.resource.getFullHistory');
+                console.log('borrowInterface.resource.getFullHistory')
                 return this.request({
                     url: this._buildUri(this.uri, 'history/'),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             _buildUri: corbel.Borrow._buildUri
-        });
-    })();
+        })
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
-
         /**
          * A builder for borrowed management requests.
          *
@@ -6384,10 +6283,9 @@
          * @memberOf corbel.Borrow.UserBuilder
          */
         corbel.Borrow.UserBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.id = id || 'me';
-                this.uri = 'user';
+                this.id = id || 'me'
+                this.uri = 'user'
             },
             /**
              * Get all reservations of a user.
@@ -6398,11 +6296,11 @@
              * @return {Promise} A promise with all user reservations {Object} or fails with a {@link corbelError}.
              */
             getAllReservations: function() {
-                console.log('borrowInterface.user.getAllReservations', this.id);
+                console.log('borrowInterface.user.getAllReservations', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'reservation'),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              *  Get all loans of a user.
@@ -6413,22 +6311,21 @@
              * @return {Promise} A promise with all user loans {Object} or fails with a {@link corbelError}.
              */
             getAllLoans: function() {
-                console.log('borrowInterface.user.getAllLoans', this.id);
+                console.log('borrowInterface.user.getAllLoans', this.id)
                 return this.request({
                     url: this._buildUri(this.uri, this.id, 'loan'),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
-
             _buildUri: corbel.Borrow._buildUri
-        });
-    })();
+        })
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
-
         /**
          * A builder for borrowed management requests.
          *
@@ -6438,10 +6335,9 @@
          * @memberOf corbel.Borrow.LenderBuilder
          */
         corbel.Borrow.LenderBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.id = id;
-                this.uri = 'lender';
+                this.id = id
+                this.uri = 'lender'
             },
             /**
              * Create a new Lender
@@ -6461,14 +6357,14 @@
              *                   with a {@link corbelError}.
              */
             create: function(lender) {
-                console.log('borrowInterface.lender.create', lender);
+                console.log('borrowInterface.lender.create', lender)
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: lender
                 }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
+                    return corbel.Services.getLocationId(res)
+                })
             },
             /**
              * Update a Lender.
@@ -6481,13 +6377,13 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             update: function(lender) {
-                console.log('borrowInterface.lender.update');
+                console.log('borrowInterface.lender.update')
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: lender
-                });
+                })
             },
             /**
              * Delete a Lender.
@@ -6498,12 +6394,12 @@
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             delete: function() {
-                console.log('borrowInterface.lender.delete');
+                console.log('borrowInterface.lender.delete')
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
             /**
              * Get Lender.
@@ -6514,12 +6410,12 @@
              * @return {Promise} A promise with lender {Object} or fails with a {@link corbelError}.
              */
             get: function() {
-                console.log('borrowInterface.lender.get');
+                console.log('borrowInterface.lender.get')
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET
-                });
+                })
             },
             /**
              * Get all Lenders.
@@ -6530,12 +6426,12 @@
              * @return {Promise} A promise with all lenders {Object} or fails with a {@link corbelError}.
              */
             getAll: function(params) {
-                console.log('borrowInterface.lender.getAll');
+                console.log('borrowInterface.lender.getAll')
                 return this.request({
                     url: this._buildUri(this.uri, 'all'),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
             /**
              * Get all reservations by lender.
@@ -6546,21 +6442,22 @@
              * @return {Promise} A promise with all reservations {Object} by lender or fails with a {@link corbelError}.
              */
             getAllReservations: function(params) {
-                console.log('borrowInterface.lender.getAllReservations');
+                console.log('borrowInterface.lender.getAllReservations')
                 return this.request({
                     url: this._buildUri(this.uri, 'reservation'),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
             },
 
             _buildUri: corbel.Borrow._buildUri
-        });
-    })();
+        })
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * A module to make CompoSR requests.
          * @exports CompoSR
@@ -6569,9 +6466,8 @@
          */
 
         corbel.CompoSR = corbel.Object.inherit({
-
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             /**
@@ -6582,9 +6478,9 @@
              * @return {corbel.CompoSR.PhraseBuilder}
              */
             phrase: function(id) {
-                var phraseBuilder = new corbel.CompoSR.PhraseBuilder(id);
-                phraseBuilder.driver = this.driver;
-                return phraseBuilder;
+                var phraseBuilder = new corbel.CompoSR.PhraseBuilder(id)
+                phraseBuilder.driver = this.driver
+                return phraseBuilder
             },
 
             /**
@@ -6598,51 +6494,48 @@
              * @return {corbel.CompoSR.RequestBuilder}
              */
             request: function() {
-                var requestBuilder = new corbel.CompoSR.RequestBuilder(Array.prototype.slice.call(arguments));
-                requestBuilder.driver = this.driver;
-                return requestBuilder;
+                var requestBuilder = new corbel.CompoSR.RequestBuilder(Array.prototype.slice.call(arguments))
+                requestBuilder.driver = this.driver
+                return requestBuilder
             }
 
-
         }, {
-
             moduleName: 'composr',
             defaultPort: 3000,
 
             create: function(driver) {
-                return new corbel.CompoSR(driver);
+                return new corbel.CompoSR(driver)
             },
 
             _buildPort: function(config) {
-                return config.get('composrPort', null) || corbel.CompoSR.defaultPort;
+                return config.get('composrPort', null) || corbel.CompoSR.defaultPort
             },
 
             _buildUri: function() {
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.CompoSR.moduleName, corbel.CompoSR._buildPort(this.driver.config))
 
                 if (urlBase.slice(-1) === '/') {
-                    urlBase = urlBase.substring(0, urlBase.length - 1);
+                    urlBase = urlBase.substring(0, urlBase.length - 1)
                 }
 
-                var uri = '';
+                var uri = ''
                 Array.prototype.slice.call(arguments).forEach(function(argument) {
                     if (argument) {
-                        uri += '/' + argument;
+                        uri += '/' + argument
                     }
-                });
-                return urlBase + uri;
+                })
+                return urlBase + uri
             }
 
-        });
+        })
 
-        return corbel.CompoSR;
+        return corbel.CompoSR
+    })()
 
-    })();
+    /* global corbel */
 
-
+    ;
     (function() {
-
-
         /**
          * A builder for composr phrase crud.
          *
@@ -6652,58 +6545,57 @@
          * @memberOf corbel.CompoSR.PhraseBuilder
          */
         corbel.CompoSR.PhraseBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
-                this.id = id;
+                this.id = id
             },
 
             put: function(body) {
-                console.log('composrInterface.phrase.add');
+                console.log('composrInterface.phrase.add')
 
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.PUT,
                     data: body
-                });
+                })
             },
 
             get: function() {
-                console.log('composrInterface.phrase.get');
-                corbel.validate.value('id', this.id);
+                console.log('composrInterface.phrase.get')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             getAll: function() {
-                console.log('composrInterface.phrase.getAll');
+                console.log('composrInterface.phrase.getAll')
                 return this.request({
                     url: this._buildUri('phrase'),
                     method: corbel.request.method.GET
-                });
+                })
             },
 
             delete: function() {
-                console.log('composrInterface.phrase.delete');
-                corbel.validate.value('id', this.id);
+                console.log('composrInterface.phrase.delete')
+                corbel.validate.value('id', this.id)
 
                 return this.request({
                     url: this._buildUri('phrase', this.id),
                     method: corbel.request.method.DELETE
-                });
+                })
             },
 
             _buildUri: corbel.CompoSR._buildUri
 
-        });
-    })();
+        })
+    })()
 
+    /* global corbel */
 
+    ;
     (function() {
-
-
         /**
          * A builder for composr requests.
          *
@@ -6712,86 +6604,87 @@
          * @memberOf corbel.CompoSR.RequestBuilder
          */
         corbel.CompoSR.RequestBuilder = corbel.Services.inherit({
-
             constructor: function(pathsArray) {
-                this.path = this.buildPath(pathsArray);
+                this.path = this.buildPath(pathsArray)
             },
 
             post: function(data, options) {
-                console.log('composrInterface.request.post');
-                this.options = options || {};
+                console.log('composrInterface.request.post')
+                this.options = options || {}
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.POST,
                     headers: this.options.headers,
                     data: data,
                     query: this.buildQueryPath(this.options.queryParams)
-                });
+                })
             },
 
             get: function(options) {
-                console.log('composrInterface.request.get');
-                this.options = options || {};
+                console.log('composrInterface.request.get')
+                this.options = options || {}
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.GET,
                     headers: this.options.headers,
                     query: this.buildQueryPath(this.options.queryParams)
-                });
+                })
             },
 
             put: function(data, options) {
-                console.log('composrInterface.request.put');
-                this.options = options || {};
+                console.log('composrInterface.request.put')
+                this.options = options || {}
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.PUT,
                     data: data,
                     headers: this.options.headers,
                     query: this.buildQueryPath(this.options.queryParams)
-                });
+                })
             },
 
             delete: function(options) {
-                console.log('composrInterface.request.delete');
-                this.options = options || {};
+                console.log('composrInterface.request.delete')
+                this.options = options || {}
                 return this.request({
                     url: this._buildUri(this.path),
                     method: corbel.request.method.DELETE,
                     headers: this.options.headers,
                     query: this.buildQueryPath(this.options.queryParams)
-                });
+                })
             },
 
             buildPath: function(pathArray) {
-                var path = '';
-                path += pathArray.shift();
+                var path = ''
+                path += pathArray.shift()
                 pathArray.forEach(function(entryPath) {
-                    path += '/' + entryPath;
-                });
-                return path;
+                    path += '/' + entryPath
+                })
+                return path
             },
 
             buildQueryPath: function(dict) {
-                var query = '';
+                var query = ''
                 if (dict) {
-                    var queries = [];
+                    var queries = []
                     Object.keys(dict).forEach(function(key) {
-                        queries.push(key + '=' + dict[key]);
-                    });
+                        queries.push(key + '=' + dict[key])
+                    })
                     if (queries.length > 0) {
-                        query = queries.join('&');
+                        query = queries.join('&')
                     }
                 }
-                return query;
+                return query
             },
 
             _buildUri: corbel.CompoSR._buildUri
-        });
-    })();
+        })
+    })()
 
+    /*globals corbel */
+
+    ;
     (function() {
-
         /**
          * A webfs API factory
          * @exports corbel.Webfs
@@ -6800,23 +6693,21 @@
          * @memberof corbel
          */
         corbel.Webfs = corbel.Object.inherit({
-
-            /**
+            /*
              * Creates a new WebfsBuilder
              * @memberof corbel.Webfs.prototype
-             * @param  {string} id String with the resource id 
+             * @param {string} id String with the resource id
              * @return {corbel.Webfs.WebfsBuilder}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
             },
 
             webfs: function(id) {
-                return new corbel.Webfs.WebfsBuilder(this.driver, id);
+                return new corbel.Webfs.WebfsBuilder(this.driver, id)
             }
 
         }, {
-
             /**
              * moduleName constant
              * @constant
@@ -6842,18 +6733,18 @@
              * @return {corbel.Webfs.WebfsBuilder}
              */
             create: function(driver) {
-                return new corbel.Webfs(driver);
+                return new corbel.Webfs(driver)
             }
 
-        });
+        })
 
-        return corbel.Webfs;
+        return corbel.Webfs
+    })()
 
-    })();
+    /*globals corbel */
 
-
+    ;
     (function() {
-
         /**
          * Module for retrieve content of S3
          * @exports WebfsBuilder
@@ -6862,15 +6753,14 @@
          * @memberof corbel.Webfs
          */
         var WebfsBuilder = corbel.Webfs.WebfsBuilder = corbel.Services.inherit({
-
             /**
              * Creates a new WebfsBuilder
              * @memberof corbel.Webfs.WebfsBuilder.prototype
              * @return {corbel.Webfs.WebfsBuilder}
              */
             constructor: function(driver, id) {
-                this.driver = driver;
-                this.id = id;
+                this.driver = driver
+                this.id = id
             },
 
             /**
@@ -6880,33 +6770,30 @@
              * @return {Promise}              Promise that resolves with a resource or rejects with a {@link CorbelError}
              */
             get: function(params) {
+                corbel.validate.value('id', this.id)
 
-                corbel.validate.value('id', this.id);
-
-                var options = params ? corbel.utils.clone(params) : {};
+                var options = params ? corbel.utils.clone(params) : {}
 
                 var args = corbel.utils.extend(options, {
                     url: this._buildUri(this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
-                });
+                })
 
-                return this.request(args);
-
+                return this.request(args)
             },
 
             _buildUri: function(id) {
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config))
 
-                return urlBase + id;
+                return urlBase + id
             },
 
             _buildPort: function(config) {
-                return config.get('webfsPort', null) || corbel.Webfs.defaultPort;
+                return config.get('webfsPort', null) || corbel.Webfs.defaultPort
             }
 
         }, {
-
             /**
              * GET constant
              * @constant
@@ -6923,17 +6810,18 @@
              * @default
              */
             create: function(driver) {
-                return new corbel.Webfs.WebfsBuilder(driver);
+                return new corbel.Webfs.WebfsBuilder(driver)
             }
 
-        });
+        })
 
-        return WebfsBuilder;
+        return WebfsBuilder
+    })()
 
-    })();
+    /* global corbel */
 
+    ;
     (function() {
-
         /**
          * A custom domain configuration
          * @exports corbel.Domain
@@ -6942,7 +6830,6 @@
          * @memberof corbel
          */
         corbel.Domain = corbel.Object.inherit({
-
             /**
              * Creates a new instance of corbelDriver with a custom domain
              * @memberof corbel.Domain.prototype
@@ -6950,18 +6837,16 @@
              * @return {corbelDriver}
              */
             constructor: function(driver) {
-                this.driver = driver;
+                this.driver = driver
 
                 return function(id) {
-                    driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+                    driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id)
 
-                    return driver;
-                };
+                    return driver
+                }
             }
 
-
         }, {
-
             /**
              * moduleName constant
              * @constant
@@ -6987,15 +6872,14 @@
              * @return {function}
              */
             create: function(driver) {
-                return new corbel.Domain(driver);
+                return new corbel.Domain(driver)
             }
 
-        });
+        })
 
-        return corbel.Domain;
+        return corbel.Domain
+    })()
 
-    })();
 
-
-    return corbel;
-});
+    return corbel
+})

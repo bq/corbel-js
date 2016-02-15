@@ -1,9 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
-(function() {
-
+;(function () {
   /**
    * Create a OrderBuilder for order managing requests.
    *
@@ -11,11 +11,11 @@
    *
    * @return {corbel.Ec.OrderBuilder}
    */
-  corbel.Ec.prototype.order = function(id) {
-    var order = new OrderBuilder(id);
-    order.driver = this.driver;
-    return order;
-  };
+  corbel.Ec.prototype.order = function (id) {
+    var order = new OrderBuilder(id)
+    order.driver = this.driver
+    return order
+  }
 
   /**
    * A builder for order requests.
@@ -26,12 +26,11 @@
    * @memberOf corbel.Ec.OrderBuilder
    */
   var OrderBuilder = corbel.Ec.OrderBuilder = corbel.Services.inherit({
-
-    constructor: function(id) {
+    constructor: function (id) {
       if (id) {
-        this.id = id;
+        this.id = id
       }
-      this.uri = 'order';
+      this.uri = 'order'
     },
 
     /**
@@ -40,12 +39,12 @@
      * @memberOf corbel.Ec.OrderBuilder
      * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
      */
-    get: function() {
-      corbel.validate.value('id', this.id);
+    get: function () {
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.GET
-      });
+      })
     },
 
     /**
@@ -56,13 +55,13 @@
      * @param {Object[]} order.items    Array of products to purchase
      * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
-    update: function(order) {
-      corbel.validate.value('id', this.id);
+    update: function (order) {
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.PUT,
         data: order
-      });
+      })
     },
 
     /**
@@ -71,12 +70,12 @@
      * @memberOf corbel.Ec.OrderBuilder
      * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
-    delete: function() {
-      corbel.validate.value('id', this.id);
+    delete: function () {
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE
-      });
+      })
     },
 
     /**
@@ -86,13 +85,13 @@
      * @param {string[]} couponIds  Array of String with the coupons ids to prepare the order
      * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
-    prepare: function(couponIds) {
-      corbel.validate.value('id', this.id);
+    prepare: function (couponIds) {
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id, '/prepare'),
         method: corbel.request.method.POST,
         data: couponIds
-      });
+      })
     },
 
     /**
@@ -104,21 +103,21 @@
      * @param {string[]} discountsIds      Array of String with the discounts ids to checkout the order
      * @return {Promise}                Promise that resolves in the new purchase id or rejects with a {@link SilkRoadError}
      */
-    checkout: function(data) {
+    checkout: function (data) {
       if (!data.paymentMethodIds) {
-        return Promise.reject(new Error('paymentMethodIds lists needed'));
+        return Promise.reject(new Error('paymentMethodIds lists needed'))
       }
       if (!data.paymentMethodIds.length) {
-        return Promise.reject(new Error('One payment method is needed at least'));
+        return Promise.reject(new Error('One payment method is needed at least'))
       }
-      corbel.validate.value('id', this.id);
+      corbel.validate.value('id', this.id)
       return this.request({
         method: corbel.request.method.POST,
         url: this._buildUri(this.uri, this.id, '/checkout'),
         data: data
-      }).then(function(res) {
-        return corbel.Services.getLocationId(res);
-      });
+      }).then(function (res) {
+        return corbel.Services.getLocationId(res)
+      })
     },
 
     /**
@@ -129,6 +128,5 @@
      */
     _buildUri: corbel.Ec._buildUri
 
-  });
-
-})();
+  })
+})()

@@ -91,6 +91,7 @@
     "grunt-preprocess": "5.0.1",
     "grunt-release": "0.13.0",
     "grunt-requirejs": "0.4.2",
+    "grunt-standard": "^2.0.0",
     "grunt-usemin": "3.1.1",
     "grunt-version-check": "0.3.2",
     "i": "^0.3.4",

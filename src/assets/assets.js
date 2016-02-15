@@ -1,8 +1,9 @@
-(function() {
-  //@exclude
-  'use strict';
-  //@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
+;(function () {
   /**
    * An assets API factory
    * @exports corbel.Assets
@@ -11,23 +12,21 @@
    * @memberof corbel
    */
   corbel.Assets = corbel.Object.inherit({
-
     /**
      * Creates a new AssetsBuilder
      * @memberof corbel.Assets.prototype
      * @param  {string} id String with the asset id or `all` key
      * @return {corbel.Assets.AssetsBuilder}
      */
-    constructor: function(driver) {
-      this.driver = driver;
+    constructor: function (driver) {
+      this.driver = driver
     },
 
-    asset: function(id) {
-      return new corbel.Assets.AssetsBuilder(this.driver, id);
+    asset: function (id) {
+      return new corbel.Assets.AssetsBuilder(this.driver, id)
     }
 
   }, {
-
     /**
      * moduleName constant
      * @constant
@@ -52,12 +51,11 @@
      * @param  {corbel} corbel instance driver
      * @return {corbel.Assets.AssetsBuilder}
      */
-    create: function(driver) {
-      return new corbel.Assets(driver);
+    create: function (driver) {
+      return new corbel.Assets(driver)
     }
 
-  });
+  })
 
-  return corbel.Assets;
-
-})();
+  return corbel.Assets
+})()

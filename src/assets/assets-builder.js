@@ -1,9 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
-(function() {
-
+;(function () {
   /**
    * Module for organize user assets
    * @exports AssetsBuilder
@@ -12,17 +12,16 @@
    * @memberof corbel.Assets
    */
   var AssetsBuilder = corbel.Assets.AssetsBuilder = corbel.Services.inherit({
-
     /**
      * Creates a new AssetsBuilder
      * @memberof corbel.Assets.AssetsBuilder.prototype
      * @param  {string}                         id string with the asset id or `all` key
      * @return {corbel.Assets.AssetsBuilder}
      */
-    constructor: function(driver, id) {
-      this.driver = driver;
-      this.uri = 'asset';
-      this.id = id;
+    constructor: function (driver, id) {
+      this.driver = driver
+      this.uri = 'asset'
+      this.id = id
     },
 
     /**
@@ -31,35 +30,33 @@
      * @param  {object} [params]      Params of a {@link corbel.request}
      * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
      */
-    get: function(params) {
-
-      var options = params ? corbel.utils.clone(params) : {};
+    get: function (params) {
+      var options = params ? corbel.utils.clone(params) : {}
 
       var args = corbel.utils.extend(options, {
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
-      });
+      })
 
-      return this.request(args);
-
+      return this.request(args)
     },
 
-   /**
-     * Gets all assets
-     * @memberof corbel.Assets.AssetsBuilder.prototype
-     * @param  {object} [params]      Params of a {@link corbel.request}
-     * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
-     */
-     getAll: function(params){
-      var options = params ? corbel.utils.clone(params) : {};
+    /**
+      * Gets all assets
+      * @memberof corbel.Assets.AssetsBuilder.prototype
+      * @param  {object} [params]      Params of a {@link corbel.request}
+      * @return {Promise}              Promise that resolves with an Asset or rejects with a {@link CorbelError}
+      */
+    getAll: function (params) {
+      var options = params ? corbel.utils.clone(params) : {}
 
       var args = corbel.utils.extend(options, {
         url: this._buildUri(this.uri, 'all'),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
-      });
-      return this.request(args);
+      })
+      return this.request(args)
     },
 
     /**
@@ -67,12 +64,12 @@
      * @memberof corbel.Assets.AssetsBuilder.prototype
      * @return {Promise}                Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
      */
-    delete: function() {
-      corbel.validate.value('id', this.id);
+    delete: function () {
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE
-      });
+      })
     },
 
     /**
@@ -86,15 +83,14 @@
      * @param {array}   data.scopes     Scopes of the asset
      * @return {Promise}                Promise that resolves in the new asset id or rejects with a {@link CorbelError}
      */
-    create: function(data) {
+    create: function (data) {
       return this.request({
         url: this._buildUri(this.uri),
         method: corbel.request.method.POST,
         data: data
-      }).
-      then(function(res) {
-        return corbel.Services.getLocationId(res);
-      });
+      }).then(function (res) {
+        return corbel.Services.getLocationId(res)
+      })
     },
 
     /**
@@ -102,43 +98,41 @@
      * @memberof corbel.Assets.AssetsBuilder.prototype
      * @return {Promise} Promise that resolves to a redirection to iam/oauth/token/upgrade or rejects with a {@link CorbelError}
      */
-    access: function(params) {
-      var args = params ? corbel.utils.clone(params) : {};
-      args.url = this._buildUri(this.uri + '/access');
-      args.method = corbel.request.method.GET;
-      args.noRedirect = true;
+    access: function (params) {
+      var args = params ? corbel.utils.clone(params) : {}
+      args.url = this._buildUri(this.uri + '/access')
+      args.method = corbel.request.method.GET
+      args.noRedirect = true
 
-      var that = this;
+      var that = this
 
-      return this.request(args).
-      then(function(response) {
+      return this.request(args).then(function (response) {
         return that.request({
           noRetry: args.noRetry,
           method: corbel.request.method.POST,
           contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-          data:response.data,
+          data: response.data,
           url: response.headers.location
-        });
-      });
+        })
+      })
     },
 
-    _buildUri: function(path, id) {
-      var uri = '';
-      var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config));
+    _buildUri: function (path, id) {
+      var uri = ''
+      var urlBase = this.driver.config.getCurrentEndpoint(corbel.Assets.moduleName, this._buildPort(this.driver.config))
 
-      uri = urlBase + path;
+      uri = urlBase + path
       if (id) {
-        uri += '/' + id;
+        uri += '/' + id
       }
-      return uri;
+      return uri
     },
 
-    _buildPort: function(config) {
-      return config.get('assetsPort', null) || corbel.Assets.defaultPort;
+    _buildPort: function (config) {
+      return config.get('assetsPort', null) || corbel.Assets.defaultPort
     }
 
   }, {
-
     /**
      * GET constant
      * @constant
@@ -154,12 +148,11 @@
      * @type {string}
      * @default
      */
-    create: function(driver) {
-      return new corbel.Assets.AssetsBuilder(driver);
+    create: function (driver) {
+      return new corbel.Assets.AssetsBuilder(driver)
     }
 
-  });
+  })
 
-  return AssetsBuilder;
-
-})();
+  return AssetsBuilder
+})()

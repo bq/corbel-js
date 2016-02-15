@@ -1,8 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
-(function() {
+// @exclude
+'use strict'
+// @endexclude
+/*globals corbel */
 
+;(function () {
   /**
    * A base object to inherit from for make corbel-js requests with custom behavior.
    * @exports Services
@@ -10,22 +11,21 @@
    * @extends corbel.Object
    * @memberof corbel
    */
-  var Services = corbel.Services = corbel.Object.inherit({ //instance props
-
+  var Services = corbel.Services = corbel.Object.inherit({ // instance props
     /**
      * Creates a new Services
      * @memberof corbel.Services.prototype
      * @param  {string}                         id String with the asset id or `all` key
      * @return {corbel.Services}
      */
-    constructor: function(driver) {
-      this.driver = driver;
+    constructor: function (driver) {
+      this.driver = driver
     },
 
-    extractLocationId: function(res) {
-      console.log('corbel-js:service:extractLocationId', res);
-      var uri = res.jqXHR.getResponseHeader('Location');
-      return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
+    extractLocationId: function (res) {
+      console.log('corbel-js:service:extractLocationId', res)
+      var uri = res.jqXHR.getResponseHeader('Location')
+      return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined
     },
 
     /**
@@ -38,59 +38,53 @@
      * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
      * @param  {object} args    The request arguments.
      */
-    request: function(args) {
+    request: function (args) {
+      this.driver.trigger('service:request:before', args)
 
-      this.driver.trigger('service:request:before', args);
+      var that = this
 
-      var that = this;
-
-      return this._requestWithRetries(args).then(function(response) {
-        that.driver.trigger('service:request:after', response);
-        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-        return response;
-      }).catch(function(error) {
-        that.driver.trigger('service:request:after', error);
-        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-        throw error;
-      });
-
+      return this._requestWithRetries(args).then(function (response) {
+        that.driver.trigger('service:request:after', response)
+        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
+        return response
+      }).catch(function (error) {
+        that.driver.trigger('service:request:after', error)
+        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
+        throw error
+      })
     },
 
-    _requestWithRetries : function(args){
-      var that = this;
-      var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
-      var requestParameters = that._buildParams(args);
+    _requestWithRetries: function (args) {
+      var that = this
+      var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES
+      var requestParameters = that._buildParams(args)
 
       return that._doRequest(requestParameters)
-        .catch(function(response) {
-
-          var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
+        .catch(function (response) {
+          var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
           if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
-
-            //A 401 request within, refresh the token and retry the request.
+            // A 401 request within, refresh the token and retry the request.
             return that._refreshToken()
-              .then(function() {
-              
-              that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
-              //@TODO: see if we need to upgrade the token to access assets.
-              return that._requestWithRetries(args).catch(function(retryResponse) {
-                // rejects whole promise with the retry response
-                response = retryResponse;
-                throw response;
-              });
-            }).catch(function() {
-              //Has failed refreshing, reject request
-              console.log('corbeljs:services:token:refresh:fail');
+              .then(function () {
+                that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1)
+                // @TODO: see if we need to upgrade the token to access assets.
+                return that._requestWithRetries(args).catch(function (retryResponse) {
+                  // rejects whole promise with the retry response
+                  response = retryResponse
+                  throw response
+                })
+              })
+              .catch(function () {
+                // Has failed refreshing, reject request
+                console.log('corbeljs:services:token:refresh:fail')
 
-              throw response;
-            });
-
+                throw response
+              })
           } else {
-            console.log('corbeljs:services:token:no_refresh', response.status);
-            throw response;
+            console.log('corbeljs:services:token:no_refresh', response.status)
+            throw response
           }
-
-        });
+        })
     },
 
     /**
@@ -99,93 +93,87 @@
      * @param  {object} params
      * @return {Promise}
      */
-    _doRequest: function(params) {
-      var that = this;
-      return corbel.request.send(params, that.driver).then(function(response) {
+    _doRequest: function (params) {
+      var that = this
+      return corbel.request.send(params, that.driver).then(function (response) {
+        that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0)
+        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0)
 
-        that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
-        that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
-
-        return response;
-
-      }).catch(function(response) {
+        return response
+      }).catch(function (response) {
         // Force update
         if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
           response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
-
-          var retries = that.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0);
+          var retries = that.driver.config.get(corbel.Services._FORCE_UPDATE_STATUS, 0)
           if (retries < corbel.Services._FORCE_UPDATE_MAX_RETRIES) {
-            retries++;
-            that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries);
+            retries++
+            that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, retries)
 
-            that.driver.trigger('force:update', response);
+            that.driver.trigger('force:update', response)
 
-            throw response;
+            throw response
           } else {
-            throw response;
+            throw response
           }
         } else {
-          throw response;
+          throw response
         }
-
-      });
+      })
     },
 
+    _refreshToken: function () {
+      var tokenObject = this.driver.config.get(corbel.Iam.IAM_TOKEN, {})
 
-    _refreshToken : function(){
-      var tokenObject = this.driver.config.get(corbel.Iam.IAM_TOKEN, {});
-
-      return this._refreshHandler(tokenObject);
+      return this._refreshHandler(tokenObject)
     },
     /**
      * Default token refresh handler
      * Only requested once at the same time
      * @return {Promise}
      */
-    _refreshHandler: function(tokenObject) {
-      var that = this;
+    _refreshHandler: function (tokenObject) {
+      var that = this
 
       if (this.driver._refreshHandlerPromise) {
-        return this.driver._refreshHandlerPromise;
+        return this.driver._refreshHandlerPromise
       }
 
       if (tokenObject.refreshToken) {
-        console.log('corbeljs:services:token:refresh');
+        console.log('corbeljs:services:token:refresh')
         this.driver._refreshHandlerPromise = this.driver.iam.token().refresh(
           tokenObject.refreshToken,
-          this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, '')
-        );
-
+          this.driver.config.get(corbel.Iam.IAM_TOKEN_SCOPES, ''))
       } else {
-        console.log('corbeljs:services:token:create');
-        this.driver._refreshHandlerPromise = this.driver.iam.token().create();
+        console.log('corbeljs:services:token:create')
+        this.driver._refreshHandlerPromise = this.driver.iam.token().create()
       }
 
       return this.driver._refreshHandlerPromise
-      .then(function(response) {
-        that.driver.trigger('token:refresh', response.data);
-        that.driver._refreshHandlerPromise = null;
-        return response;
-      }).catch(function(err) {
-        that.driver._refreshHandlerPromise = null;
-        throw err;
-      });
+        .then(function (response) {
+          that.driver.trigger('token:refresh', response.data)
+          that.driver._refreshHandlerPromise = null
+          return response
+        })
+        .catch(function (err) {
+          that.driver._refreshHandlerPromise = null
+          throw err
+        })
     },
 
     /**
      * Add Authorization header with default tokenObject
      * @param {object} params request builded params
      */
-    _addAuthorization: function(params) {
+    _addAuthorization: function (params) {
       // @todo: support to oauth token and custom handlers
-      var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
+      var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken
 
       // Use access access token if exists
       if (accessToken) {
-        params.headers.Authorization = 'Bearer ' + accessToken;
-        params.withCredentials = true;
+        params.headers.Authorization = 'Bearer ' + accessToken
+        params.withCredentials = true
       }
-      return params;
+      return params
     },
 
     /**
@@ -198,8 +186,7 @@
      * @param  {object} args
      * @return {object}
      */
-    _buildParams: function(args) {
-
+    _buildParams: function (args) {
       // Default values
       var defaults = {
         dataType: 'json',
@@ -209,69 +196,67 @@
           Accept: 'application/json'
         },
         method: corbel.request.method.GET
-      };
+      }
 
       // do not modify args object
-      var params = corbel.utils.defaults({}, args);
-      params = corbel.utils.defaults(params, defaults);
-      
+      var params = corbel.utils.defaults({}, args)
+      params = corbel.utils.defaults(params, defaults)
+
       if (!params.url) {
-        throw new Error('You must define an url');
+        throw new Error('You must define an url')
       }
 
       if (params.query) {
-        params.url += '?' + params.query;
+        params.url += '?' + params.query
       }
-      
+
       if (params.noRedirect) {
-        params.headers['No-Redirect'] = true;
+        params.headers['No-Redirect'] = true
       }
 
       if (params.Accept) {
-        params.headers.Accept = params.Accept;
-        params.dataType = undefined; // Accept & dataType are incompatibles
+        params.headers.Accept = params.Accept
+        params.dataType = undefined // Accept & dataType are incompatibles
       }
 
       // set correct accept & contentType in case of blob
       // @todo: remove contentType+accept same-type constraint
       if (params.dataType === 'blob') {
         if (corbel.Config.isBrowser) {
-          params.headers.Accept = params.data.type;
-          params.contentType = params.data.type;
-          params.dataType = undefined; // Accept & dataType are incompatibles
+          params.headers.Accept = params.data.type
+          params.contentType = params.data.type
+          params.dataType = undefined // Accept & dataType are incompatibles
         }
       }
 
-      params = this._addAuthorization(params);
+      params = this._addAuthorization(params)
 
-      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error']);
+      return corbel.utils.pick(params, ['url', 'dataType', 'contentType', 'method', 'headers', 'data', 'dataFilter', 'responseType', 'withCredentials', 'success', 'error'])
     },
 
     /**
      * @memberof corbel.Services.prototype
      * @return {string}
      */
-    _buildUri: function() {
-
-      var uri = '';
+    _buildUri: function () {
+      var uri = ''
       if (this.urlBase.slice(-1) !== '/') {
-        uri += '/';
+        uri += '/'
       }
 
-      Array.prototype.slice.call(arguments).forEach(function(argument) {
+      Array.prototype.slice.call(arguments).forEach(function (argument) {
         if (argument) {
-          uri += argument + '/';
+          uri += argument + '/'
         }
-      });
+      })
 
       // remove last '/'
-      uri = uri.slice(0, -1);
+      uri = uri.slice(0, -1)
 
-      return this.urlBase + uri;
+      return this.urlBase + uri
     }
 
   }, {
-
     /**
      * _FORCE_UPDATE_TEXT constant
      * @constant
@@ -340,16 +325,16 @@
      * @param  {Promise} res response from a requestXHR
      * @return {String}  id from the Location
      */
-    getLocationId: function(responseObject) {
-      responseObject = responseObject || {};
-      var location;
+    getLocationId: function (responseObject) {
+      responseObject = responseObject || {}
+      var location
 
       if (responseObject.xhr) {
-        location = responseObject.xhr.getResponseHeader('location');
+        location = responseObject.xhr.getResponseHeader('location')
       } else if (responseObject.response && responseObject.response.headers.location) {
-        location = responseObject.response.headers.location;
+        location = responseObject.response.headers.location
       }
-      return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+      return location ? location.substr(location.lastIndexOf('/') + 1) : undefined
     },
 
     /**
@@ -358,14 +343,13 @@
      * @param {string} type
      * @return {midex}
      */
-    addEmptyJson: function(response, type) {
+    addEmptyJson: function (response, type) {
       if (!response && type === 'json') {
-        response = '{}';
+        response = '{}'
       }
-      return response;
+      return response
     }
-  });
+  })
 
-  return Services;
-
-})();
+  return Services
+})()

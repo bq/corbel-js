@@ -1,8 +1,9 @@
-(function() {
-  //@exclude
-  'use strict';
-  //@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
+;(function () {
   /**
    * A custom domain configuration
    * @exports corbel.Domain
@@ -11,26 +12,23 @@
    * @memberof corbel
    */
   corbel.Domain = corbel.Object.inherit({
-
     /**
      * Creates a new instance of corbelDriver with a custom domain
      * @memberof corbel.Domain.prototype
      * @param  {string} id String with the custom domain value
      * @return {corbelDriver}
      */
-    constructor: function(driver) {
-      this.driver = driver;
+    constructor: function (driver) {
+      this.driver = driver
 
-      return function(id) {
-        driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id);
+      return function (id) {
+        driver.config.set(corbel.Domain.CUSTOM_DOMAIN, id)
 
-        return driver;
-      };
+        return driver
+      }
     }
 
-
   }, {
-
     /**
      * moduleName constant
      * @constant
@@ -55,12 +53,11 @@
      * @param  {corbel} corbel instance driver
      * @return {function}
      */
-    create: function(driver) {
-      return new corbel.Domain(driver);
+    create: function (driver) {
+      return new corbel.Domain(driver)
     }
 
-  });
+  })
 
-  return corbel.Domain;
-
-})();
+  return corbel.Domain
+})()

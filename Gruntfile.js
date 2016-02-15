@@ -1,47 +1,43 @@
-'use strict';
+'use strict'
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
+  var mountFolder = function (connect, dir) {
+    return serveStatic(dir)
+  }
 
-  var mountFolder = function(connect, dir) {
-    return serveStatic(dir);
-  };
+  var path = require('path')
+  var serveStatic = require('serve-static')
 
-  var path = require('path');
-  var serveStatic = require('serve-static');
-
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt)
 
   var ports = {
     server: 9000,
     test: 8000,
     livereload: 35729,
     express: 3000
-  };
-
-  function jsdocTask() {
-    var exec = require('child_process').exec;
-    /* jshint validthis:true */
-    var done = this.async();
-
-    var jsdocCmd = './node_modules/jsdoc/jsdoc';
-
-    var src = ' -r src';
-    var dest = ' -d doc';
-    var config = ' -c .jsdoc';
-    var template = ' -t node_modules/jaguarjs-jsdoc';
-
-    exec(jsdocCmd + src + dest + config + template, function(err, stdout, stderr) {
-      console.log(stdout);
-      console.log(stderr);
-      done(err === null);
-    });
-
   }
 
-  grunt.registerTask('jsdoc', 'Generates JSDoc', jsdocTask);
+  function jsdocTask () {
+    var exec = require('child_process').exec
+    var done = this.async()
+
+    var jsdocCmd = './node_modules/jsdoc/jsdoc'
+
+    var src = ' -r src'
+    var dest = ' -d doc'
+    var config = ' -c .jsdoc'
+    var template = ' -t node_modules/jaguarjs-jsdoc'
+
+    exec(jsdocCmd + src + dest + config + template, function (err, stdout, stderr) {
+      console.log(stdout)
+      console.log(stderr)
+      done(err === null)
+    })
+  }
+
+  grunt.registerTask('jsdoc', 'Generates JSDoc', jsdocTask)
 
   grunt.initConfig({
-
     pkg: grunt.file.readJSON('./package.json'),
 
     clean: {
@@ -59,7 +55,7 @@ module.exports = function(grunt) {
       },
       'test-browser': {
         src: ['test/browser/index.html'],
-        dest: '.tmp/',
+        dest: '.tmp/'
       }
     },
 
@@ -75,19 +71,6 @@ module.exports = function(grunt) {
       }
     },
 
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
-      },
-      all: [
-        'Gruntfile.js',
-        'src/{,**/}*.js',
-        '!src/cryptography.js', // vendor @todo remove or clean this dep
-        'test/{,**/}*.js',
-        'examples/{,**/}*.js'
-      ]
-    },
     execute: {
       nodeapp: {
         src: ['examples/nodeapp/main.js']
@@ -119,7 +102,7 @@ module.exports = function(grunt) {
       serve: {
         singleRun: false,
         browsers: [
-            'Chrome'
+          'Chrome'
         ]
       }
     },
@@ -144,42 +127,62 @@ module.exports = function(grunt) {
       webserver: {
         options: {
           port: ports.server,
-          middleware: function(connect) {
+          middleware: function (connect) {
             return [
               mountFolder(connect, 'examples/webapp/'),
               mountFolder(connect, 'dist/'),
               mountFolder(connect, 'bower_components/'),
               mountFolder(connect, 'vendor/')
-            ];
-          },
+            ]
+          }
         }
       },
       'test_webserver': {
         options: {
           port: ports.test,
-          middleware: function(connect) {
+          middleware: function (connect) {
             return [
               mountFolder(connect, '.tmp/test/browser/'),
               mountFolder(connect, 'dist/'),
               mountFolder(connect, 'bower_components/'),
               mountFolder(connect, 'vendor/')
-            ];
-          },
+            ]
+          }
         }
 
       },
       'jsdoc_webserver': {
         options: {
           port: ports.test,
-          middleware: function(connect) {
+          middleware: function (connect) {
             return [
               mountFolder(connect, 'doc/')
-            ];
-          },
+            ]
+          }
         }
 
       }
     },
+
+    standard: {
+      lint: {
+        src: [
+          './{src,test}/**/*.js',
+          '*.js'
+        ]
+      },
+      format: {
+        options: {
+          format: true,
+          lint: true
+        },
+        src: [
+          './{src,test}/**/*.js',
+          '*.js'
+        ]
+      }
+    },
+
     watch: {
       options: {
         nospawn: true,
@@ -228,10 +231,10 @@ module.exports = function(grunt) {
       },
       load: {}
     },
-    mochaTest: { //test for nodejs app with mocha
+    mochaTest: { // test for nodejs app with mocha
       testCoverage: {
         options: {
-          reporter: 'spec',
+          reporter: 'spec'
         },
         src: ['.tmp/coverage/test/node/test-suite.js']
       },
@@ -268,11 +271,11 @@ module.exports = function(grunt) {
       ci: {
         src: ['test/node/test-suite.js']
       }
-    }, //test for browser app with mocha and phanthom
+    }, // test for browser app with mocha and phanthom
     'mocha_phantomjs': {
       options: {
         urls: [
-          'http://localhost:' + ports.test /*<%= connect.options.port %>*/
+          'http://localhost:' + ports.test /* <%= connect.options.port %>*/
         ],
         setting: [
           'webSecurityEnabled=false',
@@ -342,9 +345,9 @@ module.exports = function(grunt) {
       /* For more options: https://github.com/geddski/grunt-release#options */
       options: {
         additionalFiles: ['bower.json'],
-        indentation: '\t', //default: '  ' (two spaces)
-        commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
-        tagMessage: 'v<%= version %>', //default: 'Version <%= version %>',
+        indentation: '\t', // default: '  ' (two spaces)
+        commitMessage: 'Release v<%= version %>', // default: 'release <%= version %>'
+        tagMessage: 'v<%= version %>', // default: 'Version <%= version %>',
         tagName: 'v<%= version %>'
       }
     },
@@ -356,7 +359,7 @@ module.exports = function(grunt) {
       }
     }
 
-  });
+  })
 
   grunt.registerTask('serve:webapp', [
     'build',
@@ -365,7 +368,7 @@ module.exports = function(grunt) {
     'connect:webserver',
     'open:webapp',
     'watch:webapp'
-  ]);
+  ])
 
   grunt.registerTask('serve:webapp:debug', [
     'build',
@@ -373,71 +376,75 @@ module.exports = function(grunt) {
     'connect:webserver',
     'open:webapp',
     'watch:webapp'
-  ]);
+  ])
 
   grunt.registerTask('serve:nodeapp', [
     'express:load',
     'execute:nodeapp',
     'watch:nodeapp'
-  ]);
+  ])
 
   grunt.registerTask('test', [
     'test:browser',
     'mochaTest:ci'
-  ]);
+  ])
 
   grunt.registerTask('test:browser', [
+    'standard:format',
     'build',
+    'standard:lint',
     'copy:test-browser',
     'preprocess:test-browser',
     'express:load',
     'connect:test_webserver',
     'karma:unit'
-  ]);
+  ])
 
   grunt.registerTask('test:node', [
+    'standard:format',
     'build',
+    'standard:lint',
     'express:load',
     'mochaTest:ci'
-  ]); //'mochaTest:tap', 'lineremover:tap'
+  ]) // 'mochaTest:tap', 'lineremover:tap'
 
   grunt.registerTask('test:browser:reload', [
     'copy:test-browser',
     'preprocess:test-browser',
     'express:load',
     'mocha_phantomjs:ci'
-  ]); //mocha_phantomjs:tap, 'lineremover:tap'
+  ]) // mocha_phantomjs:tap, 'lineremover:tap'
 
   grunt.registerTask('test:node:reload', [
     'express:load',
     'mocha_phantomjs:ci'
-  ]); //mocha_phantomjs:tap, 'lineremover:tap'
+  ]) // mocha_phantomjs:tap, 'lineremover:tap'
 
   grunt.registerTask('serve:test', [
+    'standard:format',
     'build',
     'copy:test-browser',
     'preprocess:test-browser',
     'express:load',
     'karma:serve',
     'watch:test'
-  ]);
+  ])
 
   grunt.registerTask('serve:test:node', [
     'test:node',
     'open:test',
     'watch:test-node'
-  ]);
+  ])
 
   grunt.registerTask('test:tap', [
     'test:browser',
     'mocha_phantomjs:tap',
     'mochaTest:tap'
-    // 'lineremover:tap'
-  ]);
+  // 'lineremover:tap'
+  ])
 
   grunt.registerTask('coverage:node', [
     'clean',
-    'jshint',
     'build',
     'blanket',
     'copy:coverage',
@@ -446,7 +453,7 @@ module.exports = function(grunt) {
     'mochaTest:coverage',
     'mochaTest:coveralls',
     'mochaTest:travis-cov'
-  ]);
+  ])
 
   grunt.registerTask('serve:jsdoc', [
     'clean',
@@ -454,12 +461,11 @@ module.exports = function(grunt) {
     'connect:jsdoc_webserver',
     'open:test',
     'watch:jsdoc'
-  ]);
+  ])
 
-  grunt.registerTask('build', ['versioncheck', 'preprocess:default', 'preprocess:polyfills', 'jsbeautifier']);
+  grunt.registerTask('build', ['versioncheck', 'preprocess:default', 'preprocess:polyfills', 'jsbeautifier'])
 
-  grunt.registerTask('dist', ['jshint', 'test']);
+  grunt.registerTask('dist', ['test'])
 
-  grunt.registerTask('default', ['dist']);
-
-};
+  grunt.registerTask('default', ['dist'])
+}

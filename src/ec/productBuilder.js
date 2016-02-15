@@ -1,9 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
-(function() {
-
+;(function () {
   /**
    * Create a ProductBuilder for product managing requests.
    *
@@ -11,11 +11,11 @@
    *
    * @return {corbel.Ec.ProductBuilder}
    */
-  corbel.Ec.prototype.product = function(id) {
-    var product = new ProductBuilder(id);
-    product.driver = this.driver;
-    return product;
-  };
+  corbel.Ec.prototype.product = function (id) {
+    var product = new ProductBuilder(id)
+    product.driver = this.driver
+    return product
+  }
   /**
    * A builder for products management requests.
    *
@@ -25,12 +25,11 @@
    * @memberOf corbel.Ec.ProductBuilder
    */
   var ProductBuilder = corbel.Ec.ProductBuilder = corbel.Services.inherit({
-
-    constructor: function(id) {
+    constructor: function (id) {
       if (id) {
-        this.id = id;
+        this.id = id
       }
-      this.uri = 'product';
+      this.uri = 'product'
     },
 
     /**
@@ -53,15 +52,15 @@
      * @return {Promise} A promise with the id of the created loanable resources or fails
      *                   with a {@link corbelError}.
      */
-    create: function(product) {
-      console.log('ecInterface.product.create', product);
+    create: function (product) {
+      console.log('ecInterface.product.create', product)
       return this.request({
         url: this._buildUri(this.uri),
         method: corbel.request.method.POST,
         data: product
-      }).then(function(res) {
-        return corbel.Services.getLocationId(res);
-      });
+      }).then(function (res) {
+        return corbel.Services.getLocationId(res)
+      })
     },
 
     /**
@@ -74,13 +73,13 @@
      *
      * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
      */
-    get: function(params) {
-      console.log('ecInterface.product.get');
+    get: function (params) {
+      console.log('ecInterface.product.get')
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
-      });
+      })
     },
 
     /**
@@ -93,34 +92,33 @@
      *
      * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
      */
-    update: function(product) {
-      console.log('ecInterface.product.update');
-      corbel.validate.value('id', this.id);
+    update: function (product) {
+      console.log('ecInterface.product.update')
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.PUT,
         data: product
-      });
+      })
     },
 
-    /**Delete a product.
+    /* Delete a product.
      *
      * @method
      * @memberOf corbel.Ec.EcBuilder
      *
      * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
      */
-    delete: function() {
-      console.log('ecInterface.product.delete');
-      corbel.validate.value('id', this.id);
+    delete: function () {
+      console.log('ecInterface.product.delete')
+      corbel.validate.value('id', this.id)
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.DELETE
-      });
+      })
     },
 
     _buildUri: corbel.Ec._buildUri
 
-  });
-
-})();
+  })
+})()

@@ -1,64 +1,60 @@
-(function() {
-    //@exclude
-    'use strict';
-    /*globals corbel */
-    //@endexclude
+;(function () {
+  // @exclude
+  'use strict'
+  /*globals corbel */
+  // @endexclude
 
-    corbel.Resources = corbel.Object.inherit({
+  corbel.Resources = corbel.Object.inherit({
+    constructor: function (driver) {
+      this.driver = driver
+    },
 
-        constructor: function(driver) {
-            this.driver = driver;
-        },
+    collection: function (type) {
+      return new corbel.Resources.Collection(type, this.driver)
+    },
 
-        collection: function(type) {
-            return new corbel.Resources.Collection(type, this.driver);
-        },
+    resource: function (type, id) {
+      return new corbel.Resources.Resource(type, id, this.driver)
+    },
 
-        resource: function(type, id) {
-            return new corbel.Resources.Resource(type, id, this.driver);
-        },
+    relation: function (srcType, srcId, destType) {
+      return new corbel.Resources.Relation(srcType, srcId, destType, this.driver)
+    }
 
-        relation: function(srcType, srcId, destType) {
-            return new corbel.Resources.Relation(srcType, srcId, destType, this.driver);
-        }
+  }, {
+    moduleName: 'resources',
+    defaultPort: 8080,
 
-    }, {
+    sort: {
+      /**
+       * Ascending sort
+       * @type {String}
+       * @constant
+       * @default
+       */
+      ASC: 'asc',
 
-        moduleName: 'resources',
-        defaultPort: 8080,
+      /**
+       * Descending sort
+       * @type {String}
+       * @constant
+       * @default
+       */
+      DESC: 'desc'
 
-        sort: {
+    },
 
-            /**
-             * Ascending sort
-             * @type {String}
-             * @constant
-             * @default
-             */
-            ASC: 'asc',
+    /**
+     * constant for use to specify all resources wildcard
+     * @namespace
+     */
+    ALL: '_',
 
-            /**
-             * Descending sort
-             * @type {String}
-             * @constant
-             * @default
-             */
-            DESC: 'desc'
+    create: function (driver) {
+      return new corbel.Resources(driver)
+    }
 
-        },
+  })
 
-        /**
-         * constant for use to specify all resources wildcard
-         * @namespace
-         */
-        ALL: '_',
-
-        create: function(driver) {
-            return new corbel.Resources(driver);
-        }
-
-    });
-
-    return corbel.Resources;
-
-})();
+  return corbel.Resources
+})()

@@ -1,9 +1,9 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/* global corbel */
 
-(function() {
-
+;(function () {
   /**
    * A module to make Ec requests.
    * @exports Ec
@@ -11,16 +11,16 @@
    * @memberof app.corbel
    */
 
-  var Ec = corbel.Ec = function(driver) {
-    this.driver = driver;
-  };
+  var Ec = corbel.Ec = function (driver) {
+    this.driver = driver
+  }
 
-  Ec.moduleName = 'ec';
-  Ec.defaultPort = 8088;
+  Ec.moduleName = 'ec'
+  Ec.defaultPort = 8088
 
-  Ec.create = function(driver) {
-    return new Ec(driver);
-  };
+  Ec.create = function (driver) {
+    return new Ec(driver)
+  }
 
   Ec._ec = {
     /**
@@ -67,7 +67,7 @@
        */
       CANCELLED: 'CANCELLED'
     }
-  };
+  }
 
   /**
    * COMMON MIXINS
@@ -77,8 +77,8 @@
   //     return {
   //         name: data.name,
   //         data: cse.encrypt(data.number, data.holderName, data.cvc, data.expiryMonth, data.expiryYear)
-  //     };
-  // };
+  //     }
+  // }
 
   /**
    * Private method to build a string uri
@@ -88,20 +88,19 @@
    * @param  {String} extra
    * @return {String}
    */
-  Ec._buildUri = function(uri, id, extra) {
+  Ec._buildUri = function (uri, id, extra) {
     if (id) {
-      uri += '/' + id;
+      uri += '/' + id
     }
     if (extra) {
-      uri += extra;
+      uri += extra
     }
-    var urlBase =  this.driver.config.getCurrentEndpoint( Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
+    var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config))
 
-    return urlBase + uri;
-  };
+    return urlBase + uri
+  }
 
-  Ec._buildPort = function(config) {
-    return config.get('ecPort', null) || corbel.Ec.defaultPort;
-  };
-
-})();
+  Ec._buildPort = function (config) {
+    return config.get('ecPort', null) || corbel.Ec.defaultPort
+  }
+})()

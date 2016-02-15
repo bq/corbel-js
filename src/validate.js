@@ -1,133 +1,129 @@
-//@exclude
-'use strict';
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/*globals corbel */
 
-(function() {
+;(function () {
+  /**
+   * A module to make values validation.
+   * @exports validate
+   * @namespace
+   * @memberof app
+   */
+  corbel.validate = {}
 
+  corbel.validate.values = function (keys, obj) {
+    var that = this
+    keys.forEach(function (key) {
+      that.value(key, obj[key])
+    })
+    return true
+  }
 
+  corbel.validate.value = function (key, value) {
+    return this.isDefined(value, key + ' value is mandatory and cannot be undefined')
+  }
 
-    /**
-     * A module to make values validation.
-     * @exports validate
-     * @namespace
-     * @memberof app
-     */
-    corbel.validate = {};
+  /**
+   * Checks if some value is not undefined
+   * @param  {Mixed}  value
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
+  corbel.validate.isDefined = function (value, message) {
+    var isUndefined = value === undefined
 
-    corbel.validate.values = function(keys, obj){
-      var that = this;
-      keys.forEach(function(key){
-        that.value(key, obj[key]);
-      });
-      return true;
-    };
+    if (isUndefined && message) {
+      throw new Error(message)
+    }
+    return !isUndefined
+  }
 
-    corbel.validate.value = function(key, value){
-        return this.isDefined(value, key + ' value is mandatory and cannot be undefined');
-    };
+  /**
+   * Checks if some value is defined and throw error
+   * @param  {Mixed}  value
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
 
+  corbel.validate.failIfIsDefined = function (value, message) {
+    var isDefined = value !== undefined
 
-    /**
-     * Checks if some value is not undefined
-     * @param  {Mixed}  value
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
-    corbel.validate.isDefined = function(value, message) {
-        var isUndefined = value === undefined;
+    if (isDefined && message) {
+      throw new Error(message)
+    }
+    return !isDefined
+  }
 
-        if (isUndefined && message) {
-            throw new Error(message);
-        }
-        return !isUndefined;
-    };
+  /**
+   * Checks whenever value are null or not
+   * @param  {Mixed}  value
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
+  corbel.validate.isNotNull = function (value, message) {
+    var isNull = value === null
 
-    /**
-     * Checks if some value is defined and throw error
-     * @param  {Mixed}  value
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
+    if (isNull && message) {
+      throw new Error(message)
+    }
+    return !isNull
+  }
 
-    corbel.validate.failIfIsDefined = function(value, message) {
-        var isDefined = value !== undefined;
+  /**
+   * Checks whenever a value is not null and not undefined
+   * @param  {Mixed}  value
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
+  corbel.validate.isValue = function (value, message) {
+    return this.isDefined(value, message) && this.isNotNull(value, message)
+  }
 
-        if (isDefined && message) {
-            throw new Error(message);
-        }
-        return !isDefined;
-    };
+  /**
+   * Checks if a variable is a type of object
+   * @param  {object}  test object
+   * @return {Boolean}
+   */
+  corbel.validate.isObject = function (obj) {
+    return typeof obj === 'object'
+  }
 
-    /**
-     * Checks whenever value are null or not
-     * @param  {Mixed}  value
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
-    corbel.validate.isNotNull = function(value, message) {
-        var isNull = value === null;
+  /**
+   * Checks whenever a value is greater than other
+   * @param  {Mixed}  value
+   * @param  {Mixed}  greaterThan
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
+  corbel.validate.isGreaterThan = function (value, greaterThan, message) {
+    var gt = this.isValue(value) && value > greaterThan
 
-        if (isNull && message) {
-            throw new Error(message);
-        }
-        return !isNull;
-    };
+    if (!gt && message) {
+      throw new Error(message)
+    }
+    return gt
+  }
 
-    /**
-     * Checks whenever a value is not null and not undefined
-     * @param  {Mixed}  value
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
-    corbel.validate.isValue = function(value, message) {
-        return this.isDefined(value, message) && this.isNotNull(value, message);
-    };
+  /**
+   * Checks whenever a value is greater or equal than other
+   * @param  {Mixed}  value
+   * @param  {Mixed} isGreaterThanOrEqual
+   * @param  {String}  [message]
+   * @throws {Error} If return value is false and message are defined
+   * @return {Boolean}
+   */
+  corbel.validate.isGreaterThanOrEqual = function (value, isGreaterThanOrEqual, message) {
+    var gte = this.isValue(value) && value >= isGreaterThanOrEqual
 
-    /**
-     * Checks if a variable is a type of object
-     * @param  {object}  test object
-     * @return {Boolean}
-     */
-    corbel.validate.isObject = function(obj) {
-        return typeof obj === 'object';
-    };
-
-    /**
-     * Checks whenever a value is greater than other
-     * @param  {Mixed}  value
-     * @param  {Mixed}  greaterThan
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
-    corbel.validate.isGreaterThan = function(value, greaterThan, message) {
-        var gt = this.isValue(value) && value > greaterThan;
-
-        if (!gt && message) {
-            throw new Error(message);
-        }
-        return gt;
-    };
-
-    /**
-     * Checks whenever a value is greater or equal than other
-     * @param  {Mixed}  value
-     * @param  {Mixed} isGreaterThanOrEqual
-     * @param  {String}  [message]
-     * @throws {Error} If return value is false and message are defined
-     * @return {Boolean}
-     */
-    corbel.validate.isGreaterThanOrEqual = function(value, isGreaterThanOrEqual, message) {
-        var gte = this.isValue(value) && value >= isGreaterThanOrEqual;
-
-        if (!gte && message) {
-            throw new Error(message);
-        }
-        return gte;
-    };
-
-})();
+    if (!gte && message) {
+      throw new Error(message)
+    }
+    return gte
+  }
+})()

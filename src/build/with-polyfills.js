@@ -1,27 +1,24 @@
-(function(root, factory) {
-  'use strict';
-  /* jshint unused: false */
+'use strict'
+/* jshint unused: false */
+/* global define */
 
+;(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['es6-promise'], function(promise) {
-      promise.polyfill();
-      return factory(root);
-    });
+    define(['es6-promise'], function (promise) {
+      promise.polyfill()
+      return factory(root)
+    })
   } else if (typeof module !== 'undefined' && module.exports) {
-    var Promise = require('es6-promise').polyfill();
-    module.exports = factory.call(root);
+    var Promise = require('es6-promise')
+    Promise = Promise.polyfill()
+    module.exports = factory.call(root)
   } else if (window !== undefined) {
     if (root.ES6Promise !== undefined && typeof root.ES6Promise.polyfill === 'function') {
-      root.ES6Promise.polyfill();
+      root.ES6Promise.polyfill()
     }
-    root.corbel = factory(root);
+    root.corbel = factory(root)
   }
-
-
-})(this, function(root) {
-  'use strict';
-  /* jshint unused: false */
-
+})(this, function (root) {
   //  @include ../../bower_components/es6-promise/promise.js
 
   /**
@@ -29,9 +26,9 @@
    * @exports corbel
    * @namespace
    */
-  var corbel = {};
+  var corbel = {}
 
-  //-----------Utils and libraries (exports into corbel namespace)---------------------------
+  // -----------Utils and libraries (exports into corbel namespace)---------------------------
 
   //  @include ../corbel.js
 
@@ -49,7 +46,7 @@
 
   //  @include ../services.js
 
-  //----------corbel modules----------------
+  // ----------corbel modules----------------
 
   //  @include ../config.js
   //  @include ../iam/iam.js
@@ -97,5 +94,5 @@
   //  @include ../webfs/webfsBuilder.js
   //  @include ../domain/domain.js
 
-  return corbel;
-});
+  return corbel
+})

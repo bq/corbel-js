@@ -1,24 +1,20 @@
-//@exclude
-'use strict';
-/* jshint unused:false */
-//@endexclude
+// @exclude
+'use strict'
+// @endexclude
 
+var aggregationBuilder = (function () {
+  var aggregationBuilder = {}
 
-var aggregationBuilder = (function() {
+  /**
+   * Adds a count operation to aggregation
+   * @param  {String} field Name of the field to aggregate or * to aggregate all
+   * @return {RequestParamsBuilder} RequestParamsBuilder
+   */
+  aggregationBuilder.count = function (field) {
+    this.params.aggregation = this.params.aggregation || {}
+    this.params.aggregation.$count = field
+    return this
+  }
 
-    var aggregationBuilder = {};
-
-    /**
-     * Adds a count operation to aggregation
-     * @param  {String} field Name of the field to aggregate or * to aggregate all
-     * @return {RequestParamsBuilder} RequestParamsBuilder
-     */
-    aggregationBuilder.count = function(field) {
-        this.params.aggregation = this.params.aggregation || {};
-        this.params.aggregation.$count = field;
-        return this;
-    };
-
-    return aggregationBuilder;
-
-})();
+  return aggregationBuilder
+})()

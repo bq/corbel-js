@@ -1,8 +1,9 @@
-(function() {
-  //@exclude
-  'use strict';
-  //@endexclude
+// @exclude
+'use strict'
+// @endexclude
+/*globals corbel */
 
+;(function () {
   /**
    * A webfs API factory
    * @exports corbel.Webfs
@@ -11,23 +12,21 @@
    * @memberof corbel
    */
   corbel.Webfs = corbel.Object.inherit({
-
-    /**
+    /*
      * Creates a new WebfsBuilder
      * @memberof corbel.Webfs.prototype
-     * @param  {string} id String with the resource id 
+     * @param {string} id String with the resource id
      * @return {corbel.Webfs.WebfsBuilder}
      */
-    constructor: function(driver) {
-      this.driver = driver;
+    constructor: function (driver) {
+      this.driver = driver
     },
 
-    webfs: function(id) {
-      return new corbel.Webfs.WebfsBuilder(this.driver, id);
+    webfs: function (id) {
+      return new corbel.Webfs.WebfsBuilder(this.driver, id)
     }
 
   }, {
-
     /**
      * moduleName constant
      * @constant
@@ -52,12 +51,11 @@
      * @param  {corbel} corbel instance driver
      * @return {corbel.Webfs.WebfsBuilder}
      */
-    create: function(driver) {
-      return new corbel.Webfs(driver);
+    create: function (driver) {
+      return new corbel.Webfs(driver)
     }
 
-  });
+  })
 
-  return corbel.Webfs;
-
-})();
+  return corbel.Webfs
+})()

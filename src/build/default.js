@@ -1,19 +1,19 @@
-(function(root, factory) {
-  'use strict';
+;(function (root, factory) {
+  'use strict'
   /* jshint unused: false */
+  /* global define */
 
   if (typeof define === 'function' && define.amd) {
-    define([], function() {
-      return factory(root);
-    });
+    define([], function () {
+      return factory(root)
+    })
   } else if (typeof module !== 'undefined' && module.exports) {
-    module.exports = factory.call(root, root, process || undefined);
+    module.exports = factory.call(root, root, process || undefined)
   } else if (root !== undefined) {
-    root.corbel = factory(root);
+    root.corbel = factory(root)
   }
-
-})(this, function(root, process) {
-  'use strict';
+})(this, function (root, process) {
+  'use strict'
   /* jshint unused: false */
 
   /**
@@ -21,9 +21,9 @@
    * @exports corbel
    * @namespace
    */
-  var corbel = {};
+  var corbel = {}
 
-  //-----------Utils and libraries (exports into corbel namespace)---------------------------
+  // -----------Utils and libraries (exports into corbel namespace)---------------------------
 
   //  @include ../corbel.js
 
@@ -41,7 +41,7 @@
 
   //  @include ../services.js
 
-  //----------corbel modules----------------
+  // ----------corbel modules----------------
 
   //  @include ../config.js
   //  @include ../iam/iam.js
@@ -89,5 +89,5 @@
   //  @include ../webfs/webfsBuilder.js
   //  @include ../domain/domain.js
 
-  return corbel;
-});
+  return corbel
+})

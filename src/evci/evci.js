@@ -1,35 +1,32 @@
-(function() {
-    //@exclude
-    'use strict';
-    /*globals corbel */
-    //@endexclude
+;(function () {
+  // @exclude
+  'use strict'
+  /*globals corbel */
+  // @endexclude
 
-    corbel.Evci = corbel.Object.inherit({
+  corbel.Evci = corbel.Object.inherit({
+    /**
+     * Create a new EventBuilder
+     * @param  {String} type String
+     * @return {Events}
+     */
+    constructor: function (driver) {
+      this.driver = driver
+    },
 
-        /**
-         * Create a new EventBuilder
-         * @param  {String} type String
-         * @return {Events}
-         */
-        constructor: function(driver) {
-            this.driver = driver;
-        },
+    event: function (type) {
+      return new corbel.Evci.EventBuilder(type, this.driver)
+    }
 
-        event: function(type) {
-            return new corbel.Evci.EventBuilder(type, this.driver);
-        }
+  }, {
+    moduleName: 'evci',
+    defaultPort: 8086,
 
-    }, {
+    create: function (driver) {
+      return new corbel.Evci(driver)
+    }
 
-        moduleName: 'evci',
-        defaultPort: 8086,
+  })
 
-        create: function(driver) {
-            return new corbel.Evci(driver);
-        }
-
-    });
-
-    return corbel.Evci;
-
-})();
+  return corbel.Evci
+})()

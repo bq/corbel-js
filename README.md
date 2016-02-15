@@ -12,6 +12,10 @@ corbel-js
 [![Test Coverage](https://codeclimate.com/github/bq/corbel-js/badges/coverage.svg)](https://codeclimate.com/github/bq/corbel-js/coverage)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/295a5a767259422b955c4c8f28158d05)](https://www.codacy.com/app/antai-pt/corbel-js)
 
+
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
+
 A SDK for [corbel][corbel-url] compatible with browsers and node.
 
 ## [Homepage](http://opensource.bq.com/corbel-js/)

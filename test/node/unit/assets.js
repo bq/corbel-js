@@ -1,159 +1,157 @@
-'use strict';
+'use strict'
 /* jshint camelcase:false */
+/* globals describe it beforeEach afterEach */
 
-var corbel = require('../../../dist/corbel.js'),
-    chai = require('chai'),
-    sinon = require('sinon'),
-    expect = chai.expect;
+var corbel = require('../../../dist/corbel.js')
+var chai = require('chai')
+var sinon = require('sinon')
+var expect = chai.expect
 
-describe('In Assets module we can', function() {
+describe('In Assets module we can', function () {
+  var sandbox = sinon.sandbox.create()
+  var CONFIG = {
+    clientId: 'clientId',
+    clientSecret: 'clientSecret',
 
-    var sandbox = sinon.sandbox.create();
-    var CONFIG = {
+    scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
-        clientId: 'clientId',
-        clientSecret: 'clientSecret',
+    urlBase: 'https://{{module}}-corbel.io/'
 
-        scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
+  }
 
-        urlBase: 'https://{{module}}-corbel.io/'
+  var ASSET_URL = CONFIG.urlBase.replace('{{module}}', 'assets') + 'asset'
 
-    };
+  var corbelDriver = corbel.getDriver(CONFIG)
 
-    var ASSET_URL = CONFIG.urlBase.replace('{{module}}', 'assets') + 'asset';
+  var corbelRequestStub
 
-    var corbelDriver = corbel.getDriver(CONFIG);
+  beforeEach(function () {
+    corbelRequestStub = sandbox.stub(corbel.request, 'send')
+  })
 
-    var corbelRequestStub;
+  afterEach(function () {
+    sandbox.restore()
+  })
 
-    beforeEach(function() {
-        corbelRequestStub = sandbox.stub(corbel.request, 'send');
-    });
+  it('create one asset', function () {
+    corbelRequestStub.returns(Promise.resolve())
+    var testData = "{'test_object':'test'}"
+    corbelDriver.assets.asset().create(testData)
 
-    afterEach(function() {
-        sandbox.restore();
-    });
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL)
+    expect(callRequestParam.method).to.be.equal('POST')
+    expect(callRequestParam.data).to.be.equal(testData)
+  })
 
-    it('create one asset', function() {
-        corbelRequestStub.returns(Promise.resolve());
-        var testData = '{\'test_object\':\'test\'}';
-        corbelDriver.assets.asset().create(testData);
+  it('get my user assets', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL);
-        expect(callRequestParam.method).to.be.equal('POST');
-        expect(callRequestParam.data).to.be.equal(testData);
-    });
+    corbelDriver.assets.asset().get()
 
-    it('get my user assets', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL)
+    expect(callRequestParam.method).to.be.equal('GET')
+  })
 
-        corbelDriver.assets.asset().get();
+  it('get my user assets all with params', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var params = {
+      query: [{
+        '$eq': {
+          field: 'value'
+        }
+      }],
+      pagination: {
+        pageSize: 2,
+        page: 3
+      },
+      sort: {
+        field: 'asc'
+      }
+    }
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL);
-        expect(callRequestParam.method).to.be.equal('GET');
-    });
+    corbelDriver.assets.asset().get(params)
 
-    it('get my user assets all with params', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var params = {
-            query: [{
-                '$eq': {
-                    field: 'value'
-                }
-            }],
-            pagination: {
-                pageSize: 2,
-                page: 3
-            },
-            sort: {
-                field: 'asc'
-            }
-        };
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '?api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2')
+    expect(callRequestParam.query).to.be.equal()
+    expect(callRequestParam.method).to.be.equal('GET')
+  })
 
-        corbelDriver.assets.asset().get(params);
+  it('get all assets', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '?api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2');
-        expect(callRequestParam.query).to.be.equal();
-        expect(callRequestParam.method).to.be.equal('GET');
-    });
+    corbelDriver.assets.asset('all').get()
 
-    it('get all assets', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all')
+    expect(callRequestParam.method).to.be.equal('GET')
+  })
 
-        corbelDriver.assets.asset('all').get();
+  it('get all with params', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var params = {
+      query: [{
+        '$eq': {
+          field: 'value'
+        }
+      }],
+      pagination: {
+        pageSize: 2,
+        page: 3
+      },
+      sort: {
+        field: 'asc'
+      }
+    }
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all');
-        expect(callRequestParam.method).to.be.equal('GET');
-    });
+    corbelDriver.assets.asset('all').get(params)
 
-    it('get all with params', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var params = {
-            query: [{
-                '$eq': {
-                    field: 'value'
-                }
-            }],
-            pagination: {
-                pageSize: 2,
-                page: 3
-            },
-            sort: {
-                field: 'asc'
-            }
-        };
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2')
+    expect(callRequestParam.method).to.be.equal('GET')
+  })
 
-        corbelDriver.assets.asset('all').get(params);
+  it('get aggregated count', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var params = {
+      aggregation: {'$count': '*'}
+    }
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2');
-        expect(callRequestParam.method).to.be.equal('GET');
-    });
+    corbelDriver.assets.asset('all').get(params)
 
-    it('get aggregated count', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var params = {
-            aggregation : { '$count' : '*'}
-        };
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation=' + encodeURIComponent('{"$count":"*"}'))
+    expect(callRequestParam.method).to.be.equal('GET')
+  })
 
-        corbelDriver.assets.asset('all').get(params);
+  it('delete an undefinded asset', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/all?' + 'api:aggregation=' + encodeURIComponent('{\"$count\":\"*\"}'));
-        expect(callRequestParam.method).to.be.equal('GET');
-    });
+    expect(function () {
+      corbelDriver.assets.asset().delete()
+    }).to.throw('id value is mandatory and cannot be undefined')
+  })
 
-    it('delete an undefinded asset', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
+  it('delete one asset', function () {
+    corbelRequestStub.returns(Promise.resolve())
+    var assetId = 1
 
-        expect(function(){
-          corbelDriver.assets.asset().delete();
-        }).to.throw('id value is mandatory and cannot be undefined');
-    });
+    corbelDriver.assets.asset(assetId).delete()
 
-    it('delete one asset', function() {
-        corbelRequestStub.returns(Promise.resolve());
-        var assetId = 1;
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '/' + assetId)
+    expect(callRequestParam.method).to.be.equal('DELETE')
+  })
 
-        corbelDriver.assets.asset(assetId).delete();
+  it('get access', function () {
+    corbelRequestStub.returns(Promise.resolve())
+    corbelDriver.assets.asset().access()
 
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/' + assetId);
-        expect(callRequestParam.method).to.be.equal('DELETE');
-    });
-
-    it('get access', function() {
-        corbelRequestStub.returns(Promise.resolve());
-        corbelDriver.assets.asset().access();
-
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam.url).to.be.equal(ASSET_URL + '/access');
-        expect(callRequestParam.method).to.be.equal('GET');
-        expect(callRequestParam.headers['No-Redirect']).to.be.equal(true);
-    });
-
-});
+    var callRequestParam = corbelRequestStub.getCall(0).args[0]
+    expect(callRequestParam.url).to.be.equal(ASSET_URL + '/access')
+    expect(callRequestParam.method).to.be.equal('GET')
+    expect(callRequestParam.headers['No-Redirect']).to.be.equal(true)
+  })
+})

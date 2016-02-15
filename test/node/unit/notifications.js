@@ -1,134 +1,133 @@
-'use strict';
+'use strict'
 /* jshint camelcase:false */
+/* globals describe it beforeEach afterEach */
 
-var corbel = require('../../../dist/corbel.js'),
-    chai = require('chai'),
-    sinon = require('sinon'),
-    expect = chai.expect;
+var corbel = require('../../../dist/corbel.js')
+var chai = require('chai')
+var sinon = require('sinon')
+var expect = chai.expect
 
-describe('In Notifications module we can', function() {
+describe('In Notifications module we can', function () {
+  var sandbox = sinon.sandbox.create()
 
-    var sandbox = sinon.sandbox.create();
+  var CONFIG = {
+    clientId: 'clientId',
+    clientSecret: 'clientSecret',
 
-    var CONFIG = {
+    scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
-        clientId: 'clientId',
-        clientSecret: 'clientSecret',
+    urlBase: 'https://{{module}}-corbel.io/'
 
-        scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
+  }
 
-        urlBase: 'https://{{module}}-corbel.io/'
+  var NOTIFICATION_URL = CONFIG.urlBase.replace('{{module}}', 'notifications') + 'notification'
 
-    };
+  var corbelRequestStub
 
-    var NOTIFICATION_URL = CONFIG.urlBase.replace('{{module}}', 'notifications') + 'notification';
+  var corbelDriver = corbel.getDriver(CONFIG)
 
-    var corbelRequestStub;
+  beforeEach(function () {
+    corbelRequestStub = sandbox.stub(corbel.request, 'send')
+  })
 
-    var corbelDriver = corbel.getDriver(CONFIG);
+  afterEach(function () {
+    sandbox.restore()
+  })
 
-    beforeEach(function() {
-        corbelRequestStub = sandbox.stub(corbel.request, 'send');
-    });
+  it('create notification', function () {
+    corbelRequestStub.returns(Promise.resolve())
+    var notificationData = "{'id':'OAuth:mail:resetPass','type':'mail', }"
+    corbelDriver.notifications.notification().create(notificationData)
 
-    afterEach(function() {
-        sandbox.restore();
-    });
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL)
+    expect(paramsRecived.method).to.be.equal('POST')
+    expect(paramsRecived.data).to.be.equal(notificationData)
+  })
 
-    it('create notification', function() {
-        corbelRequestStub.returns(Promise.resolve());
-        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
-        corbelDriver.notifications.notification().create(notificationData);
+  it('get notification', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var idNotification = 1
 
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL);
-        expect(paramsRecived.method).to.be.equal('POST');
-        expect(paramsRecived.data).to.be.equal(notificationData);
-    });
+    corbelDriver.notifications.notification(idNotification).get()
 
-    it('get notification', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var idNotification = 1;
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/1')
+    expect(paramsRecived.method).to.be.equal('GET')
+  })
 
-        corbelDriver.notifications.notification(idNotification).get();
+  it('get all with params', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var params = {
+      query: [{
+        '$eq': {
+          type: 'mail'
+        }
+      }],
+      page: {
+        size: 2,
+        page: 3
+      },
+      sort: {
+        field: 'asc'
+      }
+    }
 
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
-        expect(paramsRecived.method).to.be.equal('GET');
-    });
+    corbelDriver.notifications.notification().get(params)
 
-    it('get all with params', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var params = {
-            query: [{
-                '$eq': {
-                    type: 'mail'
-                }
-            }],
-            page: {
-                size: 2,
-                page: 3
-            },
-            sort: {
-                field: 'asc'
-            }
-        };
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    var url = paramsRecived.url.split('?')
+    expect(url).to.be.include(NOTIFICATION_URL)
+    expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}'))
+    expect(paramsRecived.method).to.be.equal('GET')
+  })
 
-        corbelDriver.notifications.notification().get(params);
+  it('update notification', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var idNotification = 1
+    var notificationData = "{'id':'OAuth:mail:resetPass','type':'mail', }"
 
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        var url = paramsRecived.url.split('?');
-        expect(url).to.be.include(NOTIFICATION_URL);
-        expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}'));
-        expect(paramsRecived.method).to.be.equal('GET');
-    });
+    corbelDriver.notifications.notification(idNotification).update(notificationData)
 
-    it('update notification', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var idNotification = 1;
-        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/1')
+    expect(paramsRecived.method).to.be.equal('PUT')
+    expect(paramsRecived.data).to.be.equal(notificationData)
+  })
 
-        corbelDriver.notifications.notification(idNotification).update(notificationData);
+  it('update notification without an id', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    expect(function () {
+      corbelDriver.notifications.notification().update({})
+    }).to.throw('id value is mandatory and cannot be undefined')
+  })
 
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
-        expect(paramsRecived.method).to.be.equal('PUT');
-        expect(paramsRecived.data).to.be.equal(notificationData);
-    });
+  it('delete notification', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    var idNotification = 1
 
-    it('update notification without an id', function() {
-      corbelRequestStub.returns(Promise.resolve('OK'));
-      expect(function(){
-        corbelDriver.notifications.notification().update({});
-      }).to.throw('id value is mandatory and cannot be undefined');
-    });
+    corbelDriver.notifications.notification(idNotification).delete()
 
-    it('delete notification', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-        var idNotification = 1;
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/1')
+    expect(paramsRecived.method).to.be.equal('DELETE')
+  })
 
-        corbelDriver.notifications.notification(idNotification).delete();
+  it('delete notification without an id', function () {
+    corbelRequestStub.returns(Promise.resolve('OK'))
+    expect(function () {
+      corbelDriver.notifications.notification().delete()
+    }).to.throw('id value is mandatory and cannot be undefined')
+  })
 
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
-        expect(paramsRecived.method).to.be.equal('DELETE');
-    });
+  it('send notification', function () {
+    corbelRequestStub.returns(Promise.resolve())
+    var notificationData = "{'id':'OAuth:mail:resetPass','type':'mail', }"
+    corbelDriver.notifications.notification().sendNotification(notificationData)
 
-    it('delete notification without an id', function() {
-      corbelRequestStub.returns(Promise.resolve('OK'));
-      expect(function(){
-        corbelDriver.notifications.notification().delete();
-      }).to.throw('id value is mandatory and cannot be undefined');
-    });
-
-    it('send notification', function() {
-        corbelRequestStub.returns(Promise.resolve());
-        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
-        corbelDriver.notifications.notification().sendNotification(notificationData);
-
-        var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/send');
-        expect(paramsRecived.method).to.be.equal('POST');
-        expect(paramsRecived.data).to.be.equal(notificationData);
-    });
-});
+    var paramsRecived = corbelRequestStub.getCall(0).args[0]
+    expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/send')
+    expect(paramsRecived.method).to.be.equal('POST')
+    expect(paramsRecived.data).to.be.equal(notificationData)
+  })
+})

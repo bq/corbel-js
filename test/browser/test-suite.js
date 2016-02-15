@@ -1,8 +1,7 @@
-'use strict';
+'use strict'
 
-(function() {
+;(function () {
+  //  @include ./unit/request.js
+  //  @include ./unit/resource-binary.js
 
-    //  @include ./unit/request.js
-    //  @include ./unit/resource-binary.js
-
-})();
+})()

@@ -1,114 +1,111 @@
-(function() {
+// @exclude
+'use strict'
+/*globals corbel */
+// @endexclude
 
-    //@exclude
-    'use strict';
-    /*globals corbel */
-    //@endexclude
+;(function () {
+  /**
+   * Collection requests
+   * @class
+   * @memberOf Resources
+   * @param {String} type The collection type
+   * @param {CorbelDriver} corbel instance
+   */
+  corbel.Resources.Collection = corbel.Resources.BaseResource.inherit({
+    constructor: function (type, driver, params) {
+      this.type = type
+      corbel.validate.value('type', this.type)
+      this.driver = driver
+      this.params = params || {}
+    },
 
     /**
-     * Collection requests
-     * @class
-     * @memberOf Resources
-     * @param {String} type The collection type
-     * @param {CorbelDriver} corbel instance
+     * Gets a collection of elements, filtered, paginated or sorted
+     * @method
+     * @memberOf Resources.CollectionBuilder
+     * @param  {object} options             Get options for the request
+     * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link CorbelError}
+     * @see {@link corbel.util.serializeParams} to see a example of the params
      */
-    corbel.Resources.Collection = corbel.Resources.BaseResource.inherit({
+    get: function (options) {
+      options = this.getDefaultOptions(options)
 
-        constructor: function(type, driver, params) {
-            this.type = type;
-            corbel.validate.value('type', this.type);
-            this.driver = driver;
-            this.params = params || {};
-        },
+      var args = corbel.utils.extend(options, {
+        url: this.buildUri(this.type),
+        method: corbel.request.method.GET,
+        Accept: options.dataType
+      })
 
-        /**
-         * Gets a collection of elements, filtered, paginated or sorted
-         * @method
-         * @memberOf Resources.CollectionBuilder
-         * @param  {object} options             Get options for the request
-         * @return {Promise}                    ES6 promise that resolves to an {Array} of Resources or rejects with a {@link CorbelError}
-         * @see {@link corbel.util.serializeParams} to see a example of the params
-         */
-        get: function(options) {
-            options = this.getDefaultOptions(options);
+      return this.request(args)
+    },
 
-            var args = corbel.utils.extend(options, {
-                url: this.buildUri(this.type),
-                method: corbel.request.method.GET,
-                Accept: options.dataType
-            });
+    /**
+     * Adds a new element to a collection
+     * @method
+     * @memberOf Resources.CollectionBuilder
+     * @param  {object} data      Data array added to the collection
+     * @param  {object} options     Options object with dataType request option
+     * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
+     */
+    add: function (data, options) {
+      options = this.getDefaultOptions(options)
 
-            return this.request(args);
-        },
+      var args = corbel.utils.extend(options, {
+        url: this.buildUri(this.type),
+        method: corbel.request.method.POST,
+        contentType: options.dataType,
+        Accept: options.dataType,
+        data: data
+      })
 
-        /**
-         * Adds a new element to a collection
-         * @method
-         * @memberOf Resources.CollectionBuilder
-         * @param  {object} data      Data array added to the collection
-         * @param  {object} options     Options object with dataType request option
-         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
-         */
-        add: function(data, options) {
-            options = this.getDefaultOptions(options);
+      return this.request(args).then(function (res) {
+        return corbel.Services.getLocationId(res)
+      })
+    },
 
-            var args = corbel.utils.extend(options, {
-                url: this.buildUri(this.type),
-                method: corbel.request.method.POST,
-                contentType: options.dataType,
-                Accept: options.dataType,
-                data: data
-            });
+    /**
+     * Update every element in a collection, accepts query params
+     * @method
+     * @memberOf resources.CollectionBuilder
+     * @param  {Object} data             The element to be updated
+     * @param  {Object} options/query    Options object with dataType request option
+     * @return {Promise}                 ES6 promise that resolves to an {Array} of resources or rejects with a {@link CorbelError}
+     */
+    update: function (data, options) {
+      options = this.getDefaultOptions(options)
 
-            return this.request(args).then(function(res) {
-                return corbel.Services.getLocationId(res);
-            });
-        },
+      var args = corbel.utils.extend(options, {
+        url: this.buildUri(this.type),
+        method: corbel.request.method.PUT,
+        contentType: options.dataType,
+        Accept: options.dataType,
+        data: data
+      })
 
-        /**
-         * Update every element in a collection, accepts query params
-         * @method
-         * @memberOf resources.CollectionBuilder
-         * @param  {Object} data             The element to be updated
-         * @param  {Object} options/query    Options object with dataType request option
-         * @return {Promise}                 ES6 promise that resolves to an {Array} of resources or rejects with a {@link CorbelError}
-         */
-        update: function(data, options) {
-            options = this.getDefaultOptions(options);
+      return this.request(args)
+    },
 
-            var args = corbel.utils.extend(options, {
-                url: this.buildUri(this.type),
-                method: corbel.request.method.PUT,
-                contentType: options.dataType,
-                Accept: options.dataType,
-                data: data
-            });
+    /**
+    * Delete a collection
+    * @method
+    * @memberOf Resources.CollectionBuilder
+    * @param  {object} options     Options object with dataType request option
+    * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
+    */
+    delete: function (options) {
+      options = this.getDefaultOptions(options)
 
-            return this.request(args);
-        },
+      var args = corbel.utils.extend(options, {
+        url: this.buildUri(this.type),
+        method: corbel.request.method.DELETE,
+        contentType: options.dataType,
+        Accept: options.dataType
+      })
 
-         /**
-         * Delete a collection
-         * @method
-         * @memberOf Resources.CollectionBuilder
-         * @param  {object} options     Options object with dataType request option
-         * @return {Promise}            ES6 promise that resolves to the new resource id or rejects with a {@link CorbelError}
-         */
-        delete: function(options) {
-            options = this.getDefaultOptions(options);
+      return this.request(args)
+    }
 
-            var args = corbel.utils.extend(options, {
-                url: this.buildUri(this.type),
-                method: corbel.request.method.DELETE,
-                contentType: options.dataType,
-                Accept: options.dataType
-            });
+  })
 
-            return this.request(args);
-        }
-
-    });
-
-    return corbel.Resources.Collection;
-
-})();
+  return corbel.Resources.Collection
+})()
