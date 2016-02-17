@@ -2,71 +2,71 @@
 'use strict';
 //@endexclude
 
-(function() {
-    /**
-     * Create a TokenBuilder for token managing requests.
-     * Starts to build a token request
-     * @method
-     * @param  {Object} clientParams
-     * @param  {String} [clientParams.clientId=corbel.Config.get('oauthClientId')]    Client id
-     * @param  {String} [clientParams.clientSecret=corbel.Config.get('oauthSecret')]  Client secret
-     * @param  {String} clientParams.grantType                                        The grant type (only allowed 'authorization_code')
-     * @return {corbel.Oauth.TokenBuilder}
-     */
-    corbel.Oauth.prototype.token = function(clientParams) {
-        console.log('oauthInterface.token');
+(function () {
+  /**
+   * Create a TokenBuilder for token managing requests.
+   * Starts to build a token request
+   * @method
+   * @param  {Object} clientParams
+   * @param  {String} [clientParams.clientId=corbel.Config.get('oauthClientId')]    Client id
+   * @param  {String} [clientParams.clientSecret=corbel.Config.get('oauthSecret')]  Client secret
+   * @param  {String} clientParams.grantType                                        The grant type (only allowed 'authorization_code')
+   * @return {corbel.Oauth.TokenBuilder}
+   */
+  corbel.Oauth.prototype.token = function (clientParams) {
+    console.log('oauthInterface.token');
 
-        corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters');
-        corbel.Oauth._validateGrantType(clientParams.grantType);
+    corbel.Oauth._checkProp(clientParams, ['grantType'], 'Invalid client parameters');
+    corbel.Oauth._validateGrantType(clientParams.grantType);
 
-        clientParams.clientId = clientParams.clientId || corbel.Config.get('OAUTH_DEFAULT.clientId');
-        clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('OAUTH_DEFAULT.clientSecret');
+    clientParams.clientId = clientParams.clientId || corbel.Config.get('OAUTH_DEFAULT.clientId');
+    clientParams.clientSecret = clientParams.clientSecret || corbel.Config.get('OAUTH_DEFAULT.clientSecret');
 
-        var params = {
-            contentType: corbel.Oauth._URL_ENCODED,
-            data: corbel.Oauth._trasformParams(clientParams)
-        };
-
-        var token = new TokenBuilder(params);
-        token.driver = this.driver;
-
-        return token;
+    var params = {
+      contentType: corbel.Oauth._URL_ENCODED,
+      data: corbel.Oauth._trasformParams(clientParams)
     };
+
+    var token = new TokenBuilder(params);
+    token.driver = this.driver;
+
+    return token;
+  };
+  /**
+   * A builder for a token management requests.
+   * @class
+   *
+   * @param {Object} params Initial params
+   *
+   * @memberOf corbel.Oauth.TokenBuilder
+   */
+  var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
+
+    constructor: function (params) {
+      this.params = params;
+      this.uri = 'oauth/token';
+    },
     /**
-     * A builder for a token management requests.
-     * @class
-     *
-     * @param {Object} params Initial params
-     * 
+     * Get an access token
+     * @method
      * @memberOf corbel.Oauth.TokenBuilder
+     *
+     * @param  {String} code The code to exchange for the token
+     *
+     * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
      */
-    var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
+    get: function (code) {
+      console.log('oauthInterface.token.get');
+      this.params.data.code = code;
 
-        constructor: function(params) {
-            this.params = params;
-            this.uri = 'oauth/token';
-        },
-        /**
-         * Get an access token
-         * @method
-         * @memberOf corbel.Oauth.TokenBuilder
-         * 
-         * @param  {String} code The code to exchange for the token
-         * 
-         * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
-         */
-        get: function(code) {
-            console.log('oauthInterface.token.get');
-            this.params.data.code = code;
+      return this.request({
+        url: this._buildUri(this.uri),
+        method: corbel.request.method.POST,
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        data: this.params.data
+      });
+    },
 
-            return this.request({
-                url: this._buildUri(this.uri),
-                method: corbel.request.method.POST,
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                data: this.params.data
-            });
-        },
-
-        _buildUri: corbel.Oauth._buildUri
-    });
+    _buildUri: corbel.Oauth._buildUri
+  });
 })();
