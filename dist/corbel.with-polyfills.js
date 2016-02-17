@@ -3102,19 +3102,31 @@
             /**
              * Extract a id from the location header of a requestXHR
              * @memberof corbel.Services
-             * @param  {Promise} res response from a requestXHR
+             * @param  {Promise} responseObject response from a requestXHR
              * @return {String}  id from the Location
              */
             getLocationId: function(responseObject) {
+                var location = this._getLocationHeader(responseObject);
+                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+            },
+
+            getLocation: function(responseObject) {
+                return this._getLocationHeader(responseObject);
+            },
+            /**
+             * Extracts the location header
+             * @param {Promise} responseObject response from a requestXHR
+             * @returns {String} location header content
+             * @private
+             */
+            _getLocationHeader: function(responseObject) {
                 responseObject = responseObject || {};
-                var location;
 
                 if (responseObject.xhr) {
-                    location = responseObject.xhr.getResponseHeader('Location');
+                    return responseObject.xhr.getResponseHeader('Location');
                 } else if (responseObject.response && responseObject.response.headers.location) {
-                    location = responseObject.response.headers.location;
+                    return responseObject.response.headers.location;
                 }
-                return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
             },
 
             /**
@@ -5908,7 +5920,6 @@
                 console.log('oauthInterface.authorization.dialog');
                 var that = this;
 
-                // make request, generate oauth cookie, then redirect manually
                 return this.request({
                         url: this._buildUri(this.uri + '/authorize'),
                         method: corbel.request.method.GET,
@@ -5920,7 +5931,7 @@
                     })
                     .then(function(res) {
                         var params = {
-                            url: res.xhr.getResponseHeader('Location'),
+                            url: corbel.Services.getLocation(res),
                             withCredentials: true
                         };
                         return that.request(params);
@@ -5962,7 +5973,7 @@
                         if (res.xhr.getResponseHeader('Location')) {
 
                             var req = {
-                                url: res.xhr.getResponseHeader('Location')
+                                url: corbel.Services.getLocation(res)
                             };
 
                             if (setCookie) {
@@ -6038,7 +6049,7 @@
          * @class
          *
          * @param {Object} params Initial params
-         * 
+         *
          * @memberOf corbel.Oauth.TokenBuilder
          */
         var TokenBuilder = corbel.Oauth.TokenBuilder = corbel.Services.inherit({
@@ -6051,9 +6062,9 @@
              * Get an access token
              * @method
              * @memberOf corbel.Oauth.TokenBuilder
-             * 
+             *
              * @param  {String} code The code to exchange for the token
-             * 
+             *
              * @return {Promise}     promise that resolves to an access token  {Object}  or rejects with a {@link CorbelError}
              */
             get: function(code) {
@@ -6123,6 +6134,7 @@
                 this.uri = 'user';
             },
             _buildUri: corbel.Oauth._buildUri,
+
             /**
              * Adds a new user to the oauth server.
              *
@@ -6130,9 +6142,6 @@
              * @memberOf corbel.Oauth.UserBuilder
              *
              * @param {Object} user    The user to be created
-             * @param {String} username The username of the user
-             * @param {String} email    The email of the user
-             * @param {String} password The password of the user
              *
              * @return {Promise} A promise with the id of the created user or fails
              *                   with a {@link corbelError}.
