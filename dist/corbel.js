@@ -2113,7 +2113,11 @@
                 var location = this._getLocationHeader(responseObject);
                 return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
             },
-
+            /**
+             * Extracts the entire location header
+             * @param {Promise} responseObject response from a requestXHR
+             * @returns {String} location header content
+             */
             getLocation: function(responseObject) {
                 return this._getLocationHeader(responseObject);
             },
@@ -3385,8 +3389,6 @@
                     url: this._buildUri(this.uri + '/resetPassword'),
                     method: corbel.request.method.GET,
                     query: query
-                }).then(function(res) {
-                    return corbel.Services.getLocationId(res);
                 });
             },
 
