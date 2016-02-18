@@ -488,6 +488,33 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('Close all user sessions', function() {
+
+            corbelDriver.iam.user('userId').closeSessions();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/sessions');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('Close all user logged sessions', function() {
+
+            corbelDriver.iam.user('me').closeSessions();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/sessions');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
+        it('Close all my sessions', function() {
+
+            corbelDriver.iam.user().closeSessionsMe();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/sessions');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
         it('generate sendResetPasswordEmail request correctly', function() {
             corbelDriver.iam.users().sendResetPasswordEmail('test@email.com');
             var callRequestParam = corbel.request.send.firstCall.args[0];
