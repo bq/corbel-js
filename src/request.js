@@ -2,7 +2,7 @@
 'use strict';
 //@endexclude
 
-(function() {
+(function () {
 
   /**
    * Request object available for brwoser and node environment
@@ -73,7 +73,7 @@
      * @param  {object} data
      * @return {string}
      */
-    json: function(data, cb) {
+    json: function (data, cb) {
       if (typeof data !== 'string') {
         cb(JSON.stringify(data));
       } else {
@@ -85,7 +85,7 @@
      * @param  {object} data
      * @return {string}
      */
-    'form-urlencoded': function(data, cb) {
+    'form-urlencoded': function (data, cb) {
       cb(corbel.utils.toURLEncoded(data));
     },
     /**
@@ -93,7 +93,7 @@
      * @param  {object} data
      * @return {string}
      */
-    dataURI: function(data, cb) {
+    dataURI: function (data, cb) {
       if (corbel.Config.isNode) {
         // in node transform to stream
         cb(corbel.utils.toURLEncoded(data));
@@ -104,28 +104,27 @@
     },
     /**
      * blob serialize handler
-     * 'blob' type do not require serialization for browser, explode in node
      * @param  {object} data
      * @return {ArrayBuffer || Blob}
      */
-    blob: function(data, cb) {
-        if(data instanceof ArrayBuffer) {
-            throw new Error('ArrayBuffer is not supported, please use Blob');
-        } else {
-            cb(data);
-        }
+    blob: function (data, cb) {
+      if (data instanceof ArrayBuffer) {
+        throw new Error('ArrayBuffer is not supported, please use Blob');
+      } else {
+        cb(data);
+      }
     },
     /**
      * stream serialize handler
      * @param  {object || string} data
      * @return {UintArray}
      */
-    stream: function(data, cb) {
-        if(data instanceof ArrayBuffer) {
-            throw new Error('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView');
-        } else {
-            cb(data);
-        }
+    stream: function (data, cb) {
+      if (data instanceof ArrayBuffer) {
+        throw new Error('ArrayBuffer is not supported, please use Blob, File, Stream or ArrayBufferView');
+      } else {
+        cb(data);
+      }
     }
   };
 
@@ -136,16 +135,16 @@
    * @param  {string} contentType
    * @return {Mixed}
    */
-  request.serialize = function(data, contentType, cb) {
-    var contentTypeSerializable = Object.keys(request.serializeHandlers).filter(function(type) {
+  request.serialize = function (data, contentType, cb) {
+    var contentTypeSerializable = Object.keys(request.serializeHandlers).filter(function (type) {
       if (contentType.indexOf(type) !== -1) {
         return type;
       }
     });
 
-    if(contentTypeSerializable.length > 0){
+    if (contentTypeSerializable.length > 0) {
       request.serializeHandlers[contentTypeSerializable[0]](data, cb);
-    }else{
+    } else {
       cb(data);
     }
   };
@@ -160,7 +159,7 @@
      * @param  {string} data
      * @return {mixed}
      */
-    json: function(data) {
+    json: function (data) {
       data = data || '{}';
       if (typeof data === 'string') {
         data = JSON.parse(data);
@@ -178,9 +177,9 @@
    * @param  {Stirng} dataType                        Is an extra param to form the blob object (if the type is blob)
    * @return {mixed}                                  Processed data
    */
-  request.parse = function(data, responseType, dataType) {
+  request.parse = function (data, responseType, dataType) {
     var parsed;
-    Object.keys(request.parseHandlers).forEach(function(type) {
+    Object.keys(request.parseHandlers).forEach(function (type) {
       if (responseType && responseType.indexOf(type) !== -1) {
         parsed = request.parseHandlers[type](data, dataType);
       }
@@ -189,7 +188,7 @@
     return parsed;
   };
 
-  function doRequest(module, params, resolver){
+  function doRequest(module, params, resolver) {
     if (corbel.Config.isBrowser) {
       //browser
       request._browserAjax.call(module, params, resolver);
@@ -213,7 +212,7 @@
    * @param  {function} options.error                             Callback function for handle error in the request
    * @return {Promise}                                        Promise about the request status and response
    */
-  request.send = function(options, driver) {
+  request.send = function (options, driver) {
     options = options || {};
     var module = this;
 
@@ -244,23 +243,23 @@
     var dataMethods = [request.method.PUT, request.method.POST, request.method.PATCH];
 
     var resolver;
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
       resolver = {
         resolve: resolve,
         reject: reject
       };
 
-      if(driver){
+      if (driver) {
         driver.trigger('request', params);
       }
     });
 
     if (dataMethods.indexOf(params.method) !== -1) {
-      request.serialize(options.data, params.headers['content-type'], function(serialized){
+      request.serialize(options.data, params.headers['content-type'], function (serialized) {
         params.data = serialized;
         doRequest(module, params, resolver);
       });
-    }else{
+    } else {
       doRequest(module, params, resolver);
     }
 
@@ -282,7 +281,7 @@
    * @param  {function} callbackSuccess
    * @param  {function} callbackError
    */
-  var processResponse = function(response, resolver, callbackSuccess, callbackError) {
+  var processResponse = function (response, resolver, callbackSuccess, callbackError) {
 
     //xhr = xhr.target || xhr || {};
     var statusCode = xhrSuccessStatus[response.status] || response.status,
@@ -337,7 +336,7 @@
     }
   };
 
-  var rewriteRequestToPostIfUrlLengthIsTooLarge = function(options, params) {
+  var rewriteRequestToPostIfUrlLengthIsTooLarge = function (options, params) {
     var AUTOMATIC_HTTP_METHOD_OVERRIDE = corbel.Config.AUTOMATIC_HTTP_METHOD_OVERRIDE || true;
     var HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN = corbel.Config.HTTP_METHOD_OVERRIDE_WITH_URL_SIZE_BIGGER_THAN || 2048;
 
@@ -354,9 +353,9 @@
     return params;
   };
 
-  var encodeUrlToForm = function(url) {
+  var encodeUrlToForm = function (url) {
     var form = {};
-    url.split('&').forEach(function(formEntry) {
+    url.split('&').forEach(function (formEntry) {
       var formPair = formEntry.split('=');
       //value require double encode in Override Method Filter
       form[formPair[0]] = formPair[1];
@@ -364,7 +363,7 @@
     return form;
   };
 
-  request._getNodeRequestAjax = function(params) {
+  request._getNodeRequestAjax = function (params) {
     var requestAjax = require('request');
     if (request.isCrossDomain(params.url) && params.withCredentials && params.useCookies) {
       requestAjax = requestAjax.defaults({
@@ -374,8 +373,8 @@
     return requestAjax;
   };
 
-  request._getNodeRequestCallback = function(context, params, resolver){
-    return function(error, response, body) {
+  request._getNodeRequestCallback = function (context, params, resolver) {
+    return function (error, response, body) {
       var responseType;
       var status;
       if (error) {
@@ -399,8 +398,8 @@
 
     };
   };
-  
-  request._nodeAjax = function(params, resolver) {
+
+  request._nodeAjax = function (params, resolver) {
     var requestAjax = request._getNodeRequestAjax(params);
 
     var requestOptions = {
@@ -413,7 +412,7 @@
 
     var callbackRequest = request._getNodeRequestCallback(this, params, resolver);
 
-    if(corbel.utils.isStream(data)) {
+    if (corbel.utils.isStream(data)) {
       data.pipe(requestAjax(requestOptions, callbackRequest));
     } else {
       requestOptions.body = data;
@@ -428,7 +427,7 @@
    * @param {string} url
    * @return {Boolean}
    */
-  request.isCrossDomain = function(url) {
+  request.isCrossDomain = function (url) {
     if (url && typeof(url) === 'string' && url.indexOf('http') !== -1) {
       return true;
     } else {
@@ -441,7 +440,7 @@
    * @param  {string} headerStr Headers in string format as returned in xhr.getAllResponseHeaders()
    * @return {Object}
    */
-  request._parseResponseHeaders = function(headerStr) {
+  request._parseResponseHeaders = function (headerStr) {
     var headers = {};
     if (!headerStr) {
       return headers;
@@ -461,7 +460,7 @@
     return headers;
   };
 
-  request._browserAjax = function(params, resolver) {
+  request._browserAjax = function (params, resolver) {
     var httpReq = new XMLHttpRequest();
 
     httpReq.open(params.method, params.url, true);
@@ -480,7 +479,7 @@
     // 'blob' support
     httpReq.responseType = params.responseType || httpReq.responseType;
 
-    httpReq.onload = function(xhr) {
+    httpReq.onload = function (xhr) {
       xhr = xhr.target || xhr; // only for mock testing purpose
 
       processResponse.call(this, {
@@ -498,7 +497,7 @@
     }.bind(this);
 
     //response fail ()
-    httpReq.onerror = function(xhr) {
+    httpReq.onerror = function (xhr) {
 
       xhr = xhr.target || xhr; // only for fake sinon response xhr
 

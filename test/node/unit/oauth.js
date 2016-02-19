@@ -43,14 +43,17 @@ describe('In OAUTH module', function() {
                 responseType: 'code'
             };
 
-            oauth.authorization(clientParams).login('testUser', 'testPassword');
+            oauth.authorization(clientParams).login('testUser', 'testPassword', false, false);
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
             expect(callRequestParam.method).to.be.equal('POST');
+
             var response = callRequestParam.data;
             expect(response).to.have.a.property('username', 'testUser');
             expect(response).to.have.a.property('password', 'testPassword');
+
+
         });
 
         it('do the login with cookie request correctly', function() {
@@ -63,13 +66,11 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).loginWithCookie();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize');
+            var url = corbel.utils.toURLEncoded(corbel.Oauth._trasformParams(clientParams));
+
+            expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize?' + url);
             expect(callRequestParam.method).to.be.equal('GET');
-            var response = callRequestParam.data;
-            expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
-            expect(response.data).to.have.a.property('client_id', 'testClient');
-            expect(response.data).to.have.a.property('response_type', 'code');
-            expect(response.data).to.have.a.property('redirect_uri', 'redirectUri');
+            expect(callRequestParam.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
         });
 
         it('do not allow a response type disctint to "code"', function() {
@@ -131,13 +132,15 @@ describe('In OAUTH module', function() {
 
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/token');
             expect(callRequestParam.method).to.be.equal('POST');
+            expect(callRequestParam.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
+
             var response = callRequestParam.data;
-            expect(response.contentType).to.be.equal(corbel.Oauth._URL_ENCODED);
-            expect(response.data).to.have.a.property('client_id', 'testClient');
-            expect(response.data).to.have.a.property('client_secret', 'testClientSecret');
-            expect(response.data).to.have.a.property('redirect_uri', 'redirectUri');
-            expect(response.data).to.have.a.property('code', 'testCode');
-            expect(response.data).to.have.a.property('grant_type', 'authorization_code');
+
+            expect(response).to.have.a.property('client_id', 'testClient');
+            expect(response).to.have.a.property('client_secret', 'testClientSecret');
+            expect(response).to.have.a.property('redirect_uri', 'redirectUri');
+            expect(response).to.have.a.property('code', 'testCode');
+            expect(response).to.have.a.property('grant_type', 'authorization_code');
         });
 
         it('do not allow a grant type disctint to "authorization_code"', function() {

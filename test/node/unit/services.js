@@ -331,6 +331,8 @@ describe('corbel.Services module', function() {
 
         });
 
+        //If params.accessToken is defined in the request
+
         it('works correctly when the driver has no clientSecret', function(done) {
           var corbelDriver = corbel.getDriver({
             urlBase: 'urlBase/'

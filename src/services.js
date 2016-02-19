@@ -1,7 +1,7 @@
 //@exclude
 'use strict';
 //@endexclude
-(function() {
+(function () {
 
   /**
    * A base object to inherit from for make corbel-js requests with custom behavior.
@@ -18,10 +18,9 @@
      * @param  {string}                         id String with the asset id or `all` key
      * @return {corbel.Services}
      */
-    constructor: function(driver) {
+    constructor: function (driver) {
       this.driver = driver;
     },
-
     /**
      * Execute the actual ajax request.
      * Retries request with refresh token when credentials are needed.
@@ -32,17 +31,17 @@
      * @param  {Promise} dfd     The deferred object to resolve when the ajax request is completed.
      * @param  {object} args    The request arguments.
      */
-    request: function(args) {
+    request: function (args) {
 
       this.driver.trigger('service:request:before', args);
 
       var that = this;
 
-      return this._requestWithRetries(args).then(function(response) {
+      return this._requestWithRetries(args).then(function (response) {
         that.driver.trigger('service:request:after', response);
         that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
         return response;
-      }).catch(function(error) {
+      }).catch(function (error) {
         that.driver.trigger('service:request:after', error);
         that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
         throw error;
@@ -50,34 +49,34 @@
 
     },
 
-    _requestWithRetries : function(args){
+    _requestWithRetries: function (args) {
       var that = this;
       var maxRetries = corbel.Services._UNAUTHORIZED_MAX_RETRIES;
       var requestParameters = that._buildParams(args);
 
       return that._doRequest(requestParameters)
-        .catch(function(response) {
+        .catch(function (response) {
 
           var retries = that.driver.config.get(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
           if (retries < maxRetries && response.status === corbel.Services._UNAUTHORIZED_STATUS_CODE) {
 
             //A 401 request within, refresh the token and retry the request.
             return that._refreshToken()
-              .then(function() {
-              
-              that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
-              //@TODO: see if we need to upgrade the token to access assets.
-              return that._requestWithRetries(args).catch(function(retryResponse) {
-                // rejects whole promise with the retry response
-                response = retryResponse;
+              .then(function () {
+
+                that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, retries + 1);
+                //@TODO: see if we need to upgrade the token to access assets.
+                return that._requestWithRetries(args).catch(function (retryResponse) {
+                  // rejects whole promise with the retry response
+                  response = retryResponse;
+                  throw response;
+                });
+              }).catch(function () {
+                //Has failed refreshing, reject request
+                console.log('corbeljs:services:token:refresh:fail');
+
                 throw response;
               });
-            }).catch(function() {
-              //Has failed refreshing, reject request
-              console.log('corbeljs:services:token:refresh:fail');
-
-              throw response;
-            });
 
           } else {
             console.log('corbeljs:services:token:no_refresh', response.status);
@@ -93,16 +92,16 @@
      * @param  {object} params
      * @return {Promise}
      */
-    _doRequest: function(params) {
+    _doRequest: function (params) {
       var that = this;
-      return corbel.request.send(params, that.driver).then(function(response) {
+      return corbel.request.send(params, that.driver).then(function (response) {
 
         that.driver.config.set(corbel.Services._FORCE_UPDATE_STATUS, 0);
         that.driver.config.set(corbel.Services._UNAUTHORIZED_NUM_RETRIES, 0);
 
         return response;
 
-      }).catch(function(response) {
+      }).catch(function (response) {
         // Force update
         if (response.status === corbel.Services._FORCE_UPDATE_STATUS_CODE &&
           response.textStatus === corbel.Services._FORCE_UPDATE_TEXT) {
@@ -126,7 +125,7 @@
     },
 
 
-    _refreshToken : function(){
+    _refreshToken: function () {
       var tokenObject = this.driver.config.get(corbel.Iam.IAM_TOKEN, {});
 
       return this._refreshHandler(tokenObject);
@@ -136,7 +135,7 @@
      * Only requested once at the same time
      * @return {Promise}
      */
-    _refreshHandler: function(tokenObject) {
+    _refreshHandler: function (tokenObject) {
       var that = this;
 
       if (this.driver._refreshHandlerPromise) {
@@ -156,29 +155,31 @@
       }
 
       return this.driver._refreshHandlerPromise
-      .then(function(response) {
-        that.driver.trigger('token:refresh', response.data);
-        that.driver._refreshHandlerPromise = null;
-        return response;
-      }).catch(function(err) {
-        that.driver._refreshHandlerPromise = null;
-        throw err;
-      });
+        .then(function (response) {
+          that.driver.trigger('token:refresh', response.data);
+          that.driver._refreshHandlerPromise = null;
+          return response;
+        }).catch(function (err) {
+          that.driver._refreshHandlerPromise = null;
+          throw err;
+        });
     },
 
     /**
      * Add Authorization header with default tokenObject
      * @param {object} params request builded params
      */
-    _addAuthorization: function(params) {
-      // @todo: support to oauth token and custom handlers
-      var accessToken = this.driver.config.get(corbel.Iam.IAM_TOKEN, {}).accessToken;
+    _addAuthorization: function (params) {
+      var accessToken = params.accessToken ? params.accessToken : this.driver.config
+        .get(corbel.Iam.IAM_TOKEN, {}).accessToken;
 
-      // Use access access token if exists
-      if (accessToken) {
+      if (accessToken && !params.headers.Authorization) {
         params.headers.Authorization = 'Bearer ' + accessToken;
         params.withCredentials = true;
+      } else if (params.headers.Authorization) {
+        params.withCredentials = true;
       }
+
       return params;
     },
 
@@ -192,7 +193,7 @@
      * @param  {object} args
      * @return {object}
      */
-    _buildParams: function(args) {
+    _buildParams: function (args) {
 
       // Default values
       var defaults = {
@@ -208,7 +209,7 @@
       // do not modify args object
       var params = corbel.utils.defaults({}, args);
       params = corbel.utils.defaults(params, defaults);
-      
+
       if (!params.url) {
         throw new Error('You must define an url');
       }
@@ -216,7 +217,7 @@
       if (params.query) {
         params.url += '?' + params.query;
       }
-      
+
       if (params.noRedirect) {
         params.headers['No-Redirect'] = true;
       }
@@ -245,14 +246,14 @@
      * @memberof corbel.Services.prototype
      * @return {string}
      */
-    _buildUri: function() {
+    _buildUri: function () {
 
       var uri = '';
       if (this.urlBase.slice(-1) !== '/') {
         uri += '/';
       }
 
-      Array.prototype.slice.call(arguments).forEach(function(argument) {
+      Array.prototype.slice.call(arguments).forEach(function (argument) {
         if (argument) {
           uri += argument + '/';
         }
@@ -331,19 +332,35 @@
     /**
      * Extract a id from the location header of a requestXHR
      * @memberof corbel.Services
-     * @param  {Promise} res response from a requestXHR
+     * @param  {Promise} responseObject response from a requestXHR
      * @return {String}  id from the Location
      */
-    getLocationId: function(responseObject) {
+    getLocationId: function (responseObject) {
+      var location = this._getLocationHeader(responseObject);
+      return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
+    },
+    /**
+     * Extracts the entire location header
+     * @param {Promise} responseObject response from a requestXHR
+     * @returns {String} location header content
+     */
+    getLocation: function (responseObject) {
+      return this._getLocationHeader(responseObject);
+    },
+    /**
+     * Extracts the location header
+     * @param {Promise} responseObject response from a requestXHR
+     * @returns {String} location header content
+     * @private
+     */
+    _getLocationHeader: function (responseObject) {
       responseObject = responseObject || {};
-      var location;
 
       if (responseObject.xhr) {
-        location = responseObject.xhr.getResponseHeader('location');
+        return responseObject.xhr.getResponseHeader('Location');
       } else if (responseObject.response && responseObject.response.headers.location) {
-        location = responseObject.response.headers.location;
+        return responseObject.response.headers.location;
       }
-      return location ? location.substr(location.lastIndexOf('/') + 1) : undefined;
     },
 
     /**
@@ -352,7 +369,7 @@
      * @param {string} type
      * @return {midex}
      */
-    addEmptyJson: function(response, type) {
+    addEmptyJson: function (response, type) {
       if (!response && type === 'json') {
         response = '{}';
       }
