@@ -1788,13 +1788,6 @@
             constructor: function(driver) {
                 this.driver = driver;
             },
-
-            extractLocationId: function(res) {
-                console.log('corbel-js:service:extractLocationId', res);
-                var uri = res.xhr.getResponseHeader('Location');
-                return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
-            },
-
             /**
              * Execute the actual ajax request.
              * Retries request with refresh token when credentials are needed.
@@ -4976,7 +4969,7 @@
                         noRedirect: redirect ? redirect : true
                     })
                     .then(function(res) {
-                        if (res.xhr.getResponseHeader('Location')) {
+                        if (corbel.Services.getLocation(res)) {
 
                             var req = {
                                 url: corbel.Services.getLocation(res)
@@ -5181,7 +5174,7 @@
                 console.log('oauthInterface.user.get');
                 this.uri += '/' + id;
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.method = corbel.request.method.GET;
                 params.withAuth = true;
                 params.url = this._buildUri(this.uri);
@@ -5199,7 +5192,7 @@
                 console.log('oauthInterface.user.getProfile');
                 this.uri += '/' + id + '/profile';
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.method = corbel.request.method.GET;
                 params.url = this._buildUri(this.uri);
 
@@ -5219,7 +5212,7 @@
                 console.log('oauthInterface.user.update', modification);
                 this.uri += '/' + id;
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.url = this._buildUri(this.uri);
                 params.method = corbel.request.method.PUT;
                 params.data = modification;
@@ -5238,7 +5231,7 @@
                 console.log('oauthInterface.user.delete');
                 this.uri += '/' + id;
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.url = this._buildUri(this.uri);
                 params.method = corbel.request.method.DELETE;
 
@@ -5280,7 +5273,7 @@
                 console.log('oauthInterface.user.sendValidateEmail');
                 this.uri += '/' + id + '/validate';
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.url = this._buildUri(this.uri);
                 params.method = corbel.request.method.GET;
                 params.withAuth = true;
@@ -5300,7 +5293,7 @@
                 console.log('oauthInterface.user.emailConfirmation');
                 this.uri += '/' + id + '/emailConfirmation';
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.url = this._buildUri(this.uri, id);
                 params.method = corbel.request.method.PUT;
                 params.noRetry = true;
@@ -5320,7 +5313,7 @@
             username: function(name) {
                 console.log('oauthInterface.user.username');
 
-                var params = this.params;
+                var params = corbel.utils.extend(this.params, {});
                 params.url = this._buildUri('username/' + name);
                 params.method = corbel.request.method.GET;
 

@@ -66,7 +66,6 @@ describe('In OAUTH module', function() {
             oauth.authorization(clientParams).loginWithCookie();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            console.log('YEHA ' + JSON.stringify(callRequestParam));
             var url = corbel.utils.toURLEncoded(corbel.Oauth._trasformParams(clientParams));
 
             expect(callRequestParam.url).to.be.equal(OAUTH_URL + 'oauth/authorize?' + url);

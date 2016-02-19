@@ -21,13 +21,6 @@
     constructor: function (driver) {
       this.driver = driver;
     },
-
-    extractLocationId: function (res) {
-      console.log('corbel-js:service:extractLocationId', res);
-      var uri = res.xhr.getResponseHeader('Location');
-      return uri ? uri.substr(uri.lastIndexOf('/') + 1) : undefined;
-    },
-
     /**
      * Execute the actual ajax request.
      * Retries request with refresh token when credentials are needed.

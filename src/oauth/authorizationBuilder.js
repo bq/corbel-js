@@ -106,7 +106,7 @@
           noRedirect: redirect ? redirect : true
         })
         .then(function (res) {
-          if (res.xhr.getResponseHeader('Location')) {
+          if (corbel.Services.getLocation(res)) {
 
             var req = {
               url: corbel.Services.getLocation(res)
