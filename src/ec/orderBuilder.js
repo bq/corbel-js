@@ -2,7 +2,7 @@
 'use strict';
 //@endexclude
 
-(function() {
+(function () {
 
   /**
    * Create a OrderBuilder for order managing requests.
@@ -11,7 +11,7 @@
    *
    * @return {corbel.Ec.OrderBuilder}
    */
-  corbel.Ec.prototype.order = function(id) {
+  corbel.Ec.prototype.order = function (id) {
     var order = new OrderBuilder(id);
     order.driver = this.driver;
     return order;
@@ -26,8 +26,7 @@
    * @memberOf corbel.Ec.OrderBuilder
    */
   var OrderBuilder = corbel.Ec.OrderBuilder = corbel.Services.inherit({
-
-    constructor: function(id) {
+    constructor: function (id) {
       if (id) {
         this.id = id;
       }
@@ -38,9 +37,12 @@
      * Gets an order
      * @method
      * @memberOf corbel.Ec.OrderBuilder
+     *
      * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
      */
-    get: function() {
+    get: function () {
+      console.log('ecInterface.order.get');
+
       corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
@@ -52,11 +54,24 @@
      * Updates the order
      * @method
      * @memberOf corbel.Ec.OrderBuilder
-     * @param  {Object} order        Data of the order to update
-     * @param {Object[]} order.items    Array of products to purchase
-     * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @param  {Object} order                                   Data of the order to update
+     * @param {Array} order.items                               Array of products to purchase
+     * @param {String} order.items.productId                    Product related with the item
+     * @param {Integer} order.items.quantity                    Number of products
+     * @param {Object} order.items.price                        Price of the pruduct during the purchase
+     * @param {String} order.items.price.concurrency            Currency code for the price (ISO code)
+     * @param {String} order.items.price.amount                 The amount of the price
+     * @param {String} order.items.productPaymentPlan.duration  Define the period of service has a validity in
+     *                                                          ISO8601 period format
+     * @param {String} order.items.productPaymentPlan.period    The data to hire the service has a validity in
+     *                                                          ISO8601 period format
+     * @param {Object[]} order.items                            Array of products to purchase
+     * @return {Promise}                                        Q promise that resolves to undefined (void) or rejects
+     *                                                          with a {@link SilkRoadError}
      */
-    update: function(order) {
+    update: function (order) {
+      console.log('ecInterface.order.update');
+
       corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
@@ -71,7 +86,9 @@
      * @memberOf corbel.Ec.OrderBuilder
      * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
      */
-    delete: function() {
+    delete: function () {
+      console.log('ecInterface.order.delete');
+
       corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id),
@@ -83,10 +100,13 @@
      * Prepares the order, required to checkout
      * @method
      * @memberOf corbel.Ec.OrderBuilder
-     * @param {string[]} couponIds  Array of String with the coupons ids to prepare the order
-     * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+     * @param {string[]} couponIds                Array of String with the coupons ids to prepare the order
+     * @return {Promise}                          Q promise that resolves to undefined (void) or rejects with a
+     *                                            {@link SilkRoadError}
      */
-    prepare: function(couponIds) {
+    prepare: function (couponIds) {
+      console.log('ecInterface.order.prepare');
+
       corbel.validate.value('id', this.id);
       return this.request({
         url: this._buildUri(this.uri, this.id, '/prepare'),
@@ -99,12 +119,14 @@
      * Checks out the Order
      * @method
      * @memberOf corbel.Ec.OrderBuilder
-     * @param  {Object} data            Pruchase information to do the checkout
-     * @param {string[]} paymentMethodIds  Array of String with the payment methods ids to checkout the order
-     * @param {string[]} discountsIds      Array of String with the discounts ids to checkout the order
-     * @return {Promise}                Promise that resolves in the new purchase id or rejects with a {@link SilkRoadError}
+     * @param  {Object} data                    Purchase information to do the checkout
+     * @param {string[]} data.paymentMethodIds  Array of String with the payment methods ids to checkout the order
+     * @return {Promise}                        Promise that resolves in the new purchase id or rejects with a
+     *                                          {@link SilkRoadError}
      */
-    checkout: function(data) {
+    checkout: function (data) {
+      console.log('ecInterface.order.checkout');
+
       if (!data.paymentMethodIds) {
         return Promise.reject(new Error('paymentMethodIds lists needed'));
       }
@@ -116,7 +138,7 @@
         method: corbel.request.method.POST,
         url: this._buildUri(this.uri, this.id, '/checkout'),
         data: data
-      }).then(function(res) {
+      }).then(function (res) {
         return corbel.Services.getLocationId(res);
       });
     },
