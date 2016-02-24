@@ -3120,6 +3120,22 @@
             },
 
             /**
+             * close all user sessions. All access token are deleted.
+             * @method
+             * @memberOf corbel.Iam.UserBuilder
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+             */
+            _closeSessions: function() {
+                console.log('iamInterface.user.close.sessions');
+                corbel.validate.value('id', this.id);
+
+                return this.request({
+                    url: this._buildUri(this.uri, this.id) + '/sessions',
+                    method: corbel.request.method.DELETE
+                });
+            },
+
+            /**
              * Adds an identity (link to an oauth server or social network) to the user
              * @method
              * @memberOf corbel.Iam.UserBuilder
@@ -3311,6 +3327,9 @@
             disconnect: function() {
                 return this._disconnect.apply(this, arguments);
             },
+            closeSessions: function() {
+                return this._closeSessions.apply(this, arguments);
+            },
             getIdentities: function() {
                 return this._getIdentities.apply(this, arguments);
             },
@@ -3346,6 +3365,9 @@
             },
             disconnectMe: function() {
                 return this._disconnect.apply(this, arguments);
+            },
+            closeSessionsMe: function() {
+                return this._closeSessions.apply(this, arguments);
             },
             getMyIdentities: function() {
                 return this._getIdentities.apply(this, arguments);
