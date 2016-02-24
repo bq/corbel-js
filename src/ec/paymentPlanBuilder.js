@@ -29,22 +29,22 @@
     /**
      * Gets the payment plans of the logged user
      *
-     * @class
+     * @method
      * @memberOf corbel.Ec.PaymentPlanBuilder
      */
-    get: function (params) {
-      console.log('ecInterface.paymentplan.add');
+    get: function () {
+      console.log('ecInterface.paymentplan.get');
 
       return this.request({
         url: this._buildUri(this.uri),
-        method: corbel.request.method.POST,
+        method: corbel.request.method.GET,
       });
     },
 
     /**
      * Gets details of a single payment plan by its id
      *
-     * @class
+     * @method
      * @memberOf corbel.Ec.PaymentPlanBuilder
      *
      * @param {String} id                Payment method identifier
@@ -53,7 +53,7 @@
      *                                   {@link SilkRoadError}
      */
      getById: function (id) {
-      console.log('ecInterface.paymentplan.get');
+      console.log('ecInterface.paymentplan.getById');
 
       corbel.validate.value('id', id);
       return this.request({
@@ -92,14 +92,13 @@
      * @param {String} id                Payment method identifier
      * 
      */
-     rescue: function(){
+     rescue: function(id){
       console.log('ecInterface.paymentplan.rescue');
 
-      corbel.validate.value('id', this.id);
+      corbel.validate.value('id', id);
       return this.request({
-        url: this._buildUri(this.uri, this.id),
+        url: this._buildUri(this.uri, id,'rescue'),
         method: corbel.request.method.PUT,
-        data: product
       });
      },
 
@@ -109,14 +108,15 @@
      * @method
      * @memberOf corbel.Ec.PaymentPlanBuilder
      *
+     * @param {String} id                           Payment method identifier
      * @param {Object} product                      The product update
      * @param {String} product.paymentMethodId      Identifier of the payment method to use with the plan
      *
      */
-     update: function(){
+     update: function(id,product){
       console.log('ecInterface.paymentplan.update');
 
-      corbel.validate.value('id', this.id);
+      corbel.validate.value('id', id,'paymentmethod');
       return this.request({
         url: this._buildUri(this.uri, this.id),
         method: corbel.request.method.PUT,
