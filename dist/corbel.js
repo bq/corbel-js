@@ -6364,6 +6364,7 @@
             get: function(id) {
                 console.log('ecInterface.purchase.get');
 
+                corbel.validate.value('id', id);
                 return this.request({
                     url: this._buildUri(this.uri, id),
                     method: corbel.request.method.GET
@@ -6387,7 +6388,7 @@
                 console.log('ecInterface.purchase.getAll');
 
                 return this.request({
-                    url: this._buildUri(this.uri, this.id),
+                    url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
                 });

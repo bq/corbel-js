@@ -382,4 +382,59 @@ describe.only('In EC module', function () {
         .should.notify(done);
     });
   });
+
+  describe('with purchase,', function() {
+
+    it('get one', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      var purchaseId = '1234';
+      corbelDriver.ec.purchase().get(purchaseId);
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.include(EC_URL + 'purchase/'+ purchaseId);
+      expect(callRequestParam.method).to.be.equal('GET');
+    });
+
+    it('get one without id throws an error', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+
+      expect(function(){
+        corbelDriver.ec.purchase().get();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
+    it('get all', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      corbelDriver.ec.purchase().getAll();
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.include(EC_URL + 'purchase');
+      expect(callRequestParam.method).to.be.equal('GET');
+    });
+
+    it('get all with params', function() {
+      var params = {
+        query: [{
+          '$eq': {
+            field: 'value'
+          }
+        }],
+        pagination: {
+          pageSize: 2,
+          page: 3
+        },
+        sort: {
+          field: 'asc'
+        }
+      };
+
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      corbelDriver.ec.purchase().getAll(params);
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.include(EC_URL + 'purchase');
+      expect(callRequestParam.method).to.be.equal('GET');
+      expect(callRequestParam.url).to.contain('api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2');
+    });
+  });
 });
