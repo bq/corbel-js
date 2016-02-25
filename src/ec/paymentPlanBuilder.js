@@ -103,24 +103,24 @@
      },
 
      /**
-     * Change the payment method of a playment plan
+     * Change the payment method of a payment plan
      * 
      * @method
      * @memberOf corbel.Ec.PaymentPlanBuilder
      *
-     * @param {String} id                           Payment method identifier
-     * @param {Object} product                      The product update
-     * @param {String} product.paymentMethodId      Identifier of the payment method to use with the plan
+     * @param {String} id                          Payment method identifier
+     * @param {Object} params                      The update params
+     * @param {String} params.paymentMethodId      Identifier of the payment method to use with the plan
      *
      */
-     update: function(id,product){
+     update: function(id,params){
       console.log('ecInterface.paymentplan.update');
 
       corbel.validate.value('id', id,'paymentmethod');
       return this.request({
-        url: this._buildUri(this.uri, this.id),
+        url: this._buildUri(this.uri, id),
         method: corbel.request.method.PUT,
-        data: product
+        data: params
      });
      },
 
