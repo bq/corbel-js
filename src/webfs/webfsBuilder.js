@@ -45,10 +45,27 @@
 
     },
 
+    delete: function(){
+
+      corbel.validate.value('id', this.id);
+
+      var args = {
+        url: this._buildUri(this.id),
+        method: corbel.request.method.DELETE
+      };
+
+      return this.request(args);
+    },
+
     _buildUri: function(id) {
       var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
 
-      return urlBase + id;
+      var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
+      var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+            
+      this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
+
+      return urlBase + 'path/' + customDomain + '/' + id;
     },
 
     _buildPort: function(config) {
