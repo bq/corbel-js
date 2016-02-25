@@ -3120,6 +3120,22 @@
             },
 
             /**
+             * close all user sessions. All access token are deleted.
+             * @method
+             * @memberOf corbel.Iam.UserBuilder
+             * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+             */
+            _closeSessions: function() {
+                console.log('iamInterface.user.close.sessions');
+                corbel.validate.value('id', this.id);
+
+                return this.request({
+                    url: this._buildUri(this.uri, this.id) + '/sessions',
+                    method: corbel.request.method.DELETE
+                });
+            },
+
+            /**
              * Adds an identity (link to an oauth server or social network) to the user
              * @method
              * @memberOf corbel.Iam.UserBuilder
@@ -3311,6 +3327,9 @@
             disconnect: function() {
                 return this._disconnect.apply(this, arguments);
             },
+            closeSessions: function() {
+                return this._closeSessions.apply(this, arguments);
+            },
             getIdentities: function() {
                 return this._getIdentities.apply(this, arguments);
             },
@@ -3346,6 +3365,9 @@
             },
             disconnectMe: function() {
                 return this._disconnect.apply(this, arguments);
+            },
+            closeSessionsMe: function() {
+                return this._closeSessions.apply(this, arguments);
             },
             getMyIdentities: function() {
                 return this._getIdentities.apply(this, arguments);
@@ -5625,7 +5647,6 @@
          * @memberOf corbel.Ec.OrderBuilder
          */
         var OrderBuilder = corbel.Ec.OrderBuilder = corbel.Services.inherit({
-
             constructor: function(id) {
                 if (id) {
                     this.id = id;
@@ -5637,9 +5658,12 @@
              * Gets an order
              * @method
              * @memberOf corbel.Ec.OrderBuilder
+             *
              * @return {Promise}        Q promise that resolves to a Order {Object} or rejects with a {@link SilkRoadError}
              */
             get: function() {
+                console.log('ecInterface.order.get');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -5651,11 +5675,24 @@
              * Updates the order
              * @method
              * @memberOf corbel.Ec.OrderBuilder
-             * @param  {Object} order        Data of the order to update
-             * @param {Object[]} order.items    Array of products to purchase
-             * @return {Promise}            Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @param  {Object} order                                   Data of the order to update
+             * @param {Array} order.items                               Array of products to purchase
+             * @param {String} order.items.productId                    Product related with the item
+             * @param {Integer} order.items.quantity                    Number of products
+             * @param {Object} order.items.price                        Price of the pruduct during the purchase
+             * @param {String} order.items.price.concurrency            Currency code for the price (ISO code)
+             * @param {String} order.items.price.amount                 The amount of the price
+             * @param {String} order.items.productPaymentPlan.duration  Define the period of service has a validity in
+             *                                                          ISO8601 period format
+             * @param {String} order.items.productPaymentPlan.period    The data to hire the service has a validity in
+             *                                                          ISO8601 period format
+             * @param {Object[]} order.items                            Array of products to purchase
+             * @return {Promise}                                        Q promise that resolves to undefined (void) or rejects
+             *                                                          with a {@link SilkRoadError}
              */
             update: function(order) {
+                console.log('ecInterface.order.update');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -5671,6 +5708,8 @@
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
              */
             delete: function() {
+                console.log('ecInterface.order.delete');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -5682,10 +5721,13 @@
              * Prepares the order, required to checkout
              * @method
              * @memberOf corbel.Ec.OrderBuilder
-             * @param {string[]} couponIds  Array of String with the coupons ids to prepare the order
-             * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link SilkRoadError}
+             * @param {string[]} couponIds                Array of String with the coupons ids to prepare the order
+             * @return {Promise}                          Q promise that resolves to undefined (void) or rejects with a
+             *                                            {@link SilkRoadError}
              */
             prepare: function(couponIds) {
+                console.log('ecInterface.order.prepare');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id, '/prepare'),
@@ -5698,12 +5740,14 @@
              * Checks out the Order
              * @method
              * @memberOf corbel.Ec.OrderBuilder
-             * @param  {Object} data            Pruchase information to do the checkout
-             * @param {string[]} paymentMethodIds  Array of String with the payment methods ids to checkout the order
-             * @param {string[]} discountsIds      Array of String with the discounts ids to checkout the order
-             * @return {Promise}                Promise that resolves in the new purchase id or rejects with a {@link SilkRoadError}
+             * @param  {Object} data                    Purchase information to do the checkout
+             * @param {string[]} data.paymentMethodIds  Array of String with the payment methods ids to checkout the order
+             * @return {Promise}                        Promise that resolves in the new purchase id or rejects with a
+             *                                          {@link SilkRoadError}
              */
             checkout: function(data) {
+                console.log('ecInterface.order.checkout');
+
                 if (!data.paymentMethodIds) {
                     return Promise.reject(new Error('paymentMethodIds lists needed'));
                 }
@@ -5732,6 +5776,375 @@
 
     })();
 
+
+    (function() {
+
+        /**
+         * Create a PaymentBuilder for payment managing requests.
+         *
+         * @return {corbel.Ec.PaymentBuilder}
+         */
+        corbel.Ec.prototype.payment = function() {
+            var payment = new PaymentBuilder();
+            payment.driver = this.driver;
+            return payment;
+        };
+
+        /**
+         * A builder for payment requests.
+         *
+         * @class
+         * @memberOf corbel.Ec.PaymentBuilder
+         */
+        var PaymentBuilder = corbel.Ec.PaymentBuilder = corbel.Services.inherit({
+            constructor: function() {
+                this.uri = 'payment';
+            },
+
+            /**
+             * Gets all payments for the logged user.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentBuilder
+             * @param {Object} params                 The params filter
+             * @param {Integer} params.api:pageSize   Number of result returned in the page (>0 , default: 10)
+             * @param {String} params.api:query       A search query expressed in silkroad query language
+             * @param {Integer} params.api:page       The page to be returned. Pages are zero-indexed (>0, default:0)
+             * @param {String} params.api:sort        Results orders. JSON with field to order and direction, asc or desc
+             *
+             * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
+             *                                        {@link SilkRoadError}
+             */
+            get: function(params) {
+                console.log('ecInterface.payment.get');
+
+                console.log(JSON.stringify({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                }));
+
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
+             * Get payments paginated, this endpoint is only for admins.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentBuilder
+             * @param {Object} params                 The params filter
+             * @param {Integer} params.api:pageSize   Number of result returned in the page (>0 , default: 10)
+             * @param {String} params.api:query       A search query expressed in silkroad query language
+             * @param {Integer} params.api:page       The page to be returned. Pages are zero-indexed (>0, default:0)
+             * @param {String} params.api:sort        Results orders. JSON with field to order and direction, asc or desc
+             *
+             * @return {Promise}        Q promise that resolves to a Payment {Object} or rejects with a {@link SilkRoadError}
+             */
+            getAll: function(params) {
+                console.log('ecInterface.payment.getAll');
+
+                return this.request({
+                    url: this._buildUri(this.uri, 'all'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
+             * Internal module uri builder
+             * @method
+             * @memberOf corbel.Ec.PaymentBuilder
+             * @return {string}
+             */
+            _buildUri: corbel.Ec._buildUri
+
+        });
+
+    })();
+
+
+    (function() {
+
+        /**
+         * Create a PaymentMethodsBuilder for payment managing requests.
+         *
+         * @return {corbel.Ec.PaymentMethodBuilder}
+         */
+        corbel.Ec.prototype.paymentMethod = function() {
+            var paymentMethod = new PaymentMethodBuilder();
+            paymentMethod.driver = this.driver;
+            return paymentMethod;
+        };
+
+        /**
+         * A builder for payment methods requests.
+         *
+         * @class
+         * @memberOf corbel.Ec.PaymentMethodsBuilder
+         */
+        var PaymentMethodBuilder = corbel.Ec.PaymentMethodBuilder = corbel.Services.inherit({
+            constructor: function() {
+                this.uri = 'paymentmethod';
+            },
+
+            /**
+             * Get the payment method registered for a user.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentMethodBuilder
+             *
+             * @return {Promise}                        Q promise that resolves to a Payment {Object} or rejects with a
+             *                                          {@link SilkRoadError}
+             */
+            get: function() {
+                console.log('ecInterface.paymentmethod.get');
+
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                });
+            },
+
+            /**
+             * Add a new payment method for the logged user.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentMethodBuilder
+             *
+             * @param {Object} params                 The params filter
+             * @param {String} params.data            The card data encrypted
+             *                                        (@see https://github.com/adyenpayments/client-side-encryption)
+             * @param {String} params.name            User identifier related with de payment method
+             *
+             * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
+             *                                        {@link SilkRoadError}
+             */
+            add: function(params) {
+                console.log('ecInterface.paymentmethod.add');
+
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.POST,
+                    data: params
+                });
+            },
+
+            /**
+             * Get details of a single payment method by its id.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentMethodBuilder
+             *
+             * @param {String} id                Payment method identifier
+             *
+             * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
+             *                                   {@link SilkRoadError}
+             */
+            getById: function(id) {
+                console.log('ecInterface.paymentmethod.get');
+
+                corbel.validate.value('id', id);
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.GET
+                });
+            },
+
+            /**
+             * Deletes a payment method.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentMethodBuilder
+             *
+             * @param {String} id                Payment method identifier
+             *
+             * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
+             *                                   {@link SilkRoadError}
+             */
+            delete: function(id) {
+                console.log('ecInterface.paymentmethod.delete');
+
+                corbel.validate.value('id', id);
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.DELETE
+                });
+            },
+
+            /**
+             * Internal module uri builder
+             * @method
+             * @memberOf corbel.Ec.PaymentBuilder
+             * @return {string}
+             */
+            _buildUri: corbel.Ec._buildUri
+
+        });
+
+    })();
+
+
+    (function() {
+
+        /**
+         * Create a PaymentPlanBuilder for payment managing requests.
+         *
+         * @return {corbel.Ec.PaymentPlanBuilder}
+         */
+        corbel.Ec.prototype.paymentPlan = function() {
+            var paymentPlan = new PaymentPlantBuilder();
+            paymentPlan.driver = this.driver;
+            return paymentPlan;
+        };
+
+        /**
+         * A builder for payment requests.
+         *
+         * @class
+         * @memberOf corbel.Ec.PaymentPlanBuilder
+         */
+        var PaymentPlanBuilder = corbel.Ec.PaymentPLanBuilder = corbel.Services.inherit({
+            constructor: function() {
+                this.uri = 'paymentplan';
+            },
+
+            /**
+             * Gets the payment plans of the logged user
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             */
+            get: function() {
+                console.log('ecInterface.paymentplan.get');
+
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                });
+            },
+
+            /**
+             * Gets details of a single payment plan by its id
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             *
+             * @param {String} id                Payment method identifier
+             *
+             * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
+             *                                   {@link SilkRoadError}
+             */
+            getById: function(id) {
+                console.log('ecInterface.paymentplan.getById');
+
+                corbel.validate.value('id', id);
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.GET
+                });
+            },
+
+            /**
+             * Deletes a payment plan.
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             *
+             * @param {String} id                Payment method identifier
+             *
+             * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
+             *                                   {@link SilkRoadError}
+             */
+            delete: function(id) {
+                console.log('ecInterface.paymentplan.delete');
+
+                corbel.validate.value('id', id);
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.DELETE
+                });
+            },
+
+            /**
+             * Change the payment plan status from terminated to open (reactivated the payment plan)
+             * 
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             *
+             * @param {String} id                Payment method identifier
+             * 
+             */
+            rescue: function(id) {
+                console.log('ecInterface.paymentplan.rescue');
+
+                corbel.validate.value('id', id);
+                return this.request({
+                    url: this._buildUri(this.uri, id, 'rescue'),
+                    method: corbel.request.method.PUT
+                });
+            },
+
+            /**
+             * Change the payment method of a payment plan
+             * 
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             *
+             * @param {String} id                          Payment method identifier
+             * @param {Object} params                      The update params
+             * @param {String} params.paymentMethodId      Identifier of the payment method to use with the plan
+             *
+             */
+            update: function(id, params) {
+                console.log('ecInterface.paymentplan.update');
+
+                corbel.validate.value('id', id);
+
+                return this.request({
+                    url: this._buildUri(this.uri, id, 'paymentmethod'),
+                    method: corbel.request.method.PUT,
+                    data: params
+                });
+            },
+
+            /**
+             * Gets payment plans paginated, this endpoint is only for admins
+             *
+             * @method
+             * @memberOf corbel.Ec.PaymentPlanBuilder
+             * @param {Object} params                 The params filter
+             * @param {Integer} params.api:pageSize   Number of result returned in the page (>0 , default: 10)
+             * @param {String} params.api:query       A search query expressed in silkroad query language
+             * @param {Integer} params.api:page       The page to be returned. Pages are zero-indexed (>0, default:0)
+             * @param {String} params.api:sort        Results orders. JSON with field to order and direction, asc or desc
+             *
+             * @return {Promise}        Q promise that resolves to a Payment {Object} or rejects with a {@link SilkRoadError}
+             */
+            getAll: function(params) {
+                console.log('ecInterface.paymentplan.getAll');
+
+                return this.request({
+                    url: this._buildUri(this.uri, 'all'),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
+             * Internal module uri builder
+             * @method
+             * @memberOf corbel.Ec.PaymentBuilder
+             * @return {string}
+             */
+            _buildUri: corbel.Ec._buildUri
+
+        });
+
+    })();
 
     (function() {
 
@@ -5769,23 +6182,29 @@
              *
              * @method
              * @memberOf corbel.Ec.ProductBuilder
-             * @param {Object} product                 Contains the data of the new product
-             * @param {String} product.price           Information about price
-             * @param {String} product.price.currency  Currency code fro the price
-             * @param {Number} product.price.amount    The amount of the price
-             * @param {String} href                 Link to ???
-             * @param {String} type                 Type of the Product
-             * @param {Object} [scopes]             Set of scopes of the product
-             * @param {String} [period]             Duration of the Product
-             * @param {Number} period.years
-             * @param {Number} period.months
-             * @param {Number} period.days
-             * @param {String} [name]               Name of the Product
-             * @return {Promise} A promise with the id of the created loanable resources or fails
-             *                   with a {@link corbelError}.
+             * @param {Object} product                        Contains the data of the new product
+             * @param {Object} product.name                   The name of the product
+             * @param {String} product.price                  Information about price
+             * @param {String} product.price.currency         Currency code fro the price
+             * @param {Number} product.price.amount           The amount of the price
+             * @param {String} product.type                   Define the type of the product, which can trigger different
+             *                                                behaviors
+             * @param {String} product.href                   The resource uri
+             * @param {Array}  product.assets                 Array with the permissions assigned to the product
+             * @param {String} product.assets.name            Identifier of the asset
+             * @param {String} product.assets.period          Define if the product asset has a validity in ISO8601
+             *                                                period format
+             * @param {Array}  product.assets.scopes          String array with the scopes associated with the asset
+             * @param {Array}  product.paymentPlan            Array with the service associated to the product
+             * @param {String} product.paymentPlan.duration   Define the period of service has a validity in ISO8601 period
+             * @param {String} product.paymentPlan.period     The data to hire the service has a validity in ISO8601
+             *                                                period format
+             *
+             * @return {Promise} A promise with the id of the created loanable resources or fails with a {@link corbelError}.
              */
             create: function(product) {
                 console.log('ecInterface.product.create', product);
+
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.POST,
@@ -5796,17 +6215,57 @@
             },
 
             /**
+             * Get all products.
+             *
+             * @method
+             * @memberOf corbel.Ec.EcBuilder
+             *
+             * @param {Object} params                 The params filter
+             * @param {Integer} params.api:pageSize   Number of result returned in the page (>0, default: 10)
+             * @param {String} params.api:query       A search query expressed in silkroad query language
+             * @param {Integer} params.api:page       The page to be returned. Pages are zero-indexed (Integer >=0)
+             * @param {String} params.api:sort        Results orders. JSON with field to order and direction, asc or desc
+             *
+             * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
+             */
+            getAll: function(params) {
+                console.log('ecInterface.product.getAll');
+
+                return this.request({
+                    url: this._buildUri(this.uri),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
              * Get a product.
              *
              * @method
              * @memberOf corbel.Ec.EcBuilder
              *
-             * @param  {Object} params  The params filter
+             * @param {Object} params                       The params filter
+             * @param {String} params.id                    Identifier of the product
+             * @param {String} params.name                  The name of the product
+             * @param {Object} params.price                 Price of the pruduct
+             * @param {String} params.price.currency        Currency code for the price (ISO code)
+             * @param {Float} params.price.amount           The amount of the price
+             * @param {String} params.type                  Define the type of the product, wich can trigger diferent behaviors,
+             *                                              for example, recurring-lisence.
+             * @param {String} params.href                  The resource uri
+             * @param {Array} params.assets                 Array with the permisions assigned to the product
+             * @param {String} params.assets.name           Identifier of the asset
+             * @param {String} params.assets.period         Define if the product asset has a validity in ISO8601 period format
+             * @param {Array} params.assets.scopes          String array with the scopes associated with the asset
+             * @param {Array} params.paymentPlan            Array with the service associated to the product
+             * @param {String} params.paymentPlan.duration  Define the period of service has a validity in ISO8601 period format
+             * @param {String} params.paymentPlan.period    The data to hire the service has a validity in ISO8601 period format
              *
              * @return {Promise} A promise with product {Object} or fails with a {@link corbelError}.
              */
             get: function(params) {
                 console.log('ecInterface.product.get');
+
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
@@ -5820,12 +6279,27 @@
              * @method
              * @memberOf corbel.Ec.EcBuilder
              *
-             * @param  {Object} product  The product update
+             * @param {Object} product                      The product update
+             * @param {String} product.name                 The name of the product
+             * @param {Object} product.price                Price of the pruduct
+             * @param {String} product.price.currency       Currency code for the price (ISO code)
+             * @param {Float} product.price.amount          The amount of the price
+             * @param {String} product.type                 Define the type of the product, wich can trigger diferent behaviors,
+             *                                              for example, recurring-lisence. (UNDER DEFINITION)
+             * @param {String} product.href                 The resource uri
+             * @param {Array} product.assets                Array with the permisions assigned to the product
+             * @param {String} product.assets.name          Identifier of the asset
+             * @param {String} product.assets.period        Define if the product asset has a validity in ISO8601 period format
+             * @param {String} product.assets.scopes        String array with the scopes associated with the asset
+             * @param {Object} product.paymentPlan          Object with the service associated to the product
+             * @param {String} product.paymentPlan.duration Define the period of service has a validity in ISO8601 period format
+             * @param {String} product.paymentPlan.period   The data to hire the service has a validity in ISO8601 period format
              *
              * @return {Promise} A promise resolves to undefined (void) or fails with a {@link corbelError}.
              */
             update: function(product) {
                 console.log('ecInterface.product.update');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -5834,7 +6308,8 @@
                 });
             },
 
-            /**Delete a product.
+            /**
+             * Delete a product.
              *
              * @method
              * @memberOf corbel.Ec.EcBuilder
@@ -5843,6 +6318,7 @@
              */
             delete: function() {
                 console.log('ecInterface.product.delete');
+
                 corbel.validate.value('id', this.id);
                 return this.request({
                     url: this._buildUri(this.uri, this.id),
@@ -5850,6 +6326,85 @@
                 });
             },
 
+            _buildUri: corbel.Ec._buildUri
+
+        });
+
+    })();
+
+
+    (function() {
+
+        /**
+         * Create a PurchaseBuilder for purchase managing requests.
+         *
+         * @return {corbel.Ec.PurchaseBuilder}
+         */
+        corbel.Ec.prototype.purchase = function() {
+            var purchase = new PurchaseBuilder();
+            purchase.driver = this.driver;
+            return purchase;
+        };
+
+        /**
+         * A builder for purchase requests.
+         *
+         * @class
+         * @memberOf corbel.Ec.PurchaseBuilder
+         */
+        var PurchaseBuilder = corbel.Ec.PurchaseBuilder = corbel.Services.inherit({
+            constructor: function() {
+                this.uri = 'purchase';
+            },
+
+            /**
+             * Gets a purchase
+             *
+             * @method
+             * @memberOf corbel.Ec.PurchaseBuilder
+             *
+             * @param id                              Purchase Identifier
+             * @return {Promise}                      Q promise that resolves to a Purchase {Object} or rejects with a
+             *                                        {@link SilkRoadError}
+             */
+            get: function(id) {
+                console.log('ecInterface.purchase.get');
+
+                return this.request({
+                    url: this._buildUri(this.uri, id),
+                    method: corbel.request.method.GET
+                });
+            },
+
+            /**
+             * Gets all purchases for the logged user.
+             * @method
+             * @memberOf corbel.Ec.PurchaseBuilder
+             *
+             * @param {Object} params                 The params filter
+             * @param {Integer} params.api:pageSize   Number of result returned in the page (>0 , default: 10)
+             * @param {String} params.api:query       A search query expressed in silkroad query language
+             * @param {Integer} params.api:page       The page to be returned. Pages are zero-indexed (>0, default:0)
+             * @param {String} params.api:sort        Results orders. JSON with field to order and direction, asc or desc
+             *
+             * @return {Promise}        Q promise that resolves to a Purchase {Object} or rejects with a {@link SilkRoadError}
+             */
+            getAll: function(params) {
+                console.log('ecInterface.purchase.getAll');
+
+                return this.request({
+                    url: this._buildUri(this.uri, this.id),
+                    method: corbel.request.method.GET,
+                    query: params ? corbel.utils.serializeParams(params) : null
+                });
+            },
+
+            /**
+             * Internal module uri builder
+             * @method
+             * @memberOf corbel.Ec.PurchaseBuilder
+             * @return {string}
+             */
             _buildUri: corbel.Ec._buildUri
 
         });

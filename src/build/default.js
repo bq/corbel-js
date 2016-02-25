@@ -75,7 +75,11 @@
   //  @include ../notifications/notificationsBuilder.js
   //  @include ../ec/ec.js
   //  @include ../ec/orderBuilder.js
+  //  @include ../ec/paymentBuilder.js
+  //  @include ../ec/paymentMethodsBuilder.js
+  //  @include ../ec/paymentPlanBuilder.js
   //  @include ../ec/productBuilder.js
+  //  @include ../ec/purchaseBuilder.js
   //  @include ../evci/evci.js
   //  @include ../evci/eventBuilder.js
   //  @include ../borrow/borrow.js

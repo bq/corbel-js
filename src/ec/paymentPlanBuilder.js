@@ -98,7 +98,7 @@
       corbel.validate.value('id', id);
       return this.request({
         url: this._buildUri(this.uri, id,'rescue'),
-        method: corbel.request.method.PUT,
+        method: corbel.request.method.PUT
       });
      },
 
@@ -116,9 +116,10 @@
      update: function(id,params){
       console.log('ecInterface.paymentplan.update');
 
-      corbel.validate.value('id', id,'paymentmethod');
+      corbel.validate.value('id', id);
+
       return this.request({
-        url: this._buildUri(this.uri, id),
+        url: this._buildUri(this.uri, id, 'paymentmethod'),
         method: corbel.request.method.PUT,
         data: params
      });
