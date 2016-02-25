@@ -6675,7 +6675,7 @@
              * @param {Array} order.items                               Array of products to purchase
              * @param {String} order.items.productId                    Product related with the item
              * @param {Integer} order.items.quantity                    Number of products
-             * @param {Object} order.items.price                        Price of the pruduct during the purchase
+             * @param {Object} order.items.price                        Price of the product during the purchase
              * @param {String} order.items.price.concurrency            Currency code for the price (ISO code)
              * @param {String} order.items.price.amount                 The amount of the price
              * @param {String} order.items.productPaymentPlan.duration  Define the period of service has a validity in
