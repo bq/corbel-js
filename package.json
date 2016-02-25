@@ -54,6 +54,7 @@
     "request": "^2.69.0"
   },
   "devDependencies": {
+    "lodash": "^4.5.1",
     "blanket": "1.2.1",
     "body-parser": "1.14.2",
     "bower": "^1.7.7",
