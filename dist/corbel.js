@@ -5818,12 +5818,6 @@
             get: function(params) {
                 console.log('ecInterface.payment.get');
 
-                console.log(JSON.stringify({
-                    url: this._buildUri(this.uri),
-                    method: corbel.request.method.GET,
-                    query: params ? corbel.utils.serializeParams(params) : null
-                }));
-
                 return this.request({
                     url: this._buildUri(this.uri),
                     method: corbel.request.method.GET,
@@ -5905,7 +5899,7 @@
 
                 return this.request({
                     url: this._buildUri(this.uri),
-                    method: corbel.request.method.GET,
+                    method: corbel.request.method.GET
                 });
             },
 

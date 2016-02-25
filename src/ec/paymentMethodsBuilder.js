@@ -40,7 +40,7 @@
 
       return this.request({
         url: this._buildUri(this.uri),
-        method: corbel.request.method.GET,
+        method: corbel.request.method.GET
       });
     },
 
