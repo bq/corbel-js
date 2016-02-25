@@ -5,7 +5,7 @@ var corbel = require('../../../dist/corbel.js'),
   sinon = require('sinon'),
   expect = chai.expect;
 
-describe.only('In EC module', function () {
+describe('In EC module', function () {
 
   var sandbox = sinon.sandbox.create();
   var CONFIG = {
@@ -435,6 +435,131 @@ describe.only('In EC module', function () {
       expect(callRequestParam.url).to.be.include(EC_URL + 'purchase');
       expect(callRequestParam.method).to.be.equal('GET');
       expect(callRequestParam.url).to.contain('api:query=' + encodeURIComponent('[{"$eq":{"field":"value"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=3&api:pageSize=2');
+    });
+  });
+
+  describe('with payment plan,', function() {
+
+    it('get one', function() {
+
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      corbelDriver.ec.paymentPlan().get();
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.equal(EC_URL + 'paymentplan');
+      expect(callRequestParam.method).to.be.equal('GET');
+    });
+
+    it('get one with id', function() {
+      var idPlan = 1;
+
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      corbelDriver.ec.paymentPlan().getById(idPlan);
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.equal(EC_URL + 'paymentplan/'+idPlan);
+      expect(callRequestParam.method).to.be.equal('GET');
+    });
+
+    it('get one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.paymentPlan().getById();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
+    it('delete one', function(done) {
+      corbelRequestStub.returns(Promise.resolve(204));
+      var idPlan = 1;
+
+      var response = corbelDriver.ec.paymentPlan().delete(idPlan);
+      expect(response).be.eventually.fulfilled
+          .then(function(response) {
+            expect(response).to.be.equal(204);
+
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/'+idPlan);
+            expect(paramsRecived.method).to.be.equal('DELETE');
+          }).should.be.eventually.fulfilled
+          .and.notify(done);
+    });
+
+    it('delete one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.paymentPlan().delete();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
+    it('rescue one', function(done) {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      var idPlan = 1;
+      var response = corbelDriver.ec.paymentPlan().rescue(idPlan);
+      expect(response).be.eventually.fulfilled
+          .then(function(response) {
+            expect(response).to.be.equal('OK');
+
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/'+idPlan+'/rescue');
+            expect(paramsRecived.method).to.be.equal('PUT');
+          }).should.be.eventually.fulfilled
+          .and.notify(done);
+    });
+
+    it('rescue one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.paymentPlan().rescue();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
+    it('update one', function(done) {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      var idPlan = 1;
+      var params = {
+        'paymentMethodId': '1234'
+      };
+      var response = corbelDriver.ec.paymentPlan().update(idPlan, params);
+      expect(response).be.eventually.fulfilled
+          .then(function(response) {
+            expect(response).to.be.equal('OK');
+
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/'+idPlan+'/paymentmethod');
+            expect(paramsRecived.method).to.be.equal('PUT');
+            expect(paramsRecived.data).to.be.equal(params);
+          }).should.be.eventually.fulfilled
+          .and.notify(done);
+    });
+
+    it('update one without an id', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      expect(function(){
+        corbelDriver.ec.paymentPlan().update();
+      }).to.throw('id value is mandatory and cannot be undefined');
+    });
+
+    it('get all with params', function() {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      var params = {
+        query: [{
+          '$eq': {
+            field: 'value'
+          }
+        }],
+        pagination: {
+          pageSize: 2,
+          page: 3
+        },
+        sort: {
+          field: 'asc'
+        }
+      };
+      corbelDriver.ec.paymentPlan().getAll(params);
+
+      var callRequestParam = corbel.request.send.firstCall.args[0];
+      expect(callRequestParam.url).to.be.equal(EC_URL + 'paymentplan/all?'+corbel.utils.serializeParams(params));
+      expect(callRequestParam.method).to.be.equal('GET');
     });
   });
 });

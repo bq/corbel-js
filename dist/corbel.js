@@ -5990,7 +5990,7 @@
          * @return {corbel.Ec.PaymentPlanBuilder}
          */
         corbel.Ec.prototype.paymentPlan = function() {
-            var paymentPlan = new PaymentPlantBuilder();
+            var paymentPlan = new PaymentPlanBuilder();
             paymentPlan.driver = this.driver;
             return paymentPlan;
         };
@@ -6001,7 +6001,7 @@
          * @class
          * @memberOf corbel.Ec.PaymentPlanBuilder
          */
-        var PaymentPlanBuilder = corbel.Ec.PaymentPLanBuilder = corbel.Services.inherit({
+        var PaymentPlanBuilder = corbel.Ec.PaymentPlanBuilder = corbel.Services.inherit({
             constructor: function() {
                 this.uri = 'paymentplan';
             },
@@ -6065,26 +6065,26 @@
 
             /**
              * Change the payment plan status from terminated to open (reactivated the payment plan)
-             * 
+             *
              * @method
              * @memberOf corbel.Ec.PaymentPlanBuilder
              *
              * @param {String} id                Payment method identifier
-             * 
+             *
              */
             rescue: function(id) {
                 console.log('ecInterface.paymentplan.rescue');
 
                 corbel.validate.value('id', id);
                 return this.request({
-                    url: this._buildUri(this.uri, id, 'rescue'),
+                    url: this._buildUri(this.uri, id, '/rescue'),
                     method: corbel.request.method.PUT
                 });
             },
 
             /**
              * Change the payment method of a payment plan
-             * 
+             *
              * @method
              * @memberOf corbel.Ec.PaymentPlanBuilder
              *
@@ -6099,7 +6099,7 @@
                 corbel.validate.value('id', id);
 
                 return this.request({
-                    url: this._buildUri(this.uri, id, 'paymentmethod'),
+                    url: this._buildUri(this.uri, id, '/paymentmethod'),
                     method: corbel.request.method.PUT,
                     data: params
                 });
