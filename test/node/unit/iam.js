@@ -74,8 +74,8 @@ describe('corbel IAM module', function() {
 
         describe('mandatory values in config', function(){
             it('expects clientSecret to be defined', function(){
-                var config = { 
-                    urlBase : 'http://test.com' 
+                var config = {
+                    urlBase : 'http://test.com'
                 };
                 var driver = corbel.getDriver(config);
 
@@ -85,8 +85,8 @@ describe('corbel IAM module', function() {
             });
 
             it('expects clientId to be defined', function(){
-                var config = { 
-                    urlBase : 'http://test.com', 
+                var config = {
+                    urlBase : 'http://test.com',
                     clientSecret : 'test'
                 };
                 var driver = corbel.getDriver(config);
@@ -97,8 +97,8 @@ describe('corbel IAM module', function() {
             });
 
             it('passes if all mandatory values are provided', function(){
-                var config = { 
-                    urlBase : 'http://test.com', 
+                var config = {
+                    urlBase : 'http://test.com',
                     clientSecret : 'test',
                     clientId : 'test'
                 };
@@ -655,7 +655,22 @@ describe('corbel IAM module', function() {
             corbelDriver.iam.user('userId').getDevices();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/devices/');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/devices');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
+        it('Get devices with params', function() {
+            var params = {
+                query: {'$eq': {
+                  test: 3
+                }
+              }
+            };
+
+            corbelDriver.iam.user('userId').getDevices(params);
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/userId/devices?api:query=%7B%22%24eq%22%3A%7B%22test%22%3A3%7D%7D');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
@@ -663,7 +678,7 @@ describe('corbel IAM module', function() {
             corbelDriver.iam.user('me').getDevices();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 
@@ -672,7 +687,7 @@ describe('corbel IAM module', function() {
             corbelDriver.iam.user().getMyDevices();
 
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices/');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/devices');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 

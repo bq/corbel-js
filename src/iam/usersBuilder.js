@@ -248,12 +248,13 @@
           * @memberOf corbel.Iam.UserBuilder
           * @return {Promise} Q promise that resolves to a Device {Object} or rejects with a {@link corbelError}
           */
-         _getDevices: function() {
-            console.log('iamInterface.user.getDevices');
+         _getDevices: function(params) {
+            console.log('iamInterface.user.getDevices', params);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/devices/',
-                method: corbel.request.method.GET
+                url: this._buildUri(this.uri, this.id) + '/devices',
+                method: corbel.request.method.GET,
+                query: params ? corbel.utils.serializeParams(params) : null
             });
          },
 
