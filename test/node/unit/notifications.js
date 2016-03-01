@@ -66,9 +66,9 @@ describe('In Notifications module we can', function() {
                     type: 'mail'
                 }
             }],
-            page: {
-                size: 2,
-                page: 3
+            pagination: {
+                page: 1,
+                pageSize: 2
             },
             sort: {
                 field: 'asc'
@@ -80,7 +80,7 @@ describe('In Notifications module we can', function() {
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         var url = paramsRecived.url.split('?');
         expect(url).to.be.include(NOTIFICATION_URL);
-        expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}'));
+        expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=1&api:pageSize=2');
         expect(paramsRecived.method).to.be.equal('GET');
     });
 
