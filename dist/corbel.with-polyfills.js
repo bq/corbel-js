@@ -6352,17 +6352,20 @@
 
         corbel.Notifications = corbel.Object.inherit({
 
-            /**
-             * Creates a new NotificationsBuilder
-             * @param  {String} id String with the asset id or 'all' key
-             * @return {Notifications}
-             */
             constructor: function(driver) {
                 this.driver = driver;
             },
 
-            notification: function(id) {
-                return new corbel.Notifications.NotificationsBuilder(this.driver, id);
+            template: function(id) {
+                return new corbel.Notifications.NotificationsTemplateBuilder(this.driver, id);
+            },
+
+            domain: function() {
+                return new corbel.Notifications.NotificationsDomainBuilder(this.driver);
+            },
+
+            notification: function() {
+                return new corbel.Notifications.NotificationsBuilder(this.driver);
             }
 
         }, {
@@ -6387,83 +6390,13 @@
 
             /**
              * Creates a new NotificationsBuilder
-             * @param  {String} id String with the asset id or 'all' key
-             * @return {Assets}
+             * @return {corbel.Notification.NotificationBuilder}
              */
-            constructor: function(driver, id) {
+            constructor: function(driver) {
                 this.driver = driver;
                 this.uri = 'notification';
-                this.id = id;
             },
-            /*
-             * Creates a new notification
-             * @method
-             * @memberOf Corbel.Notifications.NotificationsBuilder
-             * @param {Object} notification                Contains the data of the new notification
-             * @param {String} notification.type    Notification type (mail,  sms...)
-             * @param {String} notification.text    Notification content
-             * @param {String} notification.sender  Notification sender
-             * @param {String} [notification.title] Notification title
-             *
-             * @return {Promise}                    Promise that resolves in the new notification id or rejects with a {@link CorbelError}
-             */
-            create: function(notification) {
-                console.log('notificationsInterface.notification.create', notification);
-                return this.request({
-                    url: this._buildUri(this.uri),
-                    method: corbel.request.method.POST,
-                    data: notification
-                }).
-                then(function(res) {
-                    return corbel.Services.getLocationId(res);
-                });
-            },
-            /**
-             * Gets a notification
-             * @method
-             * @memberOf Corbel.Notifications.NotificationsBuilder
-             * @param  {Object} [params]      Params of the corbel request
-             * @return {Promise}              Promise that resolves to a Notification {Object} or rejects with a {@link CorbelError}
-             */
-            get: function(params) {
-                console.log('notificationsInterface.notification.get', params);
-                return this.request({
-                    url: this._buildUri(this.uri, this.id),
-                    method: corbel.request.method.GET,
-                    query: params ? corbel.utils.serializeParams(params) : null
-                });
-            },
-            /**
-             * Updates a notification
-             * @method
-             * @memberOf Corbel.Notifications.NotificationsBuilder
-             * @param  {Object} data                    Data to be updated
-             *
-             * @return {Promise}                        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
-             */
-            update: function(data) {
-                console.log('notificationsInterface.notification.update', data);
-                corbel.validate.value('id', this.id);
-                return this.request({
-                    url: this._buildUri(this.uri, this.id),
-                    method: corbel.request.method.PUT,
-                    data: data
-                });
-            },
-            /**
-             * Deletes a notification
-             * @method
-             * @memberOf Corbel.Notifications.NotificationsBuilder
-             * @return {Promise}        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
-             */
-            delete: function() {
-                console.log('notificationsInterface.notification.delete');
-                corbel.validate.value('id', this.id);
-                return this.request({
-                    url: this._buildUri(this.uri, this.id),
-                    method: corbel.request.method.DELETE
-                });
-            },
+
             /**
              * Send a notification
              * @method
@@ -6474,7 +6407,7 @@
              * @param {Object} notification.propierties    Notification propierties
              * @return {Promise}        Promise that resolves to undefined (void) or rejects with a {@link CorbelError}
              */
-            sendNotification: function(notification) {
+            send: function(notification) {
                 console.log('notificationsInterface.notification.sendNotification', notification);
                 this.uri += '/send';
                 return this.request({
@@ -6484,15 +6417,10 @@
                 });
             },
 
-            _buildUri: function(path, id) {
-                var uri = '';
+            _buildUri: function(path) {
                 var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
 
-                uri = urlBase + path;
-                if (id) {
-                    uri += '/' + id;
-                }
-                return uri;
+                return urlBase + path;
             },
 
             _buildPort: function(config) {
