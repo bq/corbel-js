@@ -6,17 +6,20 @@
 
     corbel.Notifications = corbel.Object.inherit({
 
-        /**
-         * Creates a new NotificationsBuilder
-         * @param  {String} id String with the asset id or 'all' key
-         * @return {Notifications}
-         */
         constructor: function(driver) {
             this.driver = driver;
         },
 
-        notification: function(id) {
-            return new corbel.Notifications.NotificationsBuilder(this.driver, id);
+        template: function(id) {
+            return new corbel.Notifications.NotificationsTemplateBuilder(this.driver, id);
+        },
+
+        domain: function() {
+            return new corbel.Notifications.NotificationsDomainBuilder(this.driver);
+        },
+
+        notification: function() {
+            return new corbel.Notifications.NotificationsBuilder(this.driver);
         }
 
     }, {

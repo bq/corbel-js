@@ -73,6 +73,8 @@
   //  @include ../oauth/userBuilder.js
   //  @include ../notifications/notifications.js
   //  @include ../notifications/notificationsBuilder.js
+  //  @include ../notifications/notificationsTemplateBuilder.js
+  //  @include ../notifications/notificationsDomainBuilder.js
   //  @include ../ec/ec.js
   //  @include ../ec/orderBuilder.js
   //  @include ../ec/paymentBuilder.js
