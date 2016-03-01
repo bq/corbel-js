@@ -1,6 +1,21 @@
 
 # Changelog
 
+### v0.3.9 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.8...v0.3.9)
+
+#### Breaking changes
+
+Notifications api changes:
+notifications.notification.create -> notifications.template.create
+notifications.notification.get -> notifications.template.get
+notifications.notification.update -> notifications.template.update
+notifications.notification.delete -> notifications.template.delete
+notifications.notification.sendNotification -> notifications.notification.send
+
+#### Features
+
+* Added notifications domain interface
+
 ### v0.3.4 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.3...v0.3.4)
 
 #### Features

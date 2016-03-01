@@ -38,7 +38,7 @@ describe('In Notifications module we can', function() {
     it('create notification', function() {
         corbelRequestStub.returns(Promise.resolve());
         var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
-        corbelDriver.notifications.notification().create(notificationData);
+        corbelDriver.notifications.template().create(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL);
@@ -50,7 +50,7 @@ describe('In Notifications module we can', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
         var idNotification = 1;
 
-        corbelDriver.notifications.notification(idNotification).get();
+        corbelDriver.notifications.template(idNotification).get();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
@@ -74,7 +74,7 @@ describe('In Notifications module we can', function() {
             }
         };
 
-        corbelDriver.notifications.notification().get(params);
+        corbelDriver.notifications.template().get(params);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         var url = paramsRecived.url.split('?');
@@ -88,7 +88,7 @@ describe('In Notifications module we can', function() {
         var idNotification = 1;
         var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
 
-        corbelDriver.notifications.notification(idNotification).update(notificationData);
+        corbelDriver.notifications.template(idNotification).update(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
@@ -99,7 +99,7 @@ describe('In Notifications module we can', function() {
     it('update notification without an id', function() {
       corbelRequestStub.returns(Promise.resolve('OK'));
       expect(function(){
-        corbelDriver.notifications.notification().update({});
+        corbelDriver.notifications.template().update({});
       }).to.throw('id value is mandatory and cannot be undefined');
     });
 
@@ -107,7 +107,7 @@ describe('In Notifications module we can', function() {
         corbelRequestStub.returns(Promise.resolve('OK'));
         var idNotification = 1;
 
-        corbelDriver.notifications.notification(idNotification).delete();
+        corbelDriver.notifications.template(idNotification).delete();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
@@ -117,14 +117,14 @@ describe('In Notifications module we can', function() {
     it('delete notification without an id', function() {
       corbelRequestStub.returns(Promise.resolve('OK'));
       expect(function(){
-        corbelDriver.notifications.notification().delete();
+        corbelDriver.notifications.template().delete();
       }).to.throw('id value is mandatory and cannot be undefined');
     });
 
     it('send notification', function() {
         corbelRequestStub.returns(Promise.resolve());
         var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
-        corbelDriver.notifications.notification().sendNotification(notificationData);
+        corbelDriver.notifications.notification().send(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/send');
