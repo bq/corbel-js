@@ -488,6 +488,15 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
+        it('Get logged user current session', function() {
+
+            corbelDriver.iam.user().getMySession();
+
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + 'user/me/session');
+            expect(callRequestParam.method).to.be.equal('GET');
+        });
+
         it('Close all user sessions', function() {
 
             corbelDriver.iam.user('userId').closeSessions();
