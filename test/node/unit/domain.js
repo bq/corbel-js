@@ -18,6 +18,7 @@ describe('With custom domain we can', function() {
     };
 
     var RESOURCE_COLLECTION_URL = CONFIG.urlBase.replace('{{module}}', 'resources') + '{{domain}}/resource/{{resource}}' ;
+    var WEBFS_URL = CONFIG.urlBase.replace('{{module}}', 'webfs') + '{{domain}}/{{resource}}' ;
 
     var corbelDriver, corbelRequestStub;
 
@@ -39,7 +40,7 @@ describe('With custom domain we can', function() {
         expect(corbelDriver.domain(customDomain).resources.collection(resource).getURL()).to.be.equal(url);
     });
 
-    it('does not persist the value on the configuration for consecutive calls', function(done){
+    it('does not persist the value on resources configuration for consecutive calls', function(done){
         var resource = 'resource:entity';
         var customDomain = 'oneTestDomainTwo';
 
@@ -52,6 +53,22 @@ describe('With custom domain we can', function() {
             .get()
             .then(function(){
                 expect(corbelDriver.resources.collection(resource).getURL()).to.be.equal(urlWithoutDomain);
+            })
+            .should.notify(done);
+    });
+
+    it('does not persist the value on webfs configuration for consecutive calls', function(done){
+        var resource = 'index.html';
+        var customDomain = 'oneTestDomainTwo';
+
+        var urlWithDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', customDomain);
+        var urlWithoutDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'unauthenticated');
+
+        expect(corbelDriver.domain(customDomain).webfs.webfs(resource)._buildUri(resource)).to.be.equal(urlWithDomain);
+
+        corbelDriver.domain(customDomain).webfs.webfs(resource).get()
+            .then(function(){
+                expect(corbelDriver.webfs.webfs(resource)._buildUri(resource)).to.be.equal(urlWithoutDomain);
             })
             .should.notify(done);
     });
