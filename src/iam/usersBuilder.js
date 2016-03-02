@@ -203,18 +203,19 @@
           * User device register
           * @method
           * @memberOf corbel.Iam.UserBuilder
+          * @param  {string} deviceId  The device id
           * @param  {Object} data      The device data
           * @param  {Object} data.URI  The device token
           * @param  {Object} data.name The device name
-          * @param  {Object} data.type The device type (Android, Apple)
+          * @param  {Object} data.type The device type (ANDROID, APPLE, WEB)
           * @return {Promise} Q promise that resolves to a User {Object} or rejects with a {@link corbelError}
           */
-         _registerDevice: function(data) {
+         _registerDevice: function(deviceId, data) {
             console.log('iamInterface.user.registerDevice');
             corbel.validate.value('id', this.id);
 
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/devices',
+                url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
                 method: corbel.request.method.PUT,
                 data: data
             }).then(function(res) {
@@ -237,7 +238,7 @@
             });
 
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
                 method: corbel.request.method.GET
             });
          },
@@ -252,7 +253,7 @@
             console.log('iamInterface.user.getDevices', params);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/devices',
+                url: this._buildUri(this.uri, this.id) + '/device',
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null
             });
@@ -269,7 +270,7 @@
              console.log('iamInterface.user.deleteDevice');
              corbel.validate.value('deviceId', deviceId);
              return this.request({
-                 url: this._buildUri(this.uri, this.id) + '/devices/' + deviceId,
+                 url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
                  method: corbel.request.method.DELETE
              });
          },
