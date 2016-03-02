@@ -16,6 +16,44 @@ notifications.notification.sendNotification -> notifications.notification.send
 
 * Added notifications domain interface
 
+### v0.3.9 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.8...v0.3.9)
+
+#### Feature
+
+* Updated EC module with payment methods
+* Updated lodash
+
+### v0.3.8 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.7...v0.3.8)
+
+#### Features
+* Oauth support updated
+
+#### Test
+* Updated oauth tests
+
+#### Fix
+* Fixes codeclimate build
+* Reset password does not return location header
+
+### v0.3.7 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.6...v0.3.7)
+
+#### Fix
+
+* Fixes refresh token handler
+
+### v0.3.6 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.5...v0.3.6)
+
+#### Fix
+
+* Fixes ftsearch query
+
+### v0.3.5 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.4...v0.3.5)
+
+#### Features
+
+* Binaries and blob support
+* Get current endpoint function
+
 ### v0.3.4 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.3...v0.3.4)
 
 #### Features
