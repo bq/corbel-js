@@ -1,7 +1,7 @@
 
 # Changelog
 
-### v0.3.9 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.8...v0.3.9)
+### v0.3.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.9...v0.3.10)
 
 #### Breaking changes
 
