@@ -148,7 +148,24 @@
         },
 
         /**
-         * close all user sessions. All access token are deleted.
+         * retrieves current user session.
+         * @method
+         * @memberOf corbel.Iam.UserBuilder
+         * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
+         */
+        _getSession: function() {
+            console.log('iamInterface.user.get.session');
+            corbel.validate.value('id', this.id);
+
+            return this.request({
+                url: this._buildUri(this.uri, this.id) + '/session',
+                method: corbel.request.method.GET
+            });
+        },
+
+
+        /**
+         * close all users sessions. All access token are deleted.
          * @method
          * @memberOf corbel.Iam.UserBuilder
          * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
@@ -385,6 +402,9 @@
         },
         getMyDevice :function(){
              return this._getDevice.apply(this, arguments);
+        },
+        getMySession : function(){
+            return this._getSession.apply(this, arguments);
         },
         deleteMyDevice :function(){
              return this._deleteDevice.apply(this, arguments);
