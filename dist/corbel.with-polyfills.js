@@ -4180,7 +4180,10 @@
              */
             _registerDevice: function(deviceId, data) {
                 console.log('iamInterface.user.registerDevice');
-                corbel.validate.value('id', this.id);
+                corbel.validate.values(['id', 'deviceId'], {
+                    'id': this.id,
+                    'deviceId': deviceId
+                });
 
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
@@ -4236,7 +4239,10 @@
              */
             _deleteDevice: function(deviceId) {
                 console.log('iamInterface.user.deleteDevice');
-                corbel.validate.value('deviceId', deviceId);
+                corbel.validate.values(['id', 'deviceId'], {
+                    'id': this.id,
+                    'deviceId': deviceId
+                });
                 return this.request({
                     url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
                     method: corbel.request.method.DELETE
