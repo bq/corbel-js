@@ -1,6 +1,15 @@
 
 # Changelog
 
+### v0.3.11 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.10...v0.3.11)
+
+#### Breaking changes
+
+Devices api changes:
+iam.user().registerMyDevice(data) -> iam.user().registerMyDevice(deviceId, data)
+iam.user().registerDevice(data) -> iam.user().registerDevice(deviceId, data)
+update to devices to device endpoint
+
 ### v0.3.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.9...v0.3.10)
 
 #### Breaking changes
@@ -84,7 +93,7 @@ notifications.notification.sendNotification -> notifications.notification.send
 #### Fixes
 
 * Fixes bug with encoded urls
-* Support requests in IE 
+* Support requests in IE
 * Only 1 token refresh at the time
 * Fixed events hashmap
 
