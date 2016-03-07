@@ -2,7 +2,7 @@
 'use strict';
 //@endexclude
 
-(function() {
+(function () {
 
   /**
    * A module to make Ec requests.
@@ -11,14 +11,14 @@
    * @memberof app.corbel
    */
 
-  var Ec = corbel.Ec = function(driver) {
+  var Ec = corbel.Ec = function (driver) {
     this.driver = driver;
   };
 
   Ec.moduleName = 'ec';
   Ec.defaultPort = 8088;
 
-  Ec.create = function(driver) {
+  Ec.create = function (driver) {
     return new Ec(driver);
   };
 
@@ -48,7 +48,7 @@
        * @constant
        * @type {String}
        * @default
-
+       */
       FAILED: 'FAILED',
 
       /**
@@ -88,19 +88,19 @@
    * @param  {String} extra
    * @return {String}
    */
-  Ec._buildUri = function(uri, id, extra) {
+  Ec._buildUri = function (uri, id, extra) {
     if (id) {
       uri += '/' + id;
     }
     if (extra) {
       uri += extra;
     }
-    var urlBase =  this.driver.config.getCurrentEndpoint( Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
+    var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 
     return urlBase + uri;
   };
 
-  Ec._buildPort = function(config) {
+  Ec._buildPort = function (config) {
     return config.get('ecPort', null) || corbel.Ec.defaultPort;
   };
 
