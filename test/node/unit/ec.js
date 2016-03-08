@@ -338,9 +338,7 @@ describe('In EC module', function () {
 
       expect(response)
         .be.eventually.fulfilled
-        .then(function (response) {
-          expect(response).to.be.equal('ok');
-
+        .then(function () {
           var paramsRecived = corbel.request.send.firstCall.args[0];
           expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod');
           expect(paramsRecived.method).to.be.equal('POST');

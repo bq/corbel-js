@@ -6512,19 +6512,19 @@
                 COMPLETED: 'COMPLETED',
 
                 /**
-         * FAILED constant
-         * @constant
-         * @type {String}
-         * @default
-  
-        FAILED: 'FAILED',
-  
-        /**
-         * IN_PAYMENT constant
-         * @constant
-         * @type {String}
-         * @default
-         */
+                 * FAILED constant
+                 * @constant
+                 * @type {String}
+                 * @default
+                 */
+                FAILED: 'FAILED',
+
+                /**
+                 * IN_PAYMENT constant
+                 * @constant
+                 * @type {String}
+                 * @default
+                 */
                 IN_PAYMENT: 'IN_PAYMENT',
 
                 /**

@@ -62,10 +62,13 @@
       console.log('ecInterface.paymentmethod.add');
 
       return this.request({
-        url: this._buildUri(this.uri),
-        method: corbel.request.method.POST,
-        data: params
-      });
+          url: this._buildUri(this.uri),
+          method: corbel.request.method.POST,
+          data: params
+        })
+        .then(function (res) {
+          return corbel.Services.getLocationId(res);
+        });
     },
 
     /**
