@@ -16,12 +16,11 @@ describe('In Webfs module we can', function() {
 
         scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
-        domain: 'domain-example',
-        
         urlBase: 'https://{{module}}-corbel.io/v1.0/'
+
     };
 
-    var WEBFS_URL = CONFIG.urlBase.replace('{{module}}', 'webfs') + CONFIG.domain + '/';
+    var WEBFS_URL = CONFIG.urlBase.replace('{{module}}', 'webfs');
     var RESOURCE_ID = 'index.html';
 
     var corbelDriver = corbel.getDriver(CONFIG);
@@ -76,13 +75,4 @@ describe('In Webfs module we can', function() {
         }).to.throw('id value is mandatory and cannot be undefined');
     });
 
-    it('delete a folder from S3', function() {
-        corbelRequestStub.returns(Promise.resolve('OK'));
-
-        corbelDriver.webfs.webfs(RESOURCE_ID).delete();
-
-        var callRequestParam = corbelRequestStub.getCall(0).args[0];
-        expect(callRequestParam).to.have.property('url', WEBFS_URL + RESOURCE_ID);
-        expect(callRequestParam).to.have.property('method', 'DELETE');
-    });
 });
