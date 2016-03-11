@@ -6028,7 +6028,23 @@
                                 req.withCredentials = true;
                             }
 
-                            return that.request(req);
+                            // return that.request(req);
+                            return that.request(req).then(function(response) {
+                                var accessToken = response.data.accessToken || response.data.query.code;
+                                that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
+                                that.driver.config.set(corbel.Iam.IAM_DOMAIN, corbel.jwt.decode(accessToken).domainId);
+                                if (that.params.jwt) {
+                                    that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, corbel.jwt.decode(that.params.jwt).scope);
+                                }
+                                if (that.params.claims) {
+                                    if (that.params.claims.scope) {
+                                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, that.params.claims.scope);
+                                    } else {
+                                        that.driver.config.set(corbel.Iam.IAM_TOKEN_SCOPES, that.driver.config.get('scopes', ''));
+                                    }
+                                }
+                                return response;
+                            });
                         } else {
                             return res.data;
                         }
