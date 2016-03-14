@@ -82,7 +82,7 @@ module.exports = function(grunt) {
           drop_console: true
         }
       },
-      my_target: {
+      corbel: {
         files: {
           'dist/corbel.min.js': ['dist/corbel.js']
         }
