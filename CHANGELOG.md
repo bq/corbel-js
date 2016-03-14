@@ -1,25 +1,31 @@
 
 # Changelog
 
-### v0.3.11 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.10...v0.3.11)
+### v0.4.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.10...v0.4.0)
 
 #### Breaking changes
 
 Devices api changes:
-iam.user().registerMyDevice(data) -> iam.user().registerMyDevice(deviceId, data)
-iam.user().registerDevice(data) -> iam.user().registerDevice(deviceId, data)
-update to devices to device endpoint
+* iam.user().registerMyDevice(data) -> iam.user().registerMyDevice(deviceId, data)
+* iam.user().registerDevice(data) -> iam.user().registerDevice(deviceId, data)
+
+update to devices from device endpoint
+
+#### Features
+
+* iam get session endpoints
+* minification
 
 ### v0.3.10 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.9...v0.3.10)
 
 #### Breaking changes
 
 Notifications api changes:
-notifications.notification.create -> notifications.template.create
-notifications.notification.get -> notifications.template.get
-notifications.notification.update -> notifications.template.update
-notifications.notification.delete -> notifications.template.delete
-notifications.notification.sendNotification -> notifications.notification.send
+* notifications.notification.create -> notifications.template.create
+* notifications.notification.get -> notifications.template.get
+* notifications.notification.update -> notifications.template.update
+* notifications.notification.delete -> notifications.template.delete
+* notifications.notification.sendNotification -> notifications.notification.send
 
 #### Features
 
