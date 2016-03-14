@@ -75,6 +75,20 @@ module.exports = function(grunt) {
       }
     },
 
+    uglify: {
+      options: {
+        mangle: false,
+        compress: {
+          drop_console: true
+        }
+      },
+      my_target: {
+        files: {
+          'dist/corbel.min.js': ['dist/corbel.js']
+        }
+      }
+    },
+
     jshint: {
       options: {
         jshintrc: '.jshintrc',
@@ -456,7 +470,7 @@ module.exports = function(grunt) {
     'watch:jsdoc'
   ]);
 
-  grunt.registerTask('build', ['versioncheck', 'preprocess:default', 'preprocess:polyfills', 'jsbeautifier']);
+  grunt.registerTask('build', ['versioncheck', 'preprocess:default', 'preprocess:polyfills', 'jsbeautifier', 'uglify']);
 
   grunt.registerTask('dist', ['jshint', 'test']);
 

@@ -5032,7 +5032,6 @@
                                 req.withCredentials = true;
                             }
 
-                            // return that.request(req);
                             return that.request(req).then(function(response) {
                                 var accessToken = response.data.accessToken || response.data.query.code;
                                 that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);

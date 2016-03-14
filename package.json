@@ -54,7 +54,6 @@
     "request": "^2.69.0"
   },
   "devDependencies": {
-    "lodash": "^4.5.1",
     "blanket": "1.2.1",
     "body-parser": "1.14.2",
     "bower": "^1.7.7",
@@ -74,7 +73,7 @@
     "grunt-contrib-copy": "0.8.2",
     "grunt-contrib-cssmin": "0.14.0",
     "grunt-contrib-jshint": "^0.12.0",
-    "grunt-contrib-uglify": "^0.11.1",
+    "grunt-contrib-uglify": "^1.0.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-coveralls": "1.0.0",
     "grunt-exec": "0.4.6",
@@ -108,6 +107,7 @@
     "karma-sinon": "^1.0.4",
     "karma-tap-reporter": "0.0.6",
     "load-grunt-tasks": "3.4.0",
+    "lodash": "^4.5.1",
     "mocha": "^2.4.5",
     "mocha-lcov-reporter": "1.0.0",
     "node-inspector": "0.12.5",
