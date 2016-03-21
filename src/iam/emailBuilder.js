@@ -26,8 +26,6 @@
             this.uri = 'email';
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
         * Gets a UserId.
         *
@@ -43,7 +41,7 @@
             corbel.validate.value('email', email);
 
             return this.request({
-                url: this._buildUri(this.uri, email),
+                url: this._buildUriWithDomain(this.uri, email),
                 method: corbel.request.method.GET
             });
         },
@@ -60,7 +58,7 @@
             corbel.validate.value('email', email);
             
             return this.request({
-                url: this._buildUri(this.uri, email),
+                url: this._buildUriWithDomain(this.uri, email),
                 method: corbel.request.method.HEAD
             }).then(
                 function() {
@@ -74,6 +72,9 @@
                     }
                 }
             );
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
+        
     });
 })();

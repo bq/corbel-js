@@ -25,8 +25,6 @@
             this.uri = 'username';
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
          * Return availability endpoint.
          * @method
@@ -38,7 +36,7 @@
             console.log('iamInterface.username.availability', username);
             corbel.validate.value('username', username);
             return this.request({
-                url: this._buildUri(this.uri, username),
+                url: this._buildUriWithDomain(this.uri, username),
                 method: corbel.request.method.HEAD
             }).then(function() {
                 return false;
@@ -64,12 +62,13 @@
         getUserId: function(username) {
             console.log('iamInterface.username.getUserId', username);
             corbel.validate.value('username', username);
-            
             return this.request({
-                url: this._buildUri(this.uri, username),
+                url: this._buildUriWithDomain(this.uri, username),
                 method: corbel.request.method.GET
             });
-        }
-    });
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
+    });
 })();

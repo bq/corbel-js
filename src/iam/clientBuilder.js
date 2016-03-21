@@ -7,13 +7,12 @@
   /**
    * Creates a ClientBuilder for client managing requests.
    *
-   * @param {String} domainId Domain id (optional).
    * @param {String} clientId Client id (optional).
    *
    * @return {corbel.Iam.ClientBuilder}
    */
-  corbel.Iam.prototype.client = function(domainId, clientId) {
-    var client = new ClientBuilder(domainId, clientId);
+  corbel.Iam.prototype.client = function(clientId) {
+    var client = new ClientBuilder(clientId);
     client.driver = this.driver;
     return client;
   };
@@ -21,7 +20,6 @@
   /**
    * A builder for client management requests.
    *
-   * @param {String} domainId Domain id.
    * @param {String} clientId Client id.
    *
    * @class
@@ -29,10 +27,9 @@
    */
   var ClientBuilder = corbel.Iam.ClientBuilder = corbel.Services.inherit({
 
-    constructor: function(domainId, clientId) {
-      this.domainId = domainId;
+    constructor: function(clientId) {
       this.clientId = clientId;
-      this.uri = 'domain';
+      this.uri = 'client';
     },
 
     /**
@@ -56,10 +53,9 @@
      *                   with a {@link corbelError}.
      */
     create: function(client) {
-      console.log('iamInterface.domain.create', client);
-      corbel.validate.value('domainId', this.domainId);
+      console.log('iamInterface.client.create', client);
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.POST,
         data: client
       }).then(function(res) {
@@ -78,10 +74,10 @@
      * @return {Promise} A promise with the client or fails with a {@link corbelError}.
      */
     get: function() {
-      console.log('iamInterface.domain.get', this.clientId);
-      corbel.validate.values(['domainId', 'clientId'], this);
+      console.log('iamInterface.client.get', this.clientId);
+      corbel.validate.value('clientId', this.clientId);
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+        url: this._buildUriWithDomain(this.uri, this.clientId),
         method: corbel.request.method.GET
       });
     },
@@ -97,10 +93,9 @@
      */
     getAll: function(params) {
       corbel.validate.failIfIsDefined(this.clientId, 'This function not allowed client identifier');
-      corbel.validate.value('domainId', this.domainId);
-      console.log('iamInterface.domain.getAll');
+      console.log('iamInterface.client.getAll');
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId + '/client'),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
       });
@@ -125,10 +120,10 @@
      * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     update: function(client) {
-      console.log('iamInterface.domain.update', client);
-      corbel.validate.values(['domainId', 'clientId'], this);
+      console.log('iamInterface.client.update', client);
+      corbel.validate.value('clientId', this.clientId);
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+        url: this._buildUriWithDomain(this.uri + '/' + this.clientId),
         method: corbel.request.method.PUT,
         data: client
       });
@@ -145,16 +140,16 @@
      * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     remove: function() {
-      console.log('iamInterface.domain.remove', this.domainId, this.clientId);
-      corbel.validate.values(['domainId', 'clientId'], this);
+      console.log('iamInterface.client.remove', this.clientId);
+      corbel.validate.value('clientId', this.clientId);
 
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId + '/client/' + this.clientId),
+        url: this._buildUriWithDomain(this.uri + '/' + this.clientId),
         method: corbel.request.method.DELETE
       });
     },
 
-    _buildUri: corbel.Iam._buildUri
+    _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
   });
 

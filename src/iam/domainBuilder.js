@@ -7,12 +7,10 @@
   /**
    * Creates a DomainBuilder for domain managing requests.
    *
-   * @param {String} domainId Domain id.
-   *
    * @return {corbel.Iam.DomainBuilder}
    */
-  corbel.Iam.prototype.domain = function(domainId) {
-    var domain = new DomainBuilder(domainId);
+  corbel.Iam.prototype.domain = function() {
+    var domain = new DomainBuilder();
     domain.driver = this.driver;
     return domain;
   };
@@ -20,19 +18,14 @@
   /**
    * A builder for domain management requests.
    *
-   * @param {String} domainId Domain id (optional).
-   *
    * @class
    * @memberOf iam
    */
   var DomainBuilder = corbel.Iam.DomainBuilder = corbel.Services.inherit({
 
-    constructor: function(domainId) {
-      this.domainId = domainId;
+    constructor: function() {
       this.uri = 'domain';
     },
-
-    _buildUri: corbel.Iam._buildUri,
 
     /**
      * Creates a new domain.
@@ -55,7 +48,7 @@
     create: function(domain) {
       console.log('iamInterface.domain.create', domain);
       return this.request({
-        url: this._buildUri(this.uri),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.POST,
         data: domain
       }).then(function(res) {
@@ -72,16 +65,13 @@
      * @return {Promise} A promise with the domain or fails with a {@link corbelError}.
      */
     get: function() {
-      console.log('iamInterface.domain.get', this.domainId);
-      corbel.validate.value('domainId', this.domainId);
-
+      console.log('iamInterface.domain.get');
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.GET
       });
     },
-
-
+      
     /**
      * Gets all domains.
      *
@@ -92,10 +82,9 @@
      * @see {@link corbel.util.serializeParams} to see a example of the params
      */
     getAll: function(params) {
-      corbel.validate.failIfIsDefined(this.domainId, 'This function not allowed domain identifier');
       console.log('iamInterface.domain.getAll');
       return this.request({
-        url: this._buildUri(this.uri),
+        url: this._buildUriWithDomain(this.uri + '/all'),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
       });
@@ -120,10 +109,8 @@
      */
     update: function(domain) {
       console.log('iamInterface.domain.update', domain);
-      corbel.validate.value('domainId', this.domainId);
-
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.PUT,
         data: domain
       });
@@ -135,19 +122,19 @@
      * @method
      * @memberOf corbel.Iam.DomainBuilder
      *
-     * @param {String} domainId The domain id.
      *
      * @return {Promise} A promise or fails with a {@link corbelError}.
      */
     remove: function() {
-      console.log('iamInterface.domain.remove', this.domainId);
-      corbel.validate.value('domainId', this.domainId);
-
+      console.log('iamInterface.domain.delete');
       return this.request({
-        url: this._buildUri(this.uri + '/' + this.domainId),
+        url: this._buildUriWithDomain(this.uri),
         method: corbel.request.method.DELETE
       });
-    }
+    },
+    
+    _buildUriWithDomain: corbel.Iam._buildUriWithDomain
+
   });
 
 })();

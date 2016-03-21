@@ -34,8 +34,6 @@
             this.uri = 'group';
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
          * Get all groups.
          *
@@ -49,7 +47,7 @@
         getAll: function(params) {
             console.log('iamInterface.groups.getAll');
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this._buildUriWithDomain(this.uri),
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null,
                 withAuth: true
@@ -72,14 +70,16 @@
         create: function(data) {
             console.log('iamInterface.groups.create', data);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this._buildUriWithDomain(this.uri),
                 method: corbel.request.method.POST,
                 data: data,
                 withAuth: true
             }).then(function(res) {
                 return corbel.Services.getLocationId(res);
             });
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
     });
 
@@ -97,8 +97,6 @@
             this.id = id;
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
          * Get a group.
          *
@@ -110,7 +108,7 @@
             console.log('iamInterface.group.get');
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this._buildUriWithDomain(this.uri, this.id),
                 method: corbel.request.method.GET,
                 withAuth: true
             });
@@ -129,9 +127,8 @@
         addScopes: function(scopes) {
             console.log('iamInterface.group.addScopes', scopes);
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/scopes',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/scopes',
                 method: corbel.request.method.PUT,
                 data: scopes,
                 withAuth: true
@@ -151,9 +148,8 @@
         removeScope: function(scope) {
             console.log('iamInterface.group.removeScope', scope);
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/scopes/' + scope,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/scopes/' + scope,
                 method: corbel.request.method.DELETE,
                 withAuth: true
             });
@@ -169,14 +165,14 @@
         delete: function() {
             console.log('iamInterface.group.delete');
             corbel.validate.value('id', this.id);
-            
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this._buildUriWithDomain(this.uri, this.id),
                 method: corbel.request.method.DELETE,
                 withAuth: true
             });
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
     });
-
 })();
