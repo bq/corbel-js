@@ -30,8 +30,6 @@
             this.uri = 'scope';
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
          * Creates a new scope.
          *
@@ -47,9 +45,10 @@
          *                   with a {@link corbelError}.
          */
         create: function(scope) {
+            corbel.validate.failIfIsDefined(this.id, 'This function not allowed scope identifier');
             console.log('iamInterface.scope.create', scope);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this._buildUriWithDomain(this.uri),
                 method: corbel.request.method.POST,
                 data: scope
             }).then(function(res) {
@@ -68,9 +67,8 @@
         get: function() {
             console.log('iamInterface.scope.get', this.id);
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri + '/' + this.id),
+                url: this._buildUriWithDomain(this.uri + '/' + this.id),
                 method: corbel.request.method.GET
             });
         },
@@ -85,13 +83,13 @@
         remove: function() {
             console.log('iamInterface.scope.remove', this.id);
             corbel.validate.value('id', this.id);
-            
             return this.request({
-                url: this._buildUri(this.uri + '/' + this.id),
+                url: this._buildUriWithDomain(this.uri + '/' + this.id),
                 method: corbel.request.method.DELETE
             });
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
     });
-
 })();

@@ -119,7 +119,6 @@
                 if (params.oauth) {
                     promise = this._doGetTokenRequest(this.uri, params, setCookie);
                 }
-                
                 // otherwise we use the traditional POST verb.
                 promise = this._doPostTokenRequest(this.uri, params, setCookie);
                 
@@ -168,18 +167,15 @@
             var that = this;
             
             try {
-                
                 return this._doPostTokenRequest(this.uri, params)
                 .then(function(response) {
                     that.driver.config.set(corbel.Iam.IAM_TOKEN, response.data);
                     return response;
                 });
-
             } catch(e) {
                 console.log('error', e);
                 return Promise.reject(e);
             }
-            
         }
 
     });

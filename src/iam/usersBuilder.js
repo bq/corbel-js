@@ -12,6 +12,7 @@
      */
      corbel.Iam.prototype.user = function(id) {
          var builder;
+         
          if (id === 'me') {
            builder = new UserBuilder('me');
          }
@@ -44,7 +45,7 @@
      * @return {Promise}
      */
     corbel.Iam._getUser = function(method, uri, id, postfix) {
-        var url = (postfix ? this._buildUri(uri, id) + postfix : this._buildUri(uri, id));
+        var url = (postfix ? this._buildUriWithDomain(uri, id) + postfix : this._buildUriWithDomain(uri, id));
         return this.request({
             url: url,
             method: corbel.request.method.GET
@@ -63,9 +64,6 @@
             this.uri = 'user';
             this.id = id;
         },
-
-        _buildUri: corbel.Iam._buildUri,
-        _getUser: corbel.Iam._getUser,
 
         /**
          * Gets the user
@@ -89,9 +87,8 @@
         _update: function(data) {
             console.log('iamInterface.user.update', data);
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this._buildUriWithDomain(this.uri, this.id),
                 method: corbel.request.method.PUT,
                 data: data
             });
@@ -106,9 +103,8 @@
         _delete: function() {
             console.log('iamInterface.user.delete');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this._buildUriWithDomain(this.uri, this.id),
                 method: corbel.request.method.DELETE
             });
         },
@@ -124,9 +120,8 @@
         _signOut: function() {
             console.log('iamInterface.users.signOutMe');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/signout',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/signout',
                 method: corbel.request.method.PUT
             });
         },
@@ -140,9 +135,8 @@
         _disconnect: function() {
             console.log('iamInterface.user.disconnect');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/disconnect',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/disconnect',
                 method: corbel.request.method.PUT
             });
         },
@@ -156,9 +150,8 @@
         _getSession: function() {
             console.log('iamInterface.user.get.session');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/session',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/session',
                 method: corbel.request.method.GET
             });
         },
@@ -173,9 +166,8 @@
         _closeSessions: function() {
             console.log('iamInterface.user.close.sessions');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/sessions',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/sessions',
                 method: corbel.request.method.DELETE
             });
         },
@@ -190,12 +182,11 @@
          * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
          */
         addIdentity: function(identity) {
-            // console.log('iamInterface.user.addIdentity', identity);
             corbel.validate.isValue(identity, 'Missing identity');
             corbel.validate.value('id', this.id);
-
+            console.log('iamInterface.user.addIdentity', identity);
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/identity',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/identity',
                 method: corbel.request.method.POST,
                 data: identity
             });
@@ -210,12 +201,12 @@
         _getIdentities: function() {
             console.log('iamInterface.user.getIdentities');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/identity',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/identity',
                 method: corbel.request.method.GET
             });
         },
+        
         /**
           * User device register
           * @method
@@ -233,9 +224,8 @@
                 'id':this.id,
                 'deviceId': deviceId
             });
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/device/' + deviceId,
                 method: corbel.request.method.PUT,
                 data: data
             }).then(function(res) {
@@ -256,9 +246,8 @@
                 'id':this.id,
                 'deviceId': deviceId
             });
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/device/' + deviceId,
                 method: corbel.request.method.GET
             });
          },
@@ -273,7 +262,7 @@
             console.log('iamInterface.user.getDevices', params);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/device',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/device',
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null
             });
@@ -293,10 +282,11 @@
                  'deviceId': deviceId
              });
              return this.request({
-                 url: this._buildUri(this.uri, this.id) + '/device/' + deviceId,
+                 url: this._buildUriWithDomain(this.uri, this.id) + '/device/' + deviceId,
                  method: corbel.request.method.DELETE
              });
          },
+         
          /**
           * Get user profiles
           * @method
@@ -306,9 +296,8 @@
         _getProfile: function() {
             console.log('iamInterface.user.getProfile');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/profile',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/profile',
                 method: corbel.request.method.GET
             });
         },
@@ -323,9 +312,8 @@
         addGroups: function(groups) {
             console.log('iamInterface.user.addGroups');
             corbel.validate.value('id', this.id);
-
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/groups',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/groups',
                 method: corbel.request.method.PUT,
                 data: groups
             });
@@ -345,10 +333,13 @@
                 'group': group
             });
             return this.request({
-                url: this._buildUri(this.uri, this.id) + '/groups/'+group,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/groups/'+group,
                 method: corbel.request.method.DELETE
             });
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain,
+        _getUser: corbel.Iam._getUser,
 
     });
 
@@ -444,8 +435,6 @@
             this.uri = 'user';
         },
 
-        _buildUri: corbel.Iam._buildUri,
-
         /**
          * Sends a reset password email to the email address recived.
          * @method
@@ -457,7 +446,7 @@
             console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
             var query = 'email=' + userEmailToReset;
             return this.request({
-                url: this._buildUri(this.uri + '/resetPassword'),
+                url: this._buildUriWithDomain(this.uri + '/resetPassword'),
                 method: corbel.request.method.GET,
                 query: query
             });
@@ -473,7 +462,7 @@
         create: function(data) {
             console.log('iamInterface.users.create', data);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this._buildUriWithDomain(this.uri),
                 method: corbel.request.method.POST,
                 data: data
             }).then(function(res) {
@@ -490,7 +479,7 @@
         get: function(params) {
             console.log('iamInterface.users.get', params);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this._buildUriWithDomain(this.uri),
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null
             });
@@ -499,10 +488,13 @@
         getProfiles: function(params) {
             console.log('iamInterface.users.getProfiles', params);
             return this.request({
-                url: this._buildUri(this.uri) + '/profile',
+                url: this._buildUriWithDomain(this.uri) + '/profile',
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
             });
-        }
+        },
+        
+        _buildUriWithDomain: corbel.Iam._buildUriWithDomain
+        
     });
 })();
