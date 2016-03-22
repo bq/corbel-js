@@ -48,6 +48,31 @@
 
         return urlBase + uri;
     };
+    
+    /**
+     * Private method to build a string uri with domain
+     * @private
+     * @param  {String} uri
+     * @param  {String|Number} id
+     * @return {String}
+     */
+    Iam._buildUriWithDomain = function(uri, id) {
+
+        var urlBase =  this.driver.config.getCurrentEndpoint(Iam.moduleName, corbel.Iam._buildPort(this.driver.config));
+
+        var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
+        var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+            
+        this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
+
+        var uriWithDomain = urlBase + customDomain + '/' + uri;
+
+        if (id) {
+            uriWithDomain += '/' + id;
+        }
+
+        return uriWithDomain;        
+    };
 
     Iam._buildPort = function(config) {
       return config.get('iamPort', null) || corbel.Iam.defaultPort;
