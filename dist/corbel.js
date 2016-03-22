@@ -6175,10 +6175,12 @@
         /**
          * Create a PaymentPlanBuilder for payment managing requests.
          *
+         * @param {String} id payment plan id
+         *
          * @return {corbel.Ec.PaymentPlanBuilder}
          */
-        corbel.Ec.prototype.paymentPlan = function() {
-            var paymentPlan = new PaymentPlanBuilder();
+        corbel.Ec.prototype.paymentPlan = function(id) {
+            var paymentPlan = new PaymentPlanBuilder(id);
             paymentPlan.driver = this.driver;
             return paymentPlan;
         };
@@ -6190,7 +6192,8 @@
          * @memberOf corbel.Ec.PaymentPlanBuilder
          */
         var PaymentPlanBuilder = corbel.Ec.PaymentPlanBuilder = corbel.Services.inherit({
-            constructor: function() {
+            constructor: function(id) {
+                this.id = id;
                 this.uri = 'paymentplan';
             },
 
@@ -6204,29 +6207,8 @@
                 console.log('ecInterface.paymentplan.get');
 
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this._buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
-                });
-            },
-
-            /**
-             * Gets details of a single payment plan by its id
-             *
-             * @method
-             * @memberOf corbel.Ec.PaymentPlanBuilder
-             *
-             * @param {String} id                Payment method identifier
-             *
-             * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
-             *                                   {@link SilkRoadError}
-             */
-            getById: function(id) {
-                console.log('ecInterface.paymentplan.getById');
-
-                corbel.validate.value('id', id);
-                return this.request({
-                    url: this._buildUri(this.uri, id),
-                    method: corbel.request.method.GET
                 });
             },
 
@@ -6276,18 +6258,16 @@
              * @method
              * @memberOf corbel.Ec.PaymentPlanBuilder
              *
-             * @param {String} id                          Payment method identifier
-             * @param {Object} params                      The update params
-             * @param {String} params.paymentMethodId      Identifier of the payment method to use with the plan
+             * @param {Object} params                      The update params, they include payment Method id
              *
              */
-            update: function(id, params) {
-                console.log('ecInterface.paymentplan.update');
+            updatePaymentMethod: function(params) {
+                console.log('ecInterface.paymentplan.updatePaymentMethod');
 
-                corbel.validate.value('id', id);
+                corbel.validate.value('id', this.id);
 
                 return this.request({
-                    url: this._buildUri(this.uri, id, '/paymentmethod'),
+                    url: this._buildUri(this.uri, this.id, '/paymentmethod'),
                     method: corbel.request.method.PUT,
                     data: params
                 });
