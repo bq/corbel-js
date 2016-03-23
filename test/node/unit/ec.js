@@ -453,18 +453,11 @@ describe('In EC module', function () {
       var idPlan = 1;
 
       corbelRequestStub.returns(Promise.resolve('OK'));
-      corbelDriver.ec.paymentPlan().getById(idPlan);
+      corbelDriver.ec.paymentPlan(idPlan).get();
 
       var callRequestParam = corbel.request.send.firstCall.args[0];
       expect(callRequestParam.url).to.be.equal(EC_URL + 'paymentplan/' + idPlan);
       expect(callRequestParam.method).to.be.equal('GET');
-    });
-
-    it('get one without an id', function () {
-      corbelRequestStub.returns(Promise.resolve('OK'));
-      expect(function () {
-        corbelDriver.ec.paymentPlan().getById();
-      }).to.throw('id value is mandatory and cannot be undefined');
     });
 
     it('delete one', function (done) {
@@ -512,13 +505,13 @@ describe('In EC module', function () {
       }).to.throw('id value is mandatory and cannot be undefined');
     });
 
-    it('update one', function (done) {
+    it('update a paymentMethod', function (done) {
       corbelRequestStub.returns(Promise.resolve('OK'));
       var idPlan = 1;
       var params = {
         'paymentMethodId': '1234'
       };
-      var response = corbelDriver.ec.paymentPlan().update(_.cloneDeep(idPlan), _.cloneDeep(params));
+      var response = corbelDriver.ec.paymentPlan(_.cloneDeep(idPlan)).updatePaymentMethod(_.cloneDeep(params));
       expect(response).be.eventually.fulfilled
         .then(function (response) {
           expect(response).to.be.equal('OK');
@@ -531,10 +524,10 @@ describe('In EC module', function () {
         .and.notify(done);
     });
 
-    it('update one without an id', function () {
+    it('update a PaymentMethod without paymentPlan id', function () {
       corbelRequestStub.returns(Promise.resolve('OK'));
       expect(function () {
-        corbelDriver.ec.paymentPlan().update();
+        corbelDriver.ec.paymentPlan().updatePaymentMethod();
       }).to.throw('id value is mandatory and cannot be undefined');
     });
 
