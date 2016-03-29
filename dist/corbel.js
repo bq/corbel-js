@@ -3139,7 +3139,7 @@
                 console.log('iamInterface.user.close.sessions');
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/sessions',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/session',
                     method: corbel.request.method.DELETE
                 });
             },
@@ -3285,7 +3285,7 @@
                 console.log('iamInterface.user.addGroups');
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/groups',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/group',
                     method: corbel.request.method.PUT,
                     data: groups
                 });
@@ -3305,7 +3305,7 @@
                     'group': group
                 });
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/groups/' + group,
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/group/' + group,
                     method: corbel.request.method.DELETE
                 });
             },
@@ -3598,7 +3598,7 @@
                 console.log('iamInterface.group.addScopes', scopes);
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/scopes',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/scope',
                     method: corbel.request.method.PUT,
                     data: scopes,
                     withAuth: true
@@ -3619,7 +3619,7 @@
                 console.log('iamInterface.group.removeScope', scope);
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/scopes/' + scope,
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/scope/' + scope,
                     method: corbel.request.method.DELETE,
                     withAuth: true
                 });
