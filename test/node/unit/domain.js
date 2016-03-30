@@ -64,11 +64,11 @@ describe('With custom domain we can', function() {
         var urlWithDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'path/' + customDomain);
         var urlWithoutDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'path/' + 'unauthenticated');
 
-        expect(corbelDriver.domain(customDomain).webfs.webfs(resource)._buildUri(resource)).to.be.equal(urlWithDomain);
+        expect(corbelDriver.domain(customDomain).webfs.webfs(resource)._buildUriWithDomain(resource)).to.be.equal(urlWithDomain);
 
         corbelDriver.domain(customDomain).webfs.webfs(resource).get()
             .then(function(){
-                expect(corbelDriver.webfs.webfs(resource)._buildUri(resource)).to.be.equal(urlWithoutDomain);
+                expect(corbelDriver.webfs.webfs(resource)._buildUriWithDomain(resource)).to.be.equal(urlWithoutDomain);
             })
             .should.notify(done);
     });

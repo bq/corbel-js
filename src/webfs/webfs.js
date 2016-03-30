@@ -47,6 +47,17 @@
     defaultPort: 8096,
 
     /**
+    * defaultDomain constant
+    * @constant
+    * @memberof corbel.Webfs
+    * @type {Number}
+    * @default
+    */
+    defaultDomain: 'unauthenticated',
+
+    domain: 'domain',
+
+    /**
      * AssetsBuilder factory
      * @memberof corbel.Webfs
      * @param  {corbel} corbel instance driver
