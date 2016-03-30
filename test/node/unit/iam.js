@@ -9,7 +9,7 @@ var corbel = require('../../../dist/corbel.js'),
 describe('corbel IAM module', function() {
 
     var sandbox = sinon.sandbox.create();
-    
+
     var CONFIG = {
 
         clientId: 'clientId',
@@ -230,9 +230,9 @@ describe('corbel IAM module', function() {
     });
 
     describe('usernames availability', function() {
-        
+
         var domainId = 'test-domain';
-        
+
         it('get username availability', function() {
             var USERNAME = 'test';
             corbelDriver.domain(domainId).iam.username().availability(USERNAME);
@@ -273,13 +273,13 @@ describe('corbel IAM module', function() {
                 done();
             });
         });
-        
+
     });
 
     describe('Email availability', function() {
-        
+
         var domainId = 'test-domain';
-        
+
         it('Get email availability', function() {
             var EMAIL = 'test@test.com';
             corbelDriver.domain(domainId).iam.email().availability(EMAIL);
@@ -323,7 +323,7 @@ describe('corbel IAM module', function() {
     });
 
     describe('Users Management', function() {
-        
+
         var domainId = 'test-domain';
 
         it('Create user', function() {
@@ -457,21 +457,21 @@ describe('corbel IAM module', function() {
         it('Close all user sessions', function() {
             corbelDriver.domain(domainId).iam.user('userId').closeSessions();
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/sessions');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/session');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
         it('Close all user logged sessions', function() {
             corbelDriver.domain(domainId).iam.user('me').closeSessions();
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/sessions');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/session');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
         it('Close all my sessions', function() {
             corbelDriver.domain(domainId).iam.user().closeSessionsMe();
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/sessions');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/session');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
@@ -483,9 +483,9 @@ describe('corbel IAM module', function() {
         });
 
         describe('Adding user identity', function() {
-            
+
             var domainId = 'test-domain';
-            
+
             it('with valid identity object', function() {
                 corbelDriver.domain(domainId).iam.user('userId').addIdentity({
                     oAuthService: 'silkroad',
@@ -556,7 +556,7 @@ describe('corbel IAM module', function() {
     });
 
     describe('User devices', function() {
-        
+
         var domainId = 'test-domain';
 
         it('Register my device', function() {
@@ -659,44 +659,44 @@ describe('corbel IAM module', function() {
     });
 
     describe('User groups', function() {
-        
+
         var domainId = 'test-domain';
 
         it('Add groups to user', function() {
             var groups = ['g1', 'g2'];
             corbelDriver.domain(domainId).iam.user('userId').addGroups(groups);
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/groups');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/group');
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
         it('Delete group to user', function() {
             corbelDriver.domain(domainId).iam.user('userId').deleteGroup('g1');
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/groups/g1');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/userId/group/g1');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
         it('Delete group my group using me', function() {
             corbelDriver.domain(domainId).iam.user('me').deleteGroup('g1');
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/groups/g1');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/group/g1');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
         it('Delete my group', function() {
             corbelDriver.domain(domainId).iam.user().deleteMyGroup('g1');
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/groups/g1');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me/group/g1');
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
     });
 
     describe('Domain admin interface', function() {
-        
+
         var domainId = 'test-domain';
-        
+
         var data = {
             id: 'jklasdfjklasdf'
         };
@@ -802,10 +802,10 @@ describe('corbel IAM module', function() {
     });
 
     describe('Scope admin interface', function() {
-        
+
         var domainId = 'test-domain';
-        
-        it('Create a new scope', function() {           
+
+        it('Create a new scope', function() {
             var scope = {
                 id: 'jklsdfbnwerj'
             };
@@ -817,7 +817,7 @@ describe('corbel IAM module', function() {
                 expect(scope.id).to.be.equal(id);
             });
         });
-        
+
         it('Create a scope with identifier', function() {
           corbelRequestStub.returns(Promise.resolve('OK'));
           expect(function(){
@@ -857,9 +857,9 @@ describe('corbel IAM module', function() {
     });
 
     describe('Groups api interface', function() {
-        
+
         var domainId = 'test-domain';
-        
+
         it('Get all groups', function() {
             corbelDriver.domain(domainId).iam.group().getAll();
             var callRequestParam = corbel.request.send.firstCall.args[0];
@@ -890,7 +890,7 @@ describe('corbel IAM module', function() {
             var id = 'id';
             corbelDriver.domain(domainId).iam.group(id).addScopes(['scope1']);
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/group/' + id + '/scopes');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/group/' + id + '/scope');
             expect(callRequestParam.method).to.be.equal('PUT');
         });
 
@@ -899,7 +899,7 @@ describe('corbel IAM module', function() {
             var scopeToRemove = 'scope1';
             corbelDriver.domain(domainId).iam.group(id).removeScope(scopeToRemove);
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/group/' + id + '/scopes/' + scopeToRemove);
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/group/' + id + '/scope/' + scopeToRemove);
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
