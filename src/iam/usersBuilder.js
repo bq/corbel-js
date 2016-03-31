@@ -12,7 +12,7 @@
      */
      corbel.Iam.prototype.user = function(id) {
          var builder;
-         
+
          if (id === 'me') {
            builder = new UserBuilder('me');
          }
@@ -167,7 +167,7 @@
             console.log('iamInterface.user.close.sessions');
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id) + '/sessions',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/session',
                 method: corbel.request.method.DELETE
             });
         },
@@ -206,7 +206,7 @@
                 method: corbel.request.method.GET
             });
         },
-        
+
         /**
           * User device register
           * @method
@@ -286,7 +286,7 @@
                  method: corbel.request.method.DELETE
              });
          },
-         
+
          /**
           * Get user profiles
           * @method
@@ -313,7 +313,7 @@
             console.log('iamInterface.user.addGroups');
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id) + '/groups',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/group',
                 method: corbel.request.method.PUT,
                 data: groups
             });
@@ -333,11 +333,11 @@
                 'group': group
             });
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id) + '/groups/'+group,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/group/'+group,
                 method: corbel.request.method.DELETE
             });
         },
-        
+
         _buildUriWithDomain: corbel.Iam._buildUriWithDomain,
         _getUser: corbel.Iam._getUser,
 
@@ -493,8 +493,8 @@
                 query: params ? corbel.utils.serializeParams(params) : null //TODO cambiar por util e implementar dicho metodo
             });
         },
-        
+
         _buildUriWithDomain: corbel.Iam._buildUriWithDomain
-        
+
     });
 })();

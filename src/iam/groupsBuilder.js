@@ -78,7 +78,7 @@
                 return corbel.Services.getLocationId(res);
             });
         },
-        
+
         _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
     });
@@ -128,7 +128,7 @@
             console.log('iamInterface.group.addScopes', scopes);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id) + '/scopes',
+                url: this._buildUriWithDomain(this.uri, this.id) + '/scope',
                 method: corbel.request.method.PUT,
                 data: scopes,
                 withAuth: true
@@ -149,7 +149,7 @@
             console.log('iamInterface.group.removeScope', scope);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id) + '/scopes/' + scope,
+                url: this._buildUriWithDomain(this.uri, this.id) + '/scope/' + scope,
                 method: corbel.request.method.DELETE,
                 withAuth: true
             });
@@ -171,7 +171,7 @@
                 withAuth: true
             });
         },
-        
+
         _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
     });

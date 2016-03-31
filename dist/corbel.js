@@ -653,6 +653,44 @@
             return blob;
         };
 
+        /**
+         * Checks if times between client and server has a delay below the @common.MAX_TIME_DELTA thereshold
+         * @param {Number} [maxDelay=common.MAX_TIME_DELTA] Time in seconds for delay thereshold
+         * @return {Promise} A promise that resolves if the delay is under @common.MAX_TIME_DELTA, otherwise it fails
+         */
+
+        utils.isInTime = function(driver, maxDelay) {
+            var MAX_TIME_DELTA = 60 * 10;
+
+            var checkDelay = function(response) {
+                var local = new Date();
+                var server = new Date(response.headers.date);
+                var delay = Math.abs(local.valueOf() - server.valueOf());
+
+                if (delay > maxDelay) {
+                    throw new Error('error:client-time:delay');
+                }
+
+                return delay;
+            };
+
+            maxDelay = (maxDelay || MAX_TIME_DELTA) * 1000;
+
+            return corbel.request
+                .send({
+                    url: driver.config.getCurrentEndpoint('iam').replace(/v\d.\d\//, '') + 'version',
+                    method: corbel.request.method.OPTIONS
+                })
+                .then(function(response) {
+                    return checkDelay(response);
+                })
+                .catch(function(error) {
+                    if (!error) {
+                        throw new Error('error:server:not-available');
+                    }
+                    return checkDelay(error);
+                });
+        };
         return utils;
 
     })();
@@ -3139,7 +3177,7 @@
                 console.log('iamInterface.user.close.sessions');
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/sessions',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/session',
                     method: corbel.request.method.DELETE
                 });
             },
@@ -3285,7 +3323,7 @@
                 console.log('iamInterface.user.addGroups');
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/groups',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/group',
                     method: corbel.request.method.PUT,
                     data: groups
                 });
@@ -3305,7 +3343,7 @@
                     'group': group
                 });
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/groups/' + group,
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/group/' + group,
                     method: corbel.request.method.DELETE
                 });
             },
@@ -3598,7 +3636,7 @@
                 console.log('iamInterface.group.addScopes', scopes);
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/scopes',
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/scope',
                     method: corbel.request.method.PUT,
                     data: scopes,
                     withAuth: true
@@ -3619,7 +3657,7 @@
                 console.log('iamInterface.group.removeScope', scope);
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri, this.id) + '/scopes/' + scope,
+                    url: this._buildUriWithDomain(this.uri, this.id) + '/scope/' + scope,
                     method: corbel.request.method.DELETE,
                     withAuth: true
                 });
