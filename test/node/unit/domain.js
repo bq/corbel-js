@@ -61,8 +61,8 @@ describe('With custom domain we can', function() {
         var resource = 'index.html';
         var customDomain = 'oneTestDomainTwo';
 
-        var urlWithDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'path/' + customDomain);
-        var urlWithoutDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'path/' + 'unauthenticated');
+        var urlWithDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', customDomain + '/path');
+        var urlWithoutDomain = WEBFS_URL.replace('{{resource}}', resource).replace('{{domain}}', 'unauthenticated' + '/path');
 
         expect(corbelDriver.domain(customDomain).webfs.webfs(resource)._buildUriWithDomain(resource)).to.be.equal(urlWithDomain);
 

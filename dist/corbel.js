@@ -7746,7 +7746,7 @@
 
                 this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
 
-                var uriWithDomain = urlBase + 'path/' + customDomain;
+                var uriWithDomain = urlBase + customDomain + '/path';
 
                 if (id) {
                     uriWithDomain += '/' + id;

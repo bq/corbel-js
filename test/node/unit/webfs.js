@@ -21,7 +21,7 @@ describe('In Webfs module we can', function() {
         urlBase: 'https://{{module}}-corbel.io/v1.0/'
     };
 
-    var WEBFS_URL = CONFIG.urlBase.replace('{{module}}', 'webfs') + 'path/' + CONFIG.domain + '/';
+    var WEBFS_URL = CONFIG.urlBase.replace('{{module}}', 'webfs') + CONFIG.domain + '/path/';
     var RESOURCE_ID = 'index.html';
 
     var corbelDriver = corbel.getDriver(CONFIG);
