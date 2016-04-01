@@ -224,6 +224,8 @@
       throw new Error('invalid:url', options.url);
     }
 
+    options.withCredentials = typeof options.withCredentials === 'boolean' ? options.withCredentials : true;
+    
     var params = {
       method: options.method || request.method.GET,
       url: options.url,
@@ -231,7 +233,7 @@
       callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
       callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
       responseType: options.responseType,
-      withCredentials: options.withCredentials || true,
+      withCredentials: options.withCredentials,
       useCookies: options.useCookies || false
     };
 
