@@ -7651,6 +7651,17 @@
             defaultPort: 8096,
 
             /**
+             * defaultDomain constant
+             * @constant
+             * @memberof corbel.Webfs
+             * @type {Number}
+             * @default
+             */
+            defaultDomain: 'unauthenticated',
+
+            domain: 'domain',
+
+            /**
              * AssetsBuilder factory
              * @memberof corbel.Webfs
              * @param  {corbel} corbel instance driver
@@ -7701,7 +7712,7 @@
                 var options = params ? corbel.utils.clone(params) : {};
 
                 var args = corbel.utils.extend(options, {
-                    url: this._buildUri(this.id),
+                    url: this._buildUriWithDomain(this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
                 });
@@ -7710,10 +7721,40 @@
 
             },
 
+            delete: function() {
+
+                corbel.validate.value('id', this.id);
+
+                var args = {
+                    url: this._buildUriWithDomain(this.id),
+                    method: corbel.request.method.DELETE
+                };
+
+                return this.request(args);
+            },
+
             _buildUri: function(id) {
                 var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
 
                 return urlBase + id;
+            },
+
+            _buildUriWithDomain: function(id) {
+
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Webfs.moduleName, this._buildPort(this.driver.config));
+
+                var domain = this.driver.config.get(corbel.Webfs.domain, corbel.Webfs.defaultDomain);
+                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
+
+                var uriWithDomain = urlBase + customDomain + '/path';
+
+                if (id) {
+                    uriWithDomain += '/' + id;
+                }
+
+                return uriWithDomain;
             },
 
             _buildPort: function(config) {
