@@ -653,6 +653,44 @@
             return blob;
         };
 
+        /**
+         * Checks if times between client and server has a delay below the @common.MAX_TIME_DELTA thereshold
+         * @param {Number} [maxDelay=common.MAX_TIME_DELTA] Time in seconds for delay thereshold
+         * @return {Promise} A promise that resolves if the delay is under @common.MAX_TIME_DELTA, otherwise it fails
+         */
+
+        utils.isInTime = function(driver, maxDelay) {
+            var MAX_TIME_DELTA = 60 * 10;
+
+            var checkDelay = function(response) {
+                var local = new Date();
+                var server = new Date(response.headers.date);
+                var delay = Math.abs(local.valueOf() - server.valueOf());
+
+                if (delay > maxDelay) {
+                    throw new Error('error:client-time:delay');
+                }
+
+                return delay;
+            };
+
+            maxDelay = (maxDelay || MAX_TIME_DELTA) * 1000;
+
+            return corbel.request
+                .send({
+                    url: driver.config.getCurrentEndpoint('iam').replace(/v\d.\d\//, '') + 'version',
+                    method: corbel.request.method.OPTIONS
+                })
+                .then(function(response) {
+                    return checkDelay(response);
+                })
+                .catch(function(error) {
+                    if (!error) {
+                        throw new Error('error:server:not-available');
+                    }
+                    return checkDelay(error);
+                });
+        };
         return utils;
 
     })();
@@ -1463,6 +1501,8 @@
                 throw new Error('invalid:url', options.url);
             }
 
+            options.withCredentials = typeof options.withCredentials === 'boolean' ? options.withCredentials : true;
+
             var params = {
                 method: options.method || request.method.GET,
                 url: options.url,
@@ -1470,7 +1510,7 @@
                 callbackSuccess: options.success && typeof options.success === 'function' ? options.success : undefined,
                 callbackError: options.error && typeof options.error === 'function' ? options.error : undefined,
                 responseType: options.responseType,
-                withCredentials: options.withCredentials || true,
+                withCredentials: options.withCredentials,
                 useCookies: options.useCookies || false
             };
 
