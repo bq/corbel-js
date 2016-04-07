@@ -37,8 +37,7 @@
                 url: this._buildUri(this.uri,this.eventType),
                 method: corbel.request.method.POST,
                 data: eventData
-            }).then(function(res) {
-                res.data = corbel.Services.getLocationId(res);
+            }).then(function(res) {                
                 return res;
             });
         },
