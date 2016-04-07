@@ -6672,7 +6672,6 @@
                     method: corbel.request.method.POST,
                     data: eventData
                 }).then(function(res) {
-                    res.data = corbel.Services.getLocationId(res);
                     return res;
                 });
             },
