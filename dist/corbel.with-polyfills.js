@@ -1681,10 +1681,10 @@
                     return checkDelay(response);
                 })
                 .catch(function(error) {
-                    if (!error) {
+                    if (error.data.length == 0) {
                         throw new Error('error:server:not-available');
                     }
-                    return checkDelay(error);
+                    throw error;
                 });
         };
         return utils;
