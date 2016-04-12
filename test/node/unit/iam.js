@@ -478,7 +478,7 @@ describe('corbel IAM module', function() {
         it('Generate sendResetPasswordEmail request correctly', function() {
             corbelDriver.domain(domainId).iam.users().sendResetPasswordEmail('test@email.com');
             var callRequestParam = corbel.request.send.firstCall.args[0];
-            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/resetPassword?email=test@email.com');
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/resetPassword?email=test%40email.com');
             expect(callRequestParam.method).to.be.equal('GET');
         });
 

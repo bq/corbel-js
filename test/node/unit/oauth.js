@@ -282,7 +282,7 @@ describe('In OAUTH module', function() {
             var spplitedResponse = callRequestParam.url.split('?');
             //expect(spplitedResponse).to.be.equal(USER_OAUTH_URL + '/resetPassword?email=test@email.com');
             expect(callRequestParam.method).to.be.equal('GET');
-            expect(spplitedResponse).to.include('email=test@email.com');
+            expect(spplitedResponse).to.include('email=test%40email.com');
             expect(spplitedResponse).to.include(OAUTH_URL + 'user/resetPassword');
 
         });
