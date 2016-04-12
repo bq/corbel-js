@@ -528,7 +528,7 @@
         return checkDelay(response);
       })
       .catch(function(error) {
-        if (error.data.length == 0) {
+        if (error.data.length === 0) {
           throw new Error('error:server:not-available');
         }
         throw error;
