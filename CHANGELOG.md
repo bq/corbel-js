@@ -1,6 +1,30 @@
 
 # Changelog
 
+
+### v0.5.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.4.0...v0.5.0)
+
+#### Breaking changes
+
+- [Corbel] Review IAM plural endpoints 
+    - `/sessions` to `/session`
+    - `/groups` to `/group`
+    - `/scopes` to `/scope`
+
+#### Features
+
+- Iam endpoints with domain parameters
+- Adds a util that checks delay between server-client
+- Delete endpoint for webfs and path prefix
+
+#### Fixes
+
+- fix encoding problem in reset password methods
+- changed paymentplan builder
+- evci does not return location in header
+- fix request without credentials
+- Path & Domain order inversion in webfs
+
 ### v0.4.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.3.10...v0.4.0)
 
 #### Breaking changes
