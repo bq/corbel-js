@@ -4452,7 +4452,7 @@
              */
             sendResetPasswordEmail: function(userEmailToReset) {
                 console.log('iamInterface.users.sendResetPasswordEmail', userEmailToReset);
-                var query = 'email=' + userEmailToReset;
+                var query = 'email=' + encodeURIComponent(userEmailToReset);
                 return this.request({
                     url: this._buildUriWithDomain(this.uri + '/resetPassword'),
                     method: corbel.request.method.GET,
@@ -6340,7 +6340,7 @@
                 return this.request({
                         url: this._buildUri(this.uri + '/resetPassword'),
                         method: corbel.request.method.GET,
-                        query: 'email=' + userEmailToReset,
+                        query: 'email=' + encodeURIComponent(userEmailToReset),
                         headers: {
                             Authorization: 'Basic ' + this.getSerializer()(this.clientId + ':' + this.clientSecret)
                         },
