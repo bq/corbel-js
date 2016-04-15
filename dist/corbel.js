@@ -5455,14 +5455,55 @@
 
         });
 
+
         return corbel.Notifications;
+
+    })();
+
+    (function() {
+
+        corbel.Notifications.BaseNotifications = corbel.Services.inherit({
+
+            /**
+             * Helper function to build the request uri
+             * @param  {String} srcType     Type of the resource
+             * @param  {String} srcId       Id of the resource
+             * @param  {String} relType     Type of the relationed resource
+             * @param  {String} destId      Information of the relationed resource
+             * @return {String}             Uri to perform the request
+             */
+            buildUri: function(uri, id) {
+                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
+
+                var domain = this.driver.config.get(corbel.Iam.IAM_DOMAIN, 'unauthenticated');
+                var customDomain = this.driver.config.get(corbel.Domain.CUSTOM_DOMAIN, domain);
+
+                this.driver.config.set(corbel.Domain.CUSTOM_DOMAIN, undefined);
+
+                var uriWithDomain = urlBase + customDomain + '/' + uri;
+
+                if (id) {
+                    uriWithDomain += '/' + id;
+                }
+
+                return uriWithDomain;
+            },
+
+            _buildPort: function(config) {
+                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
+            }
+
+        });
+
+
+        return corbel.Notifications.BaseNotifications;
 
     })();
 
 
     (function() {
 
-        var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.inherit({
+        var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Notifications.BaseNotifications.inherit({
 
             /**
              * Creates a new NotificationsBuilder
@@ -5487,20 +5528,10 @@
                 console.log('notificationsInterface.notification.sendNotification', notification);
                 this.uri += '/send';
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: notification
                 });
-            },
-
-            _buildUri: function(path) {
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-                return urlBase + path;
-            },
-
-            _buildPort: function(config) {
-                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
             }
 
         }, {
@@ -5519,7 +5550,7 @@
 
     (function() {
 
-        corbel.Notifications.NotificationsTemplateBuilder = corbel.Services.inherit({
+        corbel.Notifications.NotificationsTemplateBuilder = corbel.Notifications.BaseNotifications.inherit({
 
             /**
              * Creates a new NotificationsTemplateBuilder
@@ -5546,7 +5577,7 @@
             create: function(notification) {
                 console.log('notificationsInterface.template.create', notification);
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: notification
                 }).
@@ -5564,7 +5595,7 @@
             get: function(params) {
                 console.log('notificationsInterface.template.get', params);
                 return this.request({
-                    url: this._buildUri(this.uri, this.id),
+                    url: this.buildUri(this.uri, this.id),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
                 });
@@ -5581,7 +5612,7 @@
                 console.log('notificationsInterface.template.update', data);
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUri(this.uri, this.id),
+                    url: this.buildUri(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: data
                 });
@@ -5596,24 +5627,9 @@
                 console.log('notificationsInterface.template.delete');
                 corbel.validate.value('id', this.id);
                 return this.request({
-                    url: this._buildUri(this.uri, this.id),
+                    url: this.buildUri(this.uri, this.id),
                     method: corbel.request.method.DELETE
                 });
-            },
-
-            _buildUri: function(path, id) {
-                var uri = '';
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-                uri = urlBase + path;
-                if (id) {
-                    uri += '/' + id;
-                }
-                return uri;
-            },
-
-            _buildPort: function(config) {
-                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
             }
 
         }, {
@@ -5633,7 +5649,7 @@
 
     (function() {
 
-        var NotificationsDomainBuilder = corbel.Notifications.NotificationsDomainBuilder = corbel.Services.inherit({
+        var NotificationsDomainBuilder = corbel.Notifications.NotificationsDomainBuilder = corbel.Notifications.BaseNotifications.inherit({
 
             /**
              * Creates a new NotificationsDomainBuilder
@@ -5656,7 +5672,7 @@
             create: function(domain) {
                 console.log('notificationsInterface.domain.create', domain);
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.POST,
                     data: domain
                 }).
@@ -5673,7 +5689,7 @@
             get: function() {
                 console.log('notificationsInterface.domain.get');
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.GET
                 });
             },
@@ -5688,7 +5704,7 @@
             update: function(data) {
                 console.log('notificationsInterface.domain.update', data);
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.PUT,
                     data: data
                 });
@@ -5702,19 +5718,9 @@
             delete: function() {
                 console.log('notificationsInterface.domain.delete');
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this.buildUri(this.uri),
                     method: corbel.request.method.DELETE
                 });
-            },
-
-            _buildUri: function(path) {
-                var urlBase = this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-                return urlBase + path;
-            },
-
-            _buildPort: function(config) {
-                return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
             }
 
         }, {

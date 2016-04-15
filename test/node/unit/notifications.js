@@ -14,15 +14,14 @@ describe('In Notifications module we can', function() {
 
         clientId: 'clientId',
         clientSecret: 'clientSecret',
-
+        domain: 'domain-example',
         scopes: ['silkroad-qa:client', 'resources:send_event_bus', 'resources:test:test_operations', 'resources:music:read_catalog', 'resources:music:streaming'],
 
         urlBase: 'https://{{module}}-corbel.io/'
 
     };
 
-    var NOTIFICATION_URL = CONFIG.urlBase.replace('{{module}}', 'notifications') + 'notification';
-    var NOTIFICATION_DOMAIN_URL = CONFIG.urlBase.replace('{{module}}', 'notifications') + 'domain';
+    var MODULE_URL = CONFIG.urlBase.replace('{{module}}', 'notifications');
 
     var corbelRequestStub;
 
@@ -42,7 +41,18 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.template().create(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL);
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/notification');
+        expect(paramsRecived.method).to.be.equal('POST');
+        expect(paramsRecived.data).to.be.equal(notificationData);
+    });
+
+    it('create notification template in a custom domain', function() {
+        corbelRequestStub.returns(Promise.resolve());
+        var notificationData = '{\'id\':\'OAuth:mail:resetPass\',\'type\':\'mail\', }';
+        corbelDriver.domain('customDomain').notifications.template().create(notificationData);
+
+        var paramsRecived = corbelRequestStub.getCall(0).args[0];
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + 'customDomain' + '/notification');
         expect(paramsRecived.method).to.be.equal('POST');
         expect(paramsRecived.data).to.be.equal(notificationData);
     });
@@ -54,7 +64,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.template(idNotification).get();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/notification' + '/1');
         expect(paramsRecived.method).to.be.equal('GET');
     });
 
@@ -79,7 +89,7 @@ describe('In Notifications module we can', function() {
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
         var url = paramsRecived.url.split('?');
-        expect(url).to.be.include(NOTIFICATION_URL);
+        expect(url).to.be.include(MODULE_URL + CONFIG.domain + '/notification');
         expect(url).to.be.include('api:query=' + encodeURIComponent('[{"$eq":{"type":"mail"}}]') + '&api:sort=' + encodeURIComponent('{"field":"asc"}') + '&api:page=1&api:pageSize=2');
         expect(paramsRecived.method).to.be.equal('GET');
     });
@@ -92,7 +102,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.template(idNotification).update(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/notification' +'/1');
         expect(paramsRecived.method).to.be.equal('PUT');
         expect(paramsRecived.data).to.be.equal(notificationData);
     });
@@ -111,7 +121,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.template(idNotification).delete();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL +'/1');
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/notification' +'/1');
         expect(paramsRecived.method).to.be.equal('DELETE');
     });
 
@@ -128,7 +138,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.notification().send(notificationData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_URL + '/send');
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/notification/send');
         expect(paramsRecived.method).to.be.equal('POST');
         expect(paramsRecived.data).to.be.equal(notificationData);
     });
@@ -139,7 +149,18 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.domain().create(notificationDomainData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_DOMAIN_URL);
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/domain');
+        expect(paramsRecived.method).to.be.equal('POST');
+        expect(paramsRecived.data).to.be.equal(notificationDomainData);
+    });
+
+    it('create notification domain with custom domain', function() {
+        corbelRequestStub.returns(Promise.resolve());
+        var notificationDomainData = '{\'properties\':{\'prop1\':\'propValue1\'},\'templates\':{\'temp1\': \'tempValue1\'}}';
+        corbelDriver.domain('customDomain').notifications.domain().create(notificationDomainData);
+
+        var paramsRecived = corbelRequestStub.getCall(0).args[0];
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + 'customDomain/domain');
         expect(paramsRecived.method).to.be.equal('POST');
         expect(paramsRecived.data).to.be.equal(notificationDomainData);
     });
@@ -150,7 +171,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.domain().get();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_DOMAIN_URL);
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/domain');
         expect(paramsRecived.method).to.be.equal('GET');
     });
 
@@ -161,7 +182,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.domain().update(notificationDomainData);
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_DOMAIN_URL);
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/domain');
         expect(paramsRecived.method).to.be.equal('PUT');
         expect(paramsRecived.data).to.be.equal(notificationDomainData);
     });
@@ -172,7 +193,7 @@ describe('In Notifications module we can', function() {
         corbelDriver.notifications.domain().delete();
 
         var paramsRecived = corbelRequestStub.getCall(0).args[0];
-        expect(paramsRecived.url).to.be.equal(NOTIFICATION_DOMAIN_URL);
+        expect(paramsRecived.url).to.be.equal(MODULE_URL + CONFIG.domain + '/domain');
         expect(paramsRecived.method).to.be.equal('DELETE');
     });
 

@@ -72,6 +72,7 @@
   //  @include ../oauth/tokenBuilder.js
   //  @include ../oauth/userBuilder.js
   //  @include ../notifications/notifications.js
+  //  @include ../notifications/base-notifications.js
   //  @include ../notifications/notificationsBuilder.js
   //  @include ../notifications/notificationsTemplateBuilder.js
   //  @include ../notifications/notificationsDomainBuilder.js

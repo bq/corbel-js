@@ -4,7 +4,7 @@
 
 (function() {
 
-    var NotificationsDomainBuilder = corbel.Notifications.NotificationsDomainBuilder = corbel.Services.inherit({
+    var NotificationsDomainBuilder = corbel.Notifications.NotificationsDomainBuilder = corbel.Notifications.BaseNotifications.inherit({
 
         /**
          * Creates a new NotificationsDomainBuilder
@@ -27,7 +27,7 @@
         create: function(domain) {
             console.log('notificationsInterface.domain.create', domain);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.POST,
                 data: domain
             }).
@@ -44,7 +44,7 @@
         get: function() {
             console.log('notificationsInterface.domain.get');
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.GET
             });
         },
@@ -59,7 +59,7 @@
         update: function(data) {
             console.log('notificationsInterface.domain.update', data);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.PUT,
                 data: data
             });
@@ -73,19 +73,9 @@
         delete: function() {
             console.log('notificationsInterface.domain.delete');
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.DELETE
             });
-        },
-
-        _buildUri: function(path) {
-            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-            return urlBase + path;       
-        },
-
-        _buildPort: function(config) {
-          return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
         }
 
     }, {
