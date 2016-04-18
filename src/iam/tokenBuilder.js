@@ -89,7 +89,7 @@
                     RequestCookie: 'true'
                 };
             }
-            return corbel.request.send(args);
+            return corbel.request.send(args, this.driver);
         },
 
         /**
