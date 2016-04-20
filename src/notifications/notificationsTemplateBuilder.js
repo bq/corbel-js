@@ -3,7 +3,7 @@
 'use strict';
 //@endexclude
 
-    corbel.Notifications.NotificationsTemplateBuilder = corbel.Services.inherit({
+    corbel.Notifications.NotificationsTemplateBuilder = corbel.Notifications.BaseNotifications.inherit({
 
         /**
          * Creates a new NotificationsTemplateBuilder
@@ -30,7 +30,7 @@
         create: function(notification) {
             console.log('notificationsInterface.template.create', notification);
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.POST,
                 data: notification
             }).
@@ -48,7 +48,7 @@
         get: function(params) {
             console.log('notificationsInterface.template.get', params);
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this.buildUri(this.uri, this.id),
                 method: corbel.request.method.GET,
                 query: params ? corbel.utils.serializeParams(params) : null
             });
@@ -65,7 +65,7 @@
             console.log('notificationsInterface.template.update', data);
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this.buildUri(this.uri, this.id),
                 method: corbel.request.method.PUT,
                 data: data
             });
@@ -80,24 +80,9 @@
             console.log('notificationsInterface.template.delete');
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUri(this.uri, this.id),
+                url: this.buildUri(this.uri, this.id),
                 method: corbel.request.method.DELETE
             });
-        },
-
-        _buildUri: function(path, id) {
-            var uri = '';
-            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-            uri = urlBase + path;
-            if (id) {
-                uri += '/' + id;
-            }
-            return uri;
-        },
-
-        _buildPort: function(config) {
-          return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
         }
 
     }, {

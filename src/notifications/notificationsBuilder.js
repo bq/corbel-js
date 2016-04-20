@@ -4,7 +4,7 @@
 
 (function() {
 
-    var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Services.inherit({
+    var NotificationsBuilder = corbel.Notifications.NotificationsBuilder = corbel.Notifications.BaseNotifications.inherit({
 
         /**
          * Creates a new NotificationsBuilder
@@ -14,7 +14,7 @@
             this.driver = driver;
             this.uri = 'notification';
         },
-       
+
         /**
          * Send a notification
          * @method
@@ -29,20 +29,10 @@
             console.log('notificationsInterface.notification.sendNotification', notification);
             this.uri += '/send';
             return this.request({
-                url: this._buildUri(this.uri),
+                url: this.buildUri(this.uri),
                 method: corbel.request.method.POST,
                 data: notification
             });
-        },
-
-        _buildUri: function(path) {
-            var urlBase =  this.driver.config.getCurrentEndpoint(corbel.Notifications.moduleName, this._buildPort(this.driver.config));
-
-            return urlBase + path;
-        },
-
-        _buildPort: function(config) {
-          return config.get('notificationsPort', null) || corbel.Notifications.defaultPort;
         }
 
     }, {
