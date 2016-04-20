@@ -10,6 +10,7 @@
     - `/sessions` to `/session`
     - `/groups` to `/group`
     - `/scopes` to `/scope`
+    - `/devices` to `/device`
 
 #### Features
 
