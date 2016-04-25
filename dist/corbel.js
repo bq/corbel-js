@@ -1759,6 +1759,7 @@
             httpReq.responseType = params.responseType || httpReq.responseType;
 
             httpReq.onload = function(xhr) {
+                xhr = xhr || httpReq;
                 xhr = xhr.target || xhr; // only for mock testing purpose
 
                 processResponse.call(this, {
@@ -1777,7 +1778,7 @@
 
             //response fail ()
             httpReq.onerror = function(xhr) {
-
+                xhr = xhr || httpReq;
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
 
                 var error = xhr.error ? xhr.error : true;
