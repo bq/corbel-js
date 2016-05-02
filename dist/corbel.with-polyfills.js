@@ -3224,7 +3224,7 @@
      */
     Config.clientType = Config.isNode ? 'NODE' : 'WEB';
 
-    if (Config.isNode) {
+    if (Config.isNode || !window.location) {
         Config.wwwRoot = 'localhost';
     } else {
         Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
