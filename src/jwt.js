@@ -36,7 +36,7 @@
 
         _generate: function(claims, secret, alg){
             alg = alg || jwt.ALGORITHM;
-            
+
             // Ensure claims specific order
             var claimsKeys = [
                 'iss',
@@ -84,9 +84,9 @@
 
         decode: function(assertion) {
             var serialize;
-            if (corbel.Config.isNode) {
+            if (corbel.Config.isNode || !root.atob) {
                 // node environment
-                serialize = require('atob');
+                serialize = require('base-64').decode;
             } else {
                 serialize = root.atob;
             }

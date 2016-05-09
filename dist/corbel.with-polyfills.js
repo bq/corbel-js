@@ -1597,10 +1597,10 @@
         utils.dataURItoBlob = function(dataURI) {
 
             var serialize;
-            if (corbel.Config.isNode) {
+            if (corbel.Config.isNode || !root.atob) {
                 console.log('NODE');
                 // node environment
-                serialize = require('atob');
+                serialize = require('base-64').decode;
             } else {
                 console.log('BROWSER');
                 serialize = root.atob;
@@ -2234,9 +2234,9 @@
 
             decode: function(assertion) {
                 var serialize;
-                if (corbel.Config.isNode) {
+                if (corbel.Config.isNode || !root.atob) {
                     // node environment
-                    serialize = require('atob');
+                    serialize = require('base-64').decode;
                 } else {
                     serialize = root.atob;
                 }
@@ -2273,6 +2273,7 @@
         return jwt;
 
     })();
+
 
 
     (function() {
@@ -2755,6 +2756,7 @@
             httpReq.responseType = params.responseType || httpReq.responseType;
 
             httpReq.onload = function(xhr) {
+                xhr = xhr || httpReq;
                 xhr = xhr.target || xhr; // only for mock testing purpose
 
                 processResponse.call(this, {
@@ -2773,7 +2775,7 @@
 
             //response fail ()
             httpReq.onerror = function(xhr) {
-
+                xhr = xhr || httpReq;
                 xhr = xhr.target || xhr; // only for fake sinon response xhr
 
                 var error = xhr.error ? xhr.error : true;
@@ -3224,7 +3226,7 @@
      */
     Config.clientType = Config.isNode ? 'NODE' : 'WEB';
 
-    if (Config.isNode) {
+    if (Config.isNode || !window.location) {
         Config.wwwRoot = 'localhost';
     } else {
         Config.wwwRoot = window.location.protocol + '//' + window.location.host + window.location.pathname;
