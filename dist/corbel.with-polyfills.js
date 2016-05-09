@@ -1597,10 +1597,10 @@
         utils.dataURItoBlob = function(dataURI) {
 
             var serialize;
-            if (corbel.Config.isNode) {
+            if (corbel.Config.isNode || !root.atob) {
                 console.log('NODE');
                 // node environment
-                serialize = require('atob');
+                serialize = require('base-64').decode;
             } else {
                 console.log('BROWSER');
                 serialize = root.atob;
@@ -2234,9 +2234,9 @@
 
             decode: function(assertion) {
                 var serialize;
-                if (corbel.Config.isNode) {
+                if (corbel.Config.isNode || !root.atob) {
                     // node environment
-                    serialize = require('atob');
+                    serialize = require('base-64').decode;
                 } else {
                     serialize = root.atob;
                 }
@@ -2273,6 +2273,7 @@
         return jwt;
 
     })();
+
 
 
     (function() {
