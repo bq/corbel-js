@@ -72,6 +72,34 @@
     },
 
     /**
+     * Updates a current payment method for the logged user.
+     *
+     * @method
+     * @memberOf corbel.Ec.PaymentMethodBuilder
+     *
+     * @param {Object} params                 The params filter
+     * @param {String} params.data            The card data encrypted
+     *                                        (@see https://github.com/adyenpayments/client-side-encryption)
+     * @param {String} params.name            User identifier related with de payment method
+     *
+     * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
+     *                                        {@link SilkRoadError}
+     */
+    update: function (params) {
+      console.log('ecInterface.paymentmethod.update');
+
+      return this.request({
+          url: this._buildUri(this.uri),
+          method: corbel.request.method.PUT,
+          data: params
+        })
+        .then(function (res) {
+          return corbel.Services.getLocationId(res);
+        });
+    },
+
+
+    /**
      * Get details of a single payment method by its id.
      *
      * @method

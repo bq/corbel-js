@@ -347,6 +347,42 @@ describe('In EC module', function () {
         .should.notify(done);
     });
 
+    it('updates current payment method for the logged user', function (done) {
+      corbelRequestStub.returns(Promise.resolve('ok'));
+
+      var params = {
+        data: 'qawpdqjwdioqnfafb201u20rh4f9bq94fq3bf',
+        name: 'mycard'
+      };
+
+      var paramsUpdate = {
+          data: 'dummycarddata2',
+          name: 'mycard2'
+      };
+
+      var response = corbelDriver.ec.paymentMethod().add(_.cloneDeep(params));
+
+      expect(response)
+        .be.eventually.fulfilled
+        .then(function () {
+          var paramsRecived = corbel.request.send.firstCall.args[0];
+          expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod');
+          expect(paramsRecived.method).to.be.equal('POST');
+          expect(JSON.stringify(paramsRecived.data)).to.be.equals(JSON.stringify(params));
+          return null;
+        })
+        .then(function(){
+          return corbelDriver.ec.paymentMethod().update(_.cloneDeep(paramsUpdate));
+        })
+        .then(function(){
+          var paramsRecived = corbel.request.send.secondCall.args[0];
+          expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod');
+          expect(paramsRecived.method).to.be.equal('PUT');
+          expect(JSON.stringify(paramsRecived.data)).to.be.equals(JSON.stringify(paramsUpdate));
+        })
+        .should.notify(done);
+    });
+
     it('gets details of a single payment method by its id', function (done) {
       corbelRequestStub.returns(Promise.resolve('ok'));
       var id = '1234';
