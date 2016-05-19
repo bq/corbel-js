@@ -428,7 +428,6 @@ describe('corbel resources module', function() {
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
 
-  //Sanity check SILKROAD-712
   it('get a resource with mediaType and noContent', function() {
     resources.resource('books:Book', '123').get({
       dataType: 'application/json',
@@ -511,6 +510,17 @@ describe('corbel resources module', function() {
     expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
+  
+  it('add a relation with image/png mediaType', function() {
+    resources.relation('books:Book', '123', '456').add('457', {
+      name: 'test',
+      data: 'test'
+    }, {dataType: 'image/png'});
+
+    var callRequestParam = corbel.request.send.firstCall.args[0];
+    expect(callRequestParam.method).to.be.equal('PUT');
+    expect(callRequestParam.headers.Accept).to.be.equal('image/png');
+  });
 
   it('cannot add a relation with undefined values', function() {
     expect(function(){
@@ -527,6 +537,17 @@ describe('corbel resources module', function() {
     var callRequestParam = corbel.request.send.firstCall.args[0];
     expect(callRequestParam.method).to.be.equal('POST');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
+  });
+  
+  it('add an anonymous relation with image/png mediaType', function() {
+    resources.relation('books:Book', '123', '456').addAnonymous({
+      name: 'test',
+      data: 'test'
+    }, {dataType: 'image/png'});
+
+    var callRequestParam = corbel.request.send.firstCall.args[0];
+    expect(callRequestParam.method).to.be.equal('POST');
+    expect(callRequestParam.headers.Accept).to.be.equal('image/png');
   });
 
   it('generates the correct URL for relations', function() {

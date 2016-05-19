@@ -59,9 +59,10 @@
 
           var args = corbel.utils.extend(options, {
             url: this.buildUri(this.type, this.srcId, this.destType, destId),
-            contentType: 'application/json',
             data: relationData,
-            method: corbel.request.method.PUT
+            method: corbel.request.method.PUT,
+            contentType: options.dataType,
+            Accept: options.dataType
           });
 
           return this.request(args);
@@ -80,9 +81,10 @@
 
             var args = corbel.utils.extend(options, {
               url: this.buildUri(this.type, this.srcId, this.destType),
-              contentType: 'application/json',
               data: relationData,
-              method: corbel.request.method.POST
+              method: corbel.request.method.POST,
+              contentType: options.dataType,
+              Accept: options.dataType
             });
 
             return this.request(args);
@@ -130,7 +132,8 @@
 
           var args = corbel.utils.extend(options, {
             url: this.buildUri(this.type, this.srcId, this.destType, destId),
-            method: corbel.request.method.DELETE
+            method: corbel.request.method.DELETE,
+            Accept: options.dataType
           });
 
           return this.request(args);
