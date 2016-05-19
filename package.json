@@ -47,11 +47,11 @@
     "node": "~4.2.3"
   },
   "dependencies": {
-    "atob": "2.0.0",
+    "base-64": "^0.1.0",
     "btoa": "1.1.2",
     "es6-promise": "3.0.2",
     "node-localstorage": "1.1.2",
-    "request": "^2.69.0"
+    "request": "^2.72.0"
   },
   "devDependencies": {
     "blanket": "1.2.1",

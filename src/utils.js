@@ -198,7 +198,7 @@
     }
 
     function getJsonEncodedStringify(param) {
-      return encodeURIComponent(JSON.stringify(param));    
+      return encodeURIComponent(JSON.stringify(param));
     }
 
     if (params.aggregation) {
@@ -216,7 +216,7 @@
         } else {
           //Clone the object we don't want to modify the original query object
           query = JSON.parse(JSON.stringify(params[key]));
-        }   
+        }
 
         result += getJsonEncodedStringify(query);
 
@@ -381,7 +381,7 @@
    */
   utils.keysToLowerCase = function(obj) {
     if (obj === undefined || obj === null){
-      return obj;  
+      return obj;
     } else {
       var key;
       var keys = Object.keys(obj);
@@ -429,8 +429,8 @@
   utils.copyArray = function(list) {
     var newList = new Array(list.length);
     var i = list.length;
-    while(i--) { 
-      newList[i] = list[i]; 
+    while(i--) {
+      newList[i] = list[i];
     }
     return newList;
   };
@@ -444,10 +444,10 @@
   utils.dataURItoBlob = function(dataURI) {
 
     var serialize;
-    if (corbel.Config.isNode) {
+    if (corbel.Config.isNode || !root.atob) {
       console.log('NODE');
       // node environment
-      serialize = require('atob');
+      serialize = require('base-64').decode;
     } else {
       console.log('BROWSER');
       serialize = root.atob;
