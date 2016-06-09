@@ -40,11 +40,11 @@
      * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
      *                                        {@link SilkRoadError}
      */
-    get: function (params) {
+    get: function (params, userId) {
       console.log('ecInterface.payment.get');
 
       return this.request({
-        url: this._buildUri(this.uri),
+        url: this._buildUri(this.uri, null, null, userId),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
       });
