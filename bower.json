@@ -45,7 +45,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.3",
     "chai": "^3.5.0",
     "sinon": "1.17.3",
     "jquery": "^2.2.0",
