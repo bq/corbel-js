@@ -1,6 +1,19 @@
 
 # Changelog
 
+### v0.6.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.5.0...v0.6.0)
+ 
+#### Features
+
+- EC admin interface
+- Relations now accepts mediaType
+
+#### Fix
+
+- React native does not define window.location
+- Atob to base 64
+- Some browsers not define xhr onLoad onError
+
 
 ### v0.5.0 [view commit logs](https://github.com/bq/corbel-js/compare/v0.4.0...v0.5.0)
 
