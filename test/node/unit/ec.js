@@ -609,7 +609,7 @@ describe('In EC module', function () {
             expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod/user/' + USER_ID);
             expect(paramsRecived.method).to.be.equal('POST');
           })
-          .should.notify(done)
+          .should.notify(done);
       });
 
       it('Can request the payment methods of a user', function(done){
@@ -650,7 +650,7 @@ describe('In EC module', function () {
           .ec
           .paymentPlan(1)
           .updatePaymentMethod(params, USER_ID)
-          .then(function (response) {
+          .then(function () {
             var paramsRecived = corbel.request.send.firstCall.args[0];
             expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/1/paymentmethod/user/' + USER_ID);
             expect(paramsRecived.method).to.be.equal('PUT');
