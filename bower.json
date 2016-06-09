@@ -46,11 +46,11 @@
   "dependencies": {},
   "devDependencies": {
     "mocha": "^2.5.3",
+    "sinon.js": "sinon-js#^1.15.4",
     "chai": "^3.5.0",
-    "sinon": "1.17.3",
-    "jquery": "^2.2.0",
-    "chai-as-promised": "5.2.0",
-    "underscore": "1.8.3",
-    "es6-promise": "3.0.2"
+    "chai-as-promised": "^5.3.0",
+    "underscore": "^1.8.3",
+    "jquery": "^2.2.4",
+    "es6-promise": "^3.2.2"
   }
 }
