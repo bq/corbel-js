@@ -88,12 +88,15 @@
    * @param  {String} extra
    * @return {String}
    */
-  Ec._buildUri = function (uri, id, extra) {
+  Ec._buildUri = function (uri, id, extra, userId) {
     if (id) {
       uri += '/' + id;
     }
     if (extra) {
       uri += extra;
+    }
+    if(userId){
+      uri += '/user/' + userId;
     }
     var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 

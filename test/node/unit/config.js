@@ -168,7 +168,7 @@ describe('In corbel.Config', function() {
                 Object.keys(modules).forEach(function(moduleName){
                     driverConfig[moduleName+'Endpoint'] = modules[moduleName];
                 });
-
+                
                 var driver = corbel.getDriver(driverConfig);
 
                 Object.keys(modules).forEach(function(moduleName){

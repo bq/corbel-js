@@ -23,13 +23,14 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
   - What is corbel-js ?
   - Usage
     - Instance a new driver
-    - Driver options (with client/secret)
-    - Driver options (with accessToken)
+    - Driver options \(with client/secret\)
+    - Driver options \(with accessToken\)
+    - Driver options \(with custom API endpoints\)
 - API
   - IAM
     - Create a token
       - Client token
-      - User token (IAM Basic)
+      - User token \(IAM Basic\)
       - Token refresh token
   - Resources
     - Collection
@@ -106,6 +107,26 @@ var options = {
     'domain': 'app:domain'
     'urlBase': 'http://localhost:8080/{{module}}'
 }
+```
+
+#### Driver options (with custom API endpoints)
+
+```javascript
+var options = {
+    /* ... */
+    'oauthEndpoint': 'http://localhost:8084/v1.0/',
+    'resourcesEndpoint': 'http://localhost:8080/v1.0/',
+    'iamEndpoint': 'http://localhost:8082/v1.0/',
+    'evciEndpoint': 'http://localhost:8086/v1.0/',
+    'ecEndpoint': 'http://localhost:8088/v1.0/',
+    'assetsEndpoint': 'http://localhost:8092/v1.0/',
+    'notificationsEndpoint': 'http://localhost:8094/v1.0/',
+    'bqponEndpoint': 'http://localhost:8090/v1.0/',
+    'webfsEndpoint': 'http://localhost:8096/v1.0/',
+    'schedulerEndpoint': 'http://localhost:8098/v1.0/',
+    'borrowEndpoint': 'http://localhost:8100/v1.0/',
+    'composrEndpoint': 'http://localhost:3000/'
+};
 ```
 
 ## API

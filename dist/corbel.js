@@ -5829,12 +5829,15 @@
          * @param  {String} extra
          * @return {String}
          */
-        Ec._buildUri = function(uri, id, extra) {
+        Ec._buildUri = function(uri, id, extra, userId) {
             if (id) {
                 uri += '/' + id;
             }
             if (extra) {
                 uri += extra;
+            }
+            if (userId) {
+                uri += '/user/' + userId;
             }
             var urlBase = this.driver.config.getCurrentEndpoint(Ec.moduleName, corbel.Ec._buildPort(this.driver.config));
 
@@ -6040,11 +6043,11 @@
              * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
              *                                        {@link SilkRoadError}
              */
-            get: function(params) {
+            get: function(params, userId) {
                 console.log('ecInterface.payment.get');
 
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this._buildUri(this.uri, null, null, userId),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
                 });
@@ -6119,11 +6122,11 @@
              * @return {Promise}                        Q promise that resolves to a Payment {Object} or rejects with a
              *                                          {@link SilkRoadError}
              */
-            get: function() {
+            get: function(userId) {
                 console.log('ecInterface.paymentmethod.get');
 
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this._buildUri(this.uri, null, null, userId),
                     method: corbel.request.method.GET
                 });
             },
@@ -6142,11 +6145,11 @@
              * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
              *                                        {@link SilkRoadError}
              */
-            add: function(params) {
+            add: function(params, userId) {
                 console.log('ecInterface.paymentmethod.add');
 
                 return this.request({
-                        url: this._buildUri(this.uri),
+                        url: this._buildUri(this.uri, null, null, userId),
                         method: corbel.request.method.POST,
                         data: params
                     })
@@ -6215,12 +6218,12 @@
              * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
              *                                   {@link SilkRoadError}
              */
-            delete: function(id) {
+            delete: function(id, userId) {
                 console.log('ecInterface.paymentmethod.delete');
 
                 corbel.validate.value('id', id);
                 return this.request({
-                    url: this._buildUri(this.uri, id),
+                    url: this._buildUri(this.uri, id, null, userId),
                     method: corbel.request.method.DELETE
                 });
             },
@@ -6271,11 +6274,11 @@
              * @method
              * @memberOf corbel.Ec.PaymentPlanBuilder
              */
-            get: function() {
+            get: function(userId) {
                 console.log('ecInterface.paymentplan.get');
 
                 return this.request({
-                    url: this._buildUri(this.uri, this.id),
+                    url: this._buildUri(this.uri, this.id, null, userId),
                     method: corbel.request.method.GET,
                 });
             },
@@ -6329,13 +6332,13 @@
              * @param {Object} params                      The update params, they include payment Method id
              *
              */
-            updatePaymentMethod: function(params) {
+            updatePaymentMethod: function(params, userId) {
                 console.log('ecInterface.paymentplan.updatePaymentMethod');
 
                 corbel.validate.value('id', this.id);
 
                 return this.request({
-                    url: this._buildUri(this.uri, this.id, '/paymentmethod'),
+                    url: this._buildUri(this.uri, this.id, '/paymentmethod', userId),
                     method: corbel.request.method.PUT,
                     data: params
                 });
@@ -6620,11 +6623,11 @@
              *
              * @return {Promise}        Q promise that resolves to a Purchase {Object} or rejects with a {@link SilkRoadError}
              */
-            getAll: function(params) {
+            getAll: function(params, userId) {
                 console.log('ecInterface.purchase.getAll');
 
                 return this.request({
-                    url: this._buildUri(this.uri),
+                    url: this._buildUri(this.uri, null, null, userId),
                     method: corbel.request.method.GET,
                     query: params ? corbel.utils.serializeParams(params) : null
                 });

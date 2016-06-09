@@ -59,11 +59,11 @@
      *
      * @return {Promise}        Q promise that resolves to a Purchase {Object} or rejects with a {@link SilkRoadError}
      */
-    getAll: function (params) {
+    getAll: function (params, userId) {
       console.log('ecInterface.purchase.getAll');
 
       return this.request({
-        url: this._buildUri(this.uri),
+        url: this._buildUri(this.uri, null, null, userId),
         method: corbel.request.method.GET,
         query: params ? corbel.utils.serializeParams(params) : null
       });

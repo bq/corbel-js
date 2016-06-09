@@ -35,11 +35,11 @@
      * @method
      * @memberOf corbel.Ec.PaymentPlanBuilder
      */
-    get: function () {
+    get: function (userId) {
       console.log('ecInterface.paymentplan.get');
 
       return this.request({
-        url: this._buildUri(this.uri, this.id),
+        url: this._buildUri(this.uri, this.id, null, userId),
         method: corbel.request.method.GET,
       });
     },
@@ -93,13 +93,13 @@
      * @param {Object} params                      The update params, they include payment Method id
      *
      */
-     updatePaymentMethod: function(params){
+     updatePaymentMethod: function(params, userId){
       console.log('ecInterface.paymentplan.updatePaymentMethod');
 
       corbel.validate.value('id', this.id);
 
       return this.request({
-        url: this._buildUri(this.uri, this.id, '/paymentmethod'),
+        url: this._buildUri(this.uri, this.id, '/paymentmethod', userId),
         method: corbel.request.method.PUT,
         data: params
      });

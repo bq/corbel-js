@@ -590,4 +590,119 @@ describe('In EC module', function () {
       expect(callRequestParam.method).to.be.equal('GET');
     });
   });
+
+  describe('For EC admins', function(){
+    var USER_ID = 'petulancio';
+
+    beforeEach(function(){
+      corbelRequestStub.returns(Promise.resolve('OK'));
+    });
+
+    describe('Payment methods', function(){
+      it('Can create a payment method for another user', function(done){
+        corbelDriver
+          .ec
+          .paymentMethod()
+          .add({}, USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('POST');
+          })
+          .should.notify(done)
+      });
+
+      it('Can request the payment methods of a user', function(done){
+        corbelDriver
+          .ec
+          .paymentMethod()
+          .get(USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('GET');
+          })
+          .should.notify(done);
+      });
+
+      it('Can delete the payment method of a user', function(done){
+        corbelDriver
+          .ec
+          .paymentMethod()
+          .delete(1, USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentmethod/1/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('DELETE');
+          })
+          .should.notify(done);
+      });
+    });
+    
+    describe('Payment Plans', function(){
+      it('Can update a payment plan Method for an user', function(done){
+        
+        var params = {
+          'paymentMethodId': '1234'
+        };
+
+        corbelDriver
+          .ec
+          .paymentPlan(1)
+          .updatePaymentMethod(params, USER_ID)
+          .then(function (response) {
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/1/paymentmethod/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('PUT');
+          })
+          .should.be.eventually.fulfilled
+          .and.notify(done);
+      });
+
+      it('Can request the payment plans of a user', function(done){
+        corbelDriver
+          .ec
+          .paymentPlan(1)
+          .get(USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/1/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('GET');
+          })
+          .should.notify(done);
+      });
+    });
+
+    describe('Payment', function(){
+      it('Can request the payments of a user', function(done){
+        corbelDriver
+          .ec
+          .payment()
+          .get({}, USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'payment/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('GET');
+          })
+          .should.notify(done);
+      });
+    });
+
+    describe('Purchase', function(){
+      it('Can request the purchases of a user', function(done){
+        corbelDriver
+          .ec
+          .purchase()
+          .getAll({}, USER_ID)
+          .then(function(){
+            var paramsRecived = corbel.request.send.firstCall.args[0];
+            expect(paramsRecived.url).to.be.equal(EC_URL + 'purchase/user/' + USER_ID);
+            expect(paramsRecived.method).to.be.equal('GET');
+          })
+          .should.notify(done);
+      });
+    });
+
+
+  });
 });

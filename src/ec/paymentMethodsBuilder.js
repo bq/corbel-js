@@ -35,11 +35,11 @@
      * @return {Promise}                        Q promise that resolves to a Payment {Object} or rejects with a
      *                                          {@link SilkRoadError}
      */
-    get: function () {
+    get: function (userId) {
       console.log('ecInterface.paymentmethod.get');
 
       return this.request({
-        url: this._buildUri(this.uri),
+        url: this._buildUri(this.uri, null, null, userId),
         method: corbel.request.method.GET
       });
     },
@@ -58,11 +58,11 @@
      * @return {Promise}                      Q promise that resolves to a Payment {Object} or rejects with a
      *                                        {@link SilkRoadError}
      */
-    add: function (params) {
+    add: function (params, userId) {
       console.log('ecInterface.paymentmethod.add');
 
       return this.request({
-          url: this._buildUri(this.uri),
+          url: this._buildUri(this.uri, null, null, userId),
           method: corbel.request.method.POST,
           data: params
         })
@@ -131,12 +131,12 @@
      * @return {Promise}                 Q promise that resolves to a Payment {Object} or rejects with a
      *                                   {@link SilkRoadError}
      */
-    delete: function (id) {
+    delete: function (id, userId) {
       console.log('ecInterface.paymentmethod.delete');
 
       corbel.validate.value('id', id);
       return this.request({
-        url: this._buildUri(this.uri, id),
+        url: this._buildUri(this.uri, id, null, userId),
         method: corbel.request.method.DELETE
       });
     },
