@@ -4091,17 +4091,18 @@
              * Updates the user
              * @method
              * @memberOf corbel.Iam.UserBuilder
-             * @param  {Object} data    The data to update
+             * @param  {Object} options Request options (e.g accessToken) - Optional
              * @return {Promise}        Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
-            _update: function(data) {
+            _update: function(data, options) {
                 console.log('iamInterface.user.update', data);
                 corbel.validate.value('id', this.id);
-                return this.request({
+                var args = corbel.utils.extend(options || {}, {
                     url: this._buildUriWithDomain(this.uri, this.id),
                     method: corbel.request.method.PUT,
                     data: data
                 });
+                return this.request(args);
             },
 
             /**
