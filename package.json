@@ -2,7 +2,7 @@
   "name": "corbel-js",
   "description": "corbel SDK compatible with browser and nodejs",
   "version": "0.6.0",
-  "main": "dist/corbel.js",
+  "main": "dist/corbel.min.js",
   "license": "Apache-2.0",
   "keywords": [
     "request",
