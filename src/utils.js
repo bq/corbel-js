@@ -273,6 +273,12 @@
       result += 'api:distinct=' + encodeURIComponent((params.distinct instanceof Array ? params.distinct.join(',') : params.distinct));
     }
 
+    if (params.distinctfield) {
+      result += result ? '&' : '';
+      result += 'api:distinctfield=' +
+        encodeURIComponent((params.distinctfield instanceof Array ? params.distinctfield.join(',') : params.distinctfield));
+    }
+
     if (params.sort) {
       result += result ? '&' : '';
       result += 'api:sort=' + getJsonEncodedStringify(params.sort);
