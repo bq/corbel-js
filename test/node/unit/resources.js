@@ -20,6 +20,8 @@ var TEST_ENDPOINT = 'https://resources-qa.bqws.io/v1.0/domain-example/',
 
   URL_MULTIPLE_CONDITION_DECODED = TEST_ENDPOINT + 'resource/resource:entity?api:condition=' + DEFAULT_MULTIPLE_CONDITION_OBJECT_STRING,
 
+  URL_DISTINCT_FIELD = TEST_ENDPOINT + 'resource/resource:entity?api:distinctfield=language',
+
 
   DEFAULT_QUERY_OBJECT = [{
     '$eq': {
@@ -157,6 +159,14 @@ describe('corbel resources module', function() {
     };
     expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_MULTIPLE_CONDITION_DECODED);
   });
+
+  it('generate distinctfield url', function() {
+    var params = {
+      distinctfield: 'language'
+    };
+    expect(resources.collection('resource:entity').getURL(params)).to.be.equal(URL_DISTINCT_FIELD);
+  });
+
 
   it('request the same condition in retry request', function(done) {
     var params = {
@@ -510,7 +520,7 @@ describe('corbel resources module', function() {
     expect(callRequestParam.method).to.be.equal('PUT');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
-  
+
   it('add a relation with image/png mediaType', function() {
     resources.relation('books:Book', '123', '456').add('457', {
       name: 'test',
@@ -538,7 +548,7 @@ describe('corbel resources module', function() {
     expect(callRequestParam.method).to.be.equal('POST');
     expect(callRequestParam.headers.Accept).to.be.equal('application/json');
   });
-  
+
   it('add an anonymous relation with image/png mediaType', function() {
     resources.relation('books:Book', '123', '456').addAnonymous({
       name: 'test',
