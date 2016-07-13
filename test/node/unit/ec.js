@@ -560,6 +560,32 @@ describe('In EC module', function () {
         .and.notify(done);
     });
 
+    it('update price', function (done) {
+      corbelRequestStub.returns(Promise.resolve('OK'));
+      var idPlan = 1;
+      var params = {
+        'price' : {
+          'currency' : {
+            'currencyCode' : 'EUR'
+          },
+          'amount' : 5
+        },
+        'fees' : [
+        ]
+      };
+      var response = corbelDriver.ec.paymentPlan(_.cloneDeep(idPlan)).updatePrice(_.cloneDeep(params));
+      expect(response).be.eventually.fulfilled
+        .then(function (response) {
+          expect(response).to.be.equal('OK');
+
+          var paramsRecived = corbel.request.send.firstCall.args[0];
+          expect(paramsRecived.url).to.be.equal(EC_URL + 'paymentplan/' + idPlan + '/price');
+          expect(paramsRecived.method).to.be.equal('PUT');
+          expect(JSON.stringify(paramsRecived.data)).to.be.equal(JSON.stringify(params));
+        }).should.be.eventually.fulfilled
+        .and.notify(done);
+    });
+
     it('update a PaymentMethod without paymentPlan id', function () {
       corbelRequestStub.returns(Promise.resolve('OK'));
       expect(function () {

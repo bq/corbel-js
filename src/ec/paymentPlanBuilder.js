@@ -84,6 +84,26 @@
       });
      },
 
+    /**
+     * Updates the payment plan price
+     *
+     * @method
+     * @memberOf corbel.Ec.PaymentPlanBuilder
+     *
+     * @param {String} id                Payment method identifier
+     *
+     */
+    updatePrice: function(params){
+      console.log('ecInterface.paymentplan.updatePrice');
+
+      corbel.validate.value('id', this.id);
+      return this.request({
+        url: this._buildUri(this.uri, this.id, '/price'),
+        method: corbel.request.method.PUT,
+        data: params
+      });
+    },
+
      /**
      * Change the payment method of a payment plan
      *
