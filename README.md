@@ -333,6 +333,18 @@ Following params can be passed both as request options object and as chainable m
   ```
   { aggregation: { $count: '*' } }
   ```
+  Available aggregations:
+  ```
+$count -	Count all the elements of the request	{count : n}
+$count -	field: String	Count all the elements of the request that contain the field "field"	{count : n}
+$avg -	field: String	Average the parameter field of the elements of the request	{average: n}
+$sum -	field: String	Sum the parameter field of the elements of the request	{sum: n}
+$max -	field: String	Maximum value that the given field has among all elements	{max: xxx}
+$min -	field: String	Minimum value that the given field has among all elements	{min: xxx}
+$combine -	field: JSON	Calculate new element using document information	{combine: { sum: "expression"}}
+$histogram -	field: String	Count all the ocurrences of the elements of the request	
+{ count : n, id: xxx}
+  ```
 
 * Sort:
 
