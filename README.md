@@ -2,14 +2,14 @@ corbel-js
 =========
 
 [![Stories in Ready](https://badge.waffle.io/bq/corbel-js.png?label=ready&title=Ready)](https://waffle.io/bq/corbel-js)
-[![Build Status](https://travis-ci.org/corbel-platform/corbel-js.svg?branch=master)](https://travis-ci.org/corbel-platform/corbel-js)
+[![Build Status](https://travis-ci.org/bq/corbel-js.svg?branch=master)](https://travis-ci.org/bq/corbel-js)
 [![npm version](https://badge.fury.io/js/corbel-js.svg)](http://badge.fury.io/js/corbel-js)
 [![Bower version](https://badge.fury.io/bo/corbel-js.svg)](http://badge.fury.io/bo/corbel-js)
 [![Coverage Status](https://coveralls.io/repos/bq/corbel-js/badge.svg?branch=master)](https://coveralls.io/r/bq/corbel-js?branch=master)
-[![Dependency status](https://david-dm.org/corbel-platform/corbel-js/status.png)](https://david-dm.org/corbel-platform/corbel-js#info=dependencies&view=table)
-[![Dev Dependency Status](https://david-dm.org/corbel-platform/corbel-js/dev-status.png)](https://david-dm.org/corbel-platform/corbel-js#info=devDependencies&view=table)
-[![Code Climate](https://codeclimate.com/github/corbel-platform/corbel-js/badges/gpa.svg)](https://codeclimate.com/github/corbel-platform/corbel-js)
-[![Test Coverage](https://codeclimate.com/github/corbel-platform/corbel-js/badges/coverage.svg)](https://codeclimate.com/github/corbel-platform/corbel-js/coverage)
+[![Dependency status](https://david-dm.org/bq/corbel-js/status.png)](https://david-dm.org/bq/corbel-js#info=dependencies&view=table)
+[![Dev Dependency Status](https://david-dm.org/bq/corbel-js/dev-status.png)](https://david-dm.org/bq/corbel-js#info=devDependencies&view=table)
+[![Code Climate](https://codeclimate.com/github/bq/corbel-js/badges/gpa.svg)](https://codeclimate.com/github/bq/corbel-js)
+[![Test Coverage](https://codeclimate.com/github/bq/corbel-js/badges/coverage.svg)](https://codeclimate.com/github/bq/corbel-js/coverage)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/295a5a767259422b955c4c8f28158d05)](https://www.codacy.com/app/antai-pt/corbel-js)
 
 A SDK for [corbel][corbel-url] compatible with browsers and node.
@@ -820,4 +820,4 @@ corbelDriver.iam.token().create().then(function() {
 
 
 
-[corbel-url]:https://github.com/corbel-platform/corbel
+[corbel-url]:https://github.com/bq/corbel
