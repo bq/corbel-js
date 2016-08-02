@@ -337,6 +337,17 @@ describe('corbel IAM module', function() {
             expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
         });
 
+        it('Create user sending disable notifications flag', function() {
+            var username = 'username';
+            corbelDriver.domain(domainId).iam.users().create({
+                username: username
+            }, { avoidNotification : true });
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user?avoidnotification=true');
+            expect(callRequestParam.method).to.be.equal('POST');
+            expect(JSON.stringify(callRequestParam.data)).to.be.equal('{"username":"username"}');
+        });
+
         it('Get all users', function() {
             corbelDriver.domain(domainId).iam.users().get();
             var callRequestParam = corbel.request.send.firstCall.args[0];
