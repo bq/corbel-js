@@ -111,11 +111,19 @@
 
   utils.toURLEncoded = function(obj) {
     var str = [];
-    for (var p in obj) {
-      if (obj.hasOwnProperty(p)) {
-        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-      }
+
+    if(Object.prototype.toString.call( obj ) === '[object Array]' ) {
+      obj.forEach(function(element) {
+        str.push(element.name + '=' + encodeURIComponent(element.value));
+      });
+    } else {
+      for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+          str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        }
+      }                
     }
+
     return str.join('&');
   };
 

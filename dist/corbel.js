@@ -268,11 +268,19 @@
 
         utils.toURLEncoded = function(obj) {
             var str = [];
-            for (var p in obj) {
-                if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+
+            if (Object.prototype.toString.call(obj) === '[object Array]') {
+                obj.forEach(function(element) {
+                    str.push(element.name + '=' + encodeURIComponent(element.value));
+                });
+            } else {
+                for (var p in obj) {
+                    if (obj.hasOwnProperty(p)) {
+                        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                    }
                 }
             }
+
             return str.join('&');
         };
 
@@ -1640,13 +1648,17 @@
         };
 
         var encodeUrlToForm = function(url) {
+            var array = [];
             var form = {};
+
             url.split('&').forEach(function(formEntry) {
                 var formPair = formEntry.split('=');
-                //value require double encode in Override Method Filter
-                form[formPair[0]] = formPair[1];
+                form.name = formPair[0];
+                form.value = formPair[1];
+                array.push(form);
             });
-            return form;
+
+            return array;
         };
 
         request._getNodeRequestAjax = function(params) {
