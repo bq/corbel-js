@@ -32,6 +32,8 @@ A SDK for [corbel][corbel-url] compatible with browsers and node.
       - Client token
       - User token \(IAM Basic\)
       - Token refresh token
+    - User creation
+    - Update user
   - Resources
     - Collection
     - Relations
@@ -175,6 +177,32 @@ corbelDriver.iam.token().create({
 corbelDriver.on('token:refresh', yourTokenRefreshHandler);
 ```
 
+
+#### User creation
+
+```
+corbelDriver.iam.users().create({
+    username: username
+});
+```
+
+By default Corbel will send an email to the user, you can avoid it by sending the `avoidNotification` parameter in the body.
+
+```
+corbelDriver.iam.users().create({
+    username: username,
+    avoidNotification: true
+});
+```
+
+
+#### Update user
+
+```
+corbelDriver.iam.user('userId').update({
+    username: username
+});
+```
 
 
 ### Resources
@@ -345,6 +373,19 @@ $combine -	field: JSON	Calculate new element using document information	{combine
 $histogram -	field: String	Count all the ocurrences of the elements of the request	
 { count : n, id: xxx}
   ```
+
+* Distinct: 
+
+  ```
+  var params = {
+    distinctfield: 'language'
+  };
+
+  corbelDriver.resources
+    .collection('collectionName')
+    .get(params)
+  ```
+
 
 * Sort:
 
