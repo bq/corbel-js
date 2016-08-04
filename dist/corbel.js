@@ -3480,12 +3480,10 @@
              * @param  {Object} data The user data.
              * @return {Promise}     A promise which resolves into the ID of the created user or fails with a {@link corbelError}.
              */
-            create: function(data, options) {
-                var queryParams = options && options.avoidNotification ? '?avoidnotification=' + options.avoidNotification : '';
-
+            create: function(data) {
                 console.log('iamInterface.users.create', data);
                 return this.request({
-                    url: this._buildUriWithDomain(this.uri) + queryParams,
+                    url: this._buildUriWithDomain(this.uri),
                     method: corbel.request.method.POST,
                     data: data
                 }).then(function(res) {
