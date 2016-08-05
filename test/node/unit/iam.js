@@ -412,6 +412,13 @@ describe('corbel IAM module', function() {
             expect(callRequestParam.method).to.be.equal('DELETE');
         });
 
+        it('Delete user me with avoid notification', function() {
+            corbelDriver.domain(domainId).iam.user().deleteMe({avoidNotification: true});
+            var callRequestParam = corbel.request.send.firstCall.args[0];
+            expect(callRequestParam.url).to.be.equal(IAM_END_POINT + domainId + '/user/me?avoidnotification=true');
+            expect(callRequestParam.method).to.be.equal('DELETE');
+        });
+
         it('Sign Out user using me', function() {
             corbelDriver.domain(domainId).iam.user('me').signOut();
             var callRequestParam = corbel.request.send.firstCall.args[0];
