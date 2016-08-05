@@ -101,11 +101,15 @@
          * @memberOf corbel.Iam.UserBuilder
          * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
          */
-        _delete: function() {
+        _delete: function(options) {
+            var queryParams = '';
+            if(options && options.avoidNotification){
+                queryParams = '?avoidnotification=true';
+            }
             console.log('iamInterface.user.delete');
             corbel.validate.value('id', this.id);
             return this.request({
-                url: this._buildUriWithDomain(this.uri, this.id),
+                url: this._buildUriWithDomain(this.uri, this.id) + queryParams,
                 method: corbel.request.method.DELETE
             });
         },
