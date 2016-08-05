@@ -3122,9 +3122,9 @@
              * @return {Promise}  Q promise that resolves to undefined (void) or rejects with a {@link corbelError}
              */
             _delete: function(options) {
-                var queryParams = ''
+                var queryParams = '';
                 if (options && options.avoidNotification) {
-                    queryParams = '?avoidnotification=true'
+                    queryParams = '?avoidnotification=true';
                 }
                 console.log('iamInterface.user.delete');
                 corbel.validate.value('id', this.id);
