@@ -255,7 +255,7 @@ describe('corbel-js browser', function() {
       });
     });
 
-    it.skip('send too large GET rewrite to POST and active override method header', function(done) {
+    it('send too large GET rewrite to POST and active override method header', function(done) {
       var responseData = {
         DATA: 'DATA'
       };

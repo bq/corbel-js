@@ -68,4 +68,36 @@ describe('In utils module', function() {
 
       expect(corbel.utils.keysToLowerCase(upperObj)).to.deep.equal(lowerObj);
     });
+
+    it('a hash is properly encoded to url format', function() {
+      var obj = {
+        assertion:'abcd_134',
+        grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer'
+      };
+
+      var expectedResult = 'assertion=abcd_134&grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer';
+
+      expect(corbel.utils.toURLEncoded(obj)).to.be.equal(expectedResult);
+    });
+
+    it('an array is properly encoded to url format', function() {
+      var obj = [
+        {
+          'name':'api:query',
+          'value': 'abc'
+        },
+        {
+          'name':'api:query',
+          'value': 'abc2'
+        },
+        {
+          'name':'api:page',
+          'value': 5
+        }
+      ];
+
+      var expectedResult = 'api:query=abc&api:query=abc2&api:page=5';
+
+      expect(corbel.utils.toURLEncoded(obj)).to.be.equal(expectedResult);
+    });
 });
