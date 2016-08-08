@@ -357,13 +357,13 @@
 
   var encodeUrlToForm = function(url) {
     var array = [];
-    var form = {};
 
     url.split('&').forEach(function(formEntry) {
       var formPair = formEntry.split('=');
-      form.name = formPair[0];
-      form.value = formPair[1];
-      array.push(form);
+      array.push({
+        name: formPair[0],
+        value: formPair[1]
+      });
     });
     
     return array;
