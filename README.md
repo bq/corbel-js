@@ -332,8 +332,8 @@ collection.update({
     lastName: 'Update model last name'
 },{
    condition: [{
-        $eq: {} 
-    } ] 
+        $eq: {}
+    } ]
 }).then(function(){ });
 ```
 
@@ -370,12 +370,14 @@ $sum -	field: String	Sum the parameter field of the elements of the request	{sum
 $max -	field: String	Maximum value that the given field has among all elements	{max: xxx}
 $min -	field: String	Minimum value that the given field has among all elements	{min: xxx}
 $combine -	field: JSON	Calculate new element using document information	{combine: { sum: "expression"}}
-$histogram -	field: String	Count all the ocurrences of the elements of the request	
+$histogram -	field: String	Count all the ocurrences of the elements of the request
 { count : n, id: xxx}
   ```
 
-* Distinct: 
+* Distinct:
+There are two diferent ways to perform a Distinct
 
+    Distinct with an array containing only the field required. O(log n) if used correctly along with indexes.
   ```
   var params = {
     distinctfield: 'language'
@@ -385,6 +387,16 @@ $histogram -	field: String	Count all the ocurrences of the elements of the reque
     .collection('collectionName')
     .get(params)
   ```
+    Distinct with an array containing one document per occurrence. O(n).
+    ```
+    var params = {
+      distinct: 'language'
+    };
+
+    corbelDriver.resources
+      .collection('collectionName')
+      .get(params)
+    ```
 
 
 * Sort:
