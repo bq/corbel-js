@@ -3774,6 +3774,23 @@
                 });
             },
 
+            /**
+             * Expands a scope.
+             *
+             * @method
+             * @memberOf corbel.Iam.ScopeBuilder
+             *
+             * @return {Promise} A promise with the scopes or fails with a {@link corbelError}.
+             */
+            expand: function() {
+                console.log('iamInterface.scope.expand', this.id);
+                corbel.validate.value('id', this.id);
+                return this.request({
+                    url: this._buildUriWithDomain(this.uri + '/' + this.id + '/expand'),
+                    method: corbel.request.method.GET
+                });
+            },
+
             _buildUriWithDomain: corbel.Iam._buildUriWithDomain
 
         });
