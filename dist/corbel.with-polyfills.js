@@ -5546,7 +5546,7 @@
             get: function(destId, options) {
                 options = this.getDefaultOptions(options);
                 var args = corbel.utils.extend(options, {
-                    url: this.buildUri(this.type, this.srcId, this.destType, destId),
+                    url: this.buildUri(this.type, this.srcId, this.destType, destId ? encodeURIComponent(destId) : destId),
                     method: corbel.request.method.GET,
                     Accept: options.dataType
                 });
